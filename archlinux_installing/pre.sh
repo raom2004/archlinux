@@ -1,61 +1,73 @@
+#!/bin/bash
 set -x
 
+# * Pre-installing
+# ** 1.5 Set the keyboard layout (bash script)
+
+# ; view keyboard settings:
+# localectl list-keymaps
+# localectl status
+
+# ; set keyboard 
+# loadkeys es # temporal
 localectl set-keymap --no-convert es
 
-reflector --verbose --latest 5 --sort rate --save /etc/pacman.d/mirrorlist
+# ** 1.6 Verify the boot mode
+
+# ls /sys/firmware/efi/efivars
+
+
+# ** 1.7 Connect to the internet
+
+# iwctl
+# iwctl --help
+# iwctl --passphrase passphrase station device connect SSID
+
+
+# ** 1.8 Update the system clock (bash script)
 
 timedatectl set-ntp true
 
-# /boot
-mkfs.ext2 /dev/sda1
-# /
-mkfs.ext4 /dev/sda2
 
-mount /dev/sda2 /mnt
+# ** 1.9 Partition the disks 
+
+# cfdisk
+
+# ** 1.10 Format the partitions
+
+mkfs.ext2 /dev/sda1 # /boot
+mkfs.ext4 /dev/sda2 # /
+
+
+# ** 1.11 Mount the file systems
+
 mkdir /mnt/boot
 mount /dev/sda1 /mnt/boot
+mount /dev/sda2 /mnt
 
+
+# * 2 Installation 
+
+
+# ** 2.1 Select the mirrors (arch do this automatically)
+
+
+# ** 2.2 Install essential packages
+
+reflector --verbose --latest 2 --sort rate --save /etc/pacman.d/mirrorlist
 pacstrap /mnt base nano
 
+
+# * 3 Configure the system 
+
+
+# ** 3.1 Generate an fstab file by UUID (-U) or labels (-L)
+
 genfstab -L /mnt >> /mnt/etc/fstab
+# ; check results: 
+cat /mnt/etc/fstab
+
+
+# ** 3.2 Change root (Chroot) into new system
 
 arch-chroot /mnt
-
-ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime
-
-hwclock --systohc
-
-# nano /etc/locale.gen
-sed -i 's/#en_US.UTF-8/en_US.UTF-8/g' /etc/locale.gen
-locale-gen
-
-LANG=en_US.UTF-8 > /etc/locale.conf
-KEYMAP=es > /etc/vconsole.conf
-
-echo "angel" > /etc/hostname
-
-echo "127.0.0.1	localhost
-::1		localhost
-127.0.1.1	myhostname.localdomain	myhostname" >> /etc/hosts
-
-# habilitate internet
-pacman -S dhcpdc
-systemctl enable dhcpcd
-
-# install sudo
-pacman -S sudo
-pacman -S vim
-visudo
-
-# set root password
-passwd
-
-# create user
-useradd -m angel
-passwd angel
-usedmod -aG wheel,video,audio,optical,storage angel
-
-# install grub
-pacman -S grub
-grub-install /dev/sda
-grub-mkconfig -o /boot/grub/grub.cfg
