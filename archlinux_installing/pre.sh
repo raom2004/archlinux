@@ -1,201 +1,61 @@
-#!/bin/bash
 set -x
 
-loadkeys es
+localectl set-keymap --no-convert es
 
-# iwctl --passphrase passphrase station device connect SSID
+reflector --verbose --latest 5 --sort rate --save /etc/pacman.d/mirrorlist
 
 timedatectl set-ntp true
 
+# /boot
 mkfs.ext2 /dev/sda1
+# /
 mkfs.ext4 /dev/sda2
 
 mount /dev/sda2 /mnt
+mkdir /mnt/boot
+mount /dev/sda1 /mnt/boot
 
-# curl https://archlinux.org/mirrorlist/?country=AT&protocol=http&protocol=https&ip_version=4
+pacstrap /mnt base nano
 
-# pacstrap /mnt base linux linux-firmware
-pacstrap /mnt base \
-linux \
-linux-firmware \
-aegisub \
-alsa-utils \
-amd-ucode \
-arch-install-scripts \
-aspell-de \
-aspell-en \
-aspell-es \
-audacious \
-audacious-plugins \
-audacity \
-b43-fwcutter \
-base \
-bind-tools \
-brltty \
-broadcom-wl \
-btrfs-progs \
-ccid \
-cdrkit \
-clonezilla \
-cmake \
-crda \
-darkhttpd \
-ddrescue \
-deluge \
-deluge-gtk \
-dhclient \
-dhcpcd \
-diffutils \
-dmraid \
-dnsmasq \
-dosfstools \
-edk2-shell \
-efibootmgr \
-emacs \
-espeakup \
-ethtool \
-exfatprogs \
-expac  \
-f2fs-tools \
-fbreader \
-firefox \
-flameshot \
-fsarchiver \
-geany \
-gimp \
-git \
-gitg \
-gnu-netcat \
-gnupg \
-gparted \
-gpicview \
-gpm \
-gptfdisk \
-grml-zsh-config \
-gsettings-desktop-schemas \
-haveged \
-hdparm \
-hunspell \
-hunspell-de \
-hunspell-en_GB \
-hunspell-en_US \
-hunspell-es_es \
-imagemagick \
-inkscape \
-intel-ucode \
-ipw2100-fw \
-ipw2200-fw \
-irssi \
-iwd \
-jdk-openjdk \
-jfsutils \
-kitty-terminfo \
-klavaro \
-languagetool \
-lftp \
-libreoffice-fresh-en-gb \
-linux \
-linux-atm \
-linux-firmware \
-livecd-sounds \
-lsscsi \
-lvm2 \
-lynx \
-man-db \
-man-pages \
-mc \
-mdadm \
-memtest86+ \
-meson \
-mkinitcpio \
-mkinitcpio-archiso \
-mkinitcpio-nfs-utils \
-mono \
-mpg123 \
-mtools \
-nano \
-nbd \
-ndisc6 \
-nfs-utils \
-nilfs-utils \
-nmap \
-ntfs-3g \
-nvidia-lts \
-nvidia-settings \
-nvidia-utils \
-nvme-cli \
-obs-studio \
-okular \
-opencl-nvidia \
-openconnect \
-opensc \
-openssh \
-openvpn \
-oxygen-icons \
-oxygen-icons-svg \
-p7zip \
-pandoc \
-partclone \
-parted \
-partimage \
-pcsc-tools \
-perl-xml-parser \
-perl-xml-simple \
-ppp \
-pptpclient \
-python \
-python-gnupg \
-python-gpgme \
-python-pip \
-python-pipenv \
-python-pyqt5 \
-python-pysocks \
-python-requests \
-python-virtualenv \
-python-virtualenvwrapper \
-qemu \
-reflector \
-reiserfsprogs \
-ripgrep \
-rp-pppoe \
-rsync \
-rxvt-unicode-terminfo \
-sassc \
-sdparm \
-sg3_utils \
-shellcheck \
-smartmontools \
-squashfs-tools \
-sudo \
-syslinux \
-systemd-resolvconf \
-tcpdump \
-tcsh \
-terminus-font \
-termite-terminfo \
-testdisk \
-texlive-core \
-texlive-publishers \
-texlive-science \
-the_silver_searcher \
-tor \
-tree \
-ttf-nerd-fonts-symbol-mono \
-udftools \
-usb_modeswitch \
-usbutils \
-vim \
-vpnc \
-w3m \
-wine \
-wireless-regdb \
-wireless_tools \
-wpa_supplicant \
-wvdial \
-xfsprogs \
-xl2tpd \
-xorg-server-devel \
-youtube-dl \
-zsh
+genfstab -L /mnt >> /mnt/etc/fstab
 
+arch-chroot /mnt
 
+ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime
+
+hwclock --systohc
+
+# nano /etc/locale.gen
+sed -i 's/#en_US.UTF-8/en_US.UTF-8/g' /etc/locale.gen
+locale-gen
+
+LANG=en_US.UTF-8 > /etc/locale.conf
+KEYMAP=es > /etc/vconsole.conf
+
+echo "angel" > /etc/hostname
+
+echo "127.0.0.1	localhost
+::1		localhost
+127.0.1.1	myhostname.localdomain	myhostname" >> /etc/hosts
+
+# habilitate internet
+pacman -S dhcpdc
+systemctl enable dhcpcd
+
+# install sudo
+pacman -S sudo
+pacman -S vim
+visudo
+
+# set root password
+passwd
+
+# create user
+useradd -m angel
+passwd angel
+usedmod -aG wheel,video,audio,optical,storage angel
+
+# install grub
+pacman -S grub
+grub-install /dev/sda
+grub-mkconfig -o /boot/grub/grub.cfg
