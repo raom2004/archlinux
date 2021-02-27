@@ -38,20 +38,23 @@ mkinitcpio -p
 # pacman -S dhcpdc
 systemctl enable dhcpcd
 
-# install sudo
-# pacman -S sudo
-# pacman -S vim
-visudo
-
 # set root password
 passwd
 
 # create user
 useradd -m angel
 passwd angel
-usedmod -aG wheel,video,audio,optical,storage angel
+usermod -aG wheel,audio,optical,storage,autologin,vnoxusers,power,network,sudo angel
+
+# install sudo
+# pacman -S sudo
+# pacman -S vim
+visudo
 
 # install grub
 # pacman -S grub
 grub-install /dev/sda
 grub-mkconfig -o /boot/grub/grub.cfg
+
+
+exit
