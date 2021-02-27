@@ -1,7 +1,7 @@
 #!/bin/bash
 set -x
 
-localectl set-keymap --no-convert es
+# localectl set-keymap --no-convert es
 
 # timedatectl set-ntp true
 
