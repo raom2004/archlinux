@@ -5,17 +5,15 @@ localectl set-keymap --no-convert es
 
 timedatectl set-ntp true
 
-parted --script /dev/sda \
-mklabel msdos \
-mkpart primary ext4 1MiB 100% \
-set 1 boot on
+parted /dev/sda mklabel msdos
+parted /dev/sda mkpart primary ext4 0% 100%
 
 mount /dev/sda1 /mnt
 
-reflector --verbose --latest 5 --sort rate --save /etc/pacman.d/mirrorlist
-pacstrap /mnt base nano git glibc 
+# reflector --verbose --latest 5 --sort rate --save /etc/pacman.d/mirrorlist
+# pacstrap /mnt base nano git glibc 
 
-genfstab -L /mnt >> /mnt/etc/fstab
-cat /mnt/etc/fstab
+# genfstab -L /mnt >> /mnt/etc/fstab
+# cat /mnt/etc/fstab
 
-arch-chroot /mnt
+# arch-chroot /mnt
