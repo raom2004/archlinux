@@ -10,10 +10,10 @@ parted /dev/sda mkpart primary ext4 0% 100%
 
 mount /dev/sda1 /mnt
 
-# reflector --verbose --latest 5 --sort rate --save /etc/pacman.d/mirrorlist
-# pacstrap /mnt base nano git glibc 
+reflector --verbose --latest 2 --sort rate --save /etc/pacman.d/mirrorlist
+pacstrap /mnt base nano git glibc 
 
-# genfstab -L /mnt >> /mnt/etc/fstab
-# cat /mnt/etc/fstab
+genfstab -L /mnt >> /mnt/etc/fstab
+cat /mnt/etc/fstab
 
-# arch-chroot /mnt
+arch-chroot /mnt
