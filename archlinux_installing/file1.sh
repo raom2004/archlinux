@@ -6,7 +6,7 @@ timedatectl set-ntp true
 
 parted --script /dev/sda \
 mklabel msdos \
-mkpart primary ext4 1MiB 20GiB \
+mkpart primary ext4 1MiB 100% \
 set 1 boot on
 
 mount /dev/sda1 /mnt
