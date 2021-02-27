@@ -4,14 +4,12 @@ localectl set-keymap --no-convert es
 
 timedatectl set-ntp true
 
-# /boot
-mkfs.ext2 /dev/sda1
-# /
-mkfs.ext4 /dev/sda2
+parted --script /dev/sda \
+mklabel msdos \
+mkpart primary ext4 1MiB 20GiB \
+set 1 boot on
 
-mount /dev/sda2 /mnt
-mkdir /mnt/boot
-mount /dev/sda1 /mnt/boot
+mount /dev/sda1 /mnt
 
 reflector --verbose --latest 5 --sort rate --save /etc/pacman.d/mirrorlist
 pacstrap /mnt base nano git glibc 
