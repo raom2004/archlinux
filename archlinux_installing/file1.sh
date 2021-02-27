@@ -13,7 +13,9 @@ parted -s /dev/sda \
 
 mkfs.ext2 /dev/sda1
 mkfs.ext4 /dev/sda2
-mount /dev/sda1 /mnt
+mount /dev/sda2 /mnt
+mkdir /mnt/boot
+mount /dev/sda1 /mnt/boot
 
 reflector --country Germany --country Austria \
 	  --verbose --latest 2 --sort rate \
@@ -24,9 +26,9 @@ pacstrap /mnt base linux linux-firmware \
 
 genfstab -L /mnt >> /mnt/etc/fstab
 
-cp arch/file2.sh /mnt/home/
+cp arch/file2.sh /mnt/home/file2.sh
 
-arch-chroot /mnt # sh /home/file2.sh
+# arch-chroot /mnt # sh /home/file2.sh
 # arch-chroot /mnt sh /home/file2.sh
 
 # rm /mnt/home/file2.sh
