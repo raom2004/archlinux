@@ -26,7 +26,7 @@ genfstab -L /mnt >> /mnt/etc/fstab
 
 cp arch/file2.sh /mnt/home/
 
-arch-chroot /mnt sh /home/fise2.sh
+arch-chroot /mnt sh /home/file2.sh
 
 rm /mnt/home/file2.sh
 reboot now

@@ -17,7 +17,7 @@ echo "127.0.0.1	localhost
 
 # mkinitcpio -p
 
-pacman -S xorg cinnamon zsh --noconfirm
+pacman -S xorg-server cinnamon zsh --noconfirm
 
 grub-install /dev/sda
 grub-mkconfig -o /boot/grub/grub.cfg
