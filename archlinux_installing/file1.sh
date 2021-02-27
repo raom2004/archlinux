@@ -5,15 +5,28 @@ localectl set-keymap --no-convert es
 
 timedatectl set-ntp true
 
-parted -s /dev/sda mklabel msdos
-parted -s /dev/sda mkpart primary ext4 0% 100%
-mkfs.ext4 /dev/sda1
+parted -s /dev/sda \
+       mklabel msdos \
+       mkpart primary ext2 0% 2% \
+       set 1 boot on \
+       mkpart primary ext4 2% 100%
+
+mkfs.ext2 /dev/sda1
+mkfs.ext4 /dev/sda2
 mount /dev/sda1 /mnt
 
-reflector --verbose --latest 2 --sort rate --save /etc/pacman.d/mirrorlist
-pacstrap /mnt base linux linux-firmware nano sudo vim git glibc dhcpcd grub
+reflector --country Germany --country Austria \
+	  --verbose --latest 2 --sort rate \
+	  --save /etc/pacman.d/mirrorlist
+
+pacstrap /mnt base linux linux-firmware \
+	 nano sudo vim git glibc dhcpcd reflector grub 
 
 genfstab -L /mnt >> /mnt/etc/fstab
-cat /mnt/etc/fstab
 
-arch-chroot /mnt
+cp arch/file2.sh /mnt/home/
+
+arch-chroot /mnt sh /home/fise2.sh
+
+rm /mnt/home/file2.sh
+reboot now

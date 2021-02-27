@@ -6,55 +6,36 @@ hwclock --systohc
 sed -i 's/#en_US.UTF-8/en_US.UTF-8/g' /etc/locale.gen
 locale-gen
 
-LANG=en_US.UTF-8 > /etc/locale.conf
-KEYMAP=es > /etc/vconsole.conf
-
+echo 'LANG=en_US.UTF-8' > /etc/locale.conf
+echo 'KEYMAP=es' > /etc/vconsole.conf
 echo "angel" > /etc/hostname
-
 echo "127.0.0.1	localhost
 ::1		localhost
 127.0.1.1	myhostname.localdomain	myhostname" >> /etc/hosts
 
 # firmware modules pending: aic94xx wd719x xhci_pci
 
-git clone https://aur.archlinux.org/aic94xx-firmware.git
-cd aic94xx-firmware
-makepkg -sri
-cd $PWD
+# mkinitcpio -p
 
-git clone https://aur.archlinux.org/wd719x-firmware.git
-cd wd719x-firmware
-makepkg -sri
-cd $PWD
+pacman -S xorg cinnamon zsh --noconfirm
 
-git clone https://aur.archlinux.org/upd72020x-fw.git
-cd upd72020x-fw
-makepkg -sri
-cd $PWD
-
-mkinitcpio -p
-
-# habilitate internet
-# pacman -S dhcpdc
-systemctl enable dhcpcd
-
-# set root password
-passwd
-
-# create user
-useradd -m angel
-passwd angel
-usermod -aG wheel,audio,optical,storage,autologin,vnoxusers,power,network,sudo angel
-
-# install sudo
-# pacman -S sudo
-# pacman -S vim
-visudo
-
-# install grub
-# pacman -S grub
 grub-install /dev/sda
 grub-mkconfig -o /boot/grub/grub.cfg
 
+# visudo
+sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g' /etc/sudoers
+
+systemctl enable dhcpcd
+
+printf "set root password\n"
+passwd
+
+read -p "Enter username: " name
+useradd -m $name
+printf "Set $name password\n"
+passwd $name
+usermod -aG wheel,audio,optical,storage,power,network $name
+
+# usermod -aG wheel,audio,optical,storage,autologin,vboxusers,power,network angel
 
 exit
