@@ -1,3 +1,4 @@
+#!/bin/bash
 set -x
 
 localectl set-keymap --no-convert es
