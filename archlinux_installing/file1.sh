@@ -3,7 +3,7 @@ set -x
 
 localectl set-keymap --no-convert es
 
-timedatectl set-ntp true
+# timedatectl set-ntp true
 
 parted /dev/sda mklabel msdos
 parted /dev/sda mkpart primary ext4 0% 100%
