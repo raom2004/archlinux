@@ -15,13 +15,32 @@ echo "127.0.0.1	localhost
 ::1		localhost
 127.0.1.1	myhostname.localdomain	myhostname" >> /etc/hosts
 
+# firmware modules pending: aic94xx wd719x xhci_pci
+
+git clone https://aur.archlinux.org/aic94xx-firmware.git
+cd aic94xx-firmware
+makepkg -sri
+cd $PWD
+
+git clone https://aur.archlinux.org/wd719x-firmware.git
+cd wd719x-firmware
+makepkg -sri
+cd $PWD
+
+git clone https://aur.archlinux.org/upd72020x-fw.git
+cd upd72020x-fw
+makepkg -sri
+cd $PWD
+
+mkinitcpio -p
+
 # habilitate internet
-pacman -S dhcpdc
+# pacman -S dhcpdc
 systemctl enable dhcpcd
 
 # install sudo
-pacman -S sudo
-pacman -S vim
+# pacman -S sudo
+# pacman -S vim
 visudo
 
 # set root password
@@ -33,6 +52,6 @@ passwd angel
 usedmod -aG wheel,video,audio,optical,storage angel
 
 # install grub
-pacman -S grub
+# pacman -S grub
 grub-install /dev/sda
 grub-mkconfig -o /boot/grub/grub.cfg
