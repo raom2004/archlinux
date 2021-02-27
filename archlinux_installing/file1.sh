@@ -5,8 +5,9 @@ localectl set-keymap --no-convert es
 
 # timedatectl set-ntp true
 
-parted /dev/sda mklabel msdos
-parted /dev/sda1 mkpart primary ext4 0% 100%
+parted -s /dev/sda mklabel msdos
+parted -s /dev/sda mkpart primary ext4 0% 100%
+parted -s /dev/sda set 1 boot on
 
 mount /dev/sda1 /mnt
 
