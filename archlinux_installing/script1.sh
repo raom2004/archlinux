@@ -30,7 +30,10 @@ pacstrap /mnt base linux linux-firmware \
 	 nano sudo vim git glibc zsh \
 	 dhcpcd reflector \
 	 grub \
-	 xorg-server lightdm cinnamon gnome-terminal terminator
+	 xorg-server lightdm lightdm-gtk-greeter \
+	 cinnamon \
+	 gnome-terminal \
+	 
 
 
 genfstab -L /mnt >> /mnt/etc/fstab
@@ -38,7 +41,7 @@ genfstab -L /mnt >> /mnt/etc/fstab
 cp arch/script2.sh /mnt/home/script2.sh
 
 arch-chroot /mnt 
-# arch-chroot /mnt sh /home/script2.sh
+arch-chroot /mnt sh /home/script2.sh
 
 # rm /mnt/home/script2.sh
 # reboot now

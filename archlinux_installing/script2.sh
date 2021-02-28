@@ -17,12 +17,16 @@ echo "127.0.0.1	localhost
 ::1		localhost
 127.0.1.1	myhostname.localdomain	myhostname" >> /etc/hosts
 
+# set KEYMAP
+locatectl --no-convert set-X11-keymap es pc105
+
 # firmware modules pending: aic94xx wd719x xhci_pci
 
 # mkinitcpio -p
 
 grub-install /dev/sda
 grub-mkconfig -o /boot/grub/grub.cfg
+
 
 # visudo
 sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g' /etc/sudoers
@@ -32,9 +36,9 @@ printf "set root password\n"
 passwd
 echo
 read -p "Enter USERNAME: " name
-useradd -m $name
+useradd -m $name # set shell: -s /bin/zsh 
 echo
-# useradd -m $name -s /bin/zsh
+
 printf "Set $name PASSWORD\n"
 passwd $name
 usermod -aG wheel,audio,optical,storage,power,network $name
@@ -42,7 +46,8 @@ usermod -aG wheel,audio,optical,storage,power,network $name
 # usermod -aG wheel,audio,optical,storage,autologin,vboxusers,power,network $name
 
 systemctl enable dhcpcd
+systemctl enable lightdm
 
-# systemctl enable lightdm
+
 
 # exit
