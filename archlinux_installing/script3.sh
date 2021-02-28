@@ -1,0 +1,64 @@
+#!/bin/bash
+set -x
+
+# function to install aur packages
+
+function aur_install {
+    folder="$(basename $1 .git)"
+    git clone "$1" /tmp/$folder
+    cd /tmp/$folder
+    makepkg -sri
+    cd $OLDPWD
+}
+
+# autologin
+name=$(less /etc/passwd | tail -n1 | awk -F':' ' { printf $1 }')
+bash -c "sed -i 's/#autologin-guest=false/autologin-guest=false/g;
+             	s/#autologin-user=/autologin-user=$name/g;
+    	     	s/#autologin-user-timeout=0/autologin-user-timeout=0/g'\
+		/etc/lightdm/lightdm.conf"
+
+sudo groupadd -r autologin
+
+sudo gpasswd -a "$USER" autologin
+
+# show grub menu only when shift is pressed 
+
+bash -c "echo '
+GRUB_FORCE_HIDDEN_MENU=\"true\"
+# GRUB menu is hiden until you press \"shift\"' > /etc/default/grub"
+
+wget -c \
+     'https://raw.githubusercontent.com/raom2004/arch/master/31_hold_shift' \
+     --directory-prefix /etc/grub.d/
+
+# asign permissions to it  
+
+sudo chmod a+x /etc/grub.d/31_hold_shift
+
+# re-generate grub
+
+sudo grub-mkconfig -o /boot/grub/grub.cfg
+
+# fix wrong time in dual boot gnu/linux - windows (linux shell command) 
+
+timedatectl set-local-rtc 1 --adjust-system-clock
+
+# set custom wallpaper 
+
+wget -c \
+     'https://raw.githubusercontent.com/raom2004/arch/master/bird.jpg' \
+     --directory-prefix /home/$USER/Pictures
+
+gsettings set org.cinnamon.desktop.background picture-uri file:////home/$USER/Pictures/bird.jpg
+
+# cinnamon sound events
+
+aur_install https://aur.archlinux.org/mint-artwork-cinnamon.git
+aur_install https://aur.archlinux.org/mint-artwork-common.git
+
+# firmware modules pending (western digital): aic94xx wd719x xhci_pci
+aur_install https://aur.archlinux.org/aic94xx-firmware.git
+aur_install https://aur.archlinux.org/wd719x-firmware.git
+aur_install https://aur.archlinux.org/upd72020x-fw.git
+
