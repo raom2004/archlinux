@@ -1,7 +1,7 @@
 #!/bin/bash
 set -x
 
-localectl set-keymap --no-convert es
+# localectl set-keymap --no-convert es
 
 timedatectl set-ntp true
 
@@ -29,7 +29,7 @@ pacstrap /mnt base linux linux-firmware \
 	 nano sudo vim git glibc zsh \
 	 dhcpcd reflector \
 	 grub \
-	 xorg-server lightdm cinnamon gnome-terminal terminator
+	 xorg-server sddm cinnamon gnome-terminal terminator
 
 
 genfstab -L /mnt >> /mnt/etc/fstab
@@ -38,5 +38,6 @@ cp arch/file2.sh /mnt/home/script2.sh
 
 arch-chroot /mnt sh /home/script2.sh
 
-rm /mnt/home/script2.sh
-reboot now
+# rm /mnt/home/script2.sh
+# reboot now
+x

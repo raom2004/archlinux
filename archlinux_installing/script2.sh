@@ -40,6 +40,6 @@ usermod -aG wheel,audio,optical,storage,power,network $name
 # usermod -aG wheel,audio,optical,storage,autologin,vboxusers,power,network $name
 
 systemctl enable dhcpcd
-systemctl enable lightdm
+systemctl enable sddm
 
 exit
