@@ -22,7 +22,7 @@ mount /dev/sda1 /mnt/boot
 
 
 reflector --country Germany --country Austria \
-	  --verbose --latest 3 --sort rate \
+	  --verbose --latest 5 --sort rate \
 	  --save /etc/pacman.d/mirrorlist
 
 
