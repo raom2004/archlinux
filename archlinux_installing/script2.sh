@@ -7,10 +7,11 @@ ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime
 hwclock --systohc
 
 # nano /etc/locale.gen
-sed -i 's/#en_US.UTF-8/en_US.UTF-8/g' /etc/locale.gen
-locale-gen
+# sed -i 's/#en_US.UTF-8/en_US.UTF-8/g' /etc/locale.gen
+# locale-gen
 
-echo 'LANG=en_US.UTF-8' > /etc/locale.conf
+# echo 'LANG=en_US.UTF-8' > /etc/locale.conf
+localectl set-locale LANG=en_US.UTF-8
 echo 'KEYMAP=es' > /etc/vconsole.conf
 echo "angel" > /etc/hostname
 echo "127.0.0.1	localhost
@@ -19,6 +20,13 @@ echo "127.0.0.1	localhost
 
 # set KEYMAP
 # locatectl --no-convert set-X11-keymap es pc105
+# setkbdmap -model pc105 -layout es,us
+
+echo 'Section "InputClass"
+Identifier "system-keyboard"
+MatchIsKeyboard "on"
+Option "XkbLayout" "es"
+EndSection' > /etc/X11/xorg.conf.d/00-keyboard.conf
 
 # firmware modules pending: aic94xx wd719x xhci_pci
 
