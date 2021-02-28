@@ -37,7 +37,8 @@ genfstab -L /mnt >> /mnt/etc/fstab
 
 cp arch/script2.sh /mnt/home/script2.sh
 
-arch-chroot /mnt sh /home/script2.sh
+arch-chroot /mnt 
+# arch-chroot /mnt sh /home/script2.sh
 
-rm /mnt/home/script2.sh
-reboot now
+# rm /mnt/home/script2.sh
+# reboot now

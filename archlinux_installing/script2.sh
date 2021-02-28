@@ -30,11 +30,12 @@ sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g' /etc/sudoers
 
 printf "set root password\n"
 passwd
-
-read -p "Enter username: " name
+echo
+read -p "Enter USERNAME: " name
 useradd -m $name
+echo
 # useradd -m $name -s /bin/zsh
-printf "Set $name password\n"
+printf "Set $name PASSWORD\n"
 passwd $name
 usermod -aG wheel,audio,optical,storage,power,network $name
 
@@ -42,6 +43,6 @@ usermod -aG wheel,audio,optical,storage,power,network $name
 
 systemctl enable dhcpcd
 
-systemctl enable lightdm
+# systemctl enable lightdm
 
-exit
+# exit
