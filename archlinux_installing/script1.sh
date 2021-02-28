@@ -20,16 +20,16 @@ mkdir /mnt/boot
 mount /dev/sda1 /mnt/boot
 
 
-reflector --country Germany --country Austria \
-	  --verbose --latest 3 --sort rate \
-	  --save /etc/pacman.d/mirrorlist
+# reflector --country Germany --country Austria \
+# 	  --verbose --latest 3 --sort rate \
+# 	  --save /etc/pacman.d/mirrorlist
 
 
 pacstrap /mnt base linux linux-firmware \
 	 nano sudo vim git glibc zsh \
 	 dhcpcd reflector \
 	 grub \
-	 xorg-server lightdm cinnamon
+	 xorg-server lightdm cinnamon gnome-terminal terminator
 
 
 genfstab -L /mnt >> /mnt/etc/fstab
