@@ -3,7 +3,7 @@ set -x
 
 # localectl set-keymap --no-convert es
 
-systemctl stop reflector
+# systemctl stop reflector
 timedatectl set-ntp true
 
 
@@ -30,15 +30,14 @@ pacstrap /mnt base linux linux-firmware \
 	 nano sudo vim git glibc zsh \
 	 dhcpcd reflector \
 	 grub \
-	 xorg-server sddm cinnamon gnome-terminal terminator
+	 xorg-server lightdm cinnamon gnome-terminal terminator
 
 
 genfstab -L /mnt >> /mnt/etc/fstab
 
-cp arch/file2.sh /mnt/home/script2.sh
+cp arch/script2.sh /mnt/home/script2.sh
 
 arch-chroot /mnt sh /home/script2.sh
 
-# rm /mnt/home/script2.sh
-# reboot now
-x
+rm /mnt/home/script2.sh
+reboot now

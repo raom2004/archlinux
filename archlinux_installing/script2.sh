@@ -1,6 +1,6 @@
-reflector --country Germany --country Austria \
-	  --verbose --latest 2 --sort rate \
-	  --save /etc/pacman.d/mirrorlist
+# reflector --country Germany --country Austria \
+# 	  --verbose --latest 2 --sort rate \
+# 	  --save /etc/pacman.d/mirrorlist
 
 ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime
 
@@ -32,7 +32,8 @@ printf "set root password\n"
 passwd
 
 read -p "Enter username: " name
-useradd -m $name -s /bin/zsh
+useradd -m $name
+# useradd -m $name -s /bin/zsh
 printf "Set $name password\n"
 passwd $name
 usermod -aG wheel,audio,optical,storage,power,network $name
@@ -41,6 +42,6 @@ usermod -aG wheel,audio,optical,storage,power,network $name
 
 systemctl enable dhcpcd
 
-systemctl enable sddm
+systemctl enable lightdm
 
 exit
