@@ -18,7 +18,7 @@ echo "127.0.0.1	localhost
 127.0.1.1	myhostname.localdomain	myhostname" >> /etc/hosts
 
 # set KEYMAP
-locatectl --no-convert set-X11-keymap es pc105
+# locatectl --no-convert set-X11-keymap es pc105
 
 # firmware modules pending: aic94xx wd719x xhci_pci
 
@@ -48,6 +48,4 @@ usermod -aG wheel,audio,optical,storage,power,network $name
 systemctl enable dhcpcd
 systemctl enable lightdm
 
-
-
-# exit
+exit
