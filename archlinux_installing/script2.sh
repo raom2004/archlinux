@@ -36,7 +36,7 @@ printf "set root password\n"
 passwd
 echo
 read -p "Enter USERNAME: " name
-useradd -m $name # set shell: -s /bin/zsh 
+useradd -m $name -s /bin/zsh 
 echo
 
 printf "Set $name PASSWORD\n"

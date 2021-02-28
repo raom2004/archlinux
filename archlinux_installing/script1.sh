@@ -26,10 +26,11 @@ reflector --country Germany --country Austria \
 	  --save /etc/pacman.d/mirrorlist
 
 
-pacstrap /mnt base linux linux-firmware \
+pacstrap /mnt base linux \
+	 virtualbox-guest-utils \
 	 nano sudo vim git glibc zsh \
 	 dhcpcd reflector \
-	 grub \
+	 grub os-prober \
 	 xorg-server lightdm lightdm-gtk-greeter \
 	 cinnamon \
 	 gnome-terminal \
