@@ -3,7 +3,7 @@ set -x
 
 # localectl set-keymap --no-convert es
 
-timedatectl stop reflector
+systemctl stop reflector
 timedatectl set-ntp true
 
 
