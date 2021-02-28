@@ -1,3 +1,7 @@
+reflector --country Germany --country Austria \
+	  --verbose --latest 2 --sort rate \
+	  --save /etc/pacman.d/mirrorlist
+
 ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime
 
 hwclock --systohc
@@ -17,25 +21,24 @@ echo "127.0.0.1	localhost
 
 # mkinitcpio -p
 
-pacman -S xorg-server cinnamon zsh --noconfirm
-
 grub-install /dev/sda
 grub-mkconfig -o /boot/grub/grub.cfg
 
 # visudo
 sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g' /etc/sudoers
 
-systemctl enable dhcpcd
 
 printf "set root password\n"
 passwd
 
 read -p "Enter username: " name
-useradd -m $name
+useradd -m $name -s /bin/zsh
 printf "Set $name password\n"
 passwd $name
 usermod -aG wheel,audio,optical,storage,power,network $name
 
-# usermod -aG wheel,audio,optical,storage,autologin,vboxusers,power,network angel
+# usermod -aG wheel,audio,optical,storage,autologin,vboxusers,power,network $name
+
+systemctl enable dhcpcd lightdm
 
 exit
