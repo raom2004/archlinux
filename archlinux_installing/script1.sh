@@ -45,19 +45,19 @@ mount /dev/sda1 /mnt/boot
 # 	  --verbose --latest 3 --sort rate \
 # 	  --save /etc/pacman.d/mirrorlist
 
-pacstrap /mnt --needed base linux \
-	 nano sudo zsh \
-	 dhcpcd \
-	 grub
-
 # pacstrap /mnt --needed base linux \
-# 	 virtualbox-guest-utils \
-# 	 xf86-video-intel \
-# 	 nano sudo vim emacs git glibc wget zsh \
-# 	 dhcpcd reflector \
-# 	 grub os-prober \
-# 	 xorg-server lightdm lightdm-gtk-greeter \
-# 	 cinnamon gnome-terminal
+# 	 nano sudo zsh \
+# 	 dhcpcd \
+# 	 grub
+
+pacstrap /mnt --needed base linux \
+	 virtualbox-guest-utils \
+	 xf86-video-intel \
+	 zsh nano sudo vim emacs git glibc wget \
+	 dhcpcd reflector \
+	 grub os-prober \
+	 xorg-server lightdm lightdm-gtk-greeter \
+	 cinnamon gnome-terminal
 	 
 
 ## generate fstab

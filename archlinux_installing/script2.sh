@@ -30,23 +30,14 @@ grub-mkconfig -o /boot/grub/grub.cfg
 sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g' /etc/sudoers
 # visudo
 
-## set root password and add a new user
-# echo
-# printf "set root password\n"
-# passwd
-# echo
-# read -p "Enter USERNAME: " name
-# useradd -m "$name" -s /bin/zsh
-
-echo "$root_password" | passwd --stdin
+## Accounts Config
+# set root password
+echo -e "$root_password\$root_password" | (passwd root)
+# create new user
 useradd -m "$user_name" -s /bin/zsh
-echo "$user_password" | passwd "$user_name" --stdin
-
-# useradd -m $name -s /bin/zsh  # option to define shell
-# echo
-# printf "Set $name PASSWORD\n"
-# passwd "$name"
-
+# set new user password
+echo -e "$user_password\$user_password" | (passwd $user_name)
+# set user groups
 usermod -aG wheel,audio,optical,storage,power,network "$user_name"
 
 # usermod -aG wheel,audio,optical,storage,autologin,vboxusers,power,network $name
@@ -55,7 +46,7 @@ usermod -aG wheel,audio,optical,storage,power,network "$user_name"
 # enable wired internet
 systemctl enable dhcpcd 
 # enable desktop environment at startup
-# systemctl enable lightdm
+systemctl enable lightdm
 
 # sh /home/script3.sh
 
