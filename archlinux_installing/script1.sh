@@ -14,6 +14,12 @@ export root_password
 export user_name
 export user_password
 
+## Keyboard Configuration
+pacman -S libxkbcommon --noconfirm 
+localectl set-x11-keymap "es,us" pc105
+# localectl set-keymap --no-convert es
+
+
 ## set time and synchronize system clock
 timedatectl set-ntp true
 
