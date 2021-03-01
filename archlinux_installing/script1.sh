@@ -32,9 +32,9 @@ mount /dev/sda1 /mnt/boot
 
 
 ## update mirrorlist fast before use pacstrap 
-reflector --country Germany --country Austria \
-	  --verbose --latest 3 --sort rate \
-	  --save /etc/pacman.d/mirrorlist
+# reflector --country Germany --country Austria \
+# 	  --verbose --latest 3 --sort rate \
+# 	  --save /etc/pacman.d/mirrorlist
 
 
 pacstrap /mnt base linux \
