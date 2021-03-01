@@ -10,7 +10,6 @@ localectl set-locale LANG=en_US.UTF-8
 
 ## set host config
 # read -p "Enter hostname: " host_name
-host_name=example
 echo "$host_name" > /etc/hostname
 bash -c "echo '127.0.0.1	localhost
 ::1		localhost
@@ -32,18 +31,23 @@ sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g' /etc/sudoers
 # visudo
 
 ## set root password and add a new user
-echo
-printf "set root password\n"
-(echo "example") | passwd
-echo
+# echo
+# printf "set root password\n"
+# passwd
+# echo
 # read -p "Enter USERNAME: " name
-name=$host_name
-useradd -m "$name" -s /bin/zsh
+# useradd -m "$name" -s /bin/zsh
+
+echo "$root_password" | passwd --stdin
+useradd -m "$user_name" -s /bin/zsh
+echo "$user_password" | passwd "$user_name" --stdin
+
 # useradd -m $name -s /bin/zsh  # option to define shell
-echo
-printf "Set $name PASSWORD\n"
-passwd "$name"
-usermod -aG wheel,audio,optical,storage,power,network "$name"
+# echo
+# printf "Set $name PASSWORD\n"
+# passwd "$name"
+
+usermod -aG wheel,audio,optical,storage,power,network "$user_name"
 
 # usermod -aG wheel,audio,optical,storage,autologin,vboxusers,power,network $name
 
@@ -51,7 +55,7 @@ usermod -aG wheel,audio,optical,storage,power,network "$name"
 # enable wired internet
 systemctl enable dhcpcd 
 # enable desktop environment at startup
-systemctl enable lightdm
+# systemctl enable lightdm
 
 # sh /home/script3.sh
 

@@ -7,6 +7,15 @@ set -xe
 ## set keymap (temporal)
 localectl set-keymap --no-convert es
 
+# input variables
+read -p "Enter hostname: " host_name
+read -p "Enter ROOT password: " root_password
+read -p "Enter NEW user: " user_name
+read -p "Enter NEW user PASSWORD: " user_password
+export host_name
+export root_password
+export user_name
+export user_password
 
 ## set time and synchronize system clock
 timedatectl set-ntp true
@@ -36,16 +45,19 @@ mount /dev/sda1 /mnt/boot
 # 	  --verbose --latest 3 --sort rate \
 # 	  --save /etc/pacman.d/mirrorlist
 
+pacstrap /mnt --needed base linux \
+	 nano sudo zsh \
+	 dhcpcd \
+	 grub
 
-pacstrap /mnt base linux \
-	 virtualbox-guest-utils \
-	 xf86-video-intel \
-	 nano sudo vim emacs git glibc wget zsh \
-	 dhcpcd reflector \
-	 grub os-prober \
-	 xorg-server lightdm lightdm-gtk-greeter \
-	 cinnamon \
-	 gnome-terminal
+# pacstrap /mnt --needed base linux \
+# 	 virtualbox-guest-utils \
+# 	 xf86-video-intel \
+# 	 nano sudo vim emacs git glibc wget zsh \
+# 	 dhcpcd reflector \
+# 	 grub os-prober \
+# 	 xorg-server lightdm lightdm-gtk-greeter \
+# 	 cinnamon gnome-terminal
 	 
 
 ## generate fstab
@@ -59,7 +71,7 @@ cp arch/script*.sh /mnt/home
 arch-chroot /mnt sh /home/script2.sh
 
 ## remove script
-rm /mnt/home/script*.sh
+# rm /mnt/home/script*.sh
 
 ## shutdown system at end
 shutdown now
