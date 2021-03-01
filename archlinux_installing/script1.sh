@@ -15,7 +15,7 @@ export user_name
 export user_password
 
 ## set keymap
-pacman -S libxkbcommon
+pacman -S libxkbcommon --noconfirm
 localectl set-x11-keymap "es,us" pc105
 # localectl set-keymap --no-convert es
 
