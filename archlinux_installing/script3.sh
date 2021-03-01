@@ -1,5 +1,5 @@
 #!/bin/bash
-set -x
+set -xe
 
 # function to install aur packages
 

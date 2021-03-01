@@ -1,5 +1,5 @@
 #!/bin/bash
-set -x
+set -xe
 
 ## stop reflector.service 
 # systemctl stop reflector
@@ -40,7 +40,7 @@ reflector --country Germany --country Austria \
 pacstrap /mnt base linux \
 	 virtualbox-guest-utils \
 	 xf86-video-intel \
-	 nano sudo vim emacs git glibc wget \
+	 nano sudo vim emacs git glibc wget zsh \
 	 dhcpcd reflector \
 	 grub os-prober \
 	 xorg-server lightdm lightdm-gtk-greeter \

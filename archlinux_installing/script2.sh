@@ -1,3 +1,6 @@
+#!/bin/bash
+set -xe
+
 ## set timedate 
 ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime
 hwclock --systohc
