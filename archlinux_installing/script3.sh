@@ -81,3 +81,4 @@ gsettings set org.cinnamon.desktop.background picture-uri file:////home/$USER/Pi
 # aur_install https://aur.archlinux.org/wd719x-firmware.git
 # aur_install https://aur.archlinux.org/upd72020x-fw.git
 
+exit

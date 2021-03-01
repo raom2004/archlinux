@@ -53,13 +53,13 @@ genfstab -L /mnt >> /mnt/etc/fstab
 
 
 ## copy script to new system
-cp arch/script2.sh /mnt/home/script2.sh
+cp arch/script*.sh /mnt/home
 
 ## change root and run script
 arch-chroot /mnt sh /home/script2.sh
 
 ## remove script
-rm /mnt/home/script2.sh
+rm /mnt/home/script*.sh
 
 ## shutdown system at end
 shutdown now

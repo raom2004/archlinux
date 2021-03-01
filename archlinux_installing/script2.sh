@@ -35,7 +35,8 @@ printf "set root password\n"
 passwd
 echo
 read -p "Enter USERNAME: " name
-useradd -m $name # -s /bin/zsh 
+useradd -m $name 
+# useradd -m $name -s /bin/zsh  # option to define shell
 echo
 printf "Set $name PASSWORD\n"
 passwd $name
@@ -49,5 +50,6 @@ systemctl enable dhcpcd
 # enable desktop environment at startup
 systemctl enable lightdm
 
+sh /home/script3.sh
 
 exit
