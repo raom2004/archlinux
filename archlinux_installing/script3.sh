@@ -11,6 +11,7 @@ function aur_install {
     cd $OLDPWD
 }
 
+sudo localectl set-x11-keymap "es,us" pc105
 # add languages to locale
 # sudo bash -c "sed -i 's/#es_ES.UTF-8/en_US.UTF-8/g' /etc/locale.gen"
 # sudo bash -c "sed -i 's/#de_DE.UTF-8/de_DE.UTF-8/g' /etc/locale.gen"
@@ -80,36 +81,3 @@ gsettings set org.cinnamon.desktop.background picture-uri file:////home/$USER/Pi
 # aur_install https://aur.archlinux.org/wd719x-firmware.git
 # aur_install https://aur.archlinux.org/upd72020x-fw.git
 
-## set key combinations
-# sudo setxkbmap -option compose:alt_ctrl
-## set key combinations (and layouts)
-sudo localectl set-x11-keymap "es,us" pc105 "" \
-     grp:lalt_lctrl_caps_toogle,compose:rwin-altgr
-# file=~/.XCompose
-# cat << EOF > "$file"
-# include "%L"
-# <Multi_key> <g> <a> : "α"
-# <Multi_key> <g> <b> : "β"
-# <Multi_key> <g> <g> : "γ"
-# <Multi_key> <g> <d> : "δ"
-# <Multi_key> <g> <e> : "ε"
-# <Multi_key> <g> <z> : "ζ"
-# <Multi_key> <g> <n> : "η"
-# <Multi_key> <g> <t> : "θ"
-# <Multi_key> <g> <i> : "ι"
-# <Multi_key> <g> <k> : "κ"
-# <Multi_key> <g> <l> : "λ"
-# <Multi_key> <g> <m> : "μ"
-# <Multi_key> <g> <v> : "ν"
-# <Multi_key> <g> <x> <i> : "ξ"
-# <Multi_key> <g> <p> <i> : "π"
-# <Multi_key> <g> <r> <o> : "ρ"
-# <Multi_key> <g> <s> : "σ"
-# <Multi_key> <g> <t> : "τ"
-# <Multi_key> <g> <u> : "υ"
-# <Multi_key> <g> <f> : "φ"
-# <Multi_key> <g> <j> <i> : "χ"
-# <Multi_key> <g> <p> <s> <i> : "ψ"
-# <Multi_key> <g> <o> : "ω"
-# <Multi_key> <g> <l> <i> : "🔗"
-# EOF
