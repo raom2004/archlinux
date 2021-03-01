@@ -2,10 +2,8 @@
 ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime
 hwclock --systohc
 
-## Set Language/keymap Using "localectl" (RECOMMENDED)
+## Set Language
 localectl set-locale LANG=en_US.UTF-8
-locatectl --no-convert set-x11-keymap es,us pc105
-
 
 ## set host config
 read -p "Enter hostname: " host_name
@@ -35,12 +33,12 @@ printf "set root password\n"
 passwd
 echo
 read -p "Enter USERNAME: " name
-useradd -m $name 
+useradd -m "$name" -s /bin/zsh
 # useradd -m $name -s /bin/zsh  # option to define shell
 echo
 printf "Set $name PASSWORD\n"
-passwd $name
-usermod -aG wheel,audio,optical,storage,power,network $name
+passwd "$name"
+usermod -aG wheel,audio,optical,storage,power,network "$name"
 
 # usermod -aG wheel,audio,optical,storage,autologin,vboxusers,power,network $name
 

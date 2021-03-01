@@ -11,7 +11,12 @@ function aur_install {
     cd $OLDPWD
 }
 
-sudo localectl set-x11-keymap "es,us" pc105
+## keymap Using "localectl" (RECOMMENDED)
+# locatectl --no-convert set-x11-keymap es,us pc105
+
+localectl set-x11-keymap "es,us" pc105
+# sudo localectl set-x11-keymap "es,us" pc105
+
 # add languages to locale
 # sudo bash -c "sed -i 's/#es_ES.UTF-8/en_US.UTF-8/g' /etc/locale.gen"
 # sudo bash -c "sed -i 's/#de_DE.UTF-8/de_DE.UTF-8/g' /etc/locale.gen"
@@ -33,31 +38,32 @@ sudo localectl set-x11-keymap "es,us" pc105
 # LC_MESSAGES=en_US.UTF-8' > /etc/locale.conf"
 
 # autologin
-sudo bash -c "sed -i 's/#autologin-guest=false/autologin-guest=false/g;
+# sudo bash -c "sed -i 's/#autologin-guest=false/autologin-guest=false/g;
+bash -c "sed -i 's/#autologin-guest=false/autologin-guest=false/g;
              	s/#autologin-user=/autologin-user=$USER/g;
     	     	s/#autologin-user-timeout=0/autologin-user-timeout=0/g'\
 		/etc/lightdm/lightdm.conf"
 
-sudo groupadd -r autologin
+groupadd -r autologin
 
-sudo gpasswd -a "$USER" autologin
+gpasswd -a "$USER" autologin
 
 # show grub menu only when shift is pressed 
-sudo bash -c "echo '
+bash -c "echo '
 GRUB_FORCE_HIDDEN_MENU=\"true\"
 # GRUB menu is hiden until you press \"shift\"' > /etc/default/grub"
 
-sudo wget -c \
+wget -c \
  'https://raw.githubusercontent.com/raom2004/arch/master/31_hold_shift' \
  --directory-prefix /etc/grub.d/
 
 # asign permissions to it  
 
-sudo chmod a+x /etc/grub.d/31_hold_shift
+chmod a+x /etc/grub.d/31_hold_shift
 
 # re-generate grub
 
-sudo grub-mkconfig -o /boot/grub/grub.cfg
+grub-mkconfig -o /boot/grub/grub.cfg
 
 # fix wrong time in dual boot gnu/linux - windows (linux shell command) 
 
@@ -65,11 +71,15 @@ sudo grub-mkconfig -o /boot/grub/grub.cfg
 
 # set custom wallpaper 
 
+new_user=$(cat /etc/passwd | tail -n1 | awk -F':' ' { print $1 }')
+
 wget -c \
  'https://raw.githubusercontent.com/raom2004/arch/master/bird.jpg' \
- --directory-prefix /home/$USER/Pictures
+ --directory-prefix /home/$new_user/Pictures
 
-gsettings set org.cinnamon.desktop.background picture-uri file:////home/$USER/Pictures/bird.jpg
+
+
+gsettings set org.cinnamon.desktop.background picture-uri file:////home/$new_user/Pictures/bird.jpg
 
 # # cinnamon sound events
 
