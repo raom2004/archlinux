@@ -14,7 +14,6 @@ export root_password
 export user_name
 export user_password
 
-
 ## set time and synchronize system clock
 timedatectl set-ntp true
 
@@ -48,14 +47,14 @@ mount /dev/sda1 /mnt/boot
 # 	 dhcpcd \
 # 	 grub
 
-pacstrap /mnt --needed base linux \
+pacstrap /mnt base linux \
 	 virtualbox-guest-utils \
 	 xf86-video-intel \
 	 zsh nano sudo vim emacs git glibc wget \
 	 dhcpcd reflector \
 	 grub os-prober \
 	 xorg-server lightdm lightdm-gtk-greeter \
-	 cinnamon gnome-terminal libxkbcommon
+	 cinnamon gnome-terminal
 	 
 
 ## generate fstab

@@ -11,6 +11,7 @@ hwclock --systohc
 localectl set-locale LANG=en_US.UTF-8
 
 ## Keyboard Configuration
+pacman -S libxkbcommon --noconfirm 
 localectl set-x11-keymap "es,us" pc105
 # localectl set-keymap --no-convert es
 
