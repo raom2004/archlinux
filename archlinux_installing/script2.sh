@@ -1,59 +1,53 @@
-# reflector --country Germany --country Austria \
-# 	  --verbose --latest 2 --sort rate \
-# 	  --save /etc/pacman.d/mirrorlist
-
+## set timedate 
 ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime
-
 hwclock --systohc
 
-# nano /etc/locale.gen
-# sed -i 's/#en_US.UTF-8/en_US.UTF-8/g' /etc/locale.gen
-# locale-gen
-
-# echo 'LANG=en_US.UTF-8' > /etc/locale.conf
+## Set Language/keymap Using "localectl" (RECOMMENDED)
 localectl set-locale LANG=en_US.UTF-8
-echo 'KEYMAP=es' > /etc/vconsole.conf
-echo "angel" > /etc/hostname
-echo "127.0.0.1	localhost
+locatectl --no-convert set-x11-keymap es,us pc105
+
+
+## set host config
+read -p "Enter hostname: " host_name
+echo "$host_name" > /etc/hostname
+bash -c "echo '127.0.0.1	localhost
 ::1		localhost
-127.0.1.1	myhostname.localdomain	myhostname" >> /etc/hosts
+127.0.1.1	${host_name}.localdomain	$host_name' >> /etc/hosts"
 
-# set KEYMAP
-# locatectl --no-convert set-X11-keymap es pc105
-# setkbdmap -model pc105 -layout es,us
 
-echo 'Section "InputClass"
-Identifier "system-keyboard"
-MatchIsKeyboard "on"
-Option "XkbLayout" "es"
-EndSection' > /etc/X11/xorg.conf.d/00-keyboard.conf
+## TODO: firmware modules pending: aic94xx wd719x xhci_pci
 
-# firmware modules pending: aic94xx wd719x xhci_pci
+## optional
+# mkinitcpio -p 
 
-# mkinitcpio -p
 
+## install bootloader and config it
 grub-install /dev/sda
 grub-mkconfig -o /boot/grub/grub.cfg
 
-
-# visudo
+## turn on wheel, required by sudo 
 sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g' /etc/sudoers
+# visudo
 
-
+## set root password and add a new user
+echo
 printf "set root password\n"
 passwd
 echo
 read -p "Enter USERNAME: " name
 useradd -m $name # -s /bin/zsh 
 echo
-
 printf "Set $name PASSWORD\n"
 passwd $name
 usermod -aG wheel,audio,optical,storage,power,network $name
 
 # usermod -aG wheel,audio,optical,storage,autologin,vboxusers,power,network $name
 
-systemctl enable dhcpcd
+## enable requited services
+# enable wired internet
+systemctl enable dhcpcd 
+# enable desktop environment at startup
 systemctl enable lightdm
+
 
 exit

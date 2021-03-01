@@ -1,12 +1,18 @@
 #!/bin/bash
 set -x
 
+## stop reflector.service 
+# systemctl stop reflector
+
+## set keymap (temporal)
 # localectl set-keymap --no-convert es
 
-# systemctl stop reflector
+
+## set time and synchronize system clock
 timedatectl set-ntp true
 
 
+## partition hdd
 parted -s /dev/sda \
        mklabel msdos \
        mkpart primary ext2 0% 2% \
@@ -14,34 +20,46 @@ parted -s /dev/sda \
        mkpart primary ext4 2% 100%
 
 
+## formating hdd
 mkfs.ext2 /dev/sda1
 mkfs.ext4 /dev/sda2
+
+
+## mount new partitions
 mount /dev/sda2 /mnt
 mkdir /mnt/boot
 mount /dev/sda1 /mnt/boot
 
 
+## update mirrorlist fast before use pacstrap 
 reflector --country Germany --country Austria \
-	  --verbose --latest 5 --sort rate \
+	  --verbose --latest 3 --sort rate \
 	  --save /etc/pacman.d/mirrorlist
 
 
 pacstrap /mnt base linux \
 	 virtualbox-guest-utils \
-	 nano sudo vim git glibc zsh \
+	 xf86-video-intel \
+	 nano sudo vim emacs git glibc wget \
 	 dhcpcd reflector \
 	 grub os-prober \
 	 xorg-server lightdm lightdm-gtk-greeter \
 	 cinnamon \
-	 gnome-terminal \
+	 gnome-terminal
 	 
 
-
+## generate fstab
 genfstab -L /mnt >> /mnt/etc/fstab
 
+
+## copy script to new system
 cp arch/script2.sh /mnt/home/script2.sh
 
+## change root and run script
 arch-chroot /mnt sh /home/script2.sh
 
+## remove script
 rm /mnt/home/script2.sh
+
+## shutdown system at end
 shutdown now
