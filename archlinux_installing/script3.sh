@@ -12,11 +12,12 @@ function aur_install {
 }
 
 # autologin
-name=$(less /etc/passwd | tail -n1 | awk -F':' ' { printf $1 }')
+# name=$(less /etc/passwd | tail -n1 | awk -F':' ' { printf $1 }')
 bash -c "sed -i 's/#autologin-guest=false/autologin-guest=false/g;
-             	s/#autologin-user=/autologin-user=$name/g;
+             	s/#autologin-user=/autologin-user=$USER/g;
     	     	s/#autologin-user-timeout=0/autologin-user-timeout=0/g'\
-		/etc/lightdm/lightdm.conf"
+		/etc/lightdm/lightdm.conf" | \
+		cat
 
 sudo groupadd -r autologin
 
@@ -42,7 +43,7 @@ sudo grub-mkconfig -o /boot/grub/grub.cfg
 
 # fix wrong time in dual boot gnu/linux - windows (linux shell command) 
 
-timedatectl set-local-rtc 1 --adjust-system-clock
+# timedatectl set-local-rtc 1 --adjust-system-clock
 
 # set custom wallpaper 
 
@@ -52,13 +53,13 @@ wget -c \
 
 gsettings set org.cinnamon.desktop.background picture-uri file:////home/$USER/Pictures/bird.jpg
 
-# cinnamon sound events
+# # cinnamon sound events
 
-aur_install https://aur.archlinux.org/mint-artwork-cinnamon.git
-aur_install https://aur.archlinux.org/mint-artwork-common.git
+# aur_install https://aur.archlinux.org/mint-artwork-cinnamon.git
+# aur_install https://aur.archlinux.org/mint-artwork-common.git
 
-# firmware modules pending (western digital): aic94xx wd719x xhci_pci
-aur_install https://aur.archlinux.org/aic94xx-firmware.git
-aur_install https://aur.archlinux.org/wd719x-firmware.git
-aur_install https://aur.archlinux.org/upd72020x-fw.git
+# # firmware modules pending (western digital): aic94xx wd719x xhci_pci
+# aur_install https://aur.archlinux.org/aic94xx-firmware.git
+# aur_install https://aur.archlinux.org/wd719x-firmware.git
+# aur_install https://aur.archlinux.org/upd72020x-fw.git
 
