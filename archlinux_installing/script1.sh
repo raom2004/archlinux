@@ -4,12 +4,7 @@ set -xe
 ## stop reflector.service 
 # systemctl stop reflector
 
-## set keymap
-pacman -S libxkbcommon
-localectl set-x11-keymap "es,us" pc105
-# localectl set-keymap --no-convert es
-
-# input variables
+## input variables
 read -p "Enter hostname: " host_name
 read -p "Enter ROOT password: " root_password
 read -p "Enter NEW user: " user_name
@@ -18,6 +13,11 @@ export host_name
 export root_password
 export user_name
 export user_password
+
+## set keymap
+pacman -S libxkbcommon
+localectl set-x11-keymap "es,us" pc105
+# localectl set-keymap --no-convert es
 
 ## set time and synchronize system clock
 timedatectl set-ntp true
