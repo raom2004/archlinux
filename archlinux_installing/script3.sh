@@ -83,12 +83,12 @@ grub-mkconfig -o /boot/grub/grub.cfg
 # sudo 
 wget -c \
  'https://raw.githubusercontent.com/raom2004/arch/master/bird.jpg' \
- --directory-prefix /home/$USER/Pictures
+ --directory-prefix /home/$user_name/Pictures
 
 
 
 # sudo
-gsettings set org.cinnamon.desktop.background picture-uri file:////home/$USER/Pictures/bird.jpg
+gsettings set org.cinnamon.desktop.background picture-uri file:////home/$user_name/Pictures/bird.jpg
 
 # # cinnamon sound events
 

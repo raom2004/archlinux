@@ -10,6 +10,10 @@ hwclock --systohc
 ## Language Configuration
 localectl set-locale LANG=en_US.UTF-8
 
+## Keyboard Configuration
+localectl set-x11-keymap "es,us" pc105
+# localectl set-keymap --no-convert es
+
 
 ## Network Configuration
 # read -p "Enter hostname: " host_name
@@ -47,32 +51,26 @@ usermod -aG wheel,audio,optical,storage,power,network "$user_name"
 # usermod -aG wheel,audio,optical,storage,autologin,vboxusers,power,network $name
 
 
-## enable requited services
-# run DHPCv6 client for network configuration
-systemctl enable dhcpcd 
-# enable desktop environment at startup
-systemctl enable lightdm
-
-# sh /home/script3.sh
+# # sh /home/script3.sh
 groupadd -r autologin
 
-# sudo
-gpasswd -a "$USER" autologin
+# # sudo
+gpasswd -a "$user_name" autologin
 
-# show grub menu only when shift is pressed 
+# # show grub menu only when shift is pressed 
 # sudo
 bash -c "echo '
 GRUB_FORCE_HIDDEN_MENU=\"true\"
 # GRUB menu is hiden until you press \"shift\"' > /etc/default/grub"
 
-# sudo 
+# # sudo 
 wget -c \
  'https://raw.githubusercontent.com/raom2004/arch/master/31_hold_shift' \
  --directory-prefix /etc/grub.d/
 
-# asign permissions to it  
+# # asign permissions to it  
 
-# sudo 
+# # sudo 
 chmod a+x /etc/grub.d/31_hold_shift
 
 # re-generate grub
@@ -82,10 +80,17 @@ grub-mkconfig -o /boot/grub/grub.cfg
 # sudo 
 wget -c \
  'https://raw.githubusercontent.com/raom2004/arch/master/bird.jpg' \
- --directory-prefix /home/$USER/Pictures
-
+ --directory-prefix /home/$user_name/Pictures
 
 
 # sudo
-gsettings set org.cinnamon.desktop.background picture-uri file:////home/$USER/Pictures/bird.jpg
+gsettings set org.cinnamon.desktop.background picture-uri file:////home/$user_name/Pictures/bird.jpg
+
+
+## enable requited services
+# run DHPCv6 client for network configuration
+systemctl enable dhcpcd 
+# enable desktop environment at startup
+systemctl enable lightdm
+
 exit

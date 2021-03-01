@@ -14,10 +14,6 @@ export root_password
 export user_name
 export user_password
 
-## set keymap
-pacman -S libxkbcommon --noconfirm
-localectl set-x11-keymap "es,us" pc105
-# localectl set-keymap --no-convert es
 
 ## set time and synchronize system clock
 timedatectl set-ntp true
@@ -59,7 +55,7 @@ pacstrap /mnt --needed base linux \
 	 dhcpcd reflector \
 	 grub os-prober \
 	 xorg-server lightdm lightdm-gtk-greeter \
-	 cinnamon gnome-terminal
+	 cinnamon gnome-terminal libxkbcommon
 	 
 
 ## generate fstab
