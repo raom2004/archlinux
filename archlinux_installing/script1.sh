@@ -4,8 +4,10 @@ set -xe
 ## stop reflector.service 
 # systemctl stop reflector
 
-## set keymap (temporal)
-localectl set-keymap --no-convert es
+## set keymap
+pacman -S libxkbcommon
+localectl set-x11-keymap "es,us" pc105
+# localectl set-keymap --no-convert es
 
 # input variables
 read -p "Enter hostname: " host_name
