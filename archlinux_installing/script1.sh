@@ -53,14 +53,21 @@ mount /dev/sda1 /mnt/boot
 # 	 dhcpcd \
 # 	 grub
 
+# pacstrap /mnt base linux \
+# 	 virtualbox-guest-utils \
+# 	 xf86-video-intel \
+# 	 zsh nano sudo vim emacs git glibc wget \
+# 	 dhcpcd reflector \
+# 	 grub os-prober \
+# 	 xorg-server lightdm lightdm-gtk-greeter \
+# 	 gnome-terminal terminator cinnamon
+	 
 pacstrap /mnt base linux \
-	 virtualbox-guest-utils \
-	 xf86-video-intel \
-	 zsh nano sudo vim emacs git glibc wget \
+	 bash zsh nano sudo vim emacs git glibc wget \
 	 dhcpcd reflector \
 	 grub os-prober \
 	 xorg-server lightdm lightdm-gtk-greeter \
-	 cinnamon gnome-terminal
+	 gnome-terminal terminator cinnamon
 	 
 
 ## generate fstab

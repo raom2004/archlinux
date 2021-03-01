@@ -39,7 +39,7 @@ sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g' /etc/sudoers
 echo -e "$root_password\n$root_password" | (passwd root)
 # create new user
 # useradd -m "$user_name" -s /bin/zsh
-useradd -m "$user_name"
+useradd -m $user_name -s /bin/zsh
 # set new user password
 echo -e "$user_password\n$user_password" | (passwd $user_name)
 # set user groups
