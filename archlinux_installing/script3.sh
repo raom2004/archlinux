@@ -14,7 +14,7 @@ function aur_install {
 ## keymap Using "localectl" (RECOMMENDED)
 # locatectl --no-convert set-x11-keymap es,us pc105
 
-localectl set-x11-keymap "es,us" pc105
+# localectl set-x11-keymap "es,us" pc105
 # sudo localectl set-x11-keymap "es,us" pc105
 
 # add languages to locale
@@ -27,12 +27,13 @@ localectl set-x11-keymap "es,us" pc105
 # sed -i 's/#en_US.UTF-8/en_US.UTF-8/g' /etc/locale.gen | locale-gen
 # echo 'KEYMAP=es' > /etc/vconsole.conf
 # echo 'LANG=en_US.UTF-8' > /etc/locale.conf
-# echo 'Section "InputClass"
-#      Identifier "system-keyboard"
-#      MatchIsKeyboard "on"
-#      Option "XkbLayout" "es,us"
-#      Option "XkbModel" "pc105"
-# EndSection' > /etc/X11/xorg.conf.d/00-keyboard.conf
+
+echo 'Section "InputClass"
+     Identifier "system-keyboard"
+     MatchIsKeyboard "on"
+     Option "XkbLayout" "es,us"
+     Option "XkbModel" "pc105"
+EndSection' > /etc/X11/xorg.conf.d/00-keyboard.conf
 
 # sudo bash -c "echo 'LANG=es_ES.UTF-8
 # LC_MESSAGES=en_US.UTF-8' > /etc/locale.conf"

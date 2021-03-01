@@ -5,7 +5,7 @@ set -xe
 # systemctl stop reflector
 
 ## set keymap (temporal)
-# localectl set-keymap --no-convert es
+localectl set-keymap --no-convert es
 
 
 ## set time and synchronize system clock
