@@ -8,8 +8,23 @@ hwclock --systohc
 
 
 ## Language Configuration
+sed -i 's/#en_US.UTF-8/en_US.UTF-8/g' /etc/locale.gen
+sed -i 's/#en_US.UTF-8/en_UK.UTF-8/g' /etc/locale.gen
+sed -i 's/#en_US.UTF-8/en_DK.UTF-8/g' /etc/locale.gen
+sed -i 's/#es_ES.UTF-8/es_ES.UTF-8/g' /etc/locale.gen
+sed -i 's/#de_DE.UTF-8/de_DE.UTF-8/g' /etc/locale.gen
+locale-gen
 localectl set-locale LANG=en_US.UTF-8
+localectl set-locale LANGUAGE=en_US:en_UK:es:de
+localectl set-locale LC_COLLATE=C
+localectl set-locale LC_MESSAGES=en_US.UTF-8
+localectl set-locale LC_TIME=en_DK.UTF-8
 
+
+## Keyboard Configuration
+localectl set-keymap --no-convert es
+# pacman -S libxkbcommon --noconfirm 
+# localectl set-x11-keymap "es,us" pc105
 
 ## Network Configuration
 # read -p "Enter hostname: " host_name
@@ -39,7 +54,7 @@ sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g' /etc/sudoers
 echo -e "$root_password\n$root_password" | (passwd root)
 # create new user
 # useradd -m "$user_name" -s /bin/zsh
-useradd -m $user_name -s /bin/zsh
+useradd -m $user_name
 # set new user password
 echo -e "$user_password\n$user_password" | (passwd $user_name)
 # set user groups
