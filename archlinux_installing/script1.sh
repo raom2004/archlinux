@@ -6,6 +6,7 @@ set -xe
 ## stop reflector.service 
 # systemctl stop reflector
 
+
 ## input variables
 read -p "Enter hostname: " host_name
 read -s "Enter ROOT password: " root_password
@@ -36,21 +37,28 @@ mkfs.ext4 /dev/sda2
 
 
 ## mount new partitions
+# partition "/"
 mount /dev/sda2 /mnt
+# partition "/boot"
 mkdir /mnt/boot
 mount /dev/sda1 /mnt/boot
 
 
-## update mirrorlist fast before use pacstrap 
-# reflector --country Germany --country Austria \
-# 	  --verbose --latest 3 --sort rate \
-# 	  --save /etc/pacman.d/mirrorlist
-
+## install minimun system packages (no desktop environment)
 # pacstrap /mnt --needed base linux \
 # 	 nano sudo zsh \
 # 	 dhcpcd \
 # 	 grub
 
+## install system packages (with desktop environment)
+pacstrap /mnt base linux \
+	 bash zsh nano sudo vim emacs git glibc wget \
+	 dhcpcd reflector \
+	 grub os-prober \
+	 xorg-server lightdm lightdm-gtk-greeter \
+	 gnome-terminal terminator cinnamon
+	 
+## install system packages (with desktop env. for virtualization)
 # pacstrap /mnt base linux \
 # 	 virtualbox-guest-utils \
 # 	 xf86-video-intel \
@@ -60,26 +68,22 @@ mount /dev/sda1 /mnt/boot
 # 	 xorg-server lightdm lightdm-gtk-greeter \
 # 	 gnome-terminal terminator cinnamon
 	 
-pacstrap /mnt base linux \
-	 bash zsh nano sudo vim emacs git glibc wget \
-	 dhcpcd reflector \
-	 grub os-prober \
-	 xorg-server lightdm lightdm-gtk-greeter \
-	 gnome-terminal terminator cinnamon
-	 
 
 ## generate fstab
 genfstab -L /mnt >> /mnt/etc/fstab
 
 
 ## copy script to new system
-cp arch/script*.sh /mnt/home
+cp arch/script2.sh /mnt/home
+
 
 ## change root and run script
 arch-chroot /mnt sh /home/script2.sh
 
-## remove script
-# rm /mnt/home/script*.sh
 
-## shutdown system at end
+## remove script
+rm /mnt/home/script2.sh
+
+
+## shutdown the system if no errors stops the script (option "set -xe")
 shutdown now
