@@ -17,7 +17,9 @@ if $(setxkbmap -query  | awk '/es,us/{ print $0 } ');then
     # Set Keymap Spanish,English "es,us" Using "localectl" (RECOMMENDED)
     localectl set-x11-keymap "es,us" pc105
     # Alternative Way:
-    # locatectl --no-convert set-x11-keymap es,us pc105 
+    # locatectl --no-convert set-x11-keymap es,us pc105
+else
+    echo "$(locale -a)"
 fi
 
 
