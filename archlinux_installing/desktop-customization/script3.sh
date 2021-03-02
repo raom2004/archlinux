@@ -38,7 +38,7 @@ sudo bash -c "echo '
 GRUB_FORCE_HIDDEN_MENU=\"true\"
 # GRUB menu is hiden until you press \"shift\"' > /etc/default/grub"
 # add script required for this funtionallity
-sudo  wget -c \
+sudo wget -c \
  'https://raw.githubusercontent.com/raom2004/arch/master/31_hold_shift' \
  --directory-prefix /etc/grub.d/
 # asign permissions
