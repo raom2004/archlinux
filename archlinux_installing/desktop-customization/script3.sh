@@ -40,9 +40,8 @@ sudo bash -c "echo '
 GRUB_FORCE_HIDDEN_MENU=\"true\"
 # GRUB menu is hiden until you press \"shift\"' > /etc/default/grub"
 # add script required for this funtionallity
-sudo wget -c \
- 'https://raw.githubusercontent.com/raom2004/arch/master/31_hold_shift' \
- --directory-prefix /etc/grub.d/
+url="https://raw.githubusercontent.com/raom2004/arch/master/desktop-customization/31_hold_shift"
+sudo wget $url --directory-prefix=/etc/grub.d/ 
 # asign permissions
 sudo chmod a+x /etc/grub.d/31_hold_shift
 # re-generate BOOTLOADER
@@ -51,9 +50,8 @@ sudo grub-mkconfig -o /boot/grub/grub.cfg
 
 ## Desktop Customization
 # download image from repo
-sudo wget -c \
- 'https://raw.githubusercontent.com/raom2004/arch/master/bird.jpg' \
- --directory-prefix /home/$USER/Pictures
+url="https://github.com/raom2004/arch/blob/master/desktop-customization/bird.jpg?raw=true"
+wget $url --output-document=/home/$USER/Pictures/bird.jpg
 # set (cinnamon) desktop background
 gsettings set org.cinnamon.desktop.background picture-uri file:////home/$USER/Pictures/bird.jpg
 
