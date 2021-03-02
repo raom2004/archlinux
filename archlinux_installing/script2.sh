@@ -14,11 +14,11 @@ sed -i 's/#en_DK.UTF-8/en_DK.UTF-8/g' /etc/locale.gen
 sed -i 's/#es_ES.UTF-8/es_ES.UTF-8/g' /etc/locale.gen
 sed -i 's/#de_DE.UTF-8/de_DE.UTF-8/g' /etc/locale.gen
 locale-gen
-localectl set-locale LANG=en_US.UTF-8
-localectl set-locale LANGUAGE=en_US:en_UK:es:de
-localectl set-locale LC_COLLATE=C
-localectl set-locale LC_MESSAGES=en_US.UTF-8
-localectl set-locale LC_TIME=en_DK.UTF-8
+echo 'LANG=en_US.UTF-8' > /etc/locale.conf
+echo 'LANGUAGE=en_US:en_UK:es:de' >> /etc/locale.conf
+echo 'LC_COLLATE=C' >> /etc/locale.conf
+echo 'LC_MESSAGES=en_US.UTF-8' >> /etc/locale.conf
+echo 'LC_TIME=en_DK.UTF-8' >> /etc/locale.conf
 
 
 ## Keyboard Configuration
