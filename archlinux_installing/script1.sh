@@ -3,6 +3,7 @@ set -xe
 
 # loadkeys es
 
+
 ## stop reflector.service 
 # systemctl stop reflector
 

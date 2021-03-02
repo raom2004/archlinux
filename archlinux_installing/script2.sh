@@ -65,7 +65,7 @@ usermod -aG wheel,audio,optical,storage,power,network "$user_name"
 
 
 ## Enable Requited Services:
-# network configuration
+# network config
 systemctl enable dhcpcd 
 # run desktop environment at startup
 systemctl enable lightdm
