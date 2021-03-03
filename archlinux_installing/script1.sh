@@ -46,28 +46,29 @@ mount /dev/sda1 /mnt/boot
 
 
 ## install minimun system packages (no desktop environment)
-# pacstrap /mnt --needed base linux \
+# pacstrap /mnt --needed base base-devel linux \
 # 	 nano sudo zsh \
 # 	 dhcpcd \
 # 	 grub
 
 ## install system packages (with desktop environment)
-pacstrap /mnt base linux \
-	 bash zsh nano sudo vim emacs git glibc wget \
-	 dhcpcd reflector \
-	 grub os-prober \
-	 xorg-server lightdm lightdm-gtk-greeter \
-	 gnome-terminal terminator cinnamon
-	 
-## install system packages (with desktop env. for virtualization)
-# pacstrap /mnt base linux \
-# 	 virtualbox-guest-utils \
-# 	 xf86-video-intel \
+# pacstrap /mnt base base-devel linux linux-firmware \
 # 	 zsh nano sudo vim emacs git glibc wget \
 # 	 dhcpcd reflector \
 # 	 grub os-prober \
 # 	 xorg-server lightdm lightdm-gtk-greeter \
 # 	 gnome-terminal terminator cinnamon
+	 
+## install system packages (with desktop env. for virtualization)
+pacstrap /mnt base base-devel \
+	 virtualbox-guest-utils \
+	 xf86-video-intel \
+	 zsh nano sudo vim emacs git glibc wget \
+	 dhcpcd reflector \
+	 grub os-prober \
+	 xorg-server lightdm lightdm-gtk-greeter \
+	 gnome-terminal terminator cinnamon \
+	 gnome-keyring lisecret seahorse
 	 
 
 ## generate fstab
