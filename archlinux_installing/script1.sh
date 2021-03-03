@@ -1,4 +1,5 @@
 #!/bin/bash
+
 set -xe
 
 # loadkeys es
@@ -9,11 +10,11 @@ set -xe
 
 
 ## input variables
-read -p "Enter hostname: " host_name
+read "Enter hostname: " host_name
 export host_name
 read -s "Enter ROOT password: " root_password
 export root_password
-read -p "Enter NEW user: " user_name
+read "Enter NEW user: " user_name
 export user_name
 read -s "Enter NEW user PASSWORD: " user_password
 export user_password
