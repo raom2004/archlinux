@@ -10,10 +10,12 @@ set -xe
 
 
 ## input variables
+
 read -p "Enter hostname: " host_name
-read -s "Enter ROOT password: " root_password
+read -sp "Enter ROOT password: " root_password
 read -p "Enter NEW user: " user_name
-read -s "Enter NEW user PASSWORD: " user_password
+read -sp "Enter NEW user PASSWORD: " user_password
+
 # make variables available for subsecuent scripts
 export host_name
 export root_password
