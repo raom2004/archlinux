@@ -10,14 +10,14 @@ set -xe
 
 ## input variables
 read -p "Enter hostname: " host_name
-read -s "Enter ROOT password: " root_password
-read -p "Enter NEW user: " user_name
-read -s "Enter NEW user PASSWORD: " user_password
-# make variables available for subsecuent scripts
 export host_name
+read -s "Enter ROOT password: " root_password
 export root_password
+read -p "Enter NEW user: " user_name
 export user_name
+read -s "Enter NEW user PASSWORD: " user_password
 export user_password
+# make variables available for subsecuent scripts
 
 
 ## set time and synchronize system clock
