@@ -1,33 +1,28 @@
 #!/bin/bash
 set -xe
 
-## Declare Functions
-# function to install aur packages
+## DECLARE FUNCTIONS
+# install aur packages without confirmation
 function aur_install {
     folder="$(basename $1 .git)"
     git clone "$1" /tmp/$folder
     cd /tmp/$folder
-    makepkg -sri
+    makepkg -sri --noconfirm
     cd $OLDPWD
 }
 
 
-## Add keymap Spanish if it is only English (standard)
+## ADD KEYMAP SPANISH TO STANDARD (ENGLISH)
 if $(setxkbmap -query  | awk '/es,us/{ print $0 } ');then
-    # Set Keymap Spanish,English "es,us" Using "localectl" (RECOMMENDED)
     localectl set-x11-keymap "es,us" pc105
-    # Alternative Way:
-    # locatectl --no-convert set-x11-keymap es,us pc105
-else
-    echo "$(locale -a)"
 fi
 
 
-## enable network manager
+## ENABLE NETWORK MANAGER
 systemctl enable NetworkManager
 
 
-## enable autologin
+## ENABLE AUTOLOGIN
 # set required variables in /etc/lightdm/lightdm.conf
 sudo bash -c "sed -i 's/#autologin-guest=false/autologin-guest=false/g;
              	s/#autologin-user=/autologin-user=$USER/g;
@@ -38,7 +33,7 @@ sudo groupadd -r autologin
 sudo gpasswd -a "$USER" autologin
 
 
-## hide BOOTLOADER menu
+## HIDE BOOTLOADER MENU
 # and show it only when shift is pressed 
 sudo bash -c "echo '
 GRUB_FORCE_HIDDEN_MENU=\"true\"
@@ -52,9 +47,9 @@ sudo chmod a+x /etc/grub.d/31_hold_shift
 sudo grub-mkconfig -o /boot/grub/grub.cfg
 
 
-## bash customization
+## BASH CUSTOMIZATION
 
-sudo pacman -S grml-zsh-config
+sudo pacman -S grml-zsh-config --noconfirm
 
 ## TODO: Themes
 # Window borders: Arc-Dark
@@ -64,17 +59,19 @@ sudo pacman -S grml-zsh-config
 # Desktop: Ark-Dark
 
 # install theme requirements
-sudo pacman -S adwaita-icon-theme arc-gtk-theme papirus-icon-theme
-aur_install https://aur.archlinux.org/packages/numix-circle-icon-theme-git/
-aur_install https://aur.archlinux.org/packages/adwaita-custom-cursor-colors.git
-aur_install https://aur.archlinux.org/packages/breeze-adapta-cursor-theme-git.git
-aur_install https://aur.archlinux.org/sweet-theme-nova-git.git
-aur_install https://aur.archlinux.org/bibata-cursor-theme.git
-aur_install https://aur.archlinux.org/oxygen-cursors-extra.git
-aur_install https://aur.archlinux.org/xcursor-oxygen.git
-aur_install https://aur.archlinux.org/oxy-neon.git
+sudo pacman -S --needed adwaita-icon-theme arc-gtk-theme \
+     papirus-icon-theme --noconfirm
+aur_install https://aur.archlinux.org/humanity-icon-theme.git
+aur_install https://aur.archlinux.org/numix-circle-icon-theme-git.git
+# aur_install https://aur.archlinux.org/adwaita-custom-cursor-colors.git
+# aur_install https://aur.archlinux.org/breeze-adapta-cursor-theme-git.git
+# aur_install https://aur.archlinux.org/sweet-theme-nova-git.git
+# aur_install https://aur.archlinux.org/bibata-cursor-theme.git
+# aur_install https://aur.archlinux.org/oxygen-cursors-extra.git
+# aur_install https://aur.archlinux.org/xcursor-oxygen.git
+# aur_install https://aur.archlinux.org/oxy-neon.git
 aur_install https://aur.archlinux.org/xcursor-arch-cursor-complete.git
-aur_install https://aur.archlinux.org/packages/moka-icon-theme-git.git
+# aur_install https://aur.archlinux.org/moka-icon-theme-git.git
 
 # font requirements
 aur_install https://aur.archlinux.org/ttf-zekton-rg.git
@@ -146,8 +143,29 @@ gsettings set org.cinnamon.theme name 'Arc-Dark'
 gsettings set org.gnome.desktop.interface toolkit-accessibility true
 gsettings set org.gnome.desktop.interface gtk-im-module 'gtk-im-context-simple'
 
-gsettings set org.gnome.nautilus.preferences default-folder-viewer 'icon-view'
-gsettings set org.gnome.nautilus.preferences search-filter-time-type 'last_modified'
+## TODO
+
+# bluetooth.service
+# 443 /usr/lib/bluetooth/bluetooth -n -d
+
+# wpa_supplicant.service 
+# 533 /usr/bin/wpa_supplicant -u -s -O /run/wpa_supplicant
+
+# libvirtd.service 
+# 641 /usr/bin/dnsmasq --conf-file=/var/lib/libvirt/dnsmasq/defa>
+# 642 /usr/bin/dnsmasq --conf-file=/var/lib/libvirt/dnsmasq/defa>
+
+# systemd-machined.service 
+# 454 /usr/lib/systemd/systemd-machined
+
+# run-media-angel-w7Black.mount 
+# 435 /usr/bin/mount.ntfs-3g /dev/sda1 /run/media/angel/w7Black >
+ 
+# lvm2-lvmetad.service 
+# 286 /usr/bin/lvmetad -f
+# pcscd.service 
+# 823 /usr/bin/pcscd --foreground --auto-exit
+
 
 # download image from repo
 # url="https://github.com/raom2004/arch/blob/master/desktop-customization/bird.jpg?raw=true"

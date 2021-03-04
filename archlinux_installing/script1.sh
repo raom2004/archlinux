@@ -66,12 +66,12 @@ mount /dev/sda1 /mnt/boot
 pacstrap /mnt base base-devel \
 	 virtualbox-guest-utils \
 	 xf86-video-intel \
-	 zsh nano sudo vim emacs git glibc wget \
+	 zsh nano sudo vim emacs git wget \
 	 dhcpcd reflector \
 	 grub os-prober \
 	 xorg-server lightdm lightdm-gtk-greeter \
 	 gnome-terminal terminator cinnamon 
-	 # gnome-keyring lisecret seahorse
+	 # gnome-keyring lisecret seahorse glibc
 	 
 
 ## generate fstab

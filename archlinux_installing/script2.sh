@@ -9,7 +9,7 @@ hwclock --systohc
 
 ## Language Configuration
 sed -i 's/#en_US.UTF-8/en_US.UTF-8/g' /etc/locale.gen
-sed -i 's/#en_UK.UTF-8/en_UK.UTF-8/g' /etc/locale.gen
+sed -i 's/#en_GB.UTF-8/en_GB.UTF-8/g' /etc/locale.gen
 sed -i 's/#en_DK.UTF-8/en_DK.UTF-8/g' /etc/locale.gen
 sed -i 's/#es_ES.UTF-8/es_ES.UTF-8/g' /etc/locale.gen
 sed -i 's/#de_DE.UTF-8/de_DE.UTF-8/g' /etc/locale.gen
