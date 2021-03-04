@@ -82,7 +82,7 @@ ExecStart=/usr/bin/script3
 WantedBy=multi-user.tagert
 ' /etc/systemd/system/script3.service
 
-chmod 755 /mnt/usr/bin/script3.sh
+chmod 755 /usr/bin/script3.sh
 systemctl enable script3.service
 
 ## exit if no errors stops the script (option "set -ex")
