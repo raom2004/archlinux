@@ -47,10 +47,6 @@ sudo chmod a+x /etc/grub.d/31_hold_shift
 sudo grub-mkconfig -o /boot/grub/grub.cfg
 
 
-## BASH CUSTOMIZATION
-
-sudo pacman -S grml-zsh-config --noconfirm
-
 ## TODO: Themes
 # Window borders: Arc-Dark
 # Icons: Numix-Circle
@@ -58,6 +54,8 @@ sudo pacman -S grml-zsh-config --noconfirm
 # Mouse Pointer: Adwita
 # Desktop: Ark-Dark
 
+# install video acceleration
+sudo pacman -S --needed mesa --noconfirm
 # install theme requirements
 sudo pacman -S --needed adwaita-icon-theme arc-gtk-theme \
      papirus-icon-theme --noconfirm
@@ -72,6 +70,8 @@ aur_install https://aur.archlinux.org/numix-circle-icon-theme-git.git
 # aur_install https://aur.archlinux.org/oxy-neon.git
 aur_install https://aur.archlinux.org/xcursor-arch-cursor-complete.git
 # aur_install https://aur.archlinux.org/moka-icon-theme-git.git
+# aur_install https://aur.archlinux.org/gtk-engine-murrine-git.git
+# aur_install https://aur.archlinux.org/gruvbox-material-theme-git.git
 
 # font requirements
 aur_install https://aur.archlinux.org/ttf-zekton-rg.git
@@ -184,5 +184,18 @@ gsettings set org.gnome.desktop.interface gtk-im-module 'gtk-im-context-simple'
 # 	  --verbose --latest 70 --sort rate \
 # 	  --save /etc/pacman.d/mirrorlist
 
+
+## SHELL CUSTOMIZATION
+# BASH
+sudo pacman -S bash-completion
+url="https://raw.githubusercontent.com/raom2004/arch/master/desktop-customization/bashrc-template"
+sudo wget $url --output-document=/$HOME/.bashrc
+
+#ZSH
+sudo pacman -S grml-zsh-config --noconfirm
+url="https://raw.githubusercontent.com/raom2004/arch/master/desktop-customization/bashrc-template"
+sudo wget $url --output-document=/$HOME/.zshrc
+
+systemctl disable script3.service
 
 exit

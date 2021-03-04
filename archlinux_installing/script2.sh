@@ -70,6 +70,20 @@ systemctl enable dhcpcd
 # run desktop environment at startup
 systemctl enable lightdm
 
+# run script 3 at first boot
+echo '
+[Unit]
+Description=Script3
+
+[Service]
+ExecStart=/usr/bin/script3
+
+[Install]
+WantedBy=multi-user.tagert
+' /etc/systemd/system/script3.service
+
+chmod 755 /mnt/usr/bin/script3.sh
+systemctl enable script3.service
 
 ## exit if no errors stops the script (option "set -ex")
 exit

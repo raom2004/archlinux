@@ -65,7 +65,7 @@ mount /dev/sda1 /mnt/boot
 ## install system packages (with desktop env. for virtualization)
 pacstrap /mnt base base-devel \
 	 virtualbox-guest-utils \
-	 xf86-video-intel \
+	 mesa \
 	 zsh nano sudo vim emacs git wget \
 	 dhcpcd reflector \
 	 grub os-prober \
@@ -78,9 +78,9 @@ pacstrap /mnt base base-devel \
 genfstab -L /mnt >> /mnt/etc/fstab
 
 
-## copy script to new system
+## copy scripts to new system
 cp arch/script2.sh /mnt/home
-
+cp arch/desktop-customization/script3.sh /mnt/usr/bin
 
 ## change root and run script
 arch-chroot /mnt sh /home/script2.sh
