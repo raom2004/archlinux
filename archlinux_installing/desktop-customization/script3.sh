@@ -53,9 +53,10 @@ sudo grub-mkconfig -o /boot/grub/grub.cfg
 # install video acceleration
 # pacman -S --needed mesa --noconfirm
 # install theme requirements
-pacman -S --needed adwaita-icon-theme arc-gtk-theme \
+sudo pacman -S --needed adwaita-icon-theme arc-gtk-theme \
      papirus-icon-theme --noconfirm
 aur_install https://aur.archlinux.org/humanity-icon-theme.git
+aur_install https://aur.archlinux.org/numix-icon-theme-git.git
 aur_install https://aur.archlinux.org/numix-circle-icon-theme-git.git
 
 # aur_install https://aur.archlinux.org/adwaita-custom-cursor-colors.git
@@ -98,7 +99,7 @@ gsettings set org.cinnamon.desktop.wm.preferences titlebar-font 'Zekton Bold 10'
 gsettings set org.cinnamon.desktop.wm.preferences theme 'Arc-Dark'
 
 # gsettings set org.cinnamon.desktop.sound 
-pacman -Sy meson sassc --needed --noconfirm
+sudo pacman -Sy meson sassc --needed --noconfirm
 git clone "https://aur.archlinux.org/yaru.git" /tmp/yaru
 cd /tmp/yaru
 makepkg -sri --noconfirm

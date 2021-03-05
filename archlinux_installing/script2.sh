@@ -71,7 +71,7 @@ systemctl enable NetworkManager
 # run desktop environment at startup
 systemctl enable lightdm
 
-echo "sh /usr/bin/script3.sh" > /home/$user_name/.zshrc
+echo "sh /usr/bin/script3" > /home/$user_name/.zshrc
 
 ## exit if no errors stops the script (option "set -ex")
 exit
