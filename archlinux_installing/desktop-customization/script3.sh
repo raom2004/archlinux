@@ -5,10 +5,13 @@ set -xe
 # install aur packages without confirmation
 function aur_install {
     folder="$(basename $1 .git)"
-    git clone "$1" /tmp/$folder
-    cd /tmp/$folder
-    makepkg -sri --noconfirm
-    cd $OLDPWD
+    if [[ ! -n "$(pacman -Qm $folder)" ]]; then 
+	echo "installing AUR package $folder"
+	git clone "$1" /tmp/$folder
+	cd /tmp/$folder
+	makepkg -sri --noconfirm
+	cd $OLDPWD
+    fi
 }
 
 
@@ -32,7 +35,7 @@ fi
 
 ## HIDE BOOTLOADER MENU
 # and show it only when shift is pressed 
-if [ ! -n $(grep GRUB_FORCE_HIDDEN_MENU /etc/default/grub) ]; then
+if [ ! -n "$(grep GRUB_FORCE_HIDDEN_MENU /etc/default/grub)" ]; then
     sudo bash -c "echo '
 GRUB_FORCE_HIDDEN_MENU=\"true\"
     # GRUB menu is hiden until you press \"shift\"' > /etc/default/grub"
@@ -68,12 +71,13 @@ sudo pacman -S --needed adwaita-icon-theme arc-gtk-theme \
 # aur_install https://aur.archlinux.org/oxygen-cursors-extra.git
 # aur_install https://aur.archlinux.org/xcursor-oxygen.git
 # aur_install https://aur.archlinux.org/oxy-neon.git
-aur_install https://aur.archlinux.org/xcursor-arch-cursor-complete.git
 # aur_install https://aur.archlinux.org/moka-icon-theme-git.git
 # aur_install https://aur.archlinux.org/gtk-engine-murrine-git.git
 # aur_install https://aur.archlinux.org/gruvbox-material-theme-git.git
 
-# font requirements
+# cursor
+aur_install https://aur.archlinux.org/xcursor-arch-cursor-complete.git
+# font
 aur_install https://aur.archlinux.org/ttf-zekton-rg.git
 
 # sounds requirements
@@ -109,15 +113,26 @@ gsettings set org.gnome.desktop.interface toolkit-accessibility true
 gsettings set org.gnome.desktop.interface gtk-im-module 'gtk-im-context-simple'
 
 # gsettings set org.cinnamon.desktop.sound 
-sudo pacman -Sy meson sassc --needed --noconfirm
-git clone "https://aur.archlinux.org/yaru.git" /tmp/yaru
-cd /tmp/yaru
-makepkg -sri --noconfirm
-mkdir -p /usr/share/sounds/yaru
-cp -R -u -p /tmp/yaru/src/yaru-*/sounds/src/* /usr/share/sounds/yaru
+url="https://aur.archlinux.org/yaru.git"
+if [[ ! -n "$(pacman -Qm $folder)" ]]; then 
+    sudo pacman -Sy meson sassc --needed --noconfirm
+    git clone $url /tmp/yaru
+    cd /tmp/yaru
+    makepkg -sri --noconfirm
+    mkdir -p /usr/share/sounds/yaru
+    cp -R -u -p /tmp/yaru/src/yaru-*/sounds/src/* /usr/share/sounds/yaru
+
+
+    echo "installing AUR package $folder"
+    git clone "$1" /tmp/$folder
+    cd /tmp/$folder
+    makepkg -sri --noconfirm
+    cd $OLDPWD
+fi
+
 
 ## Set Sounds (if yaru package was correctly installed)
-if [[ -n $(ls /usr/share/sounds/yaru) ]]; then
+if [[ -n "$(ls /usr/share/sounds/yaru)" ]]; then
     gsettings set org.cinnamon.desktop.sound event-sounds=true
     gsettings set org.cinnamon.desktop.sound volume-sound-file '/usr/share/sounds/yaru/stereo/audio-volume-change.oga'
     gsettings set org.cinnamon.sounds close-enabled true
