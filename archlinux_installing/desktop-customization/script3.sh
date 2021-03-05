@@ -3,13 +3,13 @@ set -xe
 
 ## DECLARE FUNCTIONS
 # install aur packages without confirmation
-function aur_install {
-    folder="$(basename $1 .git)"
-    git clone "$1" /tmp/$folder
-    cd /tmp/$folder
-    makepkg -sri --noconfirm
-    cd $OLDPWD
-}
+# function aur_install {
+#     folder="$(basename $1 .git)"
+#     git clone "$1" /tmp/$folder
+#     cd /tmp/$folder
+#     makepkg -sri --noconfirm
+#     cd $OLDPWD
+# }
 
 
 ## ADD KEYMAP SPANISH TO STANDARD (ENGLISH)
@@ -18,33 +18,29 @@ if $(setxkbmap -query  | awk '/es,us/{ print $0 } ');then
 fi
 
 
-## ENABLE NETWORK MANAGER
-systemctl enable NetworkManager
-
-
 ## ENABLE AUTOLOGIN
 # set required variables in /etc/lightdm/lightdm.conf
-sudo bash -c "sed -i 's/#autologin-guest=false/autologin-guest=false/g;
+bash -c "sed -i 's/#autologin-guest=false/autologin-guest=false/g;
              	s/#autologin-user=/autologin-user=$USER/g;
     	     	s/#autologin-user-timeout=0/autologin-user-timeout=0/g'\
 		/etc/lightdm/lightdm.conf"
 # add user to autologin
-sudo groupadd -r autologin
-sudo gpasswd -a "$USER" autologin
+groupadd -r autologin
+gpasswd -a "$USER" autologin
 
 
 ## HIDE BOOTLOADER MENU
 # and show it only when shift is pressed 
-sudo bash -c "echo '
+bash -c "echo '
 GRUB_FORCE_HIDDEN_MENU=\"true\"
 # GRUB menu is hiden until you press \"shift\"' > /etc/default/grub"
 # add script required for this funtionallity
 url="https://raw.githubusercontent.com/raom2004/arch/master/desktop-customization/31_hold_shift"
-sudo wget $url --directory-prefix=/etc/grub.d/ 
+wget $url --directory-prefix=/etc/grub.d/ 
 # asign permissions
-sudo chmod a+x /etc/grub.d/31_hold_shift
+chmod a+x /etc/grub.d/31_hold_shift
 # re-generate BOOTLOADER
-sudo grub-mkconfig -o /boot/grub/grub.cfg
+grub-mkconfig -o /boot/grub/grub.cfg
 
 
 ## TODO: Themes
@@ -55,12 +51,13 @@ sudo grub-mkconfig -o /boot/grub/grub.cfg
 # Desktop: Ark-Dark
 
 # install video acceleration
-sudo pacman -S --needed mesa --noconfirm
+# pacman -S --needed mesa --noconfirm
 # install theme requirements
-sudo pacman -S --needed adwaita-icon-theme arc-gtk-theme \
+pacman -S --needed adwaita-icon-theme arc-gtk-theme \
      papirus-icon-theme --noconfirm
-aur_install https://aur.archlinux.org/humanity-icon-theme.git
-aur_install https://aur.archlinux.org/numix-circle-icon-theme-git.git
+# aur_install https://aur.archlinux.org/humanity-icon-theme.git
+# aur_install https://aur.archlinux.org/numix-circle-icon-theme-git.git
+
 # aur_install https://aur.archlinux.org/adwaita-custom-cursor-colors.git
 # aur_install https://aur.archlinux.org/breeze-adapta-cursor-theme-git.git
 # aur_install https://aur.archlinux.org/sweet-theme-nova-git.git
@@ -68,13 +65,16 @@ aur_install https://aur.archlinux.org/numix-circle-icon-theme-git.git
 # aur_install https://aur.archlinux.org/oxygen-cursors-extra.git
 # aur_install https://aur.archlinux.org/xcursor-oxygen.git
 # aur_install https://aur.archlinux.org/oxy-neon.git
-aur_install https://aur.archlinux.org/xcursor-arch-cursor-complete.git
+
+# aur_install https://aur.archlinux.org/xcursor-arch-cursor-complete.git
+
 # aur_install https://aur.archlinux.org/moka-icon-theme-git.git
 # aur_install https://aur.archlinux.org/gtk-engine-murrine-git.git
 # aur_install https://aur.archlinux.org/gruvbox-material-theme-git.git
 
 # font requirements
-aur_install https://aur.archlinux.org/ttf-zekton-rg.git
+
+# aur_install https://aur.archlinux.org/ttf-zekton-rg.git
 
 # sounds requirements
 # aur_install https://aur.archlinux.org/mint-artwork-cinnamon.git
@@ -101,12 +101,12 @@ gsettings set org.cinnamon.desktop.wm.preferences titlebar-font 'Zekton Bold 10'
 gsettings set org.cinnamon.desktop.wm.preferences theme 'Arc-Dark'
 
 # gsettings set org.cinnamon.desktop.sound 
-sudo pacman -Sy meson sassc --needed --noconfirm
+pacman -Sy meson sassc --needed --noconfirm
 git clone "https://aur.archlinux.org/yaru.git" /tmp/yaru
 cd /tmp/yaru
 makepkg -sri --noconfirm
-sudo mkdir -p /usr/share/sounds/yaru
-sudo cp -R -u -p /tmp/yaru/src/yaru-*/sounds/src/* /usr/share/sounds/yaru
+mkdir -p /usr/share/sounds/yaru
+cp -R -u -p /tmp/yaru/src/yaru-*/sounds/src/* /usr/share/sounds/yaru
 
 ## Set Sounds (if yaru package was correctly installed)
 if [[ -n $(ls /usr/share/sounds/yaru) ]]; then
@@ -187,14 +187,14 @@ gsettings set org.gnome.desktop.interface gtk-im-module 'gtk-im-context-simple'
 
 ## SHELL CUSTOMIZATION
 # BASH
-sudo pacman -S bash-completion
+pacman -S bash-completion
 url="https://raw.githubusercontent.com/raom2004/arch/master/desktop-customization/bashrc-template"
-sudo wget $url --output-document=/$HOME/.bashrc
+wget $url --output-document=/$HOME/.bashrc
 
 #ZSH
-sudo pacman -S grml-zsh-config --noconfirm
+pacman -S grml-zsh-config --noconfirm
 url="https://raw.githubusercontent.com/raom2004/arch/master/desktop-customization/bashrc-template"
-sudo wget $url --output-document=/$HOME/.zshrc
+wget $url --output-document=/$HOME/.zshrc
 
 systemctl disable script3.service
 
