@@ -60,7 +60,8 @@ mount /dev/sda1 /mnt/boot
 # 	 dhcpcd reflector \
 # 	 grub os-prober \
 # 	 xorg-server lightdm lightdm-gtk-greeter \
-# 	 gnome-terminal terminator cinnamon
+# 	 gnome-terminal terminator cinnamon \
+# 	 gnome-keyring libsecret seahorse glibc
 	 
 ## install system packages (with desktop env. for virtualization)
 pacstrap /mnt base base-devel \
@@ -70,8 +71,7 @@ pacstrap /mnt base base-devel \
 	 dhcpcd reflector \
 	 grub os-prober \
 	 xorg-server lightdm lightdm-gtk-greeter \
-	 gnome-terminal terminator cinnamon livecd-sounds \
-	 gnome-keyring libsecret seahorse glibc
+	 gnome-terminal terminator cinnamon livecd-sounds
 	 
 
 ## generate fstab
