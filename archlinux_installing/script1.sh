@@ -70,8 +70,8 @@ pacstrap /mnt base base-devel \
 	 dhcpcd reflector \
 	 grub os-prober \
 	 xorg-server lightdm lightdm-gtk-greeter \
-	 gnome-terminal terminator cinnamon 
-	 # gnome-keyring lisecret seahorse glibc
+	 gnome-terminal terminator cinnamon livecd-sounds \
+	 gnome-keyring libsecret seahorse glibc
 	 
 
 ## generate fstab
