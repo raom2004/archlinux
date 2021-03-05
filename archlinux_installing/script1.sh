@@ -80,7 +80,7 @@ genfstab -L /mnt >> /mnt/etc/fstab
 
 ## copy scripts to new system
 cp arch/script2.sh /mnt/home
-cp arch/desktop-customization/script3.sh /mnt/usr/bin
+cp arch/desktop-customization/script3.sh /mnt/usr/bin/script3
 
 ## change root and run script
 arch-chroot /mnt sh /home/script2.sh

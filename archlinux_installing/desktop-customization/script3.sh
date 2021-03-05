@@ -198,4 +198,4 @@ sudo wget $url --output-document=/$HOME/.zshrc
 
 systemctl disable script3.service
 
-exit
+reboot now

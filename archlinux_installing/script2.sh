@@ -70,19 +70,23 @@ systemctl enable dhcpcd
 # run desktop environment at startup
 systemctl enable lightdm
 
-# run script 3 at first boot
+# run script3 at first boot once (=oneshot)
+# source:
+# https://man.archlinux.org/man/systemd.service.5#EXAMPLES
 echo '
 [Unit]
-Description=Script3
+Description=script3 install customization packages
 
 [Service]
+Type=oneshot
+RemainAfterExit=no
 ExecStart=/usr/bin/script3
 
 [Install]
-WantedBy=multi-user.tagert
-' /etc/systemd/system/script3.service
+WantedBy=multi-user.target
+' > /etc/systemd/system/script3.service
 
-chmod 755 /usr/bin/script3.sh
+chmod 755 /usr/bin/script3
 systemctl enable script3.service
 
 ## exit if no errors stops the script (option "set -ex")
