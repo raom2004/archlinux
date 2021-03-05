@@ -59,7 +59,7 @@ mount /dev/sda1 /mnt/boot
 # 	 zsh nano sudo vim emacs git glibc wget \
 # 	 dhcpcd reflector \
 # 	 grub os-prober \
-# 	 xorg-server lightdm lightdm-gtk-greeter \
+# 	 xorg-server lightdm lightdm-gtk-greeter xdg-user-dirs \
 # 	 gnome-terminal terminator cinnamon \
 # 	 gnome-keyring libsecret seahorse glibc
 	 
@@ -70,7 +70,7 @@ pacstrap /mnt base base-devel \
 	 zsh nano sudo vim emacs git wget \
 	 dhcpcd reflector \
 	 grub os-prober \
-	 xorg-server lightdm lightdm-gtk-greeter \
+	 xorg-server lightdm lightdm-gtk-greeter xdg-user-dirs \
 	 gnome-terminal terminator cinnamon livecd-sounds
 	 
 

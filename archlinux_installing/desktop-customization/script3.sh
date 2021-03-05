@@ -20,28 +20,30 @@ fi
 
 ## ENABLE AUTOLOGIN
 # set required variables in /etc/lightdm/lightdm.conf
-sudo bash -c "sed -i 's/#autologin-guest=false/autologin-guest=false/g;
+if (grep '#autologin-guest=false' /etc/lightdm/lightdm.conf);then
+    sudo bash -c "sed -i 's/#autologin-guest=false/autologin-guest=false/g;
              	s/#autologin-user=/autologin-user=$USER/g;
     	     	s/#autologin-user-timeout=0/autologin-user-timeout=0/g'\
 		/etc/lightdm/lightdm.conf"
-# add user to autologin
-sudo groupadd -r autologin
-sudo gpasswd -a "$USER" autologin
-
+    # add user to autologin
+    sudo groupadd -r autologin
+    sudo gpasswd -a "$USER" autologin
+fi
 
 ## HIDE BOOTLOADER MENU
 # and show it only when shift is pressed 
-sudo bash -c "echo '
+if [ ! -n $(grep GRUB_FORCE_HIDDEN_MENU /etc/default/grub) ]; then
+    sudo bash -c "echo '
 GRUB_FORCE_HIDDEN_MENU=\"true\"
-# GRUB menu is hiden until you press \"shift\"' > /etc/default/grub"
-# add script required for this funtionallity
-url="https://raw.githubusercontent.com/raom2004/arch/master/desktop-customization/31_hold_shift"
-sudo wget $url --directory-prefix=/etc/grub.d/ 
-# asign permissions
-sudo chmod a+x /etc/grub.d/31_hold_shift
-# re-generate BOOTLOADER
-sudo grub-mkconfig -o /boot/grub/grub.cfg
-
+    # GRUB menu is hiden until you press \"shift\"' > /etc/default/grub"
+    # add script required for this funtionallity
+    url="https://raw.githubusercontent.com/raom2004/arch/master/desktop-customization/31_hold_shift"
+    sudo wget $url --directory-prefix=/etc/grub.d/ 
+    # asign permissions
+    sudo chmod a+x /etc/grub.d/31_hold_shift
+    # re-generate BOOTLOADER
+    sudo grub-mkconfig -o /boot/grub/grub.cfg
+fi
 
 ## TODO: Themes
 # Window borders: Arc-Dark
@@ -55,9 +57,9 @@ sudo grub-mkconfig -o /boot/grub/grub.cfg
 # install theme requirements
 sudo pacman -S --needed adwaita-icon-theme arc-gtk-theme \
      papirus-icon-theme --noconfirm
-aur_install https://aur.archlinux.org/humanity-icon-theme.git
-aur_install https://aur.archlinux.org/numix-icon-theme-git.git
-aur_install https://aur.archlinux.org/numix-circle-icon-theme-git.git
+# aur_install https://aur.archlinux.org/humanity-icon-theme.git
+# aur_install https://aur.archlinux.org/numix-icon-theme-git.git
+# aur_install https://aur.archlinux.org/numix-circle-icon-theme-git.git
 
 # aur_install https://aur.archlinux.org/adwaita-custom-cursor-colors.git
 # aur_install https://aur.archlinux.org/breeze-adapta-cursor-theme-git.git
@@ -98,6 +100,14 @@ gsettings set org.nemo.desktop font 'Zekton 10'
 gsettings set org.cinnamon.desktop.wm.preferences titlebar-font 'Zekton Bold 10'
 gsettings set org.cinnamon.desktop.wm.preferences theme 'Arc-Dark'
 
+
+gsettings set org.cinnamon.settings-daemon.peripherals.touchpad touchpad-enabled true
+
+gsettings set org.cinnamon.theme name 'Arc-Dark'
+
+gsettings set org.gnome.desktop.interface toolkit-accessibility true
+gsettings set org.gnome.desktop.interface gtk-im-module 'gtk-im-context-simple'
+
 # gsettings set org.cinnamon.desktop.sound 
 sudo pacman -Sy meson sassc --needed --noconfirm
 git clone "https://aur.archlinux.org/yaru.git" /tmp/yaru
@@ -134,12 +144,6 @@ if [[ -n $(ls /usr/share/sounds/yaru) ]]; then
     gsettings set org.cinnamon.sounds unplug-file '/usr/share/sounds/yaru/stereo/power-unplug.oga'
 fi
 
-gsettings set org.cinnamon.settings-daemon.peripherals.touchpad touchpad-enabled true
-
-gsettings set org.cinnamon.theme name 'Arc-Dark'
-
-gsettings set org.gnome.desktop.interface toolkit-accessibility true
-gsettings set org.gnome.desktop.interface gtk-im-module 'gtk-im-context-simple'
 
 ## TODO
 
