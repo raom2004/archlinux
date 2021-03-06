@@ -89,7 +89,7 @@ gsettings set org.cinnamon.desktop.wm.preferences num-workspaces 4
 
 # cinnamon desktop background
 gsettings set org.cinnamon.desktop.background picture-options 'zoom'
-gsettings set org.cinnamon.desktop.background picture-uri 'file:///usr/share/backgrounds/gnome/Dark_Ivy.jpg'
+gsettings set org.cinnamon.desktop.background picture-uri 'file:///usr/share/backgrounds/gnome/Light_Waves.jpg'
 
 # disable screensaver
 gsettings set org.cinnamon.desktop.screensaver lock-enabled false
@@ -121,12 +121,6 @@ if [[ ! -n "$(pacman -Qm $folder)" ]]; then
     makepkg -sri --noconfirm
     mkdir -p /usr/share/sounds/yaru
     cp -R -u -p /tmp/yaru/src/yaru-*/sounds/src/* /usr/share/sounds/yaru
-
-
-    echo "installing AUR package $folder"
-    git clone "$1" /tmp/$folder
-    cd /tmp/$folder
-    makepkg -sri --noconfirm
     cd $OLDPWD
 fi
 
@@ -202,17 +196,27 @@ fi
 # 	  --save /etc/pacman.d/mirrorlist
 
 
+## terminal color scheme
+url="https://raw.githubusercontent.com/raom2004/arch/master/desktop-customization/gnome-terminal-color-scheme.conf"
+wget $url --output-document=/tmp/gnome-terminal-color-scheme.conf
+dconf load /org/cinnamon/ < /tmp/gnome-terminal-color-scheme.conf
+# dconf load /org/cinnamon/ < $(wget -qO- $url)
+
 ## SHELL CUSTOMIZATION
+sudo sed -i 's/#Color/Color/' /etc/pacman.conf
+sudo pacman -S ttf-nerd-fonts-symbols-mono
+sudo pacman -S --needed ttf-dejavu --noconfirm
 # BASH
-sudo pacman -S bash-completion
+sudo pacman -S --needed grml-bash-config bash-completion --noconfirm
 url="https://raw.githubusercontent.com/raom2004/arch/master/desktop-customization/bashrc-template"
-sudo wget $url --output-document=/$HOME/.bashrc
+wget $url --output-document=/$HOME/.bashrc
 
 #ZSH
-sudo pacman -S grml-zsh-config --noconfirm
-url="https://raw.githubusercontent.com/raom2004/arch/master/desktop-customization/bashrc-template"
-sudo wget $url --output-document=/$HOME/.zshrc
+sudo pacman -S --needed grml-zsh-config zsh-theme-powerlevel10k \
+     --noconfirm
+url="https://raw.githubusercontent.com/raom2004/arch/master/desktop-customization/zshrc-template"
+wget $url --output-document=/$HOME/.zshrc
 
 # systemctl disable script3.service
 
-reboot now
+sudo reboot now

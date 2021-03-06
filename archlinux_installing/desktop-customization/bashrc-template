@@ -122,9 +122,9 @@ fg_color() {
     case "$1" in
         black)      echo 30;;
         red)        echo 31;;
-        green)      echo 32;;
+        green)      echo 38\;5\;47;;
         yellow)     echo 33;;
-        blue)       echo 34;;
+        blue)       echo 38\;5\;33;;
         magenta)    echo 35;;
         cyan)       echo 36;;
         white)      echo 37;;
@@ -137,9 +137,9 @@ bg_color() {
     case "$1" in
         black)      echo 40;;
         red)        echo 41;;
-        green)      echo 42;;
+        green)      echo 48\;5\;47;;
         yellow)     echo 43;;
-        blue)       echo 44;;
+        blue)       echo 48\;5\;33;;
         magenta)    echo 45;;
         cyan)       echo 46;;
         white)      echo 47;;
@@ -247,7 +247,7 @@ prompt_context() {
 
     if [[ $user != $DEFAULT_USER || -n $SSH_CLIENT ]]; then
         # prompt_segment black default "$user@\h"
-        prompt_segment magenta white "$user@\h"
+        prompt_segment white black "$user@\h"
 
 	#; This code breacks the bash behavior
 	#; SET TEXT BOLD (option 1: 2 steps)
@@ -458,3 +458,5 @@ set_bash_prompt() {
 }
 
 PROMPT_COMMAND=set_bash_prompt
+
+pacman -Qs neofetch > /dev/null 2>&1 && neofetch

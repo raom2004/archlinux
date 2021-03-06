@@ -1,3 +1,14 @@
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
+#######################################################
+####### Anarchy ZSH configuration file    #######
+#######################################################
+
 ### Set/unset ZSH options
 #########################
 # setopt NOHUP
@@ -196,9 +207,9 @@ alias myip="curl http://ipecho.net/plain; echo"
 alias logs="find /var/log -type f -exec file {} \; | grep 'text' | cut -d' ' -f1 | sed -e's/:$//g' | grep -v '[0-9]$' | xargs tail -f"
 alias folders='find . -maxdepth 1 -type d -print0 | xargs -0 du -sk | sort -rn'
 alias grep='grep --color=auto'
-alias emacs="emacs -q --eval \"(progn
-				(load-theme 'misterioso)
-				(set-cursor-color \\\"turquoise1\\\"))\""
+alias remacs="emacs -q -l /run/media/angel/KN28/init.el"
+alias emacs="emacs -q --eval \"(progn(load-theme 'misterioso)(set-cursor-color \\\"turquoise1\\\"))\""
+alias dl="youtube-dl"
 
 ### Bind keys
 #############
@@ -291,3 +302,17 @@ zstyle ':completion:*:ssh:*' group-order \
    hosts-domain hosts-host users hosts-ipaddr
 zstyle '*' single-ignored show
 
+### Source plugins
+##################
+# source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+source /usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme
+
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+# [[ ! -f ~/.p10k.zsh ]] || source /run/media/angel/KN28/.p10k.zsh
+
+alias glo='git log --oneline'
+
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+pacman -Qs neofetch > /dev/null 2>&1 && neofetch
