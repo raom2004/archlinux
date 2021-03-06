@@ -58,7 +58,7 @@ fi
 # install video acceleration
 # pacman -S --needed mesa --noconfirm
 # install theme requirements
-sudo pacman -S --needed adwaita-icon-theme arc-gtk-theme \
+sudo pacman -S --needed arc-gtk-theme \
      papirus-icon-theme --noconfirm
 # aur_install https://aur.archlinux.org/humanity-icon-theme.git
 # aur_install https://aur.archlinux.org/numix-icon-theme-git.git
@@ -89,12 +89,13 @@ gsettings set org.cinnamon.desktop.wm.preferences num-workspaces 4
 
 # cinnamon desktop background
 gsettings set org.cinnamon.desktop.background picture-options 'zoom'
-gsettings set org.cinnamon.desktop.background picture-uri 'file:///usr/share/backgrounds/gnome/Light_Waves.jpg'
+gsettings set org.cinnamon.desktop.background picture-uri 'file:///usr/share/backgrounds/gnome/LightWaves.jpg'
 
 # disable screensaver
 gsettings set org.cinnamon.desktop.screensaver lock-enabled false
 
 # set interface (window color and fonts)
+gsettings get org.cinnamon.desktop.interface icon-theme 'ePapirus'
 gsettings set org.cinnamon.desktop.interface gtk-theme 'Arc-Dark'
 gsettings set org.cinnamon.desktop.interface font-name 'Zekton 10'
 # set nemo font
@@ -207,7 +208,7 @@ sudo sed -i 's/#Color/Color/' /etc/pacman.conf
 sudo pacman -S ttf-nerd-fonts-symbols-mono
 sudo pacman -S --needed ttf-dejavu --noconfirm
 # BASH
-sudo pacman -S --needed grml-bash-config bash-completion --noconfirm
+sudo pacman -S --needed bash-completion --noconfirm
 url="https://raw.githubusercontent.com/raom2004/arch/master/desktop-customization/bashrc-template"
 wget $url --output-document=/$HOME/.bashrc
 
@@ -215,8 +216,14 @@ wget $url --output-document=/$HOME/.bashrc
 sudo pacman -S --needed grml-zsh-config zsh-theme-powerlevel10k \
      --noconfirm
 url="https://raw.githubusercontent.com/raom2004/arch/master/desktop-customization/zshrc-template"
+sudo rm -rf /$HOME/.zshrc
 wget $url --output-document=/$HOME/.zshrc
 
+url="https://raw.githubusercontent.com/raom2004/arch/master/desktop-customization/p10k-zsh-template"
+wget $url --output-document=/$HOME/.p10k.zshrc
+
 # systemctl disable script3.service
+
+sudo rm -rf ~/.config/autostart
 
 sudo reboot now
