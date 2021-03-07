@@ -71,16 +71,16 @@ systemctl enable NetworkManager
 # run desktop environment at startup
 systemctl enable lightdm
 
-# echo "sh /usr/bin/script3" > /home/$user_name/.zshrc
+# echo "sh /usr/bin/script3.sh" > /home/$user_name/.zshrc
 echo '[Desktop Entry]
 Type=Application
 Version=1.0
 Name=script3
 Comment=script to customize cinnamon
 Path=your_action
-Exec=/usr/bin/script3
+Exec=/usr/bin/script3.sh
 StartupNotify=true
-Terminal=true' > ~/.config/autostart
+Terminal=true' > ~/.config/autostart/script3.desktop
 
 ## exit if no errors stops the script (option "set -ex")
 exit
