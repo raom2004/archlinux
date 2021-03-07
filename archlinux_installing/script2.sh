@@ -72,6 +72,7 @@ systemctl enable NetworkManager
 systemctl enable lightdm
 
 # echo "sh /usr/bin/script3.sh" > /home/$user_name/.zshrc
+mkdir -p /home/$user_name/autostart/
 echo '[Desktop Entry]
 Type=Application
 Version=1.0
