@@ -91,4 +91,4 @@ rm /mnt/home/script2.sh
 
 
 ## shutdown the system if no errors stops the script (option "set -xe")
-shutdown now
+# shutdown now

@@ -72,7 +72,8 @@ systemctl enable NetworkManager
 systemctl enable lightdm
 
 # echo "sh /usr/bin/script3.sh" > /home/$user_name/.zshrc
-# mkdir -p /home/$user_name/autostart/
+mkdir -p /home/$user_name/.config
+mkdir -p /home/$user_name/.config/autostart
 echo '[Desktop Entry]
 Type=Application
 Encoding=UTF-8
@@ -80,11 +81,11 @@ Version=1.0
 Name=script3
 Comment[C]=Script for basic config of Cinnamon Desktop
 Comment[es]=Script para la configuración básica del escritório Cinnamon
-Exec=/usr/bin/script3.sh
+Exec=gnome-terminal -- sh /usr/bin/script3.sh
 X-GNOME-Autostart-enabled=true
-X-KDE-autostart-after=panel
-StartupNotify=true
-Terminal=true' > /etc/xdg/autostart/script3.desktop
+NoDisplay=false
+Terminal=true' > /home/$user_name/.config/autostart/script3.desktop
+# Terminal=true' > /etc/xdg/autostart/script3.desktop
 
 ## exit if no errors stops the script (option "set -ex")
-exit
+# exit
