@@ -56,12 +56,12 @@ mount /dev/sda1 /mnt/boot
 
 ## install system packages (with desktop environment)
 # pacstrap /mnt base base-devel linux linux-firmware \
-# 	 zsh nano sudo vim emacs git glibc wget \
+# 	 zsh nano sudo vim emacs git wget \
 # 	 dhcpcd reflector \
 # 	 grub os-prober \
 # 	 xorg-server lightdm lightdm-gtk-greeter xdg-user-dirs \
 # 	 gnome-terminal terminator cinnamon \
-# 	 gnome-keyring libsecret seahorse glibc
+# 	 gnome-keyring libsecret seahorse
 	 
 ## install system packages (with desktop env. for virtualization)
 pacstrap /mnt base base-devel \

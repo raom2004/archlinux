@@ -71,21 +71,18 @@ systemctl enable NetworkManager
 # run desktop environment at startup
 systemctl enable lightdm
 
-# echo "sh /usr/bin/script3.sh" > /home/$user_name/.zshrc
-mkdir -p /home/$user_name/.config
-mkdir -p /home/$user_name/.config/autostart
+
+## run script3.sh (desktop configuration) at first desktop boot
 echo '[Desktop Entry]
 Type=Application
-Encoding=UTF-8
 Version=1.0
 Name=script3
 Comment[C]=Script for basic config of Cinnamon Desktop
-Comment[es]=Script para la configuración básica del escritório Cinnamon
-Exec=gnome-terminal -- sh /usr/bin/script3.sh
+Comment[es]=Script para la configuración básica del escritorio Cinnamon
+Exec=gnome-terminal -- bash -c "sh /usr/bin/script3.sh;exec bash"
 X-GNOME-Autostart-enabled=true
-NoDisplay=false
-Terminal=true' > /home/$user_name/.config/autostart/script3.desktop
-# Terminal=true' > /etc/xdg/autostart/script3.desktop
+NoDisplay=false' > /etc/xdg/autostart/script3.desktop
+
 
 ## exit if no errors stops the script (option "set -ex")
-# exit
+exit

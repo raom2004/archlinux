@@ -95,7 +95,7 @@ gsettings set org.cinnamon.desktop.background picture-uri 'file:///usr/share/bac
 gsettings set org.cinnamon.desktop.screensaver lock-enabled false
 
 # set interface (window color and fonts)
-gsettings get org.cinnamon.desktop.interface icon-theme 'ePapirus'
+gsettings set org.cinnamon.desktop.interface icon-theme 'ePapirus'
 gsettings set org.cinnamon.desktop.interface gtk-theme 'Arc-Dark'
 gsettings set org.cinnamon.desktop.interface font-name 'Zekton 10'
 # set nemo font
@@ -115,7 +115,7 @@ gsettings set org.gnome.desktop.interface gtk-im-module 'gtk-im-context-simple'
 
 # gsettings set org.cinnamon.desktop.sound 
 url="https://aur.archlinux.org/yaru.git"
-if [[ ! -n "$(pacman -Qm $folder)" ]]; then 
+if [[ ! -n "$(pacman -Qm yaru)" ]]; then 
     sudo pacman -Sy meson sassc --needed --noconfirm
     git clone $url /tmp/yaru
     cd /tmp/yaru
@@ -197,12 +197,6 @@ fi
 # 	  --save /etc/pacman.d/mirrorlist
 
 
-## terminal color scheme
-url="https://raw.githubusercontent.com/raom2004/arch/master/desktop-customization/gnome-terminal-color-scheme.conf"
-wget $url --output-document=/tmp/gnome-terminal-color-scheme.conf
-dconf load /org/cinnamon/ < /tmp/gnome-terminal-color-scheme.conf
-# dconf load /org/cinnamon/ < $(wget -qO- $url)
-
 ## SHELL CUSTOMIZATION
 sudo sed -i 's/#Color/Color/' /etc/pacman.conf
 sudo pacman -S ttf-nerd-fonts-symbols-mono
@@ -226,6 +220,12 @@ wget $url --output-document=/$HOME/.p10k.zshrc
 
 sudo rm -rf ~/.config/autostart/script3.desktop
 # sudo rm -rf /etc/xdg/autostart/script3.desktop
+
+# ## terminal color scheme
+# url="https://raw.githubusercontent.com/raom2004/arch/master/desktop-customization/gnome-terminal-color-scheme.conf"
+# wget $url --output-document=/tmp/gnome-terminal-color-scheme.conf
+# dconf load /org/cinnamon/ < /tmp/gnome-terminal-color-scheme.conf
+# # dconf load /org/cinnamon/ < $(wget -qO- $url)
 
 echo "sudo reboot now"
 # sudo reboot now
