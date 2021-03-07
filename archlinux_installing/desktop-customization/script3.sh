@@ -224,6 +224,7 @@ wget $url --output-document=/$HOME/.p10k.zshrc
 
 # systemctl disable script3.service
 
-sudo rm -rf ~/.config/autostart/script3.desktop
+# sudo rm -rf ~/.config/autostart/script3.desktop
+sudo rm -rf /etc/xdg/autostart/script3.desktop
 
 sudo reboot now
