@@ -80,7 +80,7 @@ Comment=script to customize cinnamon
 Path=your_action
 Exec=/usr/bin/script3.sh
 StartupNotify=true
-Terminal=true' > ~/.config/autostart/script3.desktop
+Terminal=true' > /home/$user_name/autostart/script3.desktop
 
 ## exit if no errors stops the script (option "set -ex")
 exit
