@@ -56,7 +56,7 @@ mount /dev/sda1 /mnt/boot
 
 ## install system packages (with desktop environment)
 # pacstrap /mnt base base-devel linux linux-firmware \
-# 	 zsh nano sudo vim emacs git wget \
+# 	 zsh neofetch nano sudo vim emacs git wget \
 # 	 dhcpcd reflector \
 # 	 grub os-prober \
 # 	 xorg-server lightdm lightdm-gtk-greeter xdg-user-dirs \
@@ -80,7 +80,7 @@ genfstab -L /mnt >> /mnt/etc/fstab
 
 ## copy scripts to new system
 cp arch/script2.sh /mnt/home
-cp arch/desktop-customization/script3.sh /mnt/usr/bin/script3.sh
+# cp arch/desktop-customization/script3.sh /mnt/usr/bin/script3.sh
 
 ## change root and run script
 arch-chroot /mnt sh /home/script2.sh

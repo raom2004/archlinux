@@ -14,11 +14,11 @@ sed -i 's/#en_DK.UTF-8/en_DK.UTF-8/' /etc/locale.gen
 sed -i 's/#es_ES.UTF-8/es_ES.UTF-8/' /etc/locale.gen
 sed -i 's/#de_DE.UTF-8/de_DE.UTF-8/' /etc/locale.gen
 locale-gen
-echo 'LANG=en_US.UTF-8'           >  /etc/locale.conf
-echo 'LANGUAGE=en_US:en_UK:es:de' >> /etc/locale.conf
-echo 'LC_COLLATE=C'               >> /etc/locale.conf
-echo 'LC_MESSAGES=en_US.UTF-8'    >> /etc/locale.conf
-echo 'LC_TIME=en_DK.UTF-8'        >> /etc/locale.conf
+echo 'LANG=en_US.UTF-8'              >  /etc/locale.conf
+echo 'LANGUAGE=en_US:en_UK:en:es:de' >> /etc/locale.conf
+echo 'LC_COLLATE=C'                  >> /etc/locale.conf
+echo 'LC_MESSAGES=en_US.UTF-8'       >> /etc/locale.conf
+echo 'LC_TIME=en_DK.UTF-8'           >> /etc/locale.conf
 
 
 ## Keyboard Configuration
@@ -73,15 +73,15 @@ systemctl enable lightdm
 
 
 ## run script3.sh (desktop configuration) at first desktop boot
-echo '[Desktop Entry]
-Type=Application
-Version=1.0
-Name=script3
-Comment[C]=Script for basic config of Cinnamon Desktop
-Comment[es]=Script para la configuración básica del escritorio Cinnamon
-Exec=gnome-terminal -- bash -c "sh /usr/bin/script3.sh;exec bash"
-X-GNOME-Autostart-enabled=true
-NoDisplay=false' > /etc/xdg/autostart/script3.desktop
+# echo '[Desktop Entry]
+# Type=Application
+# Version=1.0
+# Name=script3
+# Comment[C]=Script for basic config of Cinnamon Desktop
+# Comment[es]=Script para la configuración básica del escritorio Cinnamon
+# Exec=gnome-terminal -- bash -c "sh /usr/bin/script3.sh;exec bash"
+# X-GNOME-Autostart-enabled=true
+# NoDisplay=false' > /etc/xdg/autostart/script3.desktop
 
 
 ## exit if no errors stops the script (option "set -ex")

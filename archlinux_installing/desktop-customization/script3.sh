@@ -16,14 +16,14 @@ function aur_install {
 
 
 ## ADD KEYMAP SPANISH TO STANDARD (ENGLISH)
-if $(setxkbmap -query  | awk '/es,us/{ print $0 } ');then
+if "$(setxkbmap -query  | awk '/es,us/{ print $0 } ')";then
     localectl set-x11-keymap "es,us" pc105
 fi
 
 
 ## ENABLE AUTOLOGIN
 # set required variables in /etc/lightdm/lightdm.conf
-if (grep '#autologin-guest=false' /etc/lightdm/lightdm.conf);then
+if "$(grep '#autologin-guest=false' /etc/lightdm/lightdm.conf)";then
     sudo bash -c "sed -i 's/#autologin-guest=false/autologin-guest=false/g;
              	s/#autologin-user=/autologin-user=$USER/g;
     	     	s/#autologin-user-timeout=0/autologin-user-timeout=0/g'\
@@ -113,47 +113,6 @@ gsettings set org.cinnamon.theme name 'Arc-Dark'
 gsettings set org.gnome.desktop.interface toolkit-accessibility true
 gsettings set org.gnome.desktop.interface gtk-im-module 'gtk-im-context-simple'
 
-# gsettings set org.cinnamon.desktop.sound 
-url="https://aur.archlinux.org/yaru.git"
-if [[ ! -n "$(pacman -Qm yaru)" ]]; then 
-    sudo pacman -Sy meson sassc --needed --noconfirm
-    git clone $url /tmp/yaru
-    cd /tmp/yaru
-    makepkg -sri --noconfirm
-    mkdir -p /usr/share/sounds/yaru
-    cp -R -u -p /tmp/yaru/src/yaru-*/sounds/src/* /usr/share/sounds/yaru
-    cd $OLDPWD
-fi
-
-
-## Set Sounds (if yaru package was correctly installed)
-if [[ -n "$(ls /usr/share/sounds/yaru)" ]]; then
-    gsettings set org.cinnamon.desktop.sound event-sounds=true
-    gsettings set org.cinnamon.desktop.sound volume-sound-file '/usr/share/sounds/yaru/stereo/audio-volume-change.oga'
-    gsettings set org.cinnamon.sounds close-enabled true
-    gsettings set org.cinnamon.sounds close-file '/usr/share/sounds/yaru/stereo/power-unplug.oga'
-    gsettings set org.cinnamon.sounds login-enabled true
-    gsettings set org.cinnamon.sounds login-file '/usr/share/sounds/yaru/stereo/system-ready.oga'
-    gsettings set org.cinnamon.sounds logout-enabled true
-    gsettings set org.cinnamon.sounds logout-file '/usr/share/sounds/yaru/stereo/device-removed.oga'
-    gsettings set org.cinnamon.sounds map-enabled true
-    gsettings set org.cinnamon.sounds map-file '/usr/share/sounds/yaru/stereo/power-plug.oga'
-    gsettings set org.cinnamon.sounds maximize-enabled true
-    gsettings set org.cinnamon.sounds maximize-file '/usr/share/sounds/yaru/stereo/power-plug.oga'
-    gsettings set org.cinnamon.sounds minimize-enabled true
-    gsettings set org.cinnamon.sounds minimize-file '/usr/share/sounds/freedesktop/stereo/window-attention.oga'
-    gsettings set org.cinnamon.sounds notification-enabled true
-    gsettings set org.cinnamon.sounds notification-file '/usr/share/sounds/yaru/stereo/desktop-login.oga'
-    gsettings set org.cinnamon.sounds plug-enabled true
-    gsettings set org.cinnamon.sounds plug-file '/usr/share/sounds/yaru/stereo/power-plug.oga'
-    gsettings set org.cinnamon.sounds switch-enabled true
-    gsettings set org.cinnamon.sounds switch-file '/usr/share/sounds/yaru/stereo/power-plug.oga'
-    gsettings set org.cinnamon.sounds unmaximize-enabled true
-    gsettings set org.cinnamon.sounds unmaximize-file '/usr/share/sounds/yaru/stereo/device-removed.oga'
-    gsettings set org.cinnamon.sounds unplug-enabled true
-    gsettings set org.cinnamon.sounds unplug-file '/usr/share/sounds/yaru/stereo/power-unplug.oga'
-fi
-
 
 ## TODO
 
@@ -199,8 +158,10 @@ fi
 
 ## SHELL CUSTOMIZATION
 sudo sed -i 's/#Color/Color/' /etc/pacman.conf
-sudo pacman -S ttf-nerd-fonts-symbols-mono
-sudo pacman -S --needed ttf-dejavu --noconfirm
+sudo pacman -S --needed neofetch \
+     ttf-nerd-fonts-symbols-mono \
+     ttf-dejavu --noconfirm
+
 # BASH
 sudo pacman -S --needed bash-completion --noconfirm
 url="https://raw.githubusercontent.com/raom2004/arch/master/desktop-customization/bashrc-template"
@@ -214,7 +175,7 @@ sudo rm -rf /$HOME/.zshrc
 wget $url --output-document=/$HOME/.zshrc
 
 url="https://raw.githubusercontent.com/raom2004/arch/master/desktop-customization/p10k-zsh-template"
-wget $url --output-document=/$HOME/.p10k.zshrc
+wget $url --output-document=/$HOME/.p10k.zsh
 
 # systemctl disable script3.service
 
@@ -226,6 +187,51 @@ sudo rm -rf ~/.config/autostart/script3.desktop
 # wget $url --output-document=/tmp/gnome-terminal-color-scheme.conf
 # dconf load /org/cinnamon/ < /tmp/gnome-terminal-color-scheme.conf
 # # dconf load /org/cinnamon/ < $(wget -qO- $url)
+
+
+
+# gsettings set org.cinnamon.desktop.sound 
+url="https://aur.archlinux.org/yaru.git"
+if [[ ! -n "$(pacman -Qm yaru)" ]]; then 
+    sudo pacman -Sy meson sassc --needed --noconfirm
+    git clone $url /tmp/yaru
+    cd /tmp/yaru
+    makepkg -sri --noconfirm
+    mkdir -p /usr/share/sounds/yaru
+    cp -R -u -p /tmp/yaru/src/yaru-*/sounds/src/* /usr/share/sounds/yaru
+    cd $OLDPWD
+fi
+
+
+## Set Sounds (if yaru package was correctly installed)
+if [[ -n "$(ls /usr/share/sounds/yaru)" ]]; then
+    gsettings set org.cinnamon.desktop.sound event-sounds=true
+    gsettings set org.cinnamon.desktop.sound volume-sound-file '/usr/share/sounds/yaru/stereo/audio-volume-change.oga'
+    gsettings set org.cinnamon.sounds close-enabled true
+    gsettings set org.cinnamon.sounds close-file '/usr/share/sounds/yaru/stereo/power-unplug.oga'
+    gsettings set org.cinnamon.sounds login-enabled true
+    gsettings set org.cinnamon.sounds login-file '/usr/share/sounds/yaru/stereo/system-ready.oga'
+    gsettings set org.cinnamon.sounds logout-enabled true
+    gsettings set org.cinnamon.sounds logout-file '/usr/share/sounds/yaru/stereo/device-removed.oga'
+    gsettings set org.cinnamon.sounds map-enabled true
+    gsettings set org.cinnamon.sounds map-file '/usr/share/sounds/yaru/stereo/power-plug.oga'
+    gsettings set org.cinnamon.sounds maximize-enabled true
+    gsettings set org.cinnamon.sounds maximize-file '/usr/share/sounds/yaru/stereo/power-plug.oga'
+    gsettings set org.cinnamon.sounds minimize-enabled true
+    gsettings set org.cinnamon.sounds minimize-file '/usr/share/sounds/freedesktop/stereo/window-attention.oga'
+    gsettings set org.cinnamon.sounds notification-enabled true
+    gsettings set org.cinnamon.sounds notification-file '/usr/share/sounds/yaru/stereo/desktop-login.oga'
+    gsettings set org.cinnamon.sounds plug-enabled true
+    gsettings set org.cinnamon.sounds plug-file '/usr/share/sounds/yaru/stereo/power-plug.oga'
+    gsettings set org.cinnamon.sounds switch-enabled true
+    gsettings set org.cinnamon.sounds switch-file '/usr/share/sounds/yaru/stereo/power-plug.oga'
+    gsettings set org.cinnamon.sounds unmaximize-enabled true
+    gsettings set org.cinnamon.sounds unmaximize-file '/usr/share/sounds/yaru/stereo/device-removed.oga'
+    gsettings set org.cinnamon.sounds unplug-enabled true
+    gsettings set org.cinnamon.sounds unplug-file '/usr/share/sounds/yaru/stereo/power-unplug.oga'
+fi
+
+neofetch
 
 echo "sudo reboot now"
 # sudo reboot now
