@@ -14,16 +14,18 @@ function aur_install {
     fi
 }
 
+## add user STANDARD directories
+sudo pacman -S --needed xdg-user-dirs  --noconfirm
 
-## ADD ADDITIONAL KEYMAP (e.g. español)
+## ADD ADDITIONAL KEYMAP LAYOUT (e.g. español)
 if [ -z "$(setxkbmap -query  | awk '/us,|,us/{ print $0 } ')" ]; then
-  sudo localectl set-x11-keymap "es,us" pc105
+  localectl set-x11-keymap "es,us" pc105
 fi
 
 
 ## ENABLE AUTOLOGIN
 # set required variables in /etc/lightdm/lightdm.conf
-if "$(grep '#autologin-guest=false' /etc/lightdm/lightdm.conf)";then
+if [ -n "$(grep '#autologin-guest=false' /etc/lightdm/lightdm.conf)" ];then
     sudo bash -c "sed -i 's/#autologin-guest=false/autologin-guest=false/g;
              	s/#autologin-user=/autologin-user=$USER/g;
     	     	s/#autologin-user-timeout=0/autologin-user-timeout=0/g'\
@@ -192,16 +194,18 @@ sudo rm -rf ~/.config/autostart/script3.desktop
 # aur_install https://aur.archlinux.org/numix-icon-theme-git.git
 # aur_install https://aur.archlinux.org/numix-circle-icon-theme-git.git
 
-sudo pacman -S --needed deepin-sound-theme --noconfirm
+sudo pacman -S --needed pulsemixer \
+     sound-theme-freedesktop \
+     deepin-sound-theme --noconfirm
 
 ## Set Sounds (if deepin package was correctly installed)
 if [[ -n "$(ls /usr/share/sounds/deepin)" ]]; then
-    gsettings set org.cinnamon.desktop.sound event-sounds=true
+    gsettings set org.cinnamon.desktop.sound event-sounds true
     gsettings set org.cinnamon.desktop.sound volume-sound-file '/usr/share/sounds/deepin/stereo/audio-volume-change.wav'
     gsettings set org.cinnamon.sounds close-enabled true
-    gsettings set org.cinnamon.sounds close-file '/usr/share/sounds/deepin/stereo/power-unplug.wav'
+    gsettings set org.cinnamon.sounds close-file '/usr/share/sounds/deepin/stereo/desktop-login.wav'
     gsettings set org.cinnamon.sounds login-enabled true
-    gsettings set org.cinnamon.sounds login-file '/usr/share/sounds/deepin/stereo/system-ready.wav'
+    gsettings set org.cinnamon.sounds login-file '/usr/share/sounds/deepin/stereo/desktop-logout.wav'
     gsettings set org.cinnamon.sounds logout-enabled true
     gsettings set org.cinnamon.sounds logout-file '/usr/share/sounds/deepin/stereo/device-removed.wav'
     gsettings set org.cinnamon.sounds map-enabled true
@@ -222,7 +226,12 @@ if [[ -n "$(ls /usr/share/sounds/deepin)" ]]; then
     gsettings set org.cinnamon.sounds unplug-file '/usr/share/sounds/deepin/stereo/power-unplug.wav'
 fi
 
-neofetch
+# turn on audio
+pactl set-sink-mute 0 0
+# set volume
+pactl -- set-sink-volume 0 50%
 
-echo "sudo reboot now"
-# sudo reboot now
+# show fetch
+neofetch
+# restart
+sudo reboot now
