@@ -65,9 +65,9 @@ mount /dev/sda1 /mnt/boot
 	 
 ## install system packages (with desktop env. for virtualization)
 pacstrap /mnt base base-devel \
-	 virtualbox-guest-utils \
+	 virtualbox-guest-utils virtualbox-guest-dkms \
 	 mesa \
-	 zsh nano sudo vim emacs git wget \
+	 zsh grml-zsh-config nano sudo vim emacs git wget \
 	 dhcpcd reflector \
 	 grub os-prober \
 	 xorg-server lightdm lightdm-gtk-greeter \

@@ -1,5 +1,8 @@
 #!/bin/bash
+
+# exit on pipeline error (-e) and enable verbose execute of script (-x)
 set -xe
+
 
 ## DECLARE FUNCTIONS
 # install aur packages without confirmation
@@ -14,8 +17,10 @@ function aur_install {
     fi
 }
 
-## add user STANDARD directories
+## ADD USER STANDARD DIRECTORIES
 sudo pacman -S --needed xdg-user-dirs  --noconfirm
+LC_ALL=C xdg-user-dirs-update --force
+
 
 ## ADD ADDITIONAL KEYMAP LAYOUT (e.g. español)
 if [ -z "$(setxkbmap -query  | awk '/us,|,us/{ print $0 } ')" ]; then
@@ -24,7 +29,6 @@ fi
 
 
 ## ENABLE AUTOLOGIN
-# set required variables in /etc/lightdm/lightdm.conf
 if [ -n "$(grep '#autologin-guest=false' /etc/lightdm/lightdm.conf)" ];then
     sudo bash -c "sed -i 's/#autologin-guest=false/autologin-guest=false/g;
              	s/#autologin-user=/autologin-user=$USER/g;
@@ -35,8 +39,8 @@ if [ -n "$(grep '#autologin-guest=false' /etc/lightdm/lightdm.conf)" ];then
     sudo gpasswd -a "$USER" autologin
 fi
 
-## HIDE BOOTLOADER MENU
-# and show it only when shift is pressed 
+
+## HIDE BOOTLOADER MENU AT STARTUP (and show it pressing SHIFT key)
 if [ ! -n "$(grep GRUB_FORCE_HIDDEN_MENU /etc/default/grub)" ]; then
     sudo bash -c "echo '
 GRUB_FORCE_HIDDEN_MENU=\"true\"
@@ -44,161 +48,76 @@ GRUB_FORCE_HIDDEN_MENU=\"true\"
     # add script required for this funtionallity
     url="https://raw.githubusercontent.com/raom2004/arch/master/desktop-customization/31_hold_shift"
     sudo wget $url --directory-prefix=/etc/grub.d/ 
-    # asign permissions
+    # asign permissions & re-generate bootloader
     sudo chmod a+x /etc/grub.d/31_hold_shift
-    # re-generate BOOTLOADER
     sudo grub-mkconfig -o /boot/grub/grub.cfg
 fi
 
-## TODO: Themes
-# Window borders: Arc-Dark
-# Icons: Numix-Circle
-# Controls: Arc-Dark
-# Mouse Pointer: Adwita
-# Desktop: Ark-Dark
 
-# install video acceleration
-# pacman -S --needed mesa --noconfirm
-# install theme requirements
+## THEME CUSTOMIZATION
 sudo pacman -S --needed arc-gtk-theme \
      papirus-icon-theme --noconfirm
-
-# aur_install https://aur.archlinux.org/adwaita-custom-cursor-colors.git
-# aur_install https://aur.archlinux.org/breeze-adapta-cursor-theme-git.git
-# aur_install https://aur.archlinux.org/sweet-theme-nova-git.git
-# aur_install https://aur.archlinux.org/bibata-cursor-theme.git
-# aur_install https://aur.archlinux.org/oxygen-cursors-extra.git
-# aur_install https://aur.archlinux.org/xcursor-oxygen.git
-# aur_install https://aur.archlinux.org/oxy-neon.git
-# aur_install https://aur.archlinux.org/moka-icon-theme-git.git
-# aur_install https://aur.archlinux.org/gtk-engine-murrine-git.git
-# aur_install https://aur.archlinux.org/gruvbox-material-theme-git.git
-
-# cursor
+# arch cursor
 aur_install https://aur.archlinux.org/xcursor-arch-cursor-complete.git
-# font
+# desktop font 
 aur_install https://aur.archlinux.org/ttf-zekton-rg.git
 
-# sounds requirements
-# aur_install https://aur.archlinux.org/mint-artwork-cinnamon.git
-# aur_install https://aur.archlinux.org/mint-artwork-common.git
 
-## Desktop Customization
+## SYMBOL SUPPORT FONT
+aur_install https://aur.archlinux.org/font-symbola.git
+
+
+## DESKTOP CUSTOMIZATION
 gsettings set org.cinnamon.desktop.wm.preferences num-workspaces 4
-
 # cinnamon desktop background
 gsettings set org.cinnamon.desktop.background picture-options 'zoom'
 gsettings set org.cinnamon.desktop.background picture-uri 'file:///usr/share/backgrounds/gnome/LightWaves.jpg'
-
 # disable screensaver
 gsettings set org.cinnamon.desktop.screensaver lock-enabled false
-
-# set interface (window color and fonts)
+# set window interface color and fonts
 gsettings set org.cinnamon.desktop.interface icon-theme 'ePapirus'
 gsettings set org.cinnamon.desktop.interface gtk-theme 'Arc-Dark'
 gsettings set org.cinnamon.desktop.interface font-name 'Zekton 10'
+gsettings set org.cinnamon.desktop.interface cursor-theme 'ArchCursorComplete'
 # set nemo font
 gsettings set org.nemo.desktop font 'Zekton 10'
-
 # set window manager settings
 gsettings set org.cinnamon.desktop.wm.preferences titlebar-font 'Zekton Bold 10'
 gsettings set org.cinnamon.desktop.wm.preferences theme 'Arc-Dark'
-
-
 gsettings set org.cinnamon.settings-daemon.peripherals.touchpad touchpad-enabled true
-
 gsettings set org.cinnamon.theme name 'Arc-Dark'
-
 gsettings set org.gnome.desktop.interface toolkit-accessibility true
 gsettings set org.gnome.desktop.interface gtk-im-module 'gtk-im-context-simple'
 
 
-## TODO
-
-# bluetooth.service
-# 443 /usr/lib/bluetooth/bluetooth -n -d
-
-# wpa_supplicant.service 
-# 533 /usr/bin/wpa_supplicant -u -s -O /run/wpa_supplicant
-
-# libvirtd.service 
-# 641 /usr/bin/dnsmasq --conf-file=/var/lib/libvirt/dnsmasq/defa>
-# 642 /usr/bin/dnsmasq --conf-file=/var/lib/libvirt/dnsmasq/defa>
-
-# systemd-machined.service 
-# 454 /usr/lib/systemd/systemd-machined
-
-# run-media-angel-w7Black.mount 
-# 435 /usr/bin/mount.ntfs-3g /dev/sda1 /run/media/angel/w7Black >
- 
-# lvm2-lvmetad.service 
-# 286 /usr/bin/lvmetad -f
-# pcscd.service 
-# 823 /usr/bin/pcscd --foreground --auto-exit
-
-
-# download image from repo
-# url="https://github.com/raom2004/arch/blob/master/desktop-customization/bird.jpg?raw=true"
-# wget $url --output-document=~/.cinnamon/backgrounds/bird.jpg
-# set (cinnamon) desktop background
-# gsettings set org.cinnamon.desktop.background picture-uri file:////home/$USER/.cinnamon/backgrounds/bird.jpg
-
-# # firmware modules pending (western digital): aic94xx wd719x xhci_pci
-# aur_install https://aur.archlinux.org/aic94xx-firmware.git
-# aur_install https://aur.archlinux.org/wd719x-firmware.git
-# aur_install https://aur.archlinux.org/upd72020x-fw.git
-
-
-## update mirrorlist fast before use pacstrap 
-# reflector --country Germany --country Austria \
-# 	  --verbose --latest 70 --sort rate \
-# 	  --save /etc/pacman.d/mirrorlist
-
-
 ## SHELL CUSTOMIZATION
+# pacman 
 sudo sed -i 's/#Color/Color/' /etc/pacman.conf
-sudo pacman -S --needed neofetch \
+sudo pacman -S --needed --noconfirm \
+     neofetch \
      ttf-nerd-fonts-symbols-mono \
-     ttf-dejavu --noconfirm
-
+     ttf-dejavu
 # BASH
 sudo pacman -S --needed bash-completion --noconfirm
 url="https://raw.githubusercontent.com/raom2004/arch/master/desktop-customization/bashrc-template"
 wget $url --output-document=/$HOME/.bashrc
-
-#ZSH
+# ZSH
 sudo pacman -S --needed grml-zsh-config zsh-theme-powerlevel10k \
      --noconfirm
 url="https://raw.githubusercontent.com/raom2004/arch/master/desktop-customization/zshrc-template"
 sudo rm -rf /$HOME/.zshrc
 wget $url --output-document=/$HOME/.zshrc
-
 url="https://raw.githubusercontent.com/raom2004/arch/master/desktop-customization/p10k-zsh-template"
 wget $url --output-document=/$HOME/.p10k.zsh
 
 # systemctl disable script3.service
-
 sudo rm -rf ~/.config/autostart/script3.desktop
-# sudo rm -rf /etc/xdg/autostart/script3.desktop
-
-# ## terminal color scheme
-# url="https://raw.githubusercontent.com/raom2004/arch/master/desktop-customization/gnome-terminal-color-scheme.conf"
-# wget $url --output-document=/tmp/gnome-terminal-color-scheme.conf
-# dconf load /org/cinnamon/ < /tmp/gnome-terminal-color-scheme.conf
-# # dconf load /org/cinnamon/ < $(wget -qO- $url)
-
-
-
-# gsettings set org.cinnamon.desktop.sound 
-# aur_install https://aur.archlinux.org/humanity-icon-theme.git
-# aur_install https://aur.archlinux.org/numix-icon-theme-git.git
-# aur_install https://aur.archlinux.org/numix-circle-icon-theme-git.git
 
 sudo pacman -S --needed pulsemixer \
      sound-theme-freedesktop \
      deepin-sound-theme --noconfirm
 
-## Set Sounds (if deepin package was correctly installed)
+## Set Sounds (require deepin sounds package)
 if [[ -n "$(ls /usr/share/sounds/deepin)" ]]; then
     gsettings set org.cinnamon.desktop.sound event-sounds true
     gsettings set org.cinnamon.desktop.sound volume-sound-file '/usr/share/sounds/deepin/stereo/audio-volume-change.wav'
@@ -225,12 +144,10 @@ if [[ -n "$(ls /usr/share/sounds/deepin)" ]]; then
     gsettings set org.cinnamon.sounds unplug-enabled true
     gsettings set org.cinnamon.sounds unplug-file '/usr/share/sounds/deepin/stereo/power-unplug.wav'
 fi
-
-# turn on audio
+# turn on audio (it is off by default)
 pactl set-sink-mute 0 0
 # set volume
 pactl -- set-sink-volume 0 50%
-
 # show fetch
 neofetch
 # restart
