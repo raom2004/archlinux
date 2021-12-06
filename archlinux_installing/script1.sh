@@ -110,7 +110,7 @@ genfstab -L /mnt >> /mnt/etc/fstab
 
 
 ## copy scripts to new system
-cp arch/script2.sh /mnt/home
+cp arch/script2.sh /mnt/home || cp "${PWD}"/script2.sh /mnt/home
 
 ## change root and run script
 arch-chroot /mnt sh /home/script2.sh \
