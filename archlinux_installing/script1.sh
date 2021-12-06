@@ -18,8 +18,8 @@ check="$(dmidecode -s system-manufacturer)"
 
 
 ## Check boot: BIOS or UEFI
-
-if ! ls /sys/firmware/efi/efivars;then
+command="$(ls /sys/firmware/efi/efivars)"
+if ! "${command}";then
   boot_mode='BIOS'
 else
   boot_mode='UEFI'
