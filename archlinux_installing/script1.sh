@@ -51,12 +51,21 @@ case "${#}" in
 
 esac
 
-# Ask for target drive to install archlinux
-if [[ "${machine}" == 'REAL' ]];then
-  lsblk 
-  read -t 5 -sp 'Enter mountpoint: ' -i /dev/sda -e mountpoint 
-else
-  mounpoint=/dev/sda
+## Ask for mountpoint to install archlinux
+
+case "${machine}" in
+  REAL)
+    lsblk 
+    if ! read -t 5 -sp 'Enter mountpoint: ' -i /dev/sda -e mountpoint
+    then
+      mounpoint=/dev/sda
+    fi
+    ;;
+
+  VIRTUAL)
+    mounpoint=/dev/sda
+    ;;
+  
 fi
 
 
