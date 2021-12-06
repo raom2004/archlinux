@@ -96,7 +96,7 @@ mount /dev/sda1 /mnt/boot
 
 
 ## install system packages (with desktop env. for virtualization)
-pacstrap /mnt base base-devel \
+pacstrap /mnt base base-devel linux \
 	 mesa \
 	 zsh grml-zsh-config nano sudo vim emacs git wget \
 	 dhcpcd reflector \
