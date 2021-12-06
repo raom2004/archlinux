@@ -14,15 +14,15 @@ set -o xtrace   # trace what gets executed (useful for debugging)
 
 pacman -Sy --noconfirm --needed dmidecode
 check="$(dmidecode -s system-manufacturer)"
-[[ "${check}" == "innotek GmbH" ]] && machine='REAL' || machine='VIRTUAL'
+[[ "${check}" == "innotek GmbH" ]] && machine='VIRTUAL' || machine='REAL'
 
 
 ## Check boot: BIOS or UEFI
 
 if ! ls /sys/firmware/efi/efivars;then
-  boot_mode="BIOS"
+  boot_mode='BIOS'
 else
-  boot_mode="UEFI"
+  boot_mode='UEFI'
 fi
 
 ## input variables
@@ -36,10 +36,10 @@ case "${#}" in
     ;;
   
   1)
-    host_name="Example"
-    root_password="Example"
-    user_name="Example"
-    user_password="Example"
+    host_name='Example'
+    root_password='Example'
+    user_name='Example'
+    user_password='Example'
     ;;
 
   4)
@@ -54,9 +54,9 @@ esac
 # Ask for target drive to install archlinux
 if [[ "${machine}" == 'REAL' ]];then
   lsblk 
-  read -t 5 -sp "Enter mountpoint: " -i '/dev/sda' mountpoint 
+  read -t 5 -sp 'Enter mountpoint: ' -i /dev/sda -e mountpoint 
 else
-  mounpoint="/dev/sda"
+  mounpoint=/dev/sda
 fi
 
 
