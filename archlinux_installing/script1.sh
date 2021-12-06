@@ -54,6 +54,7 @@ esac
 ## Ask for mountpoint to install archlinux
 
 case "${machine}" in
+
   REAL)
     lsblk 
     if ! read -t 5 -sp 'Enter mountpoint: ' -i /dev/sda -e mountpoint
@@ -66,7 +67,7 @@ case "${machine}" in
     mounpoint=/dev/sda
     ;;
   
-fi
+esac
 
 
 ## set time and synchronize system clock
