@@ -36,10 +36,10 @@ case "${#}" in
     ;;
   
   1)
-    host_name='Example'
-    root_password='Example'
-    user_name='Example'
-    user_password='Example'
+    host_name='example-host'
+    root_password='example'
+    user_name='example-user'
+    user_password='example'
     ;;
 
   4)
