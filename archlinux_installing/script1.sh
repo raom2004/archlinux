@@ -83,8 +83,8 @@ parted -s /dev/sda \
 
 
 ## formating hdd
-mkfs.ext2 /dev/sda1
-mkfs.ext4 /dev/sda2
+mkfs.ext2 -F /dev/sda1
+mkfs.ext4 -F /dev/sda2
 
 
 ## mount new partitions
