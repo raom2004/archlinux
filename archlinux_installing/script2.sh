@@ -34,11 +34,11 @@ localectl set-keymap --no-convert es
 
 
 ## Network Configuration
-echo "$host_name" > /etc/hostname
+echo "${host_name}" > /etc/hostname
 bash -c "echo \"127.0.0.1	localhost
 ::1		localhost
-127.0.1.1	${0}.localdomain	${0}\" \"${host_name}\" \
->> /etc/hosts"
+127.0.1.1	${host_name}.localdomain	${host_name}\" \
+ >> /etc/hosts"
 
 
 ## TODO: Western Digital firmware modules pending: aic94xx wd719x xhci_pci
