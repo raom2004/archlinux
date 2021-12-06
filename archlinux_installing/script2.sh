@@ -2,6 +2,14 @@
 set -xe
 
 
+## variable declaration
+host_name="${1}"
+root_password="${2}"
+user_name="${3}"
+user_password="${4}"
+mountpoint="${5}"
+
+
 ## Time Configuration 
 ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime
 hwclock --systohc

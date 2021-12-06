@@ -103,8 +103,12 @@ genfstab -L /mnt >> /mnt/etc/fstab
 cp arch/script2.sh /mnt/home
 
 ## change root and run script
-arch-chroot /mnt sh /home/script2.sh
-
+arch-chroot /mnt sh /home/script2.sh \
+	    "$host_name" \
+	    "$root_password" \
+	    "$user_name" \
+	    "$user_password" \
+	    "$mountpoint"
 
 ## remove script
 rm /mnt/home/script2.sh
