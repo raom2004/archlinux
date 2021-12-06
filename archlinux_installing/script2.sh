@@ -23,15 +23,14 @@ echo 'LC_TIME=en_DK.UTF-8'           >> /etc/locale.conf
 
 ## Keyboard Configuration
 localectl set-keymap --no-convert es
-# pacman -S libxkbcommon --noconfirm 
-# localectl set-x11-keymap "es,us" pc105
 
 
 ## Network Configuration
 echo "$host_name" > /etc/hostname
-bash -c "echo '127.0.0.1	localhost
+bash -c "echo \"127.0.0.1	localhost
 ::1		localhost
-127.0.1.1	${host_name}.localdomain	$host_name' >> /etc/hosts"
+127.0.1.1	${0}.localdomain	${0}\" \"${host_name}\" \
+>> /etc/hosts"
 
 
 ## TODO: Western Digital firmware modules pending: aic94xx wd719x xhci_pci
