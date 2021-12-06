@@ -59,12 +59,12 @@ case "${machine}" in
     lsblk 
     if ! read -t 5 -sp 'Enter mountpoint: ' -i /dev/sda -e mountpoint
     then
-      mounpoint=/dev/sda
+      mountpoint=/dev/sda
     fi
     ;;
 
   VIRTUAL)
-    mounpoint=/dev/sda
+    mountpoint=/dev/sda
     ;;
   
 esac
