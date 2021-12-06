@@ -19,9 +19,11 @@ check="$(dmidecode -s system-manufacturer)"
 
 ## Check boot: BIOS or UEFI
 
-check_efivars_dir="$(ls /sys/firmware/efi/efivars)"
-[[ -z "$check_efivars_dir" ]] && boot_mode="BIOS" || boot_mode="UEFI"
-
+if ! ls /sys/firmware/efi/efivars;then
+  boot_mode="BIOS"
+else
+  boot_mode="UEFI"
+fi
 
 ## input variables
 case "${#}" in
