@@ -54,7 +54,7 @@ esac
 # Ask for target drive to install archlinux
 if [[ "${machine}" == 'REAL' ]];then
   lsblk 
-  read -t 5 -sp "Enter mountpoint: " mountpoint -i '/dev/sda'
+  read -t 5 -sp "Enter mountpoint: " -i '/dev/sda' mountpoint 
 else
   mounpoint="/dev/sda"
 fi
