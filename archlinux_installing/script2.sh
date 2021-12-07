@@ -40,7 +40,8 @@ echo 'LC_TIME=en_DK.UTF-8'           >> /etc/locale.conf
 
 
 ## Keyboard Configuration
-localectl set-keymap --no-convert es
+echo 'KEYMAP=es' > /etc/vconsole.conf
+# localectl set-keymap --no-convert es
 
 
 ## Network Configuration
@@ -58,7 +59,11 @@ bash -c "echo \"127.0.0.1	localhost
 # mkinitcpio -p 
 
 
-## Install & Config a Bootloader
+## Install & Config a Bootloader (GRUB)
+
+# hidde menu at startup
+printf 'GRUB_FORCE_HIDDEN_MENU=true\n' >> /etc/default/grub
+
 grub-install /dev/sda
 grub-mkconfig -o /boot/grub/grub.cfg
 
