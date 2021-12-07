@@ -63,11 +63,16 @@ bash -c "echo \"127.0.0.1	localhost
 
 grub-install /dev/sda
 
-exit 1
 # hidde menu at startup
 echo "GRUB_FORCE_HIDDEN_MENU=true" >> /etc/default/grub
 # add other operative systems (Mac, Windows, etc)
 echo "GRUB_DISABLE_OS_PROBER=false" >> /etc/default/grub
+
+url="https://gist.githubusercontent.com/anonymous/8eb2019db2e278ba99be/raw/257f15100fd46aeeb8e33a7629b209d0a14b9975/gistfile1.sh"
+wget "${url}" -O /etc/grub.d/31_hold_shift
+# asign permissions & re-generate bootloader
+chmod a+x /etc/grub.d/31_hold_shift
+
 grub-mkconfig -o /boot/grub/grub.cfg
 
 
