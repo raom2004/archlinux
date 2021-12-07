@@ -4,66 +4,131 @@
 
 ## set bash options for: debugging
 
-set -o errexit  # exit if script command fails
-set -o nounset  # exit if script try to use undeclared variables
-set -o pipefail # catch failed piped commands
-set -o xtrace   # trace what gets executed (useful for debugging)
+set -o errtrace # inherit any trap on ERROR
+set -o functrace # inherit any trap on DEBUG and RETURN
+set -o errexit  # EXIT if script command fails
+set -o nounset  # EXIT if script try to use undeclared variables
+set -o pipefail # CATCH failed piped commands
+set -o xtrace   # trace & expand what gets executed (useful for debugging)
+
+## Usage
+
+function display_usage {
+
+  printf "
+ARCHLINUX installer version %s, with support for removable drive booting:
+
+Usage: ${0##*/}
+
+You can preconfig the installation, calling script1.sh with 4 arguments
+
+Example 1:
+$ sh script1.sh host-name root-password user-name user-password
+
+Or without arguments. The script1.sh will ask the configuration on demand
+Example 2:
+$ sh script1.sh
+
+" "${script1_version}"
+  exit 0
+
+}
+
+## Validate mountpoint
+
+function ask_for_mountpoint {
+
+  # initialize mountpoint
+  mountpoint=""
+
+  # find mountpoints available
+  maxdrive="$(lsblk | awk '/sd[a-z] /{ print substr($1, 3) }' | tail -n1)"
+  drives_available="$(lsblk | awk '/sd[a-z] /{ printf "/dev/" $1 "  "}')"
+
+  # show mountpoints available
+  printf "\nTable of Mountpoints Avaliable:\n\n%s\n\n" "$(lsblk)"
+  printf "Drives available: ${Blue}%s${NC}\n\n" "${drives_available}"
+
+  # ask for a mountpoint
+  until [[ "${mountpoint}" =~ ^/dev/sd[a-${maxdrive}]$ ]]
+  do
+    printf "Please introduce a mountpoint"
+    printf " (${Green}example:/dev/sd${maxdrive}${NC}):${Green}" 
+    read -i '/dev/sd' -e mountpoint
+    printf "${NC}"
+    if [[ ! "${mountpoint}" =~ ^/dev/sd[a-${maxdrive}]$ ]]; then
+      printf "${Red}ERROR:${NC} invalid mountpoint:"
+      printf " ${Red}%s${NC}\n" "${mountpoint}"
+      printf "Try with the drives available: ${Blue}%s${NC}\n\n" "${drives_available}"
+    else
+      # printf "Partition valid\n"
+      printf "Confirm Installing Archlinux in "
+      printf "${Green}${mountpoint}${NC} [y/N]?"
+      read -e answer
+      [[ ! "$answer" =~ ^([yY][eE][sS]|[yY])$ ]] && mountpoint="" 
+    fi
+  done
+
+}
 
 
-## Check Actual Machine: VIRTUAL vs REAL
+## Check Actual Machine: VirtualBox (VBox) vs REAL
 
 pacman -Sy --noconfirm --needed dmidecode
 check="$(dmidecode -s system-manufacturer)"
-[[ "${check}" == "innotek GmbH" ]] && machine='VIRTUAL' || machine='REAL'
+[[ "${check}" == "innotek GmbH" ]] && machine='VBox' || machine='REAL'
 
 
-## Check boot: BIOS or UEFI
+## Check if system supports boot as: BIOS or UEFI
 
-if ! ls /sys/firmware/efi/efivars;then
+if ! ls /sys/firmware/efi/efivars 2>/dev/null;then
   boot_mode='BIOS'
 else
   boot_mode='UEFI'
 fi
 
-## input variables
+
+## Check if user provided script with: ARGUMENTS
+
 case "${#}" in
 
   0)
+    # 0 Arguments? please ask for them  
     read -p "Enter hostname: " host_name
     read -sp "Enter ROOT password: " root_password
     read -p "Enter NEW user: " user_name
     read -sp "Enter NEW user PASSWORD: " user_password
     ;;
-  
-  1)
-    host_name='example-host'
-    root_password='example'
-    user_name='example-user'
-    user_password='example'
-    ;;
 
   4)
+    # 4 Arguments: convert it into log variables
     host_name="${1}"
     root_password="${2}"
     user_name="${3}"
     user_password="${4}"
     ;;
 
+  *)
+    printf "User provided wrong number of arguments (${#}). Exiting.."
+    display_usage
+    exit 0
+    ;;
+  
 esac
+
+
+
+
 
 ## Ask for mountpoint to install archlinux
 
 case "${machine}" in
 
   REAL)
-    lsblk 
-    if ! read -t 5 -sp 'Enter mountpoint: ' -i /dev/sda -e mountpoint
-    then
-      mountpoint=/dev/sda
-    fi
+    ask_for_mountpoint
     ;;
 
-  VIRTUAL)
+  VBox)
     mountpoint=/dev/sda
     ;;
   
@@ -82,7 +147,7 @@ parted -s /dev/sda \
        mkpart primary ext4 2% 100%
 
 
-## formating hdd
+## formating hdd (-F=overwrite if necessary)
 mkfs.ext2 -F /dev/sda1
 mkfs.ext4 -F /dev/sda2
 
@@ -112,6 +177,7 @@ genfstab -L /mnt >> /mnt/etc/fstab
 ## copy scripts to new system
 cp arch/script2.sh /mnt/home || cp "${PWD}"/script2.sh /mnt/home
 
+
 ## change root and run script
 arch-chroot /mnt sh /home/script2.sh \
 	    "$host_name" \
@@ -120,5 +186,11 @@ arch-chroot /mnt sh /home/script2.sh \
 	    "$user_password" \
 	    "$mountpoint"
 
+
 ## remove script
 rm /mnt/home/script2.sh
+
+
+# Local Variables:
+# sh-basic-offset: 2
+# End:

@@ -1,5 +1,15 @@
 #!/bin/bash
-set -xe
+#
+# script2.sh: designed to run inside script1.sh chroot into new system   
+
+## set bash options for: debugging
+
+set -o errtrace # inherit any trap on ERROR
+set -o functrace # inherit any trap on DEBUG and RETURN
+set -o errexit  # EXIT if script command fails
+set -o nounset  # EXIT if script try to use undeclared variables
+set -o pipefail # CATCH failed piped commands
+set -o xtrace   # trace & expand what gets executed (useful for debugging)
 
 
 ## variable declaration
@@ -93,3 +103,8 @@ systemctl enable lightdm
 
 ## exit if no errors stops the script (option "set -ex")
 exit
+
+
+# Local Variables:
+# sh-basic-offset: 2
+# End:
