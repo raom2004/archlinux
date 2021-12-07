@@ -71,7 +71,7 @@ sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g' /etc/sudoers
 # set root password
 echo -e "$root_password\n$root_password" | (passwd root)
 # create new user
-useradd -m "$user_name" -s /bin/zsh
+useradd -m "$user_name" -s /bin/bash
 # set new user password
 echo -e "$user_password\n$user_password" | (passwd $user_name)
 # set user groups
@@ -86,19 +86,7 @@ usermod -aG wheel,audio,optical,storage,power,network "$user_name"
 systemctl enable dhcpcd
 systemctl enable NetworkManager
 # run desktop environment at startup
-systemctl enable lightdm
-
-
-## run script3.sh (desktop configuration) at first desktop boot
-# echo '[Desktop Entry]
-# Type=Application
-# Version=1.0
-# Name=script3
-# Comment[C]=Script for basic config of Cinnamon Desktop
-# Comment[es]=Script para la configuración básica del escritorio Cinnamon
-# Exec=gnome-terminal -- bash -c "sh /usr/bin/script3.sh;exec bash"
-# X-GNOME-Autostart-enabled=true
-# NoDisplay=false' > /etc/xdg/autostart/script3.desktop
+# systemctl enable lightdm
 
 
 ## exit if no errors stops the script (option "set -ex")
