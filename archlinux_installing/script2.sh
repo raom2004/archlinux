@@ -33,7 +33,7 @@ sed -i 's/#es_ES.UTF-8/es_ES.UTF-8/' /etc/locale.gen
 sed -i 's/#de_DE.UTF-8/de_DE.UTF-8/' /etc/locale.gen
 locale-gen
 echo 'LANG=en_US.UTF-8'              >  /etc/locale.conf
-echo 'LANGUAGE=en_US:en_GB:en:es:de' >> /etc/locale.conf
+echo 'LANGUAGE=en_US:en_GB:en' >> /etc/locale.conf
 echo 'LC_COLLATE=C'                  >> /etc/locale.conf
 echo 'LC_MESSAGES=en_US.UTF-8'       >> /etc/locale.conf
 echo 'LC_TIME=en_DK.UTF-8'           >> /etc/locale.conf
@@ -46,7 +46,7 @@ echo 'KEYMAP=es' > /etc/vconsole.conf
 
 ## Network Configuration
 echo "${host_name}" > /etc/hostname
-bash -c "echo \"127.0.0.1	localhost
+bash -c "echo \"127.0.0.1	l''''''''''''ocalhost
 ::1		localhost
 127.0.1.1	${host_name}.localdomain	${host_name}\" \
  >> /etc/hosts"
@@ -84,6 +84,11 @@ useradd -m "$user_name" -s /bin/bash
 echo -e "$user_password\n$user_password" | (passwd $user_name)
 # set user groups
 usermod -aG wheel,audio,optical,storage,power,network "$user_name"
+
+## create $USER dirs
+
+pacman -S --needed --noconfirm xdg-user-dirs
+LC_ALL=C xdg-user-dirs-update --force
 
 # set user groups sample:
 # usermod -aG wheel,audio,optical,storage,autologin,vboxusers,power,network <<user>>
