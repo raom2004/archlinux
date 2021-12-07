@@ -2,7 +2,11 @@
 #
 # script2.sh: designed to run inside script1.sh chroot into new system   
 
-## set bash options for: debugging
+
+### BASH SCRIPT1.SH OPTIONS ##########################################
+
+
+## options for DEBUGGING
 
 set -o errtrace # inherit any trap on ERROR
 set -o functrace # inherit any trap on DEBUG and RETURN
@@ -13,6 +17,7 @@ set -o xtrace   # trace & expand what gets executed (useful for debugging)
 
 
 ## variable declaration
+
 host_name="${1}"
 root_password="${2}"
 user_name="${3}"
@@ -20,12 +25,14 @@ user_password="${4}"
 mountpoint="${5}"
 
 
-## Time Configuration 
+## Time Configuration
+
 ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime
 hwclock --systohc
 
 
 ## Language Configuration
+
 sed -i 's/#en_US.UTF-8/en_US.UTF-8/' /etc/locale.gen
 sed -i 's/#en_GB.UTF-8/en_GB.UTF-8/' /etc/locale.gen
 sed -i 's/#en_DK.UTF-8/en_DK.UTF-8/' /etc/locale.gen
@@ -40,6 +47,7 @@ echo 'LC_TIME=en_DK.UTF-8'           >> /etc/locale.conf
 
 
 ## Keyboard Configuration
+
 echo 'KEYMAP=es' > /etc/vconsole.conf
 # localectl set-keymap --no-convert es
 
@@ -105,6 +113,22 @@ ExecStart=
 ExecStart=-/sbin/agetty --autologin ${user_name} --noclear %%I ${TERM}
 " > /etc/systemd/system/getty@tty1.service.d/autologin.conf
 
+# Make colorcoding available for everyone
+cat <<EOF > /home/"${user_name}"/.bashrc
+Black='\[\e[0;30m\]'	# Black
+Red='\[\e[0;31m\]'		# Red
+Green='\[\e[0;32m\]'	# Green
+Yellow='\[\e[0;33m\]'	# Yellow
+Blue='\[\e[0;34m\]'		# Blue
+Purple='\[\e[0;35m\]'	# Purple
+Cyan='\[\e[0;36m\]'		# Cyan
+White='\[\e[0;37m\]'	# White
+
+NC='\[\e[m\]'			# Color Reset
+
+# Set prompt
+PS1="${Red}\u${NC}@\h: \w \\$ "
+EOF
 
 ## Enable Requited Services:
 # network config

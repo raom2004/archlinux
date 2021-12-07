@@ -2,11 +2,11 @@
 #
 # script1.h: bash script for install archlinux with support for BIOS/MBR 
 
-## start meassuring time of execution
-start="$(date +%s)"
+
+### BASH SCRIPT1.SH OPTIONS ##########################################
 
 
-## set bash options for: debugging
+## options for DEBUGGING
 
 set -o errtrace # inherit any trap on ERROR
 set -o functrace # inherit any trap on DEBUG and RETURN
@@ -15,7 +15,14 @@ set -o nounset  # EXIT if script try to use undeclared variables
 set -o pipefail # CATCH failed piped commands
 set -o xtrace   # trace & expand what gets executed (useful for debugging)
 
-## Usage
+## script variables
+script1_version="v0.8.0"
+script_start_time="$(date +%s)"
+
+### FUNCTIONS DECLARATION ############################################
+
+
+## Bash Script Usage
 
 function display_usage {
 
@@ -37,9 +44,9 @@ $ sh script1.sh
 
 }
 
-## Validate mountpoint
+## User must select a archlinux install: mountpoint
 
-function ask_for_mountpoint {
+function ask_user_for_archlinux_install_mountpoint {
 
   # initialize mountpoint
   mountpoint=""
@@ -52,23 +59,25 @@ function ask_for_mountpoint {
   printf "\nTable of Mountpoints Avaliable:\n\n%s\n\n" "$(lsblk)"
   printf "Drives available: ${Blue}%s${NC}\n\n" "${drives_available}"
 
-  # ask for a mountpoint
+  # LOOP to ask user for mountpoint
   until [[ "${mountpoint}" =~ ^/dev/sd[a-${maxdrive}]$ ]]
   do
     printf "Please introduce a mountpoint"
     printf " (${Green}example:/dev/sd${maxdrive}${NC}):${Green}" 
     read -i '/dev/sd' -e mountpoint
     printf "${NC}"
+    # if mount point invalid: show a message with mountpoint suggestions
     if [[ ! "${mountpoint}" =~ ^/dev/sd[a-${maxdrive}]$ ]]; then
       printf "${Red}ERROR:${NC} invalid mountpoint:"
       printf " ${Red}%s${NC}\n" "${mountpoint}"
-      printf "Try with the drives available: ${Blue}%s${NC}\n\n" "${drives_available}"
+      printf "Try with the drives available:"
+      printf " ${Blue}%s${NC}\n\n" "${drives_available}"
     else
-      # printf "Partition valid\n"
+      # if mountpoint valid: please ask to confirm
       printf "Confirm Installing Archlinux in "
       printf "${Green}${mountpoint}${NC} [y/N]?"
       read -e answer
-      [[ ! "$answer" =~ ^([yY][eE][sS]|[yY])$ ]] && mountpoint="" 
+      [[ ! "${answer}" =~ ^([yY][eE][sS]|[yY])$ ]] && mountpoint="" 
     fi
   done
 
@@ -94,14 +103,16 @@ fi
 
 ## Check if user provided script with: ARGUMENTS
 
+display_usage
+
 case "${#}" in
 
   0)
-    # 0 Arguments? please ask for them  
+    # 0 Arguments? please ask for them
     read -p "Enter hostname: " host_name
-    read -sp "Enter ROOT password: " root_password
-    read -p "Enter NEW user: " user_name
-    read -sp "Enter NEW user PASSWORD: " user_password
+    read -sp "Enter ROOT PASSWORD: " root_password
+    read -p "Enter USER name: " user_name
+    read -sp "Enter USER PASSWORD: " user_password
     ;;
 
   4)
@@ -114,7 +125,6 @@ case "${#}" in
 
   *)
     printf "User provided wrong number of arguments (${#}). Exiting.."
-    display_usage
     exit 0
     ;;
   
@@ -129,7 +139,7 @@ esac
 case "${machine}" in
 
   REAL)
-    ask_for_mountpoint
+    ask_user_for_archlinux_install_mountpoint
     ;;
 
   VBox)
@@ -167,61 +177,33 @@ mount /dev/sda1 /mnt/boot
 ## Important: update package manager keyring
 pacman -Syy --noconfirm archlinux-keyring
 
-## list of packages to be installed
-touch requirements.txt
+
+## install elementary system packages
 # esential packages
-cat <<EOF >> requirements.txt
-base
-base-devel
-linux
-EOF
-
+pacstrap /mnt base base-devel linux
 # editors
-cat <<EOF >> requirements.txt
-vim
-nano
-EOF
-
+pacstrap /mnt vim nano
 # system tools	
-cat <<EOF >> requirements.txt
-zsh
-sudo
-git
-wget
-EOF
+pacstrap /mnt zsh sudo git wget
 # system mounting tools
-cat <<EOF >> requirements.txt
-gvfs
-EOF
-
+pacstrap /mnt gvfs
 # network
-cat <<EOF >> requirements.txt
-dhcpcd
-EOF
-
+pacstrap /mnt dhcpcd
 # wifi
-cat <<EOF >> requirements.txt
-networkmanager
-EOF
-
+pacstrap /mnt networkmanager
 # boot loader	
-cat <<EOF >> requirements.txt
-grub
-os-prober
-EOF
+pacstrap /mnt grub os-prober
 
-## install system packages
-pacstrap /mnt - < requirements.txt
  
 ## generate fstab
 genfstab -L /mnt >> /mnt/etc/fstab
 
 
-## copy scripts to new system
-cp arch/script2.sh /mnt/home || cp "${PWD}"/script2.sh /mnt/home
+## copy script2.sh to new system
+cp "${PWD}"/script2.sh /mnt/home || cp arch/script2.sh /mnt/home 
 
 
-## change root and run script
+## change root and run script2.sh
 arch-chroot /mnt sh /home/script2.sh \
 	    "$host_name" \
 	    "$root_password" \
@@ -233,12 +215,15 @@ arch-chroot /mnt sh /home/script2.sh \
 ## remove script
 #rm /mnt/home/script2.sh
 
-end="$(date +%s)"
-runtime="$((${end}-${start}))"
-echo "# $runtime" >> /mnt/home/script2.sh
+script_end_time="$(date +%s)"
+runtime="$((${script_end_time}-${script_start_time}))"
+printf "\n## Install runtime : $runtime\n" >> /mnt/home/script2.sh
 
+## umount archlinux new system partition /mnt 
 umount -R /mnt
+
 reboot now
+
 # Local Variables:
 # sh-basic-offset: 2
 # End:
