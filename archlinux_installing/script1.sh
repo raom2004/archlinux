@@ -30,7 +30,6 @@ Example 2:
 $ sh script1.sh
 
 " "${script1_version}"
-  exit 0
 
 }
 
@@ -160,16 +159,55 @@ mkdir /mnt/boot
 mount /dev/sda1 /mnt/boot
 
 
-## install system packages (with desktop env. for virtualization)
-pacstrap /mnt base base-devel linux \
-	 mesa \
-	 zsh grml-zsh-config nano sudo vim emacs git wget \
-	 dhcpcd reflector \
-	 grub os-prober \
-	 xorg-server lightdm lightdm-gtk-greeter \
-	 gnome-terminal terminator cinnamon livecd-sounds
+## Important: update package manager keyring
+pacman -Syy --noconfirm archlinux-keyring
 
+## list of packages to be installed
 
+# esential packages
+cat <<EOF > requirements.txt
+base
+base-devel
+linux
+EOF
+
+# editors
+cat <<EOF > requirements.txt
+vim
+nano
+EOF
+
+# system tools	
+cat <<EOF > requirements.txt
+zsh
+sudo
+git
+wget
+EOF
+# system mounting tools
+cat <<EOF > requirements.txt
+gvfs
+EOF
+
+# network
+cat <<EOF > requirements.txt
+dhcpcd
+EOF
+
+# wifi
+cat <<EOF > requirements.txt
+networkmanager
+EOF
+
+# boot loader	
+cat <<EOF > requirements.txt
+grub
+os-prober
+EOF
+
+## install system packages
+pacstrap /mnt - < requirements.txt
+ 
 ## generate fstab
 genfstab -L /mnt >> /mnt/etc/fstab
 
