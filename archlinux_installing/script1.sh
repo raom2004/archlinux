@@ -2,6 +2,10 @@
 #
 # script1.h: bash script for install archlinux with support for BIOS/MBR 
 
+## start meassuring time of execution
+start="$(date +%s)"
+
+
 ## set bash options for: debugging
 
 set -o errtrace # inherit any trap on ERROR
@@ -69,6 +73,7 @@ function ask_for_mountpoint {
   done
 
 }
+
 
 
 ## Check Actual Machine: VirtualBox (VBox) vs REAL
@@ -226,9 +231,14 @@ arch-chroot /mnt sh /home/script2.sh \
 
 
 ## remove script
-rm /mnt/home/script2.sh
+#rm /mnt/home/script2.sh
 
+end="$(date +%s)"
+runtime="$((${end}-${start}))"
+echo "# $runtime" > /mnt/home/script2.sh
 
+umount -R /mnt
+reboot now
 # Local Variables:
 # sh-basic-offset: 2
 # End:

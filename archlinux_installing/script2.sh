@@ -46,7 +46,7 @@ echo 'KEYMAP=es' > /etc/vconsole.conf
 
 ## Network Configuration
 echo "${host_name}" > /etc/hostname
-bash -c "echo \"127.0.0.1	l''''''''''''ocalhost
+bash -c "echo \"127.0.0.1	localhost
 ::1		localhost
 127.0.1.1	${host_name}.localdomain	${host_name}\" \
  >> /etc/hosts"
