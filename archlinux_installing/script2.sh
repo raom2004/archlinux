@@ -87,6 +87,13 @@ usermod -aG wheel,audio,optical,storage,power,network "$user_name"
 # set user groups sample:
 # usermod -aG wheel,audio,optical,storage,autologin,vboxusers,power,network <<user>>
 
+## autologing tty
+mkdir -p /etc/systemd/system/getty@tty1.service.d
+printf "[Service]
+ExecStart=
+ExecStart=-/sbin/agetty --autologin ${user_name} --noclear %%I ${TERM}
+" > /etc/systemd/system/getty@tty1.service.d/autologin.conf
+
 
 ## Enable Requited Services:
 # network config
