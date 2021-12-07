@@ -63,11 +63,11 @@ bash -c "echo \"127.0.0.1	localhost
 
 grub-install /dev/sda
 
+exit 1
 # hidde menu at startup
-printf 'GRUB_FORCE_HIDDEN_MENU=true\n' >> /etc/default/grub
+echo "GRUB_FORCE_HIDDEN_MENU=true" >> /etc/default/grub
 # add other operative systems (Mac, Windows, etc)
-printf 'GRUB_DISABLE_OS_PROBER=false\n' >> /etc/default/grub
-
+echo "GRUB_DISABLE_OS_PROBER=false" >> /etc/default/grub
 grub-mkconfig -o /boot/grub/grub.cfg
 
 
