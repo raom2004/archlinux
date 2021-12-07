@@ -61,12 +61,13 @@ bash -c "echo \"127.0.0.1	localhost
 
 ## Install & Config a Bootloader (GRUB)
 
+grub-install /dev/sda
+
 # hidde menu at startup
 printf 'GRUB_FORCE_HIDDEN_MENU=true\n' >> /etc/default/grub
 # add other operative systems (Mac, Windows, etc)
 printf 'GRUB_DISABLE_OS_PROBER=false\n' >> /etc/default/grub
 
-grub-install /dev/sda
 grub-mkconfig -o /boot/grub/grub.cfg
 
 
