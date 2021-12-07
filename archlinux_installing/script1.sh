@@ -235,7 +235,7 @@ arch-chroot /mnt sh /home/script2.sh \
 
 end="$(date +%s)"
 runtime="$((${end}-${start}))"
-echo "# $runtime" > /mnt/home/script2.sh
+echo "# $runtime" >> /mnt/home/script2.sh
 
 umount -R /mnt
 reboot now
