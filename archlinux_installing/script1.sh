@@ -5,6 +5,9 @@
 
 ### BASH SCRIPT1.SH OPTIONS ##########################################
 
+## options for SECURITY
+
+set +o history # disably bash history temporarily
 
 ## options for DEBUGGING
 
