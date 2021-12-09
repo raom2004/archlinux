@@ -1,0 +1,107 @@
+#
+# ./functions
+#
+# Purpose: library with display usag and the functions related to
+#  archlinux install script1.sh
+
+## FUNCTIONS DECLARATION
+
+
+########################################
+# Purpose: Bash Script Usage
+# Arguments: script1_version
+#  
+########################################
+
+## Bash Script Usage
+
+function display_usage {
+
+  printf "
+ARCHLINUX installer Version %s
+Summary: a bash script that automates archlinux install.
+The script follows the official guidelines, providing support for install and booting from both, internal or removable drives, such as: USB, SD or MMC.
+
+Usage: ${0##*/} [options]
+-h|--help         display usage
+
+1. When you call then script1.sh, the code will ask variables on demand
+
+Example 1: calling the script1.sh (recommended)
+${Green}$ sh script1.sh${NC} 
+
+2. You can make the install calling the script1.sh with 7 arguments:
+$ sh script1.sh target-drive host-name root-password user-name user-password user-shell autolog-tty
+
+Detailed arguments:
+    target-drive  = set target drive to install linux, e.g. \"/dev/sdX\"
+    host-name     = set name of the host, any string..
+    root-password = set the root password, any string..
+    user-name     = set name to create a new user, any string..
+    user-password = set password for the new user, any string..
+    user-shell    = set the user default shell, options: \"bash\", \"zsh\"
+    autolog-tty   = autolog user on tty1, e.g. \"yes\" or \"no\"
+
+Example 2: calling the script1.sh with arguments
+${Green}$ sh script1.sh /dev/sdc myhost rootpasword myuser myuserpassword bash yes${NC}
+
+
+" "${script1_version}"
+
+}
+
+## dialog to input the archlinux install mountpoint
+
+function choose_a_drive_for_install_archlinux {
+
+  # set variable for final result named differently with underscore
+  local __resultvar="${1}"
+  
+  # initialize variables
+  local mymountpoint=''
+  local maxdrive
+  local drives_available
+  
+  # find and return the mountpoints available
+  drives_available="$(lsblk | awk '/sd[a-z] /{ printf "/dev/" $1 "  "}')"
+  # find and return the letter of the maximum drive available
+  maxdrive="$(lsblk | awk '/sd[a-z] /{ print substr($1,3) }' | tail -n1)"
+
+  # INITIAL MESSAGE with the mountpoints available
+  printf "\nTable of Mountpoints Avaliable:\n\n%s\n\n" "$(lsblk)"
+  printf "Mountpoints: ${Blue}%s${NC}\n\n" "${drives_available}"
+
+  # LOOP to select a mountpoint
+  until [[ "${mymountpoint}" =~ ^/dev/sd[a-${maxdrive}]$ ]]
+  do
+    printf "Please introduce a mountpoint"
+    printf " (${Green}example:/dev/sd${maxdrive}${NC}):" 
+    read -i '/dev/sd' -e mymountpoint
+    # if mountpoint invalid: show a message with possible mountpoints
+    if [[ ! "${mymountpoint}" =~ ^/dev/sd[a-${maxdrive}]$ ]]; then
+      printf "${Red}ERROR:${NC} invalid mountpoint:"
+      printf " ${Red}%s${NC}\n" "${mymountpoint}"
+      printf "Try with the mountpoints available:"
+      printf " ${Blue}%s${NC}\n\n" "${drives_available}"
+    else
+      # if mountpoint is valid: please ask for confirmation
+      printf "Confirm Installing Archlinux in "
+      printf "${Green}${mymountpoint}${NC} [y/N]?"
+      read -e answer
+      # if user privide anything different to yes/y, please start again
+      [[ ! "${answer}" =~ ^([yY][eE][sS]|[yY])$ ]] && mymountpoint=''
+    fi
+  done
+
+  # user will call the function, and the result will be set as a variable
+  # For example:
+  # $ ask_user_for_installation_mountpoint mountpoint
+  # The function's result will be set as the variable "mountpoint", but
+  # a function can't set a variable directly but EVAL can do the setting:
+  eval "${__resultvar}"="'${mymountpoint}'"
+
+}
+
+# Local Variables:
+# sh-basic-offset: 2
+# End:

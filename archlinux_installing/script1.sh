@@ -7,12 +7,13 @@
 
 ### BASH SCRIPT1.SH OPTIONS ##########################################
 
-# options for SECURITY
-set +o history # disably bash history #temporaril
+## options for SECURITY
+
+shopt -o noclobber # prevent file overwriting (>) but can forced by (>|)
+set +o history     # disably bash history temporarilly
 
 ## options for DEBUGGING
 
-shopt -o noclobber # prevent file overwriting (>) but can forced by (>|)
 set -o errtrace    # inherit any trap on ERROR
 set -o functrace   # inherit any trap on DEBUG and RETURN
 set -o errexit     # EXIT if script command fails
@@ -22,80 +23,12 @@ set -o xtrace      # trace & expand what gets executed (useful for debug)
 
 ## import libraries
 source ./ANSI_escape_colors.sh
-
+source ./functions
 
 ## script variables
 
 script1_version="v0.8.0"
 script_start_time="$(date +%s)"
-
-### FUNCTIONS DECLARATION ############################################
-
-
-## Bash Script Usage
-
-function display_usage {
-
-  printf "
-ARCHLINUX installer version %s, with support for removable drive booting:
-
-Usage: ${0##*/}
-
-You can preconfig the installation, calling script1.sh with 4 arguments
-
-Example 1:
-$ sh script1.sh host-name root-password user-name user-password
-
-Or without arguments. The script1.sh will ask the configuration on demand
-Example 2:
-$ sh script1.sh
-
-" "${script1_version}"
-
-}
-
-## User must select a archlinux install: mountpoint
-
-function ask_user_for_installation_mountpoint {
-
-  # initialize variables
-  local __resultvar="${1}"
-  local mymountpoint=''
-  local maxdrive
-  local drives_available
-  
-  # find mountpoints available
-  maxdrive="$(lsblk | awk '/sd[a-z] /{ print substr($1, 3) }' | tail -n1)"
-  drives_available="$(lsblk | awk '/sd[a-z] /{ printf "/dev/" $1 "  "}')"
-
-  # show mountpoints available
-  printf "\nTable of Mountpoints Avaliable:\n\n%s\n\n" "$(lsblk)"
-  printf "Drives available: ${Blue}%s${NC}\n\n" "${drives_available}"
-
-  # LOOP to ask user for mountpoint
-  until [[ "${mymountpoint}" =~ ^/dev/sd[a-${maxdrive}]$ ]]
-  do
-    printf "Please introduce a mountpoint"
-    printf " (${Green}example:/dev/sd${maxdrive}${NC}):${Green}" 
-    read -i '/dev/sd' -e mymountpoint
-    printf "${NC}"
-    # if mount point invalid: show a message with mountpoint suggestions
-    if [[ ! "${mymountpoint}" =~ ^/dev/sd[a-${maxdrive}]$ ]]; then
-      printf "${Red}ERROR:${NC} invalid mountpoint:"
-      printf " ${Red}%s${NC}\n" "${mymountpoint}"
-      printf "Try with the drives available:"
-      printf " ${Blue}%s${NC}\n\n" "${drives_available}"
-    else
-      # if mountpoint valid: please ask to confirm
-      printf "Confirm Installing Archlinux in "
-      printf "${Green}${mymountpoint}${NC} [y/N]?"
-      read -e answer
-      [[ ! "${answer}" =~ ^([yY][eE][sS]|[yY])$ ]] && mymountpoint=''
-    fi
-  done
-  eval "${__resultvar}"="'${mymountpoint}'"
-
-}
 
 
 ## Check Actual Machine: VirtualBox (VBox) vs REAL
@@ -105,7 +38,7 @@ check="$(dmidecode -s system-manufacturer)"
 [[ "${check}" == "innotek GmbH" ]] && machine='VBox' || machine='REAL'
 
 
-## Check if system supports boot as: BIOS or UEFI
+## Check boot system support: BIOS or UEFI
 
 if ! ls /sys/firmware/efi/efivars 2>/dev/null;then
   boot_mode='BIOS'
@@ -114,34 +47,43 @@ else
 fi
 
 
-## Check if user provided script with: ARGUMENTS
+## display usage if user provided the tag help
 
-display_usage
+[[ "${1}" =~ (--help)|(-h) ]] && display_usage || &> /dev/null
+
+## Check if user provided script with: ARGUMENTS
 
 case "${#}" in
 
+  7)
+    # User provided 7 arguments, convert it into script variables
+    target_drive="${1}"		# e.g.: /dev/sdX
+    host_name="${2}"		# any string
+    root_password="${3}"	# any string
+    user_name="${4}"		# any string
+    user_password="${5}"	# any string
+    user_shell="${6}"		# options: bash, zsh
+    autolog_tty="${7}"		# options: yes, no
+    ;;
+
   0)
-    # 0 Arguments? please ask for them
-    prinf "You must provie some " answer
-    read -p "Enter hostname: " host_name
+    ## User do not provide arguments? please ask for them
+    prinf "${Green}The archlinux install required some parameters:${NC}"
+
+    # from functions, function to set a drive (/dev/sdX) to install linux
+    choose_a_drive_for_install_archlinux target_drive
+
+    # log parameters, passwords are hidden (read -s)
+    read -p "Enter HOST name: " host_name
     read -sp "Enter ROOT PASSWORD: " root_password
     read -p "Enter USER name: " user_name
     read -sp "Enter USER PASSWORD: " user_password
-    ask_user_for_installation_mountpoint mountpoint
-    read -p "Enter USER SHELL (e.g. bash, zsh) " user_shell
-    [[ ! "${user_shell}" =~ ^([b][a]|[z])(sh)$ ]] && echo "err" | exit 1
-    read -p "Do you want autolog tty at startup?[y/N]" autolog_tty
-    [[ ! "${autolog_tty}" =~ ^([yY][eE][sS]|[yY]|[nN])$ ]] && exit 1
-    ;;
 
-  6)
-    # 4 Arguments: convert it into log variables
-    host_name="${1}"
-    root_password="${2}"
-    user_name="${3}"
-    user_password="${4}"
-    user_shell="${5}"
-    autolog_tty="${6}"
+    # parameters with fixed options that need to be checked
+    read -p "Enter USER SHELL (e.g. bash, zsh) " user_shell
+    [[ ! "${user_shell}" =~ ^([b][a]|[z])(sh)$ ]] && echo "fail" | exit 1
+    read -p "Do you want autolog tty at startup?[y/N]" autolog_tty
+    [[ ! "${autolog_tty}" =~ ^([y][e][s]|[yY]|[nN])$ ]] && exit 1
     ;;
 
   *)
@@ -155,16 +97,16 @@ esac
 
 
 
-## Ask for mountpoint to install archlinux
+## Ask for target_drive to install archlinux
 
 case "${machine}" in
 
   REAL)
-    ask_user_for_install_mountpoint
+    ask_user_for_install_target_drive
     ;;
 
   VBox)
-    mountpoint=/dev/sda
+    target_drive=/dev/sda
     ;;
   
 esac
@@ -226,11 +168,11 @@ cp "${PWD}"/script2.sh /mnt/home || cp arch/script2.sh /mnt/home
 
 ## change root and run script2.sh
 arch-chroot /mnt sh /home/script2.sh \
+	    "$target_drive" \
 	    "$host_name" \
 	    "$root_password" \
 	    "$user_name" \
 	    "$user_password" \
-	    "$mountpoint" \
 	    "$user_shell" \
 	    "$autolog_tty"
 
