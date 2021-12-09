@@ -2,23 +2,30 @@
 #
 # script1.h: bash script for install archlinux with support for BIOS/MBR 
 
+# Dependencies:
+#  built-in library ANSI_escape_colors.sh (version v1.0)
 
 ### BASH SCRIPT1.SH OPTIONS ##########################################
 
-## options for SECURITY
-
-set +o history # disably bash history temporarily
+# options for SECURITY
+set +o history # disably bash history #temporaril
 
 ## options for DEBUGGING
 
-set -o errtrace # inherit any trap on ERROR
-set -o functrace # inherit any trap on DEBUG and RETURN
-set -o errexit  # EXIT if script command fails
-set -o nounset  # EXIT if script try to use undeclared variables
-set -o pipefail # CATCH failed piped commands
-set -o xtrace   # trace & expand what gets executed (useful for debugging)
+shopt -o noclobber # prevent file overwriting (>) but can forced by (>|)
+set -o errtrace    # inherit any trap on ERROR
+set -o functrace   # inherit any trap on DEBUG and RETURN
+set -o errexit     # EXIT if script command fails
+set -o nounset     # EXIT if script try to use undeclared variables
+set -o pipefail    # CATCH failed piped commands
+set -o xtrace      # trace & expand what gets executed (useful for debug)
+
+## import libraries
+source ./ANSI_escape_colors.sh
+
 
 ## script variables
+
 script1_version="v0.8.0"
 script_start_time="$(date +%s)"
 
@@ -49,11 +56,14 @@ $ sh script1.sh
 
 ## User must select a archlinux install: mountpoint
 
-function ask_user_for_archlinux_install_mountpoint {
+function ask_user_for_installation_mountpoint {
 
-  # initialize mountpoint
-  mountpoint=""
-
+  # initialize variables
+  local __resultvar="${1}"
+  local mymountpoint=''
+  local maxdrive
+  local drives_available
+  
   # find mountpoints available
   maxdrive="$(lsblk | awk '/sd[a-z] /{ print substr($1, 3) }' | tail -n1)"
   drives_available="$(lsblk | awk '/sd[a-z] /{ printf "/dev/" $1 "  "}')"
@@ -63,29 +73,29 @@ function ask_user_for_archlinux_install_mountpoint {
   printf "Drives available: ${Blue}%s${NC}\n\n" "${drives_available}"
 
   # LOOP to ask user for mountpoint
-  until [[ "${mountpoint}" =~ ^/dev/sd[a-${maxdrive}]$ ]]
+  until [[ "${mymountpoint}" =~ ^/dev/sd[a-${maxdrive}]$ ]]
   do
     printf "Please introduce a mountpoint"
     printf " (${Green}example:/dev/sd${maxdrive}${NC}):${Green}" 
-    read -i '/dev/sd' -e mountpoint
+    read -i '/dev/sd' -e mymountpoint
     printf "${NC}"
     # if mount point invalid: show a message with mountpoint suggestions
-    if [[ ! "${mountpoint}" =~ ^/dev/sd[a-${maxdrive}]$ ]]; then
+    if [[ ! "${mymountpoint}" =~ ^/dev/sd[a-${maxdrive}]$ ]]; then
       printf "${Red}ERROR:${NC} invalid mountpoint:"
-      printf " ${Red}%s${NC}\n" "${mountpoint}"
+      printf " ${Red}%s${NC}\n" "${mymountpoint}"
       printf "Try with the drives available:"
       printf " ${Blue}%s${NC}\n\n" "${drives_available}"
     else
       # if mountpoint valid: please ask to confirm
       printf "Confirm Installing Archlinux in "
-      printf "${Green}${mountpoint}${NC} [y/N]?"
+      printf "${Green}${mymountpoint}${NC} [y/N]?"
       read -e answer
-      [[ ! "${answer}" =~ ^([yY][eE][sS]|[yY])$ ]] && mountpoint="" 
+      [[ ! "${answer}" =~ ^([yY][eE][sS]|[yY])$ ]] && mymountpoint=''
     fi
   done
+  eval "${__resultvar}"="'${mymountpoint}'"
 
 }
-
 
 
 ## Check Actual Machine: VirtualBox (VBox) vs REAL
@@ -112,18 +122,26 @@ case "${#}" in
 
   0)
     # 0 Arguments? please ask for them
+    prinf "You must provie some " answer
     read -p "Enter hostname: " host_name
     read -sp "Enter ROOT PASSWORD: " root_password
     read -p "Enter USER name: " user_name
     read -sp "Enter USER PASSWORD: " user_password
+    ask_user_for_installation_mountpoint mountpoint
+    read -p "Enter USER SHELL (e.g. bash, zsh) " user_shell
+    [[ ! "${user_shell}" =~ ^([b][a]|[z])(sh)$ ]] && echo "err" | exit 1
+    read -p "Do you want autolog tty at startup?[y/N]" autolog_tty
+    [[ ! "${autolog_tty}" =~ ^([yY][eE][sS]|[yY]|[nN])$ ]] && exit 1
     ;;
 
-  4)
+  6)
     # 4 Arguments: convert it into log variables
     host_name="${1}"
     root_password="${2}"
     user_name="${3}"
     user_password="${4}"
+    user_shell="${5}"
+    autolog_tty="${6}"
     ;;
 
   *)
@@ -142,7 +160,7 @@ esac
 case "${machine}" in
 
   REAL)
-    ask_user_for_archlinux_install_mountpoint
+    ask_user_for_install_mountpoint
     ;;
 
   VBox)
@@ -212,7 +230,9 @@ arch-chroot /mnt sh /home/script2.sh \
 	    "$root_password" \
 	    "$user_name" \
 	    "$user_password" \
-	    "$mountpoint"
+	    "$mountpoint" \
+	    "$user_shell" \
+	    "$autolog_tty"
 
 
 ## remove script
