@@ -24,6 +24,32 @@ source ./include/ANSI_escape_colors
 source ./include/functions
 
 
+### FUNCTION DECLARATION
+
+########################################
+# Purpose: dialog to input a target device for archlinux install
+# Arguments: $1
+# Return: $1
+########################################
+
+function dialog_to_input_a_target_device
+{
+  # The function's result will be set as the variable "__resultvar", but
+  # a function can't set a variable directly but EVAL can do the setting:
+  local __resultvar="${1}"
+  local myarray=($(lsblk | awk '/disk/{ print $1 }'))
+  printf "List block devices (lsblk):\n%s\n\n" "$(lsblk)"
+  printf "Between the block devices detailed bellow,\n"
+  printf "choose a device to install archlinux on:\n"
+  select option in "${myarray[@]}";do
+    case "${option}" in
+      "") printf "\nWrong answer. Canceling install!\n\n"; exit 0 ;;
+      *) eval "${__resultvar}"="/dev/${option}"; break ;;
+    esac
+  done
+}
+
+
 ######################################################################
 ### CODE #############################################################
 ######################################################################
@@ -36,7 +62,6 @@ script_start_time="$(date +%s)"
 
 
 ## Argument hadling
-
 
 # display usage if user provided the tag help
 [[ "${1}" =~ (--help)|(-h) ]] && display_usage || &> /dev/null || exit 0
@@ -64,7 +89,7 @@ case "${#}" in
 
   7)
     # User provided 7 arguments, convert it into script variables
-    target_drive="${1}"		# e.g.: /dev/sdX
+    target_device="${1}"	# e.g.: /dev/sdX
     host_name="${2}"		# any string
     root_password="${3}"	# any string
     user_name="${4}"		# any string
@@ -77,12 +102,12 @@ case "${#}" in
     ## User do not provide arguments? please ask for them
     prinf "${Green}The archlinux install required some parameters:${NC}"
 
-    # from functions, set a target drive (/dev/sdX) to install linux
+    # dialog to choose a target device (/dev/sdX) to install linux on
     [[ "${machine}" == 'REAL' ]] \
-      && choose_a_drive_for_install_archlinux target_drive
-    # from functions, set a target drive (/dev/sdX) to install linux
-    [[ "${machine}" == 'VBox' ]] && target_drive=/dev/sda
-    
+      && choose_a_drive_for_install_archlinux target_device
+    # in VirtualBox machine please set target device without dialog
+    [[ "${machine}" == 'VBox' ]] && target_device=/dev/sda
+
     # log parameters, passwords are hidden (read -s)
     read -p "Enter HOST name: " host_name
     read -sp "Enter ROOT PASSWORD: " root_password
@@ -93,11 +118,11 @@ case "${#}" in
     read -p "Enter USER SHELL (e.g. bash, zsh) " user_shell
     [[ ! "${user_shell}" =~ ^([b][a]|[z])(sh)$ ]] && echo "fail" | exit 1
     read -p "Do you want autolog tty at startup?[y/N]" autolog_tty
-    [[ ! "${autolog_tty}" =~ ^([y][e][s]|[yY]|[nN])$ ]] && exit 1
+    [[ ! "${autolog_tty}" =~ ^([yY]|[nN])$ ]] && echo "fail" | exit 1
     ;;
 
   *)
-    printf "User provided wrong number of arguments (${#}). Exiting..\n"
+    printf "User provided a wrong number of arguments (${#}). Cancel..\n"
     exit 0
     ;;
   
@@ -109,23 +134,23 @@ timedatectl set-ntp true
 
 
 ## partition hdd
-parted -s "${target_drive}" mklabel msdos
-parted -s -a optimal "${target_drive}" mkpart primary ext2 0% 2MiB
-parted -s "${target_drive}" set 1 boot on
-parted -s -a optimal "${target_drive}" mkpart primary ext4 2MiB 100%
+parted -s "${target_device}" mklabel msdos
+parted -s -a optimal "${target_device}" mkpart primary ext2 0% 2MiB
+parted -s "${target_device}" set 1 boot on
+parted -s -a optimal "${target_device}" mkpart primary ext4 2MiB 100%
 
 
 ## formating hdd (-F=overwrite if necessary)
-mkfs.ext2 -F "${target_drive}1"
-mkfs.ext4 -F "${target_drive}2"
+mkfs.ext2 -F "${target_device}1"
+mkfs.ext4 -F "${target_device}2"
 
 
 ## mount new partitions
 # partition "/"
-mount "${target_drive}"2 /mnt
+mount "${target_device}2" /mnt
 # partition "/boot"
 mkdir /mnt/boot
-mount "${target_drive}"1 /mnt/boot
+mount "${target_device}1" /mnt/boot
 
 
 ## Important: update package manager keyring
@@ -148,7 +173,7 @@ pacstrap /mnt networkmanager
 # boot loader	
 pacstrap /mnt grub os-prober
 
- 
+
 ## generate fstab
 genfstab -L /mnt >> /mnt/etc/fstab
 
@@ -159,7 +184,7 @@ cp "${PWD}"/script2.sh /mnt/home || cp arch/script2.sh /mnt/home
 
 ## change root and run script2.sh
 arch-chroot /mnt sh /home/script2.sh \
-	    "$target_drive" \
+	    "$target_device" \
 	    "$host_name" \
 	    "$root_password" \
 	    "$user_name" \

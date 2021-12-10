@@ -5,11 +5,11 @@
 
 ## variable declaration
 
-host_name="${1}"
-root_password="${2}"
-user_name="${3}"
-user_password="${4}"
-mountpoint="${5}"
+target_device="${1}"
+host_name="${2}"
+root_password="${3}"
+user_name="${4}"
+user_password="${5}"
 user_shell="${6}"
 autolog_tty="${7}"
 
@@ -57,7 +57,7 @@ bash -c "echo \"127.0.0.1	localhost
 
 ## Install & Config a Bootloader (GRUB)
 
-grub-install "${target_drive}"
+grub-install "${target_device}"
 
 # add other operative systems (Mac, Windows, etc)
 echo "GRUB_DISABLE_OS_PROBER=false" >> /etc/default/grub
