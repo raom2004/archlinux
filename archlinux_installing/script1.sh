@@ -64,7 +64,11 @@ script_start_time="$(date +%s)"
 ## Argument hadling
 
 # display usage if user provided the tag help
-[[ "${1}" =~ (--help)|(-h) ]] && display_usage | exit 0 || &> /dev/null
+if [[ ! -z "${1}" ]] && [[ "${1}" =~ (--help)|(-h) ]]; then
+  display_usage
+  exit 0 # || &> /dev/null
+fi
+# [[ "${1}" =~ (--help)|(-h) ]] && display_usage | exit 0 || &> /dev/null
 
 
 ## Check Actual Machine: Virtualbox vs REAL, BIOS vs UEFI
