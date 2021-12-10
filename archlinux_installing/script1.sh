@@ -109,15 +109,15 @@ timedatectl set-ntp true
 
 
 ## partition hdd
-parted -s "$mountpoint" mklabel msdos
-parted -s -a optimal "$mountpoint" mkpart primary ext2 0% 2MiB
-parted -s "$mountpoint" set 1 boot on
-parted -s -a optimal "$mountpoint" mkpart primary ext4 2MiB 100%
+parted -s "${target_drive}" mklabel msdos
+parted -s -a optimal "${target_drive}" mkpart primary ext2 0% 2MiB
+parted -s "${target_drive}" set 1 boot on
+parted -s -a optimal "${target_drive}" mkpart primary ext4 2MiB 100%
 
 
 ## formating hdd (-F=overwrite if necessary)
-mkfs.ext2 -F "${mountpoint}1"
-mkfs.ext4 -F "${mountpoint}2"
+mkfs.ext2 -F "${target_drive}1"
+mkfs.ext4 -F "${target_drive}2"
 
 
 ## mount new partitions
