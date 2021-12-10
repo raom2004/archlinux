@@ -64,7 +64,7 @@ script_start_time="$(date +%s)"
 ## Argument hadling
 
 # display usage if user provided the tag help
-if [[ ! -z "${1}" ]] && [[ "${1}" =~ (--help)|(-h) ]]; then
+if [[ "${#}" == 1 ]] && [[ "${1}" =~ (--help)|(-h) ]]; then
   display_usage
   exit 0 # || &> /dev/null
 fi
