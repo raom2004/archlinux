@@ -104,7 +104,7 @@ case "${#}" in
 
   0)
     ## User do not provide arguments? please ask for them
-    prinf "${Green}The archlinux install required some parameters:${NC}"
+    printf "${Green}The archlinux install required some parameters:${NC}"
 
     # dialog to choose a target device (/dev/sdX) to install linux on
     [[ "${machine}" == 'REAL' ]] \
