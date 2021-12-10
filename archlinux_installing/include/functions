@@ -1,3 +1,4 @@
+#!/bin/bash
 #
 # ./functions
 #
@@ -50,10 +51,14 @@ ${Green}$ sh script1.sh /dev/sdc myhost rootpasword myuser myuserpassword bash y
 
 }
 
-## dialog to input the archlinux install mountpoint
+########################################
+# Purpose: dialog to input the archlinux install mountpoint
+# Arguments: $1
+# Return: $1
+########################################
 
-function choose_a_drive_for_install_archlinux {
-
+function choose_a_drive_for_install_archlinux
+{
   # set variable for final result named differently with underscore
   local __resultvar="${1}"
   
@@ -99,7 +104,6 @@ function choose_a_drive_for_install_archlinux {
   # The function's result will be set as the variable "mountpoint", but
   # a function can't set a variable directly but EVAL can do the setting:
   eval "${__resultvar}"="'${mymountpoint}'"
-
 }
 
 # Local Variables:

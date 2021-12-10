@@ -3,17 +3,13 @@
 # script1.h: bash script for install archlinux with support for BIOS/MBR 
 
 # Dependencies:
-#  built-in library ANSI_escape_colors.sh (version v1.0)
+#  built-in files (see above)
 
-### BASH SCRIPT1.SH OPTIONS ##########################################
 
-## options for SECURITY
+### BASH OPTIONS FOR SECURITY AND DEBUGGING ##########################
 
 shopt -o noclobber # prevent file overwriting (>) but can forced by (>|)
 set +o history     # disably bash history temporarilly
-
-## options for DEBUGGING
-
 set -o errtrace    # inherit any trap on ERROR
 set -o functrace   # inherit any trap on DEBUG and RETURN
 set -o errexit     # EXIT if script command fails
@@ -21,35 +17,46 @@ set -o nounset     # EXIT if script try to use undeclared variables
 set -o pipefail    # CATCH failed piped commands
 set -o xtrace      # trace & expand what gets executed (useful for debug)
 
-## import libraries
-source ./ANSI_escape_colors.sh
-source ./functions
 
-## script variables
+###  DEPENDENCIES ####################################################
+
+source ./include/ANSI_escape_colors
+source ./include/functions
+
+
+######################################################################
+### CODE #############################################################
+######################################################################
+
+
+## Variables Declaration
 
 script1_version="v0.8.0"
 script_start_time="$(date +%s)"
 
 
-## Check Actual Machine: VirtualBox (VBox) vs REAL
+## Argument hadling
 
+
+# display usage if user provided the tag help
+[[ "${1}" =~ (--help)|(-h) ]] && display_usage || &> /dev/null
+
+
+## Check Actual Machine: Virtualbox vs REAL, BIOS vs UEFI
+
+# VirtualBox (VBox) vs REAL
 pacman -Sy --noconfirm --needed dmidecode
 check="$(dmidecode -s system-manufacturer)"
 [[ "${check}" == "innotek GmbH" ]] && machine='VBox' || machine='REAL'
 
 
-## Check boot system support: BIOS or UEFI
+# ## TODO: Check boot system support: BIOS or UEFI
+# if ! ls /sys/firmware/efi/efivars 2>/dev/null;then
+#   boot_mode='BIOS'
+# else
+#   boot_mode='UEFI'
+# fi
 
-if ! ls /sys/firmware/efi/efivars 2>/dev/null;then
-  boot_mode='BIOS'
-else
-  boot_mode='UEFI'
-fi
-
-
-## display usage if user provided the tag help
-
-[[ "${1}" =~ (--help)|(-h) ]] && display_usage || &> /dev/null
 
 ## Check if user provided script with: ARGUMENTS
 
@@ -70,9 +77,12 @@ case "${#}" in
     ## User do not provide arguments? please ask for them
     prinf "${Green}The archlinux install required some parameters:${NC}"
 
-    # from functions, function to set a drive (/dev/sdX) to install linux
-    choose_a_drive_for_install_archlinux target_drive
-
+    # from functions, set a target drive (/dev/sdX) to install linux
+    [[ "${machine}" == 'REAL' ]] \
+      && choose_a_drive_for_install_archlinux target_drive
+    # from functions, set a target drive (/dev/sdX) to install linux
+    [[ "${machine}" == 'VBox' ]] && target_drive=/dev/sda
+    
     # log parameters, passwords are hidden (read -s)
     read -p "Enter HOST name: " host_name
     read -sp "Enter ROOT PASSWORD: " root_password
@@ -87,26 +97,8 @@ case "${#}" in
     ;;
 
   *)
-    printf "User provided wrong number of arguments (${#}). Exiting.."
+    printf "User provided wrong number of arguments (${#}). Exiting..\n"
     exit 0
-    ;;
-  
-esac
-
-
-
-
-
-## Ask for target_drive to install archlinux
-
-case "${machine}" in
-
-  REAL)
-    ask_user_for_install_target_drive
-    ;;
-
-  VBox)
-    target_drive=/dev/sda
     ;;
   
 esac
@@ -117,24 +109,23 @@ timedatectl set-ntp true
 
 
 ## partition hdd
-parted -s /dev/sda \
-       mklabel msdos \
-       mkpart primary ext2 0% 2% \
-       set 1 boot on \
-       mkpart primary ext4 2% 100%
+parted -s "$mountpoint" mklabel msdos
+parted -s -a optimal "$mountpoint" mkpart primary ext2 0% 2MiB
+parted -s "$mountpoint" set 1 boot on
+parted -s -a optimal "$mountpoint" mkpart primary ext4 2MiB 100%
 
 
 ## formating hdd (-F=overwrite if necessary)
-mkfs.ext2 -F /dev/sda1
-mkfs.ext4 -F /dev/sda2
+mkfs.ext2 -F "${mountpoint}1"
+mkfs.ext4 -F "${mountpoint}2"
 
 
 ## mount new partitions
 # partition "/"
-mount /dev/sda2 /mnt
+mount "${target_drive}"2 /mnt
 # partition "/boot"
 mkdir /mnt/boot
-mount /dev/sda1 /mnt/boot
+mount "${target_drive}"1 /mnt/boot
 
 
 ## Important: update package manager keyring

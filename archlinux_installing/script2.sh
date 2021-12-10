@@ -3,20 +3,6 @@
 # script2.sh: designed to run inside script1.sh chroot into new system   
 
 
-### BASH SCRIPT1.SH OPTIONS ##########################################
-
-
-## options for DEBUGGING
-
-shopt -o noclobber # prevent file overwriting (>) but can forced by (>|)
-set -o errtrace    # inherit any trap on ERROR
-set -o functrace   # inherit any trap on DEBUG and RETURN
-set -o errexit     # EXIT if script command fails
-set -o nounset     # EXIT if script try to use undeclared variables
-set -o pipefail    # CATCH failed piped commands
-set -o xtrace      # trace & expand what gets executed (useful for debug)
-
-
 ## variable declaration
 
 host_name="${1}"
@@ -25,7 +11,7 @@ user_name="${3}"
 user_password="${4}"
 mountpoint="${5}"
 user_shell="${6}"
-tty_autolog="${7}"
+autolog_tty="${7}"
 
 ## Time Configuration
 
@@ -71,18 +57,21 @@ bash -c "echo \"127.0.0.1	localhost
 
 ## Install & Config a Bootloader (GRUB)
 
-grub-install /dev/sda
+grub-install "${target_drive}"
 
-# hidde menu at startup
-echo "GRUB_FORCE_HIDDEN_MENU=true" >> /etc/default/grub
 # add other operative systems (Mac, Windows, etc)
 echo "GRUB_DISABLE_OS_PROBER=false" >> /etc/default/grub
 
-url="https://gist.githubusercontent.com/anonymous/8eb2019db2e278ba99be/raw/257f15100fd46aeeb8e33a7629b209d0a14b9975/gistfile1.sh"
-wget "${url}" -O /etc/grub.d/31_hold_shift
-# asign permissions & re-generate bootloader
-chmod a+x /etc/grub.d/31_hold_shift
+# if autologging yes, hidde GRUB menu at startup
+if [[ "${autolog_tyy}" =~ ^([yY][eE][sS]|[yY])$ ]];then
+  echo "GRUB_FORCE_HIDDEN_MENU=true" >> /etc/default/grub
+  url="https://gist.githubusercontent.com/anonymous/8eb2019db2e278ba99be/raw/257f15100fd46aeeb8e33a7629b209d0a14b9975/gistfile1.sh"
+  wget "${url}" -O /etc/grub.d/31_hold_shift
+  # asign permissions & re-generate bootloader
+  chmod a+x /etc/grub.d/31_hold_shift
+fi
 
+# config bootloader GRUB
 grub-mkconfig -o /boot/grub/grub.cfg
 
 
@@ -109,24 +98,22 @@ LC_ALL=C xdg-user-dirs-update --force
 # usermod -aG wheel,audio,optical,storage,autologin,vboxusers,power,network <<user>>
 
 ## autologing tty
-mkdir -p /etc/systemd/system/getty@tty1.service.d
-printf "[Service]
+if [[ "${autolog_tyy}" =~ ^([yY][eE][sS]|[yY])$ ]];then
+  mkdir -p /etc/systemd/system/getty@tty1.service.d
+  printf "[Service]
 ExecStart=
 ExecStart=-/sbin/agetty --autologin ${user_name} --noclear %%I ${TERM}
 " >| /etc/systemd/system/getty@tty1.service.d/autologin.conf
+fi
 
-# Make colorcoding available for everyone
- /home/"${user_name}"/.bashrc
+## Enable Requited Services
+systemctl enable dhcpcd		# ethernet
+systemctl enable NetworkManager	# wifi
 
-## Enable Requited Services:
-# network config
-systemctl enable dhcpcd
-systemctl enable NetworkManager
-# run desktop environment at startup
+## run desktop environment at startup
 # systemctl enable lightdm
 
 
-## exit if no errors stops the script (option "set -ex")
 exit
 
 
