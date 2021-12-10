@@ -48,6 +48,7 @@ ${Green}$ sh script1.sh /dev/sdc myhost rootpasword myuser myuserpassword bash y
 
 
 " "${script1_version}"
+  exit 0
 
 }
 
