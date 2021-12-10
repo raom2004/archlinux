@@ -63,7 +63,7 @@ grub-install "${target_device}"
 echo "GRUB_DISABLE_OS_PROBER=false" >> /etc/default/grub
 
 # if autologging yes, hidde GRUB menu at startup
-if [[ "${autolog_tyy}" =~ ^([yY][eE][sS]|[yY])$ ]];then
+if [[ "${autolog_tty}" =~ ^([yY][eE][sS]|[yY])$ ]];then
   echo "GRUB_FORCE_HIDDEN_MENU=true" >> /etc/default/grub
   url="https://gist.githubusercontent.com/anonymous/8eb2019db2e278ba99be/raw/257f15100fd46aeeb8e33a7629b209d0a14b9975/gistfile1.sh"
   wget "${url}" -O /etc/grub.d/31_hold_shift
@@ -98,7 +98,7 @@ LC_ALL=C xdg-user-dirs-update --force
 # usermod -aG wheel,audio,optical,storage,autologin,vboxusers,power,network <<user>>
 
 ## autologing tty
-if [[ "${autolog_tyy}" =~ ^([yY][eE][sS]|[yY])$ ]];then
+if [[ "${autolog_tty}" =~ ^([yY][eE][sS]|[yY])$ ]];then
   mkdir -p /etc/systemd/system/getty@tty1.service.d
   printf "[Service]
 ExecStart=
