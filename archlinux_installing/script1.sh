@@ -8,7 +8,7 @@
 
 ### BASH OPTIONS FOR SECURITY AND DEBUGGING ##########################
 
-shopt -o noclobber # prevent file overwriting (>) but can forced by (>|)
+# shopt -o noclobber # prevent file overwriting (>) but can forced by (>|)
 set +o history     # disably bash history temporarilly
 set -o errtrace    # inherit any trap on ERROR
 set -o functrace   # inherit any trap on DEBUG and RETURN
@@ -104,7 +104,7 @@ case "${#}" in
 
     # dialog to choose a target device (/dev/sdX) to install linux on
     [[ "${machine}" == 'REAL' ]] \
-      && choose_a_drive_for_install_archlinux target_device
+      && dialog_to_input_a_target_device target_device
     # in VirtualBox machine please set target device without dialog
     [[ "${machine}" == 'VBox' ]] && target_device=/dev/sda
 
@@ -135,9 +135,9 @@ timedatectl set-ntp true
 
 ## partition hdd
 parted -s "${target_device}" mklabel msdos
-parted -s -a optimal "${target_device}" mkpart primary ext2 0% 2MiB
+parted -s -a optimal "${target_device}" mkpart primary ext2 0% 300MiB
 parted -s "${target_device}" set 1 boot on
-parted -s -a optimal "${target_device}" mkpart primary ext4 2MiB 100%
+parted -s -a optimal "${target_device}" mkpart primary ext4 300MiB 100%
 
 
 ## formating hdd (-F=overwrite if necessary)

@@ -27,7 +27,7 @@ sed -i 's/#en_DK.UTF-8/en_DK.UTF-8/' /etc/locale.gen
 sed -i 's/#es_ES.UTF-8/es_ES.UTF-8/' /etc/locale.gen
 sed -i 's/#de_DE.UTF-8/de_DE.UTF-8/' /etc/locale.gen
 locale-gen
-echo 'LANG=en_US.UTF-8'              >| /etc/locale.conf
+echo 'LANG=en_US.UTF-8'               > /etc/locale.conf
 echo 'LANGUAGE=en_US:en_GB:en'       >> /etc/locale.conf
 echo 'LC_COLLATE=C'                  >> /etc/locale.conf
 echo 'LC_MESSAGES=en_US.UTF-8'       >> /etc/locale.conf
@@ -36,12 +36,12 @@ echo 'LC_TIME=en_DK.UTF-8'           >> /etc/locale.conf
 
 ## Keyboard Configuration
 
-echo 'KEYMAP=es' >| /etc/vconsole.conf
+echo 'KEYMAP=es' > /etc/vconsole.conf
 # localectl set-keymap --no-convert es
 
 
 ## Network Configuration
-echo "${host_name}" >| /etc/hostname
+echo "${host_name}" > /etc/hostname
 bash -c "echo \"127.0.0.1	localhost
 ::1		localhost
 127.0.1.1	${host_name}.localdomain	${host_name}\" \
@@ -103,7 +103,7 @@ if [[ "${autolog_tyy}" =~ ^([yY][eE][sS]|[yY])$ ]];then
   printf "[Service]
 ExecStart=
 ExecStart=-/sbin/agetty --autologin ${user_name} --noclear %%I ${TERM}
-" >| /etc/systemd/system/getty@tty1.service.d/autologin.conf
+" > /etc/systemd/system/getty@tty1.service.d/autologin.conf
 fi
 
 ## Enable Requited Services
