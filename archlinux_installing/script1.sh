@@ -39,7 +39,7 @@ script_start_time="$(date +%s)"
 
 
 # display usage if user provided the tag help
-[[ "${1}" =~ (--help)|(-h) ]] && display_usage || &> /dev/null
+[[ "${1}" =~ (--help)|(-h) ]] && display_usage || &> /dev/null || exit 0
 
 
 ## Check Actual Machine: Virtualbox vs REAL, BIOS vs UEFI
