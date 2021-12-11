@@ -145,7 +145,7 @@ timedatectl set-ntp true
 parted -s "${target_device}" mklabel msdos
 parted -s -a optimal "${target_device}" mkpart primary ext2 0% 300MiB
 parted -s "${target_device}" set 1 boot on
-if [[ ! "${revocery_partition}" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+if [[ ! "${recovery_partition}" =~ ^([yY][eE][sS]|[yY])$ ]]; then
   parted -s -a optimal "${target_device}" mkpart primary ext4 300MiB 100%
 else
   parted -s -a optimal "${target_device}" mkpart primary ext4 300MB 5.3GB
