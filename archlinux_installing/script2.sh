@@ -12,6 +12,7 @@ user_name="${4}"
 user_password="${5}"
 user_shell="${6}"
 autolog_tty="${7}"
+recovery_partition="${8}"
 
 ## Time Configuration
 
@@ -113,6 +114,16 @@ systemctl enable NetworkManager	# wifi
 ## run desktop environment at startup
 # systemctl enable lightdm
 
+## create a backup MBR file and a recovery artition
+if [[ "${recovery_partition}" =~ ^([yY])$ ]]; then
+  # backup MBR file
+  dd if="${target_device}" of=/backup/mbr.img bs=512 count=1
+  # recovery partition
+  dd if="${target_device}2" of="${target_device}3"
+  mkdir -p /mnt2/
+  mount "${target_device}3" /mnt2
+  grub-mkconfig -o /boot/grub/grub.cfg
+fi
 
 exit
 

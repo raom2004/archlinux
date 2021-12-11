@@ -50,6 +50,18 @@ function dialog_to_input_a_target_device
 }
 
 
+########################################
+# Purpose: dialog to generate a recovery system and backup MBR
+# Arguments: $1
+# Return: $1
+########################################
+
+function generate_backup_partition
+{
+
+}
+
+
 ######################################################################
 ### CODE #############################################################
 ######################################################################
@@ -123,6 +135,10 @@ case "${#}" in
     [[ ! "${user_shell}" =~ ^([b][a]|[z])(sh)$ ]] && echo "fail" | exit 1
     read -p "Do you want autolog tty at startup?[y/N]" autolog_tty
     [[ ! "${autolog_tty}" =~ ^([yY]|[nN])$ ]] && echo "fail" | exit 1
+
+    # ask user to create a recovery partition and MBR
+    read -p "Create a recovery partition?[y/N]" recovery_partition
+    [[ ! "${recovery_partition}" =~ ^([yY]|[nN])$ ]] && exit 1
     ;;
 
   *)
@@ -141,7 +157,13 @@ timedatectl set-ntp true
 parted -s "${target_device}" mklabel msdos
 parted -s -a optimal "${target_device}" mkpart primary ext2 0% 300MiB
 parted -s "${target_device}" set 1 boot on
-parted -s -a optimal "${target_device}" mkpart primary ext4 300MiB 100%
+if [[ ! "${revocery_partition}" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+  parted -s -a optimal "${target_device}" mkpart primary ext4 300MiB 100%
+else
+  parted -s -a optimal "${target_device}" mkpart primary ext4 300MB 5.3GB
+  parted -s -a optimal "${target_device}" mkpart primary ext4 5.3GB 10.3GB
+  mkfs.ext4 -F "${target_device}3"
+fi
 
 
 ## formating hdd (-F=overwrite if necessary)
@@ -194,7 +216,8 @@ arch-chroot /mnt sh /home/script2.sh \
 	    "$user_name" \
 	    "$user_password" \
 	    "$user_shell" \
-	    "$autolog_tty"
+	    "$autolog_tty" \
+	    "$recovery_partition"
 
 
 ## remove script
