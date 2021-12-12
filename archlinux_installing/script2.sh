@@ -116,12 +116,24 @@ systemctl enable NetworkManager	# wifi
 
 ## create a backup MBR file and a recovery artition
 if [[ "${recovery_partition}" =~ ^([yY])$ ]]; then
-  # backup MBR file
-  dd if="${target_device}" of=/backup/mbr.img bs=512 count=1
+
+  # Backup only the Partition Table
+  sfdisk -d "${target_device}" > sfdisk_sda
+  # Restoring only the Partion Table (usually only this is necessary)
+  # sudo sfdisk /dev/sda < sfdisk_sda
+  # Backup MBR + Partition Table:
+  dd if="${target_device}" of=mbr_sda bs=512 count=1
+  # Restoring only the MBR (without changing the Partition Table)
+  # sudo dd if=mbr_sda of=/dev/sda bs=446 count=1
+  # Restoring only the Partition Table (without changing the MBR)
+  # sudo dd if=mbr_sda of=/dev/sda bs=1 count=64 skip=446 seek=446
+  # Restoring the MBR + Partition Table
+  # sudo dd if=mbr_sda of="${target_device}" bs=512 count=1
+
   # recovery partition
-  dd if="${target_device}2" of="${target_device}3"
+  dd if="${target_device}3" of="${target_device}4"
   mkdir -p /mnt2/
-  mount "${target_device}3" /mnt2
+  mount "${target_device}4" /mnt2
   grub-mkconfig -o /boot/grub/grub.cfg
 fi
 

@@ -211,20 +211,17 @@ if [[ "${recovery_partition}" =~ ^([yY][eE][sS]|[yY])$ ]]; then
   #  /root (/dev/sdx3, 4GB, original)
   #  /root (/dev/sdx4, 4GB, duplicate for recovery or testing purposes)
 
-  ## Partitioning disk with MBR table:
-  parted -s "${target_device}" mklabel msdos
+  ## Partitioning disk:
+  parted -s "${target_device}" mklabel msdos # MBR partition table
   parted -s -a optimal "${target_device}" mkpart primary ext2 0% 300MB
   parted -s -a optimal "${target_device}" mkpart primary ext4 300MB 4GB
   parted -s -a optimal "${target_device}" mkpart primary ext4 4GB 8GB
-  parted -s -a optimal "${target_device}" mkpart primary ext4 8GB 12GB
-
 
   ## Formating partitions (-F=overwrite if necessary)
   mkfs.ext2 -F "${target_device}1"
   mkfs.ext4 -F "${target_device}2"
-  mkfs.ext4 -F "${target_device}2"
   mkfs.ext4 -F "${target_device}3"
-  
+
   ## Mounting partitions
   # partition "/" original root partition
   mount "${target_device}3" /mnt
