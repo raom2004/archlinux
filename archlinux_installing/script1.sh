@@ -216,6 +216,7 @@ if [[ "${recovery_partition}" =~ ^([yY][eE][sS]|[yY])$ ]]; then
   parted -s -a optimal "${target_device}" mkpart primary ext2 0% 300MB
   parted -s -a optimal "${target_device}" mkpart primary ext4 300MB 4GB
   parted -s -a optimal "${target_device}" mkpart primary ext4 4GB 8GB
+  parted -s -a optimal "${target_device}" mkpart primary ext4 8GB 12GB
 
   ## Formating partitions (-F=overwrite if necessary)
   mkfs.ext2 -F "${target_device}1"
