@@ -1,0 +1,168 @@
+#!/bin/bash
+#
+# ~/.functions
+#
+# Requirements: None
+
+
+### FUNTIONS DECLARATION
+
+
+########################################
+# Purpose: function to test bash commands
+# Dependencies: positional arguments = $@
+########################################
+
+function try 
+{
+  set -e
+  "$@"
+}
+
+
+########################################
+# Purpose: check internet connection and exit if offline
+# Dependencies: None
+########################################
+
+function check_internet 
+{ 
+  # if internet offline, please exit
+  if ! wget -q --spider http://google.com; then
+    printf "ERROR in internet conection!, exiting %s\n" "${0}"
+    exit 0
+  fi
+} 
+
+
+########################################
+# Purpose: function to download AUR packages in /tmp and install them
+# Usage:
+# aur <package name or url>
+########################################
+
+
+########################################
+# Purpose: function to download AUR packages in /tmp and install them
+# Usage:
+# aur <package name or url>
+########################################
+
+function aur 
+{
+  ## run only if internet connection is available
+  check_internet
+
+  ##  EXIT if any command fails
+  set -o errexit
+
+  ## complete the AUR URL if user provided only the package name
+  if [[ ! "${1}" == *"https://"* ]];then
+    # set the value of $1
+    set -- "$(printf "https://aur.archlinux.org/%s.git" "${1}")"
+  fi
+
+  ## check if user provided a valid git repo
+  verify_if_git_repo_exists="$(git ls-remote ${1} HEAD)"
+  if [[ -n "${check_if_git_repo_exists}" ]];then
+    printf "Git repository not found or incorrect:\n%s\n" "${1}"
+    exit 0
+  fi
+
+  ## check if AUR package is allready installed
+  package_name="$(basename ${1} .git)"
+  search_package_in_system="$(pacman -Qm ${package_name})"
+  if [[ -n "${search_package_in_system}" ]]; then
+    printf "AUR package %s is allready installed\n" "${package_name}"
+    exit 0
+  fi
+
+  ## remove directory if previously present in /tmp
+  [[ -d /tmp/"${package_name}" ]] && rm -rf /tmp/"${package_name}"
+
+  ## install aur package after check it was not previously installed
+  printf "installing AUR package %s\n" "${package_name}"
+  git clone "${1}" /tmp/"${package_name}"
+  cd /tmp/"${package_name}"
+  makepkg -Ccsri --noconfirm --needed
+  cd "${OLDPWD}"
+}
+
+
+## dirsize - finds directory sizes & lists them for the current directory
+
+function dirsize {
+  
+  du -shx * .[a-zA-Z0-9_]* 2> /dev/null | \
+    egrep '^ *[0-9.]*[MG]' | sort -n > /tmp/list
+  egrep '^ *[0-9.]*M' /tmp/list
+  egrep '^ *[0-9.]*G' /tmp/list
+  rm -rf /tmp/list
+
+}
+
+
+## extract compressed files
+
+function extract
+{
+  if [[ -f "${1}" ]] ; then
+    case "${1}" in
+      *.tar.bz2)   tar xvjf $1    ;;
+      *.tar.gz)    tar xvzf $1    ;;
+      *.bz2)       bunzip2 $1     ;;
+      *.rar)       unrar x $1       ;;
+      *.gz)        gunzip $1      ;;
+      *.tar)       tar xvf $1     ;;
+      *.tbz2)      tar xvjf $1    ;;
+      *.tgz)       tar xvzf $1    ;;
+      *.zip)       unzip $1       ;;
+      *.Z)         uncompress $1  ;;
+      *.7z)        7z x $1        ;;
+      *)           echo "don't know how to extract '${1}'..." ;;
+    esac
+  else
+    echo "'${1}' is not a valid file!"
+  fi
+}
+
+
+## No more cd ../../../.. but up 4
+
+function up
+{
+  local d=""
+  limit=$1
+  for ((i=1 ; i <= limit ; i++))
+  do
+    d="${d}"/..
+  done
+  d=$(echo "${d}" | sed 's/^\///')
+  if [[ -z "${d}" ]]; then
+    d=..
+  fi
+  cd "${d}"
+}
+
+
+## do sudo, or sudo the last command if no argument given
+
+function s
+{
+  if [[ $# == 0 ]]; then
+    sudo $(history -p '!!')
+  else
+    sudo "$@"
+  fi
+}
+
+
+function bu
+{
+  cp "${1}" \
+     ~/.backup/"S(basename \"${1}\")"-"$(date +%Y%m%d%H%M)".backup
+}
+
+# Local Variables:
+# sh-basic-offset: 2
+# End:

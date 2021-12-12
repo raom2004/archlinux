@@ -1,0 +1,29 @@
+#!/bin/bash
+#
+# ~/.aliases
+
+
+### ALIAS DECLARATION
+
+
+## frequent operations
+
+alias ll="ls -l"
+alias lo="ls -o"
+alias lh="ls -lh"
+alias la="ls -la"
+alias sl="ls"
+alias l="ls"
+alias s="ls"
+
+
+## sys admin aliases
+
+alias srn="sudo reboot now"
+alias ssn="sudo shutdown now"
+alias spsyu="sudo pacman -Syu"
+
+
+# Local Variables:
+# sh-basic-offset: 2
+# End:
