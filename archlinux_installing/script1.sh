@@ -162,9 +162,9 @@ read -sp "Enter USER PASSWORD: " user_password
 
 # parameters with fixed options that need to be validated
 read -p "Enter USER SHELL (e.g. bash, zsh) " user_shell
-[[ ! "${user_shell}" =~ ^([b][a]|[z])(sh)$ ]] && echo "invalid"; exit 1
+[[ ! "${user_shell}" =~ ^([b][a]|[z])(sh)$ ]] && echo "invalid"; exit 0
 read -p "Do you want autolog tty at startup?[y/N]" autolog_tty
-[[ ! "${autolog_tty}" =~ ^([yY]|[nN])$ ]] && echo "invalid"; exit 1
+[[ ! "${autolog_tty}" != ^([yY]|[nN])$ ]] && echo "invalid"; exit 0
 
 # ask user to create a recovery partition and MBR
 read -p "Create a recovery partition?[y/N]" recovery_partition
