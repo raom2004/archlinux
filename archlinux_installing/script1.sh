@@ -5,9 +5,13 @@
 # Dependencies:
 #  built-in files (see above)
 
+## Continue only if internet connection is available
+if ! ping -c 1 -q google.com >&/dev/null; then
+  echo "Internet not available"
+  exit 0
+fi
 
-### BASH OPTIONS FOR SECURITY AND DEBUGGING ##########################
-
+### BASH OPTIONS FOR SECURITY AND DEBUGGING
 # shopt -o noclobber # prevent file overwriting (>) but can forced by (>|)
 set +o history     # disably bash history temporarilly
 set -o errtrace    # inherit any trap on ERROR
@@ -17,154 +21,222 @@ set -o nounset     # EXIT if script try to use undeclared variables
 set -o pipefail    # CATCH failed piped commands
 set -o xtrace      # trace & expand what gets executed (useful for debug)
 
-
-###  DEPENDENCIES ####################################################
-
+### DEPENDENCIES
 source ./include/ANSI_escape_colors
 source ./include/functions
 
 
+### VARIABLE DECLARATION
+installer_version=v0.8.0
+script_start_time="$(date +%s)"
+
+
 ### FUNCTION DECLARATION
 
+
 ########################################
-# Purpose: dialog to input a target device for archlinux install
+# Purpose: display usage of this archlinux installer bash script 
+# Arguments: global variable "installer_version"
+########################################
+
+function display_usage
+{
+  printf "
+ARCHLINUX installer Version %s
+Summary: 
+  A bash script that automates the archlinux install. It follows the
+  official guidelines, including install and boot archlinux from
+  internal HDD and removable devices, such as: USB, SD or MMC.
+
+Usage: ${0##*/} [options]
+  -h|--help         display usage
+
+Example:
+  ${Green}$ sh ${0}${NC} 
+
+The archlinux install will ask for the variables, on demand:
+  * A block device for install linux on, e.g. \"/dev/sdX\"
+  * A name for the host
+  * A root password
+  * A new user name
+  * A password for the new user
+  * A shell for the user, options: \"bash\", \"zsh\"
+
+The archlinux installer include other advanced options, such as:
+  * Activate automatic logging on tty1 (only for testing purposes).
+  * Create a duplicate of the system, with dd, for recovery and testing.
+
+Why include an option to duplicate the system?
+  Well, archlinux maintenance require packages and kernel upgrades
+  that could break the system. For this reason, have a booteable
+  duplicate of the system its advantageus to test upgrades before
+  apply them in the main system, or easily recover the system after an
+  important failure.
+
+How this installer will partition the disk?
+In the standard install, without recovery, the disk partitioning will be:
+  * A /boot partition, dedicated for the bootloader (GRUB). 
+  * A /root partition, for the archlinux system.
+
+When you choose to have a recovery partition, this installer will create: 
+  * A /root partition containing the original archlinux system.
+  * A /root duplicate, booteable for upgrade testing or recovery.
+  * A /boot partition, to store the boot files for both systems.
+  * A /home partition, to make documents available for both systems.
+
+" "${installer_version}"
+  exit 0
+}
+
+
+########################################
+# Purpose: dialog to select a target block device for archlinux install
 # Arguments: $1
-# Return: $1
+# Return: the argument $1 will store a valid block device (e.g. /dev/sdX)
 ########################################
 
 function dialog_to_input_a_target_device
 {
-  # The function's result will be set as the variable "__resultvar", but
-  # a function can't set a variable directly but EVAL can do the setting:
+  # The functions result will be stored in the variable "__resultvar".
   local __resultvar="${1}"
-  local myarray=($(lsblk | awk '/disk/{ print $1 }'))
-  printf "List block devices (lsblk):\n%s\n\n" "$(lsblk)"
+  # Help the user showing the block devices available
+  local array_of_block_devices=($(lsblk | awk '/disk/{ print $1 }'))
+  printf "List of block devices (lsblk):\n%s\n\n" "$(lsblk)"
   printf "Between the block devices detailed bellow,\n"
   printf "choose a device to install archlinux on:\n"
-  select option in "${myarray[@]}";do
+  # The function help the user to choose and return a block device.
+  select option in "${array_of_block_devices[@]}";do
     case "${option}" in
-      "") printf "\nWrong answer. Canceling install!\n\n"; exit 0 ;;
-      *) eval "${__resultvar}"="/dev/${option}"; break ;;
+      "")
+	printf "\nInvalid option. Canceling install!\n\n"; exit 0 ;;
+      *)
+	# The function can't set a variable directly, but EVAL can:
+	eval "${__resultvar}"="/dev/${option}"; break ;;
     esac
   done
 }
 
 
 ######################################################################
-### CODE #############################################################
+### MAIN CODE ########################################################
 ######################################################################
 
 
-## Variables Declaration
+### HELP
 
-script1_version="v0.8.0"
-script_start_time="$(date +%s)"
-
-
-## Argument hadling
-
-# display usage if user provided the tag help
-if [[ "${#}" == 1 ]] && [[ "${1}" =~ (--help)|(-h) ]]; then
-  display_usage
-  exit 0 # || &> /dev/null
-fi
-# [[ "${1}" =~ (--help)|(-h) ]] && display_usage | exit 0 || &> /dev/null
+# display usage when user provide the help tag '--help | -h' 
+[[ "${#}" == 1 ]] && [[ "${1}" =~ (--help)|(-h) ]] && display_usage
 
 
-## Check Actual Machine: Virtualbox vs REAL, BIOS vs UEFI
+### GET SYSTEM INFORMATION
 
-# VirtualBox (VBox) vs REAL
+# Get Current Machine: Virtualbox (VBox) vs REAL
 pacman -Sy --noconfirm --needed dmidecode
 check="$(dmidecode -s system-manufacturer)"
 [[ "${check}" == "innotek GmbH" ]] && machine='VBox' || machine='REAL'
 
-
-# ## TODO: Check boot system support: BIOS or UEFI
-# if ! ls /sys/firmware/efi/efivars 2>/dev/null;then
-#   boot_mode='BIOS'
-# else
-#   boot_mode='UEFI'
-# fi
-
-
-## Check if user provided script with: ARGUMENTS
-
-case "${#}" in
-
-  7)
-    # User provided 7 arguments, convert it into script variables
-    target_device="${1}"	# e.g.: /dev/sdX
-    host_name="${2}"		# any string
-    root_password="${3}"	# any string
-    user_name="${4}"		# any string
-    user_password="${5}"	# any string
-    user_shell="${6}"		# options: bash, zsh
-    autolog_tty="${7}"		# options: yes, no
-    ;;
-
-  0)
-    ## User do not provide arguments? please ask for them
-    printf "${Green}The archlinux install required some parameters:${NC}"
-
-    # dialog to choose a target device (/dev/sdX) to install linux on
-    [[ "${machine}" == 'REAL' ]] \
-      && dialog_to_input_a_target_device target_device
-    # in VirtualBox machine please set target device without dialog
-    [[ "${machine}" == 'VBox' ]] && target_device=/dev/sda
-
-    # log parameters, passwords are hidden (read -s)
-    read -p "Enter HOST name: " host_name
-    read -sp "Enter ROOT PASSWORD: " root_password
-    read -p "Enter USER name: " user_name
-    read -sp "Enter USER PASSWORD: " user_password
-
-    # parameters with fixed options that need to be checked
-    read -p "Enter USER SHELL (e.g. bash, zsh) " user_shell
-    [[ ! "${user_shell}" =~ ^([b][a]|[z])(sh)$ ]] && echo "fail" | exit 1
-    read -p "Do you want autolog tty at startup?[y/N]" autolog_tty
-    [[ ! "${autolog_tty}" =~ ^([yY]|[nN])$ ]] && echo "fail" | exit 1
-
-    # ask user to create a recovery partition and MBR
-    read -p "Create a recovery partition?[y/N]" recovery_partition
-    [[ ! "${recovery_partition}" =~ ^([yY]|[nN])$ ]] && exit 1
-    ;;
-
-  *)
-    printf "User provided a wrong number of arguments (${#}). Cancel..\n"
-    exit 0
-    ;;
-  
-esac
-
-
-## set time and synchronize system clock
-timedatectl set-ntp true
-
-
-## partition hdd
-parted -s "${target_device}" mklabel msdos
-parted -s -a optimal "${target_device}" mkpart primary ext2 0% 300MB
-parted -s "${target_device}" set 1 boot on
-if [[ ! "${recovery_partition}" =~ ^([yY][eE][sS]|[yY])$ ]]; then
-  parted -s -a optimal "${target_device}" mkpart primary ext4 300MB 100%
+# Get Current Boot Mode:
+if ! ls /sys/firmware/efi/efivars 2>/dev/null;then
+  boot_mode='BIOS'
 else
-  parted -s -a optimal "${target_device}" mkpart primary ext4 300MB 5.3GB
-  parted -s -a optimal "${target_device}" mkpart primary ext4 5.3GB 10.3GB
-  mkfs.ext4 -F "${target_device}3"
+  boot_mode='UEFI'
 fi
 
 
-## formating hdd (-F=overwrite if necessary)
-mkfs.ext2 -F "${target_device}1"
-mkfs.ext4 -F "${target_device}2"
+### GET PARAMETERS REQUIRED FOR ARCHLINUX INSTALL
+
+printf "${Green}The archlinux install required some parameters:${NC}"
+
+# dialog to choose a target device (/dev/sdX) to install linux on
+[[ "${machine}" == 'REAL' ]] \
+  && dialog_to_input_a_target_device target_device
+
+# in VirtualBox machine please set target device without dialog
+[[ "${machine}" == 'VBox' ]] && target_device=/dev/sda
+
+# log parameters, for security passwords are hidden (read -s)
+read -p "Enter HOST name: " host_name
+read -sp "Enter ROOT PASSWORD: " root_password
+read -p "Enter USER name: " user_name
+read -sp "Enter USER PASSWORD: " user_password
+
+# parameters with fixed options that need to be validated
+read -p "Enter USER SHELL (e.g. bash, zsh) " user_shell
+[[ ! "${user_shell}" =~ ^([b][a]|[z])(sh)$ ]] && echo "invalid"; exit 1
+read -p "Do you want autolog tty at startup?[y/N]" autolog_tty
+[[ ! "${autolog_tty}" =~ ^([yY]|[nN])$ ]] && echo "invalid"; exit 1
+
+# ask user to create a recovery partition and MBR
+read -p "Create a recovery partition?[y/N]" recovery_partition
+[[ ! "${recovery_partition}" =~ ^([yY]|[nN])$ ]] && exit 1
 
 
-## mount new partitions
-# partition "/"
-mount "${target_device}2" /mnt
-# partition "/boot"
-mkdir /mnt/boot
-mount "${target_device}1" /mnt/boot
+### SET TIME AND SYNCHRONIZE SYSTEM CLOCK
+
+timedatectl set-ntp true
+
+
+### DISK PARTITIONING FORMATING AND MOUNTING
+
+## Partitioning hdd (WITHOUT recovery partition)
+if [[ ! "${recovery_partition}" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+
+  ## General Disk Partitioning Scheme: 2 partitions
+  #  /boot (/dev/sdx1, 300MB)
+  #  /root (/dev/sdx2, all remaining free disk space)
+
+  ## Partitioning disk with MBR table:
+  parted -s "${target_device}" mklabel msdos
+  parted -s -a optimal "${target_device}" mkpart primary ext2 0% 300MB
+  parted -s "${target_device}" set 1 boot on
+  parted -s -a optimal "${target_device}" mkpart primary ext4 300MB 100%
+
+  ## Formating partitions (-F=overwrite if necessary)
+  mkfs.ext2 -F "${target_device}1"
+  mkfs.ext4 -F "${target_device}2"
+  
+  ## Mounting partitions
+  # partition "/"
+  mount "${target_device}2" /mnt
+  # partition "/boot"
+  mkdir /mnt/boot
+  mount "${target_device}1" /mnt/boot
+fi
+
+## Partitioning hdd (WITH RECOVERY PARTITION)
+if [[ "${recovery_partition}" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+
+  ## General Disk Partitioning Scheme: 4 partitions
+  #  /boot (/dev/sdx1, 300MB, shared between the /root )
+  #  /home (/dev/sdx2, 3.7GB, shared between the /root directories)
+  #  /root (/dev/sdx3, 4GB, original)
+  #  /root (/dev/sdx4, 4GB, duplicate for recovery or testing purposes)
+
+  ## Partitioning disk with MBR table:
+  parted -s "${target_device}" mklabel msdos
+  parted -s -a optimal "${target_device}" mkpart primary ext2 0% 300MB
+  parted -s -a optimal "${target_device}" mkpart primary ext4 300MB 4GB
+  parted -s -a optimal "${target_device}" mkpart primary ext4 4GB 8GB
+  parted -s -a optimal "${target_device}" mkpart primary ext4 8GB 12GB
+
+
+  ## Formating partitions (-F=overwrite if necessary)
+  mkfs.ext2 -F "${target_device}1"
+  mkfs.ext4 -F "${target_device}2"
+  mkfs.ext4 -F "${target_device}2"
+  mkfs.ext4 -F "${target_device}3"
+  
+  ## Mounting partitions
+  # partition "/" original root partition
+  mount "${target_device}3" /mnt
+  # partition "/boot"
+  mkdir /mnt/{boot,home}
+  mount "${target_device}1" /mnt/boot
+  mount "${target_device}2" /mnt/home
+  # root partition duplicate for recovery and testing will be created
+  # and mounted before bootloader configuration (see script2.sh)
+fi
+
 
 
 ## Important: update package manager keyring
