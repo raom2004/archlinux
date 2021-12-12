@@ -150,7 +150,6 @@ printf "${Green}The archlinux install required some parameters:${NC}"
 # dialog to choose a target device (/dev/sdX) to install linux on
 [[ "${machine}" == 'REAL' ]] \
   && dialog_to_input_a_target_device target_device
-
 # in VirtualBox machine please set target device without dialog
 [[ "${machine}" == 'VBox' ]] && target_device=/dev/sda
 
@@ -162,13 +161,13 @@ read -sp "Enter USER PASSWORD: " user_password
 
 # parameters with fixed options that need to be validated
 read -p "Enter USER SHELL (e.g. bash, zsh) " user_shell
-[[ ! "${user_shell}" =~ ^([b][a]|[z])(sh)$ ]] && echo "sh error" | exit 0
+[[ ! "${user_shell}" =~ ^([b][a]|[z])(sh)$ ]] && echo "wrong sh" | exit
 read -p "Do you want autolog tty at startup?[y/N]" autolog_tty
-[[ ! "${autolog_tty}" =~ ^([yY]|[nN])$ ]] && echo "err y/N" | exit 0
+[[ ! "${autolog_tty}" =~ ^([yY]|[nN])$ ]] && echo "err y/N" | exit
 
 # ask user to create a recovery partition and MBR
 read -p "Create a recovery partition?[y/N]" recovery_partition
-[[ ! "${recovery_partition}" =~ ^([yY]|[nN])$ ]] && echo "err y/N"|exit 0
+[[ ! "${recovery_partition}" =~ ^([yY]|[nN])$ ]] && echo "err y/N" | exit
 
 
 ### SET TIME AND SYNCHRONIZE SYSTEM CLOCK
