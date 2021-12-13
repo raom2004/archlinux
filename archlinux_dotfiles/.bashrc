@@ -52,6 +52,7 @@ fi
 # PERSONAL CUSTOMIZATION #############################################
 # inspired by: https://serverfault.com/questions/3743/what-useful-things-can-one-add-to-ones-bashrc
 [[ -f ~/.aliases ]] && source ~/.aliases
+[[ -f ~/.inputrc ]] && source ~/.aliases
 
 
 # HISTORY CONFIGURATION ##############################################
