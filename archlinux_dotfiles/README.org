@@ -25,6 +25,16 @@ The idea is to have the git repository in a folder and use a script to synchroni
 script required
 
 #+begin_src bash :results verbatim :tangle ./bootstrap.sh
+#
+# /bootstrap.sh
+#  synchronize dotfile from working directory to $HOME/
+# Requirements: rsync
+if ! pacman -Qs rsync; then 
+    echo "Command not found but required: rsync
+You can install with: sudo pacman -Syu rsync"
+    exit 0
+fi
+
 # Set the actual working directory
 cd "$(dirname "${BASH_SOURCE}")"
 
