@@ -3,8 +3,8 @@
 # ~/.inputrc
 #
 # Purpose:
-#  This file is a key component for bash, called Readline,
-#  with options useful for bash completion, format and resize 
+#  This file contain a bash component called Readline, 
+#  useful for bash completion, format and window responsive resize 
 # Source: https://wiki.archlinux.org/title/Readline
 
 

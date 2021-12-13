@@ -41,13 +41,6 @@ function check_internet
 # aur <package name or url>
 ########################################
 
-
-########################################
-# Purpose: function to download AUR packages in /tmp and install them
-# Usage:
-# aur <package name or url>
-########################################
-
 function aur 
 {
   ## run only if internet connection is available
@@ -92,13 +85,11 @@ function aur
 ## dirsize - finds directory sizes & lists them for the current directory
 
 function dirsize {
-  
-  du -shx * .[a-zA-Z0-9_]* 2> /dev/null | \
-    egrep '^ *[0-9.]*[MG]' | sort -n > /tmp/list
+  du -shx * .[a-zA-Z0-9_]* 2> /dev/null \
+    | egrep '^ *[0-9.]*[MG]' | sort -n > /tmp/list
   egrep '^ *[0-9.]*M' /tmp/list
   egrep '^ *[0-9.]*G' /tmp/list
   rm -rf /tmp/list
-
 }
 
 
@@ -106,7 +97,7 @@ function dirsize {
 
 function extract
 {
-  if [[ -f "${1}" ]] ; then
+  if [[ -f "${1}" ]]; then
     case "${1}" in
       *.tar.bz2)   tar xvjf $1    ;;
       *.tar.gz)    tar xvzf $1    ;;
@@ -132,35 +123,33 @@ function extract
 function up
 {
   local d=""
-  limit=$1
+  limit="${1}"
   for ((i=1 ; i <= limit ; i++))
   do
     d="${d}"/..
   done
-  d=$(echo "${d}" | sed 's/^\///')
-  if [[ -z "${d}" ]]; then
-    d=..
-  fi
+  d=$(echo "${d}" | sed 's/^\\///')
+  [[ -z "${d}" ]] && d=..
   cd "${d}"
 }
 
 
 ## do sudo, or sudo the last command if no argument given
 
-function s
+function repeat
 {
   if [[ $# == 0 ]]; then
     sudo $(history -p '!!')
   else
-    sudo "$@"
+    sudo "${@}"
   fi
 }
 
 
-function bu
+function mybackup
 {
   cp "${1}" \
-     ~/.backup/"S(basename \"${1}\")"-"$(date +%Y%m%d%H%M)".backup
+     ~/.backup/"$(basename \"${1}\")"-"$(date +%Y%m%d%H%M)".backup
 }
 
 # Local Variables:
