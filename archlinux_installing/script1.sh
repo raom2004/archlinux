@@ -5,11 +5,23 @@
 # Dependencies:
 #  built-in files (see above)
 
-## Continue only if internet connection is available
+
+### PREREQUIREMENTS
+
+## Continue Only if internet connection is available
 if ! ping -c 1 -q google.com >&/dev/null; then
   echo "Internet not available"
   exit 0
 fi
+
+## Continue Only if user has root priviledges
+ROOT_UID=0   # Root has $UID 0.
+
+if [[ ! "$UID" -eq "$ROOT_UID" ]]; then
+  echo "root priviledges required. Cancelling install.."
+  exit 0
+fi
+
 
 ### BASH OPTIONS FOR SECURITY AND DEBUGGING
 # shopt -o noclobber # prevent file overwriting (>) but can forced by (>|)
@@ -61,6 +73,7 @@ The archlinux install will ask for the variables, on demand:
   * A new user name
   * A password for the new user
   * A shell for the user, options: \"bash\", \"zsh\"
+  * A keymap for the shell, e.g.: en, de
 
 The archlinux installer include other advanced options, such as:
   * Activate automatic logging on tty1 (only for testing purposes).
@@ -94,16 +107,29 @@ When you choose to have a recovery partition, this installer will create:
 # Arguments: $1
 # Return: the argument $1 will store a valid block device (e.g. /dev/sdX)
 ########################################
+function err
+{
+  echo "[$(date +'%Y-%m-%dT%H:%M:$S%z')]: $*" >&2
+}
+
+
+########################################
+# Purpose: dialog to select a target block device for archlinux install
+# Arguments: $1
+# Return: the argument $1 will store a valid block device (e.g. /dev/sdX)
+########################################
 
 function dialog_to_input_a_target_device
 {
   # The functions result will be stored in the variable "__resultvar".
   local __resultvar="${1}"
+  
   # Help the user showing the block devices available
   local array_of_block_devices=($(lsblk | awk '/disk/{ print $1 }'))
   printf "List of block devices (lsblk):\n%s\n\n" "$(lsblk)"
   printf "Between the block devices detailed bellow,\n"
   printf "choose a device to install archlinux on:\n"
+  
   # The function help the user to choose and return a block device.
   select option in "${array_of_block_devices[@]}";do
     case "${option}" in
@@ -136,7 +162,7 @@ check="$(dmidecode -s system-manufacturer)"
 [[ "${check}" == "innotek GmbH" ]] && machine='VBox' || machine='REAL'
 
 # Get Current Boot Mode:
-if ! ls /sys/firmware/efi/efivars 2>/dev/null;then
+if ! ls /sys/firmware/efi/efivars 2>/dev/null; then
   boot_mode='BIOS'
 else
   boot_mode='UEFI'
@@ -150,6 +176,7 @@ printf "${Green}The archlinux install required some parameters:${NC}"
 # dialog to choose a target device (/dev/sdX) to install linux on
 [[ "${machine}" == 'REAL' ]] \
   && dialog_to_input_a_target_device target_device
+
 # in VirtualBox machine please set target device without dialog
 [[ "${machine}" == 'VBox' ]] && target_device=/dev/sda
 
@@ -161,13 +188,15 @@ read -sp "Enter USER PASSWORD: " user_password
 
 # parameters with fixed options that need to be validated
 read -p "Enter USER SHELL (e.g. bash, zsh) " user_shell
-[[ ! "${user_shell}" =~ ^([b][a]|[z])(sh)$ ]] && echo "wrong sh" | exit
-read -p "Do you want autolog tty at startup?[y/N]" autolog_tty
-[[ ! "${autolog_tty}" =~ ^([yY]|[nN])$ ]] && echo "err y/N" | exit
+[[ ! "${user_shell}" =~ ^([b][a]|[z])(sh)$ ]] && err
+read -p "Enter SHELL KEYMAP (e.g. en, de, fr) " shell_keymap
+[[ ! "${user_shell}" =~ ^([a-z][a-z])$ ]] && err
+read -p "Do you want to AUTOLOG IN TTY1 at startup?[y/N]" autolog_tty
+[[ ! "${autolog_tty}" =~ ^([yY]|[nN])$ ]] && err
 
 # ask user to create a recovery partition and MBR
 read -p "Create a recovery partition?[y/N]" recovery_partition
-[[ ! "${recovery_partition}" =~ ^([yY]|[nN])$ ]] && echo "err y/N" | exit
+[[ ! "${recovery_partition}" =~ ^([yY]|[nN])$ ]] && err
 
 
 ### SET TIME AND SYNCHRONIZE SYSTEM CLOCK
@@ -206,8 +235,8 @@ fi
 if [[ "${recovery_partition}" =~ ^([yY][eE][sS]|[yY])$ ]]; then
 
   ## General Disk Partitioning Scheme: 4 partitions
-  #  /boot (/dev/sdx1, 300MB, shared between the /root )
-  #  /home (/dev/sdx2, 3.7GB, shared between the /root directories)
+  #  /boot (/dev/sdx1, 300MB, shared between both /root directories)
+  #  /home (/dev/sdx2, 3.7GB, shared between both /root directories)
   #  /root (/dev/sdx3, 4GB, original)
   #  /root (/dev/sdx4, 4GB, duplicate for recovery or testing purposes)
 
@@ -230,8 +259,8 @@ if [[ "${recovery_partition}" =~ ^([yY][eE][sS]|[yY])$ ]]; then
   mkdir /mnt/{boot,home}
   mount "${target_device}1" /mnt/boot
   mount "${target_device}2" /mnt/home
-  # root partition duplicate for recovery and testing will be created
-  # and mounted before bootloader configuration (see script2.sh)
+  # The duplicate /root partition will be created and mounted
+  # in script2.sh before bootloader configuration (see script2.sh)
 fi
 
 

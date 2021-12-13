@@ -3,30 +3,28 @@
 # script2.sh: designed to run inside script1.sh chroot into new system   
 
 
-## variable declaration
-
+## variable declaration: positional arguments
 target_device="${1}"
 host_name="${2}"
 root_password="${3}"
 user_name="${4}"
 user_password="${5}"
 user_shell="${6}"
-autolog_tty="${7}"
-recovery_partition="${8}"
+shell_keymap="${7}"
+autolog_tty="${8}"
+recovery_partition="${9}"
 
 ## Time Configuration
-
 ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime
 hwclock --systohc
 
 
 ## Language Configuration
-
-sed -i 's/#en_US.UTF-8/en_US.UTF-8/' /etc/locale.gen
-sed -i 's/#en_GB.UTF-8/en_GB.UTF-8/' /etc/locale.gen
-sed -i 's/#en_DK.UTF-8/en_DK.UTF-8/' /etc/locale.gen
-sed -i 's/#es_ES.UTF-8/es_ES.UTF-8/' /etc/locale.gen
-sed -i 's/#de_DE.UTF-8/de_DE.UTF-8/' /etc/locale.gen
+sed -i 's/#\(de_DE.UTF-8\)/\1/' /etc/locale.gen
+sed -i 's/#\(en_DK.UTF-8\)/\1/' /etc/locale.gen
+sed -i 's/#\(en_GB.UTF-8\)/\1/' /etc/locale.gen
+sed -i 's/#\(en_US.UTF-8\)/\1/' /etc/locale.gen
+sed -i 's/#\(es_ES.UTF-8\)/\1/' /etc/locale.gen
 locale-gen
 echo 'LANG=en_US.UTF-8'               > /etc/locale.conf
 echo 'LANGUAGE=en_US:en_GB:en'       >> /etc/locale.conf
@@ -36,9 +34,7 @@ echo 'LC_TIME=en_DK.UTF-8'           >> /etc/locale.conf
 
 
 ## Keyboard Configuration
-
-echo 'KEYMAP=es' > /etc/vconsole.conf
-# localectl set-keymap --no-convert es
+echo 'KEYMAP=${console}' > /etc/vconsole.conf
 
 
 ## Network Configuration
@@ -89,14 +85,14 @@ useradd -m "$user_name" -s /bin/"$user_shell"
 echo -e "$user_password\n$user_password" | (passwd $user_name)
 # set user groups
 usermod -aG wheel,audio,optical,storage,power,network "$user_name"
+# set user groups sample:
+# usermod -aG wheel,audio,optical,storage,autologin,vboxusers,power,network <<user>>
 
 ## create $USER dirs
 
 pacman -S --needed --noconfirm xdg-user-dirs
 LC_ALL=C xdg-user-dirs-update --force
 
-# set user groups sample:
-# usermod -aG wheel,audio,optical,storage,autologin,vboxusers,power,network <<user>>
 
 ## autologing tty
 if [[ "${autolog_tty}" =~ ^([yY][eE][sS]|[yY])$ ]];then
@@ -117,12 +113,19 @@ systemctl enable NetworkManager	# wifi
 ## create a backup MBR file and a recovery artition
 if [[ "${recovery_partition}" =~ ^([yY])$ ]]; then
 
-  # Backup only the Partition Table
-  sfdisk -d "${target_device}" > sfdisk_sda
+  ## Recovery Partition
+  dd if="${target_device}3" of="${target_device}4"
+  mount "${target_device}4" /mnt2
+  grub-mkconfig -o /boot/grub/grub.cfg
+
+  ## Backup the MBR partition table
+  mkdir -p /mnt2/home/.backup_mbr
+  # Backup only the partition table  
+  sfdisk -d "${target_device}" > /mnt2/home/.backup/sfdisk_ptable
   # Restoring only the Partion Table (usually only this is necessary)
   # sudo sfdisk /dev/sda < sfdisk_sda
   # Backup MBR + Partition Table:
-  dd if="${target_device}" of=mbr_sda bs=512 count=1
+  dd if="${target_device}" of=/mnt2/home/.backup/mbr_bakup bs=512 count=1
   # Restoring only the MBR (without changing the Partition Table)
   # sudo dd if=mbr_sda of=/dev/sda bs=446 count=1
   # Restoring only the Partition Table (without changing the MBR)
@@ -130,11 +133,6 @@ if [[ "${recovery_partition}" =~ ^([yY])$ ]]; then
   # Restoring the MBR + Partition Table
   # sudo dd if=mbr_sda of="${target_device}" bs=512 count=1
 
-  # recovery partition
-  dd if="${target_device}3" of="${target_device}4"
-  mkdir -p /mnt2/
-  mount "${target_device}4" /mnt2
-  grub-mkconfig -o /boot/grub/grub.cfg
 fi
 
 exit
