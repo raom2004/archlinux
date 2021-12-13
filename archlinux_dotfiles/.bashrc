@@ -1,6 +1,7 @@
+#!/bin/bash
 #
 # ~/.bashrc
-#
+# All the customizations related to bash shell
 
 # If not running interactively, don't do anything
 [[ $- != *i* ]] && return
@@ -42,36 +43,35 @@ NC='\[\e[m\]'
 # Bold White on red background
 ALERT="${BWhite}${On_Red}"
 
-# Set prompt
-if [[ -f ~/.bash_prompt ]]; then
-  source ~/.bash_prompt
-else
-  PS1="${BRed}\u${NC}@\h: ${BBlue}\w${NC} \\$ "
-fi
-
-# PERSONAL CUSTOMIZATION #############################################
+### PERSONAL CUSTOMIZATION ###########################################
 # inspired by: https://serverfault.com/questions/3743/what-useful-things-can-one-add-to-ones-bashrc
-[[ -f ~/.aliases ]] && source ~/.aliases
-[[ -f ~/.inputrc ]] && source ~/.aliases
+# https://github.com/mathiasbynens/dotfiles/blob/main/.bash_profile
 
+## PROMPT, aliases and functions
+for file in ~/.{bash_prompt,aliases,functions,inputrc}; do
+  [[ -r "${file}" ]] && [[ -f "${file}" ]] && source "${file}"
+done
+unset file
 
-# HISTORY CONFIGURATION ##############################################
-export HISTFILESIZE=20000
-export HISTSIZE=10000
-shopt -s histappend
-# Combine multiline commands into one in history
-shopt -s cmdhist
-# Ignore duplicates, ls without options and builtin commands
-HISTCONTROL=ignoredups
-export HISTIGNORE="&:ls:[bf]g:exit"
-
-# fix spelling errors for cd, only in interactive shell
+# SPELLING: fix spelling errors for cd
 shopt -s cdspell
 
-# command not found
+## HISTORY CONFIGURATION ##############################################
+
+shopt -s histappend   # append instead of overwrite it
+shopt -s cmdhist      # Combine multiline commands into one in history
+
+# Ignore duplicates, ls without options and builtin commands
+HISTCONTROL=ignoredups
+
+export HISTIGNORE="&:ls:[bf]g:exit"
+export HISTFILESIZE=20000
+export HISTSIZE=10000
+
+
+# TODO: command not found
 # source /usr/share/doc/pkgfile/command-not-found.bash
 
 # Local Variables:
 # sh-basic-offset: 2
 # End:
-

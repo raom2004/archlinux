@@ -7,6 +7,39 @@
 
 ### FUNTIONS DECLARATION
 
+########################################
+# Purpose:
+#  A function to redirect the stdout (1) stderror (2)
+#  of a command to /dev/null
+# Usage:  
+#  nullify program arg1 arg2
+########################################
+function amiroot
+{
+  ROOT_UID=0   # Root has $UID 0.
+
+  if [[ "$UID" -eq "$ROOT_UID" ]]; then
+    echo "You are root."
+  else
+    echo "root priviledges required. Cancelling"
+    exit 0
+  fi
+}
+########################################
+# Purpose:
+#  A function to redirect the stdout (1) stderror (2)
+#  of a command to /dev/null
+# Usage:  
+#  nullify program arg1 arg2
+########################################
+
+function nullify 
+{
+  "$@" >/dev/null 2>&1
+  # you can also use:
+  # "$@" >& /dev/null
+}
+
 
 ########################################
 # Purpose: function to test bash commands
@@ -17,6 +50,7 @@ function try
 {
   set -e
   "$@"
+  set +e
 }
 
 
