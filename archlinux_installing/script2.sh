@@ -136,7 +136,7 @@ if [[ "${recovery_partition}" =~ ^([yY])$ ]]; then
   # Backup only the Partition Table (recommended)  
   sfdisk -d "${target_device}" > "${backup_dir}"/sfdisk_ptable
   # Backup MBR + Partition Table
-  dd if="${target_device}" of="${backup_dir}"/mbr_bakup bs=512 count=1
+  dd if="${target_device}" of="${backup_dir}"/mbr_backup bs=512 count=1
 
   ## Restoring backup of MBR
   # Restoring only the Partion Table (usually only this is necessary)

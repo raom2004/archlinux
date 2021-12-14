@@ -277,8 +277,9 @@ if [[ "${recovery_partition}" =~ ^([yY][eE][sS]|[yY])$ ]]; then
   mkdir /mnt/{boot,home}
   mount "${target_device}1" /mnt/boot
   mount "${target_device}2" /mnt/home
-  # The duplicate /root partition will be created and mounted
-  # in script2.sh before bootloader configuration (see script2.sh)
+  # The duplicate /root partition will be in /mnt2
+  mkdir /mnt2
+  # but /mnt2 will be mounted in script2.sh before the bootloader config
 fi
 
 
