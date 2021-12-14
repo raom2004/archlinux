@@ -336,7 +336,7 @@ printf "Archlinux install script
 # End Time: ${script_end_time}
 #  Install Runtime : ${runtime}
 " >> "${log}"
-mv "${log}" > /mnt/home/"${user_name}"/arch-install.log
+mv "${log}" > /mnt/home/"${user_name}/${log}"
 
 
 ## umount archlinux new system partition /mnt 
