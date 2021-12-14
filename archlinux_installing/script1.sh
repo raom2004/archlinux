@@ -181,9 +181,6 @@ else
   boot_mode='UEFI'
 fi
 
-# cretae an archlinux install log file
-printf "${script_start_time}" > "${log}"
-
 
 ### GET PARAMETERS REQUIRED FOR ARCHLINUX INSTALL
 
