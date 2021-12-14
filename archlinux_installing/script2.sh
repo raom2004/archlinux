@@ -131,13 +131,12 @@ if [[ "${recovery_partition}" =~ ^([yY])$ ]]; then
   grub-mkconfig -o /boot/grub/grub.cfg
 
   ## Backup of MBR
-  mkdir -p /mnt2/home/.backup
+  backup_dir=/mnt2/home/"${user_name}"/.backup
+  mkdir -p "${backup_dir}"
   # Backup only the Partition Table (recommended)  
-  sfdisk -d "${target_device}" \
-	 > /home/"${user_name}"/.backup/sfdisk_ptable
+  sfdisk -d "${target_device}" > "${backup_dir}"/sfdisk_ptable
   # Backup MBR + Partition Table
-  dd if="${target_device}" of=/home/"${user_name}"/.backup/mbr_bakup \
-     bs=512 count=1
+  dd if="${target_device}" of="${backup_dir}"/mbr_bakup bs=512 count=1
 
   ## Restoring backup of MBR
   # Restoring only the Partion Table (usually only this is necessary)

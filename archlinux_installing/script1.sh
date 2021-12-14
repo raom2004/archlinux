@@ -45,6 +45,7 @@ source ./include/functions
 
 installer_version=v0.8.0
 script_start_time="$(date +%s)"	# record runtime of the archlinux install
+log=archlinux_intall_script.log
 
 
 ### FUNCTION DECLARATION
@@ -181,6 +182,10 @@ else
   boot_mode='UEFI'
 fi
 
+### CREATE LOG FILE WITH SYSTEM INFO
+printf "Archlinux installer version:%s" "${installer_version}" > "${log}"
+printf "Start time:%s" "${script_start_time}" >> "${log}"
+printf "Machine:%s Boot Mode: %s" "${machine}" "${boot_mode}" >> "${log}"
 
 ### GET PARAMETERS REQUIRED FOR ARCHLINUX INSTALL
 
@@ -330,7 +335,8 @@ printf "Archlinux install script
 # Start time: ${script_start_time}
 # End Time: ${script_end_time}
 #  Install Runtime : ${runtime}
-" > /mnt/home/"${user_name}"/arch-install.log
+" >> "${log}"
+mv "${log}" > /mnt/home/"${user_name}"/arch-install.log
 
 
 ## umount archlinux new system partition /mnt 
