@@ -201,15 +201,15 @@ read -sp "Enter USER PASSWORD: " user_password
 
 # parameters with fixed options that need to be validated
 read -p "Enter USER SHELL (e.g. bash, zsh) " user_shell
-[[ ! "${user_shell}" =~ ^([b][a]|[z])(sh)$ ]] && err
+[[ ! "${user_shell}" =~ ^([b][a]|[z])(sh)$ ]] && err >> "${log}"
 read -p "Enter SHELL KEYMAP (e.g. en, de, fr) " shell_keymap
-[[ ! "${user_shell}" =~ ^([a-z][a-z])$ ]] && err
+[[ ! "${shell_keymap}}" =~ ^([a-z][a-z])$ ]] && err >> "${log}"
 read -p "Do you want to AUTOLOG IN TTY1 at startup?[y/N]" autolog_tty
-[[ ! "${autolog_tty}" =~ ^([yY]|[nN])$ ]] && err
+[[ ! "${autolog_tty}" =~ ^([yY]|[nN])$ ]] && err >> "${log}"
 
 # ask user to create a recovery partition and MBR
 read -p "Create a recovery partition?[y/N]" recovery_partition
-[[ ! "${recovery_partition}" =~ ^([yY]|[nN])$ ]] && err
+[[ ! "${recovery_partition}" =~ ^([yY]|[nN])$ ]] && err >> "${log}"
 
 
 ### SET TIME AND SYNCHRONIZE SYSTEM CLOCK
