@@ -329,7 +329,8 @@ runtime="$((${script_end_time}-${script_start_time}))"
 printf "Archlinux install script
 # Start time: ${script_start_time}
 # End Time: ${script_end_time}
-#  Install Runtime : ${runtime}\n" > /mnt/home/*/arch-install.log
+#  Install Runtime : ${runtime}
+" > /mnt/home/"${user_name}"/arch-install.log
 
 
 ## umount archlinux new system partition /mnt 

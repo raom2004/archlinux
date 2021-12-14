@@ -36,15 +36,19 @@ echo 'LC_TIME=en_GB.UTF-8'           >> /etc/locale.conf
 
 
 ## Keyboard Configuration
-echo 'KEYMAP=${shell_keymap}' > /etc/vconsole.conf
+echo "KEYMAP=${shell_keymap}" > /etc/vconsole.conf
 
 
 ## Network Configuration
 echo "${host_name}" > /etc/hostname
-bash -c "echo \"127.0.0.1	localhost
+# bash -c "echo \"127.0.0.1	localhost
+# ::1		localhost
+# 127.0.1.1	${host_name}.localdomain	${host_name}\" \
+#  >> /etc/hosts"
+echo "127.0.0.1	localhost
 ::1		localhost
-127.0.1.1	${host_name}.localdomain	${host_name}\" \
- >> /etc/hosts"
+127.0.1.1	${host_name}.localdomain	${host_name}
+" >> /etc/hosts
 
 
 ## TODO: Western Digital firmware modules pending: aic94xx wd719x xhci_pci
@@ -129,9 +133,11 @@ if [[ "${recovery_partition}" =~ ^([yY])$ ]]; then
   ## Backup of MBR
   mkdir -p /mnt2/home/.backup
   # Backup only the Partition Table (recommended)  
-  sfdisk -d "${target_device}" > /mnt2/home/.backup/sfdisk_ptable
+  sfdisk -d "${target_device}" \
+	 > /home/"${user_name}"/.backup/sfdisk_ptable
   # Backup MBR + Partition Table
-  dd if="${target_device}" of=/mnt2/home/.backup/mbr_bakup bs=512 count=1
+  dd if="${target_device}" of=/home/"${user_name}"/.backup/mbr_bakup \
+     bs=512 count=1
 
   ## Restoring backup of MBR
   # Restoring only the Partion Table (usually only this is necessary)
