@@ -208,7 +208,7 @@ read -sp "Enter USER PASSWORD: " user_password
 read -p "Enter USER SHELL (e.g. bash, zsh) " user_shell
 [[ ! "${user_shell}" =~ ^([b][a]|[z])(sh)$ ]] && err >> "${log}"
 read -p "Enter SHELL KEYMAP (e.g. en, de, fr) " shell_keymap
-[[ ! "${shell_keymap}}" =~ ^([a-z][a-z])$ ]] && err >> "${log}"
+[[ ! "${shell_keymap}" =~ ^([a-z][a-z])$ ]] && err >> "${log}"
 read -p "Do you want to AUTOLOG IN TTY1 at startup?[y/N]" autolog_tty
 [[ ! "${autolog_tty}" =~ ^([yY]|[nN])$ ]] && err >> "${log}"
 
