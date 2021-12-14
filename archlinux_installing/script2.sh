@@ -3,7 +3,7 @@
 # script2.sh: designed to run inside script1.sh chroot into new system   
 
 
-## variable declaration: positional arguments
+## variable declaration: get positional arguments
 target_device="${1}"
 host_name="${2}"
 root_password="${3}"
@@ -19,22 +19,24 @@ ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime
 hwclock --systohc
 
 
-## Language Configuration
+## Language Configuration: including frequent languages
 sed -i 's/#\(de_DE.UTF-8\)/\1/' /etc/locale.gen
-sed -i 's/#\(en_DK.UTF-8\)/\1/' /etc/locale.gen
 sed -i 's/#\(en_GB.UTF-8\)/\1/' /etc/locale.gen
 sed -i 's/#\(en_US.UTF-8\)/\1/' /etc/locale.gen
 sed -i 's/#\(es_ES.UTF-8\)/\1/' /etc/locale.gen
+sed -i 's/#\(fr_FR.UTF-8\)/\1/' /etc/locale.gen
+sed -i 's/#\(ru_RU.UTF-8\)/\1/' /etc/locale.gen
+sed -i 's/#\(zh_CN.UTF-8\)/\1/' /etc/locale.gen
 locale-gen
 echo 'LANG=en_US.UTF-8'               > /etc/locale.conf
 echo 'LANGUAGE=en_US:en_GB:en'       >> /etc/locale.conf
 echo 'LC_COLLATE=C'                  >> /etc/locale.conf
 echo 'LC_MESSAGES=en_US.UTF-8'       >> /etc/locale.conf
-echo 'LC_TIME=en_DK.UTF-8'           >> /etc/locale.conf
+echo 'LC_TIME=en_GB.UTF-8'           >> /etc/locale.conf
 
 
 ## Keyboard Configuration
-echo 'KEYMAP=${console}' > /etc/vconsole.conf
+echo 'KEYMAP=${shell_keymap}' > /etc/vconsole.conf
 
 
 ## Network Configuration
@@ -84,12 +86,11 @@ useradd -m "$user_name" -s /bin/"$user_shell"
 # set new user password
 echo -e "$user_password\n$user_password" | (passwd $user_name)
 # set user groups
-usermod -aG wheel,audio,optical,storage,power,network "$user_name"
-# set user groups sample:
-# usermod -aG wheel,audio,optical,storage,autologin,vboxusers,power,network <<user>>
+usermod -aG audio,network,optical,power,storage,wheel "$user_name"
+# Note: there are more groups available, like: autologin,kvm,vboxusers,lp
+
 
 ## create $USER dirs
-
 pacman -S --needed --noconfirm xdg-user-dirs
 LC_ALL=C xdg-user-dirs-update --force
 
@@ -103,14 +104,21 @@ ExecStart=-/sbin/agetty --autologin ${user_name} --noclear %%I ${TERM}
 " > /etc/systemd/system/getty@tty1.service.d/autologin.conf
 fi
 
+
+## Pacman Package Manager: activate color
+sed -i 's/#\(Color\)/\1/' /etc/pacman.conf
+
+
 ## Enable Requited Services
 systemctl enable dhcpcd		# ethernet
 systemctl enable NetworkManager	# wifi
 
+
 ## run desktop environment at startup
 # systemctl enable lightdm
 
-## create a backup MBR file and a recovery artition
+
+## create a recovery partition and backup MBR + table partition
 if [[ "${recovery_partition}" =~ ^([yY])$ ]]; then
 
   ## Recovery Partition
@@ -118,14 +126,16 @@ if [[ "${recovery_partition}" =~ ^([yY])$ ]]; then
   mount "${target_device}4" /mnt2
   grub-mkconfig -o /boot/grub/grub.cfg
 
-  ## Backup the MBR partition table
-  mkdir -p /mnt2/home/.backup_mbr
-  # Backup only the partition table  
+  ## Backup of MBR
+  mkdir -p /mnt2/home/.backup
+  # Backup only the Partition Table (recommended)  
   sfdisk -d "${target_device}" > /mnt2/home/.backup/sfdisk_ptable
+  # Backup MBR + Partition Table
+  dd if="${target_device}" of=/mnt2/home/.backup/mbr_bakup bs=512 count=1
+
+  ## Restoring backup of MBR
   # Restoring only the Partion Table (usually only this is necessary)
   # sudo sfdisk /dev/sda < sfdisk_sda
-  # Backup MBR + Partition Table:
-  dd if="${target_device}" of=/mnt2/home/.backup/mbr_bakup bs=512 count=1
   # Restoring only the MBR (without changing the Partition Table)
   # sudo dd if=mbr_sda of=/dev/sda bs=446 count=1
   # Restoring only the Partition Table (without changing the MBR)
@@ -134,6 +144,7 @@ if [[ "${recovery_partition}" =~ ^([yY])$ ]]; then
   # sudo dd if=mbr_sda of="${target_device}" bs=512 count=1
 
 fi
+
 
 exit
 

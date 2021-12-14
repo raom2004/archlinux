@@ -6,25 +6,26 @@
 #  built-in files (see above)
 
 
-### PREREQUIREMENTS
+### PREREQUIREMENTS ##################################################
 
-## Continue Only if internet connection is available
+##  Verify Internet Connection
 if ! ping -c 1 -q google.com >&/dev/null; then
-  echo "Internet not available"
+  echo "Internet required. Cancelling install.."
   exit 0
 fi
 
-## Continue Only if user has root priviledges
+## Verify Root Priviledges
 ROOT_UID=0   # Root has $UID 0.
 
 if [[ ! "$UID" -eq "$ROOT_UID" ]]; then
-  echo "root priviledges required. Cancelling install.."
+  echo "ROOT priviledges required. Cancelling install.."
   exit 0
 fi
 
 
-### BASH OPTIONS FOR SECURITY AND DEBUGGING
-# shopt -o noclobber # prevent file overwriting (>) but can forced by (>|)
+### BASH SCRIPT OPTIONS FOR SECURITY AND DEBUGGING ###################
+
+# shopt -o noclobber # avoid file overwriting (>) but can be forced (>|)
 set +o history     # disably bash history temporarilly
 set -o errtrace    # inherit any trap on ERROR
 set -o functrace   # inherit any trap on DEBUG and RETURN
@@ -33,32 +34,34 @@ set -o nounset     # EXIT if script try to use undeclared variables
 set -o pipefail    # CATCH failed piped commands
 set -o xtrace      # trace & expand what gets executed (useful for debug)
 
+
 ### DEPENDENCIES
+
 source ./include/ANSI_escape_colors
 source ./include/functions
 
 
 ### VARIABLE DECLARATION
+
 installer_version=v0.8.0
-script_start_time="$(date +%s)"
+script_start_time="$(date +%s)"	# record runtime of the archlinux install
 
 
 ### FUNCTION DECLARATION
-
 
 ########################################
 # Purpose: display usage of this archlinux installer bash script 
 # Arguments: global variable "installer_version"
 ########################################
-
 function display_usage
 {
   printf "
 ARCHLINUX installer Version %s
-Summary: 
-  A bash script that automates the archlinux install. It follows the
-  official guidelines, including install and boot archlinux from
-  internal HDD and removable devices, such as: USB, SD or MMC.
+Summary: A bash script that automates the archlinux install. 
+  * It follows the archlinux official guidelines.
+  * The installation supports internal HDD or USB/SD removable devices.
+  * It supports the partitioning tables BIOS/MBR and BIOS/GPT. 
+  * It is designed as a template for easily edition and customization.
 
 Usage: ${0##*/} [options]
   -h|--help         display usage
@@ -70,42 +73,49 @@ The archlinux install will ask for the variables, on demand:
   * A block device for install linux on, e.g. \"/dev/sdX\"
   * A name for the host
   * A root password
-  * A new user name
-  * A password for the new user
+  * A new user name, and password
   * A shell for the user, options: \"bash\", \"zsh\"
-  * A keymap for the shell, e.g.: en, de
+  * A language (e.g.: en, de, fr) to show keyboard keymaps available
+
+The system locale is set to american english (LANG=en_EN.UTF-8), but:
+  * Can be overrided per user session, editing: ~/.config/locale.conf
 
 The archlinux installer include other advanced options, such as:
-  * Activate automatic logging on tty1 (only for testing purposes).
-  * Create a duplicate of the system, with dd, for recovery and testing.
+  * Activate automatic logging on tty1 (available for testing purposes).
+  * Create a DUPLICATE OF THE SYSTEM, with dd, for RECOVERY and TESTING.
 
-Why include an option to duplicate the system?
+Why this installer include an option to DUPLICATE THE SYSTEM?
   Well, archlinux maintenance require packages and kernel upgrades
-  that could break the system. For this reason, have a booteable
-  duplicate of the system its advantageus to test upgrades before
-  apply them in the main system, or easily recover the system after an
-  important failure.
+  that eventually could break the system. For this reason, have a
+  booteable duplicate of the system its advantageus for: test upgrades
+  before apply them in the main system or easily recover the system
+  after an important failure.
 
 How this installer will partition the disk?
-In the standard install, without recovery, the disk partitioning will be:
-  * A /boot partition, dedicated for the bootloader (GRUB). 
+The standard install WITHOUT recovery, will partition the disk, such as:
+  * A /boot partition, dedicated for the bootloader (GRUB) for BIOS/GPT. 
   * A /root partition, for the archlinux system.
 
-When you choose to have a recovery partition, this installer will create: 
-  * A /root partition containing the original archlinux system.
-  * A /root duplicate, booteable for upgrade testing or recovery.
-  * A /boot partition, to store the boot files for both systems.
-  * A /home partition, to make documents available for both systems.
+The install WITH recovery partition, will partition the disk, such as: 
+  * A /root partition, containing the original archlinux system.
+  * A /root partition, a duplicate for upgrade testing or recovery.
+  * A /boot partition, dedicated for the bootloader (GRUB) for BIOS/GPT.
+  * A /home partition (optional, to share documents in both systems).
 
+IMPORTANT: System Locale
+  * This installer will set the system locale to american english, e.g.:
+    # localectl set-locale LANG=en_EN.UTF-8
+  * After the install, you can overrride this system locale by editing:
+    $XDG_CONFIG_HOME/locale.conf (usually ~/.config/locale.conf)
+  
 " "${installer_version}"
   exit 0
 }
 
 
 ########################################
-# Purpose: dialog to select a target block device for archlinux install
-# Arguments: $1
-# Return: the argument $1 will store a valid block device (e.g. /dev/sdX)
+# Purpose: customize the error messages
+# Arguments: positional arguments
 ########################################
 function err
 {
@@ -118,7 +128,6 @@ function err
 # Arguments: $1
 # Return: the argument $1 will store a valid block device (e.g. /dev/sdX)
 ########################################
-
 function dialog_to_input_a_target_device
 {
   # The functions result will be stored in the variable "__resultvar".
@@ -134,10 +143,14 @@ function dialog_to_input_a_target_device
   select option in "${array_of_block_devices[@]}";do
     case "${option}" in
       "")
-	printf "\nInvalid option. Canceling install!\n\n"; exit 0 ;;
+	printf "\nInvalid option. Canceling install!\n\n"
+	exit 0
+	;;
       *)
 	# The function can't set a variable directly, but EVAL can:
-	eval "${__resultvar}"="/dev/${option}"; break ;;
+	eval "${__resultvar}"="/dev/${option}"
+	break
+	;;
     esac
   done
 }
@@ -148,13 +161,13 @@ function dialog_to_input_a_target_device
 ######################################################################
 
 
-### HELP
+### GET HELP
 
 # display usage when user provide the help tag '--help | -h' 
 [[ "${#}" == 1 ]] && [[ "${1}" =~ (--help)|(-h) ]] && display_usage
 
 
-### GET SYSTEM INFORMATION
+### GET SYSTEM INFORMATION DURING ARCHLINUX INSTALL
 
 # Get Current Machine: Virtualbox (VBox) vs REAL
 pacman -Sy --noconfirm --needed dmidecode
@@ -167,6 +180,9 @@ if ! ls /sys/firmware/efi/efivars 2>/dev/null; then
 else
   boot_mode='UEFI'
 fi
+
+# cretae an archlinux install log file
+printf "${script_start_time}" > "${log}"
 
 
 ### GET PARAMETERS REQUIRED FOR ARCHLINUX INSTALL
@@ -204,9 +220,9 @@ read -p "Create a recovery partition?[y/N]" recovery_partition
 timedatectl set-ntp true
 
 
-### DISK PARTITIONING FORMATING AND MOUNTING
+### DISK PARTITIONING, FORMATING AND MOUNTING
 
-## Partitioning hdd (WITHOUT recovery partition)
+## - 1 - Partitioning a HDD (WITHOUT Recovery Partition)
 if [[ ! "${recovery_partition}" =~ ^([yY][eE][sS]|[yY])$ ]]; then
 
   ## General Disk Partitioning Scheme: 2 partitions
@@ -231,12 +247,12 @@ if [[ ! "${recovery_partition}" =~ ^([yY][eE][sS]|[yY])$ ]]; then
   mount "${target_device}1" /mnt/boot
 fi
 
-## Partitioning hdd (WITH RECOVERY PARTITION)
+## - 2 - Partitioning a HDD (WITH Recovery Partition)
 if [[ "${recovery_partition}" =~ ^([yY][eE][sS]|[yY])$ ]]; then
 
   ## General Disk Partitioning Scheme: 4 partitions
-  #  /boot (/dev/sdx1, 300MB, shared between both /root directories)
-  #  /home (/dev/sdx2, 3.7GB, shared between both /root directories)
+  #  /boot (/dev/sdx1, 300MB, shared between /root directories)
+  #  /home (/dev/sdx2, 3.7GB, shared between /root directories)
   #  /root (/dev/sdx3, 4GB, original)
   #  /root (/dev/sdx4, 4GB, duplicate for recovery or testing purposes)
 
@@ -264,10 +280,10 @@ if [[ "${recovery_partition}" =~ ^([yY][eE][sS]|[yY])$ ]]; then
 fi
 
 
+### ARCHLINUX PACKAGE INSTALLATION
 
 ## Important: update package manager keyring
 pacman -Syy --noconfirm archlinux-keyring
-
 
 ## install elementary system packages
 # esential packages
@@ -309,14 +325,24 @@ arch-chroot /mnt sh /home/script2.sh \
 ## remove script
 #rm /mnt/home/script2.sh
 
+
+## generate a log file with installation runtime
 script_end_time="$(date +%s)"
 runtime="$((${script_end_time}-${script_start_time}))"
-printf "\n## Install runtime : $runtime\n" >> /mnt/home/script2.sh
+printf "Archlinux install script
+# Start time: ${script_start_time}
+# End Time: ${script_end_time}
+#  Install Runtime : ${runtime}\n" > /mnt/home/*/arch-install.log
+
 
 ## umount archlinux new system partition /mnt 
 umount -R /mnt
 
-reboot now
+
+## restore bash history
+set -o history 
+
+shutdown now
 
 # Local Variables:
 # sh-basic-offset: 2
