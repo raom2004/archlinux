@@ -45,7 +45,7 @@ source ./include/functions
 
 installer_version=v0.8.0
 script_start_time="$(date +%s)"	# record runtime of the archlinux install
-log=archlinux_intall_script.log
+log=archlinux_install_script.log
 
 
 ### FUNCTION DECLARATION
@@ -330,15 +330,17 @@ arch-chroot /mnt sh /home/script2.sh \
 ## create a recovery partition and backup MBR + table partition
 if [[ "${recovery_partition}" =~ ^([yY])$ ]]; then
 
-  # but /mnt2 will be mounted in script2.sh before the bootloader config
-
   ## Recovery Partition
   # duplicate /root partition from /dev/sda3 to /dev/sda4
   dd if="${target_device}3" of="${target_device}4"
   # mount duplicate partition as /mnt2
-  mkdir /mnt2
+  mkdir -p /mnt2
   mount "${target_device}4" /mnt2
 
+  ## Config bootloader (GRUB)
+  # grub-mkconfig -o /boot/grub/grub.cfg
+  arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
+  
   ## Backup of MBR
   backup_dir=/mnt2/home/"${user_name}"/.backup
   mkdir -p "${backup_dir}"
@@ -359,8 +361,6 @@ if [[ "${recovery_partition}" =~ ^([yY])$ ]]; then
 
 fi
 
-## Config bootloader (GRUB)
-arch-chroot /mnt2 grub-mkconfig -o /boot/grub/grub.cfg
 
 
 
