@@ -327,43 +327,6 @@ arch-chroot /mnt sh /home/script2.sh \
 #rm /mnt/home/script2.sh
 
 
-## create a recovery partition and backup MBR + table partition
-if [[ "${recovery_partition}" =~ ^([yY])$ ]]; then
-
-  ## Recovery Partition
-  # duplicate /root partition from /dev/sda3 to /dev/sda4
-  dd if="${target_device}3" of="${target_device}4"
-  # mount duplicate partition as /mnt2
-  mkdir -p /mnt2
-  mount "${target_device}4" /mnt2
-
-  ## Config bootloader (GRUB)
-  # grub-mkconfig -o /boot/grub/grub.cfg
-  arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
-  
-  ## Backup of MBR
-  backup_dir=/mnt2/home/"${user_name}"/.backup
-  mkdir -p "${backup_dir}"
-  # Backup only the Partition Table (recommended)  
-  sfdisk -d "${target_device}" > "${backup_dir}"/sfdisk_ptable
-  # Backup MBR + Partition Table
-  dd if="${target_device}" of="${backup_dir}"/mbr_backup bs=512 count=1
-
-  ## Restoring backup of MBR
-  # Restoring only the Partion Table (usually only this is necessary)
-  # sudo sfdisk /dev/sda < sfdisk_sda
-  # Restoring only the MBR (without changing the Partition Table)
-  # sudo dd if=mbr_sda of=/dev/sda bs=446 count=1
-  # Restoring only the Partition Table (without changing the MBR)
-  # sudo dd if=mbr_sda of=/dev/sda bs=1 count=64 skip=446 seek=446
-  # Restoring the MBR + Partition Table
-  # sudo dd if=mbr_sda of="${target_device}" bs=512 count=1
-
-fi
-
-
-
-
 ## generate a log file with installation runtime
 script_end_time="$(date +%s)"
 runtime="$((${script_end_time}-${script_start_time}))"
@@ -372,7 +335,7 @@ printf "Archlinux install script
 # End Time: ${script_end_time}
 #  Install Runtime : ${runtime}
 " >> "${log}"
-mv "${log}" > /mnt/home/"${user_name}/${log}"
+mv "${log}" /mnt/home/"${user_name}/${log}"
 
 
 ## umount archlinux new system partition /mnt 
