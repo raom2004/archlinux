@@ -182,9 +182,10 @@ else
 fi
 
 ### CREATE LOG FILE WITH SYSTEM INFO
-printf "Archlinux installer version:%s" "${installer_version}" > "${log}"
-printf "Start time:%s" "${script_start_time}" >> "${log}"
-printf "Machine:%s Boot Mode: %s" "${machine}" "${boot_mode}" >> "${log}"
+echo "Archlinux installer version: ${installer_version}" > "${log}"
+echo "Start time: ${script_start_time}" >> "${log}"
+echo "Machine: ${machine}" >> "${log}"
+echo "Boot Mode: ${boot_mode}" >> "${log}"
 
 ### GET PARAMETERS REQUIRED FOR ARCHLINUX INSTALL
 
