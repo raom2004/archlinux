@@ -42,7 +42,7 @@ source ./include/functions
 
 ### VARIABLE DECLARATION
 
-installer_version=v0.8.0
+installer_version=v0.8.1
 script_start_time="$(date +%s)"	# record runtime of the archlinux install
 log=archlinux_install_script.log
 
