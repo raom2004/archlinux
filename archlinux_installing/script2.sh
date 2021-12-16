@@ -122,7 +122,7 @@ LC_ALL=C xdg-user-dirs-update --force
 
 
 ## autologing tty
-if [[ "${autolog_tty}" =~ ^([yY][eE][sS]|[yY])$ ]];then
+if [[ "${autolog_tty}" =~ ^([yY][eE][sS]|[yY])$ ]]; then
   mkdir -p /etc/systemd/system/getty@tty1.service.d
   printf "[Service]
 ExecStart=

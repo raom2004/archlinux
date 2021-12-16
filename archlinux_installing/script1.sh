@@ -323,6 +323,7 @@ arch-chroot /mnt sh /home/script2.sh \
 	    "$user_name" \
 	    "$user_password" \
 	    "$user_shell" \
+	    "$shell_keymap" \
 	    "$autolog_tty" \
 	    "$recovery_partition"
 
