@@ -165,7 +165,8 @@ if [[ "${recovery_partition}" =~ ^([yY])$ ]]; then
   mount "${target_device}4" /mnt2
   sed -i "s%${target_device}3%${target_device}4%g" /mnt2/etc/fstab
   # update boot loader 
-  arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
+  grub-mkconfig -o /boot/grub/grub.cfg
+  vim /boot/grub/grub.cfg
 
 fi
 
