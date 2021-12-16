@@ -228,7 +228,7 @@ if [[ ! "${recovery_partition}" =~ ^([yY][eE][sS]|[yY])$ ]]; then
 
   ## General Disk Partitioning Scheme: 3 partitions in 8GB
   #  /boot (/dev/sdx1, 300MB)
-  #  /hoot (/dev/sdx2, 3.7GB)
+  #  /home (/dev/sdx2, 3.7GB)
   #  /root (/dev/sdx3, 4GB remaining space)
 
   ## Partitioning disk with MBR table:
