@@ -15,8 +15,7 @@ if ! ping -c 1 -q google.com >&/dev/null; then
 fi
 
 ## Verify Root Priviledges
-ROOT_UID=0   # Root has $UID 0.
-
+ROOT_UID=0  # Root has $UID 0.
 if [[ ! "$UID" -eq "$ROOT_UID" ]]; then
   echo "ROOT priviledges required. Cancelling install.."
   exit 0
@@ -61,7 +60,7 @@ ARCHLINUX installer Version %s
 Summary: A bash script that automates the archlinux install. 
   * It follows the archlinux official guidelines.
   * The installation supports internal HDD or USB/SD removable devices.
-  * It supports the partitioning tables BIOS/MBR and BIOS/GPT. 
+  * It supports the partitioning layouts BIOS/MBR, BIOS/GPT. 
   * It is designed as a template for easily edition and customization.
 
 Usage: ${0##*/} [options]
@@ -98,9 +97,9 @@ The standard install WITHOUT recovery, will partition the disk, such as:
   * A /root partition, for the archlinux system.
 
 The install WITH recovery partition, will partition the disk, such as: 
-  * A /root partition, containing the original archlinux system.
-  * A /root partition, a duplicate for upgrade testing or recovery.
-  * A /boot partition, dedicated for the bootloader (GRUB) for BIOS/GPT.
+  * A /     partition, containing the original archlinux system.
+  * A /     partition, a duplicate for upgrade testing or recovery.
+  * A /boot partition, dedicated for the bootloader for BIOS/GPT or UEFI.
   * A /home partition (optional, to share documents in both systems).
 
 IMPORTANT: System Locale
@@ -224,32 +223,36 @@ timedatectl set-ntp true
 
 ### DISK PARTITIONING, FORMATING AND MOUNTING
 
-## - 1 - Partitioning a HDD (WITHOUT Recovery Partition)
+## - 1 - Partitioning a HDD, NO Partition Recovery
 if [[ ! "${recovery_partition}" =~ ^([yY][eE][sS]|[yY])$ ]]; then
 
-  ## General Disk Partitioning Scheme: 2 partitions
+  ## General Disk Partitioning Scheme: 3 partitions in 8GB
   #  /boot (/dev/sdx1, 300MB)
-  #  /root (/dev/sdx2, all remaining free disk space)
+  #  /hoot (/dev/sdx2, 3.7GB)
+  #  /root (/dev/sdx3, 4GB remaining space)
 
   ## Partitioning disk with MBR table:
   parted -s "${target_device}" mklabel msdos
-  parted -s -a optimal "${target_device}" mkpart primary ext2 0% 300MB
+  parted -s -a optimal "${target_device}" mkpart primary ext2 0% 300MiB
   parted -s "${target_device}" set 1 boot on
-  parted -s -a optimal "${target_device}" mkpart primary ext4 300MB 100%
+  parted -s -a optimal "${target_device}" mkpart primary ext4 300MiB 4GB
+  parted -s -a optimal "${target_device}" mkpart primary ext4 4GB 8GB
 
   ## Formating partitions (-F=overwrite if necessary)
   mkfs.ext2 -F "${target_device}1"
   mkfs.ext4 -F "${target_device}2"
+  mkfs.ext4 -F "${target_device}3"
   
   ## Mounting partitions
   # partition "/"
-  mount "${target_device}2" /mnt
+  mount "${target_device}3" /mnt
   # partition "/boot"
-  mkdir /mnt/boot
+  mkdir /mnt/{boot,home}
   mount "${target_device}1" /mnt/boot
+  mount "${target_device}2" /mnt/home
 fi
 
-## - 2 - Partitioning a HDD (WITH Recovery Partition)
+## - 2 - Partitioning a HDD, WITH Partition Recovery
 if [[ "${recovery_partition}" =~ ^([yY][eE][sS]|[yY])$ ]]; then
 
   ## General Disk Partitioning Scheme: 4 partitions
@@ -292,13 +295,14 @@ pacstrap /mnt base base-devel linux
 # editors
 pacstrap /mnt vim nano
 # system tools	
-pacstrap /mnt zsh sudo git wget
+# pacstrap /mnt zsh sudo git wget
+pacstrap /mnt sudo git wget
 # system mounting tools
 pacstrap /mnt gvfs
 # network
-pacstrap /mnt dhcpcd
+# pacstrap /mnt dhcpcd
 # wifi
-pacstrap /mnt networkmanager
+# pacstrap /mnt networkmanager
 # boot loader	
 pacstrap /mnt grub os-prober
 
@@ -327,6 +331,30 @@ arch-chroot /mnt sh /home/script2.sh \
 #rm /mnt/home/script2.sh
 
 
+## create a recovery partition and backup MBR + table partition
+if [[ "${recovery_partition}" =~ ^([yY])$ ]]; then
+
+  ## Recovery Partition
+  # duplicate / partition from /dev/sda3 to /dev/sda4
+  dd if="${target_device}3" of="${target_device}4"
+  
+  ## edit /etc/fstab and update bootloader (GRUB) in /dev/sda4
+  # mount drives acording to /dev/sda4
+  umount -R /mnt
+  mount "${target_device}4" /mnt
+  mount "${target_device}1" /mnt/boot
+  mount "${target_device}2" /mnt/home
+  # edit fstab
+  genfstab -L /mnt >> /mnt/etc/fstab
+
+  # mount partition for boot loader recognicement
+  mkdir -p /mnt2
+  mount /dev/sda3 /mnt2
+  # update boot loader 
+  grub-mkconfig -o /boot/grub/grub.cfg
+
+fi
+
 ## generate a log file with installation runtime
 script_end_time="$(date +%s)"
 runtime="$((${script_end_time}-${script_start_time}))"
@@ -335,11 +363,32 @@ printf "Archlinux install script
 # End Time: ${script_end_time}
 #  Install Runtime : ${runtime}
 " >> "${log}"
-mv "${log}" /mnt/home/"${user_name}/${log}"
+
+## Backup of MBR
+backup_dir=/mnt/home/"${user_name}"/.backup
+mkdir -p "${backup_dir}"
+# Backup only the Partition Table (recommended)  
+sfdisk -d "${target_device}" > "${backup_dir}"/sfdisk_ptable
+# Backup entire MBR (MBR + Partition Table)
+dd if="${target_device}" of="${backup_dir}"/mbr_backup bs=512 count=1
+
+
+mv "${log}" "${backup_dir}/${log}"
+
+
+## Restoring backup of MBR
+# Restoring only the Partion Table (usually only this is necessary)
+# sudo sfdisk /dev/sda < sfdisk_sda
+# Restoring only the MBR (without changing the Partition Table)
+# sudo dd if=mbr_sda of=/dev/sda bs=446 count=1
+# Restoring only the Partition Table (without changing the MBR)
+# sudo dd if=mbr_sda of=/dev/sda bs=1 count=64 skip=446 seek=446
+# Restoring the MBR + Partition Table
+# sudo dd if=mbr_sda of="${target_device}" bs=512 count=1
 
 
 ## umount archlinux new system partition /mnt 
-umount -R /mnt
+umount -R /mnt /mnt2
 
 
 ## restore bash history

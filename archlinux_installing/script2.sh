@@ -1,6 +1,27 @@
 #!/bin/bash
 #
-# script2.sh: designed to run inside script1.sh chroot into new system   
+# configure_system.sh: an chroot script to config a the system parameters:
+#  locale, keymap, host, bootloader, user permissions, ethernet & wifi
+
+# Dependencies:
+#  9 positional arguments
+
+
+### PREREQUIREMENTS ##################################################
+
+##  Verify Internet Connection
+if ! ping -c 1 -q google.com >&/dev/null; then
+  echo "Internet required. Cancelling install.."
+  exit 0
+fi
+
+## Verify Root Priviledges
+ROOT_UID=0   # Root has $UID 0.
+if [[ ! "$UID" -eq "$ROOT_UID" ]]; then
+  echo "ROOT priviledges required. Cancelling install.."
+  exit 0
+fi
+######################################################################
 
 
 ## variable declaration: get positional arguments
@@ -55,6 +76,7 @@ echo "127.0.0.1	localhost
 
 
 ## bash script to handle encrypted root filesystems 
+
 # mkinitcpio -p 
 
 
@@ -120,41 +142,6 @@ systemctl enable NetworkManager	# wifi
 
 ## run desktop environment at startup
 # systemctl enable lightdm
-
-
-## create a recovery partition and backup MBR + table partition
-if [[ "${recovery_partition}" =~ ^([yY])$ ]]; then
-
-  ## Recovery Partition
-  # duplicate /root partition from /dev/sda3 to /dev/sda4
-  dd if="${target_device}3" of="${target_device}4"
-  # mount duplicate partition as /mnt2
-  mkdir -p /mnt2
-  mount "${target_device}4" /mnt2
-
-  ## Config bootloader (GRUB)
-  # grub-mkconfig -o /boot/grub/grub.cfg
-  grub-mkconfig -o /boot/grub/grub.cfg
-  
-  ## Backup of MBR
-  backup_dir=/mnt/home/"${user_name}"/.backup
-  mkdir -p "${backup_dir}"
-  # Backup only the Partition Table (recommended)  
-  sfdisk -d "${target_device}" > "${backup_dir}"/sfdisk_ptable
-  # Backup MBR + Partition Table
-  dd if="${target_device}" of="${backup_dir}"/mbr_backup bs=512 count=1
-
-  ## Restoring backup of MBR
-  # Restoring only the Partion Table (usually only this is necessary)
-  # sudo sfdisk /dev/sda < sfdisk_sda
-  # Restoring only the MBR (without changing the Partition Table)
-  # sudo dd if=mbr_sda of=/dev/sda bs=446 count=1
-  # Restoring only the Partition Table (without changing the MBR)
-  # sudo dd if=mbr_sda of=/dev/sda bs=1 count=64 skip=446 seek=446
-  # Restoring the MBR + Partition Table
-  # sudo dd if=mbr_sda of="${target_device}" bs=512 count=1
-
-fi
 
 
 exit
