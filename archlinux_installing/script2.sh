@@ -96,8 +96,8 @@ if [[ "${autolog_tty}" =~ ^([yY][eE][sS]|[yY])$ ]];then
   chmod a+x /etc/grub.d/31_hold_shift
 fi
 
-# config bootloader GRUB
-grub-mkconfig -o /boot/grub/grub.cfg
+# # config bootloader GRUB
+# grub-mkconfig -o /boot/grub/grub.cfg
 
 
 ## turn on "wheel" groups, required by sudo
@@ -166,7 +166,6 @@ if [[ "${recovery_partition}" =~ ^([yY])$ ]]; then
   sed -i "s%${target_device}3%${target_device}4%g" /mnt2/etc/fstab
   # update boot loader 
   grub-mkconfig -o /boot/grub/grub.cfg
-  vim /boot/grub/grub.cfg
 
 fi
 
