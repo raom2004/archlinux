@@ -333,30 +333,6 @@ arch-chroot /mnt sh /home/script2.sh \
 #rm /mnt/home/script2.sh
 
 
-## create a recovery partition and backup MBR + table partition
-if [[ "${recovery_partition}" =~ ^([yY])$ ]]; then
-
-  ## Recovery Partition
-  # duplicate / partition from /dev/sda3 to /dev/sda4
-  dd if="${target_device}3" of="${target_device}4"
-  
-  ## edit /etc/fstab and update bootloader (GRUB) in /dev/sda4
-  # mount drives acording to /dev/sda4
-  umount -R /mnt
-  mount "${target_device}4" /mnt
-  mount "${target_device}1" /mnt/boot
-  mount "${target_device}2" /mnt/home
-  # edit fstab
-  genfstab -L /mnt >> /mnt/etc/fstab
-
-  # mount partition for boot loader recognicement
-  mkdir -p /mnt2
-  mount /dev/sda3 /mnt2
-  # update boot loader 
-  arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
-
-fi
-
 ## generate a log file with installation runtime
 script_end_time="$(date +%s)"
 runtime="$((${script_end_time}-${script_start_time}))"

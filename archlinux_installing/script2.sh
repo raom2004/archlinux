@@ -144,6 +144,32 @@ sed -i 's/#\(Color\)/\1/' /etc/pacman.conf
 # systemctl enable lightdm
 
 
+## create a recovery partition and backup MBR + table partition
+if [[ "${recovery_partition}" =~ ^([yY])$ ]]; then
+
+  ## Recovery Partition
+  # duplicate / partition from /dev/sda3 to /dev/sda4
+  dd if="${target_device}3" of="${target_device}4"
+  
+  ## edit /etc/fstab and update bootloader (GRUB) in /dev/sda4
+  # mount drives acording to /dev/sda4
+  # umount -R /mnt
+  # mount "${target_device}4" /mnt
+  # mount "${target_device}1" /mnt/boot
+  # mount "${target_device}2" /mnt/home
+  # edit fstab
+  # genfstab -L /mnt >> /mnt/etc/fstab
+
+  # mount partition for boot loader recognicement
+  mkdir -p /mnt2
+  mount "${target_device}4" /mnt2
+  sed -i "s%${target_device}3%${target_device}4%g" /mnt2/etc/fstab
+  # update boot loader 
+  arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
+
+fi
+
+
 exit
 
 
