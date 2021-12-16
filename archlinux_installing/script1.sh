@@ -366,7 +366,7 @@ mv "${log}" "${backup_dir}/${log}"
 
 ## umount archlinux new system partition /mnt 
 umount -R /mnt
-[[ -d /mnt2 ]] && umount /mnt
+[[ -d /mnt2 ]] && umount /mnt2
 
 
 ## restore bash history
