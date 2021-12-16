@@ -296,14 +296,13 @@ pacstrap /mnt base base-devel linux
 # editors
 pacstrap /mnt vim nano
 # system tools	
-# pacstrap /mnt zsh sudo git wget
-pacstrap /mnt sudo git wget
+pacstrap /mnt zsh sudo git wget
 # system mounting tools
 pacstrap /mnt gvfs
 # network
-# pacstrap /mnt dhcpcd
+pacstrap /mnt dhcpcd
 # wifi
-# pacstrap /mnt networkmanager
+pacstrap /mnt networkmanager
 # boot loader	
 pacstrap /mnt grub os-prober
 

@@ -135,9 +135,9 @@ fi
 sed -i 's/#\(Color\)/\1/' /etc/pacman.conf
 
 
-# ## Enable Requited Services
-# systemctl enable dhcpcd		# ethernet
-# systemctl enable NetworkManager	# wifi
+## Enable Requited Services
+systemctl enable dhcpcd		# ethernet
+systemctl enable NetworkManager	# wifi
 
 
 ## run desktop environment at startup
