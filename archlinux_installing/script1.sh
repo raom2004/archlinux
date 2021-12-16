@@ -353,7 +353,7 @@ if [[ "${recovery_partition}" =~ ^([yY])$ ]]; then
   mkdir -p /mnt2
   mount /dev/sda3 /mnt2
   # update boot loader 
-  grub-mkconfig -o /boot/grub/grub.cfg
+  arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
 
 fi
 
