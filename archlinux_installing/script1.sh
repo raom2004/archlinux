@@ -36,6 +36,7 @@ set -o xtrace      # trace & expand what gets executed (useful for debug)
 
 ### DEPENDENCIES
 
+cd "$(dirname "${BASH_SOURCE}")" # Set working directory
 source ./include/ANSI_escape_colors
 source ./include/functions
 

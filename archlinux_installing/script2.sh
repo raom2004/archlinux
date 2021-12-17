@@ -96,9 +96,6 @@ if [[ "${autolog_tty}" =~ ^([yY][eE][sS]|[yY])$ ]];then
   chmod a+x /etc/grub.d/31_hold_shift
 fi
 
-# # config bootloader GRUB
-# grub-mkconfig -o /boot/grub/grub.cfg
-
 
 ## turn on "wheel" groups, required by sudo
 sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g' /etc/sudoers
@@ -151,23 +148,15 @@ if [[ "${recovery_partition}" =~ ^([yY])$ ]]; then
   # duplicate / partition from /dev/sda3 to /dev/sda4
   dd if="${target_device}3" of="${target_device}4"
   
-  ## edit /etc/fstab and update bootloader (GRUB) in /dev/sda4
-  # mount drives acording to /dev/sda4
-  # umount -R /mnt
-  # mount "${target_device}4" /mnt
-  # mount "${target_device}1" /mnt/boot
-  # mount "${target_device}2" /mnt/home
-  # edit fstab
-  # genfstab -L /mnt >> /mnt/etc/fstab
-
   # mount partition for boot loader recognicement
   mkdir -p /mnt2
   mount "${target_device}4" /mnt2
   sed -i "s%${target_device}3%${target_device}4%g" /mnt2/etc/fstab
-  # update boot loader 
-  grub-mkconfig -o /boot/grub/grub.cfg
 
 fi
+
+# Config boot loader GRUB
+arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
 
 
 exit
