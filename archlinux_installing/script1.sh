@@ -22,7 +22,7 @@ if [[ ! "$UID" -eq "$ROOT_UID" ]]; then
 fi
 
 
-### BASH SCRIPT OPTIONS FOR SECURITY AND DEBUGGING ###################
+### BASH SCRIPT FLAGS FOR SECURITY AND DEBUGGING ###################
 
 # shopt -o noclobber # avoid file overwriting (>) but can be forced (>|)
 set +o history     # disably bash history temporarilly
