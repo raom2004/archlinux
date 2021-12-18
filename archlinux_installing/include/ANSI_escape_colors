@@ -1,26 +1,18 @@
+#!/bin/bash
+#
+# ~/ANSI_escape_colors
+#
+#  Code sequences of ANSI escape colors
+
 ######################################################################
-#                                                                    #
-# Name                                                               #
-#  ANSI escape colors                                                #
-#                                                                    #
-# Summary                                                            #
-#  List of ANSI escape colors code sequences                         #
-#                                                                    #
-# Version                                                            #
-#  v1.0                                                              #
 #                                                                    #
 # Modification History                                               #
 #  2021-12-03   Ricardo A.O. Medina   borrowed from internet         #
 #                                                                    #
 # Source                                                             #
-######################################################################
 # https://stackoverflow.com/questions/4842424/list-of-ansi-color-escape-sequences 
-######################################################################
 #                                                                    #
-# Dependencies                                                       #
-#  None                                                              #
-#                                                                    #
-# Bash version                                                       #
+# Created with Bash version                                          #
 #  5.0.18(1)-release                                                 #
 #                                                                    #
 ######################################################################

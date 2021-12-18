@@ -2,8 +2,8 @@
 #
 # ./functions
 #
-# Purpose: library with display usag and the functions related to
-#  archlinux install script1.sh
+#  library with display usage and functions related to archlinux
+#   install script1.sh
 
 ## FUNCTIONS DECLARATION
 
@@ -61,7 +61,7 @@ ${Green}$ sh script1.sh /dev/sdc myhost rootpasword myuser myuserpassword bash y
 function choose_a_drive_for_install_archlinux
 {
   # set variable for final result named differently with underscore
-  local __resultvar="${1}"
+  local __resultvar="$1"
   
   # initialize variables
   local mymountpoint=''

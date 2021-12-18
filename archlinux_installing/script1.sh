@@ -132,7 +132,7 @@ function err
 function dialog_to_input_a_target_device
 {
   # The functions result will be stored in the variable "__resultvar".
-  local __resultvar="${1}"
+  local __resultvar="$1"
   
   # Help the user showing the block devices available
   local array_of_block_devices=($(lsblk | awk '/disk/{ print $1 }'))
@@ -165,7 +165,7 @@ function dialog_to_input_a_target_device
 ### GET HELP
 
 # display usage when user provide the help tag '--help | -h' 
-[[ "${#}" == 1 ]] && [[ "${1}" =~ (--help)|(-h) ]] && display_usage
+(( "$#" == 1 )) && [[ "$1" =~ (--help)|(-h) ]] && display_usage
 
 
 ### GET SYSTEM INFORMATION DURING ARCHLINUX INSTALL
@@ -313,7 +313,7 @@ genfstab -L /mnt >> /mnt/etc/fstab
 
 
 ## copy script2.sh to new system
-cp "${PWD}"/script2.sh /mnt/home || cp arch/script2.sh /mnt/home 
+cp "$PWD"/script2.sh /mnt/home || cp arch/script2.sh /mnt/home 
 
 
 ## change root and run script2.sh

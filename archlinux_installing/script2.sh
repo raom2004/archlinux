@@ -25,15 +25,15 @@ fi
 
 
 ## variable declaration: get positional arguments
-target_device="${1}"
-host_name="${2}"
-root_password="${3}"
-user_name="${4}"
-user_password="${5}"
-user_shell="${6}"
-shell_keymap="${7}"
-autolog_tty="${8}"
-recovery_partition="${9}"
+target_device="$1"
+host_name="$2"
+root_password="$3"
+user_name="$4"
+user_password="$5"
+user_shell="$6"
+shell_keymap="$7"
+autolog_tty="$8"
+recovery_partition="$9"
 
 ## Time Configuration
 ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime
@@ -123,7 +123,7 @@ if [[ "${autolog_tty}" =~ ^([yY][eE][sS]|[yY])$ ]]; then
   mkdir -p /etc/systemd/system/getty@tty1.service.d
   printf "[Service]
 ExecStart=
-ExecStart=-/sbin/agetty --autologin ${user_name} --noclear %%I ${TERM}
+ExecStart=-/sbin/agetty --autologin ${user_name} --noclear %%I $TERM
 " > /etc/systemd/system/getty@tty1.service.d/autologin.conf
 fi
 
