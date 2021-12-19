@@ -378,7 +378,7 @@ function main {
   rsync -aAXHv --exclude={"/dev/*","/proc/*","/sys/*","/tmp/*","/run/*","/mnt/*","/media/*","/lost+found","/${duplicate##*/}"} / "${duplicate}"
 
   ## config boot loader GRUB automatically
-  arch-chroot "${duplicate}" grub-mkconfig -o /boot/grub/grub.cfg
+  arch-chroot "${duplicate}" grub-mkconfig -o /boot/grub/grub.cfg || arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
 
   ## generate a new machine-id in the next boot
   rm -rf "${duplicate}/etc/machine-id"
