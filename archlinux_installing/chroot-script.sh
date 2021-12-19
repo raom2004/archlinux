@@ -141,24 +141,6 @@ systemctl enable NetworkManager	# wifi
 # systemctl enable lightdm
 
 
-## create a recovery partition and backup MBR + table partition
-if [[ "${recovery_partition}" =~ ^([yY])$ ]]; then
-
-  ## Recovery Partition
-  # duplicate / partition from /dev/sda3 to /dev/sda4
-  dd if="${target_device}3" of="${target_device}4"
-  
-  # mount partition for boot loader recognicement
-  mkdir -p /mnt2
-  mount "${target_device}4" /mnt2
-  sed -i "s%${target_device}3%${target_device}4%g" /mnt2/etc/fstab
-
-fi
-
-# Config boot loader GRUB
-arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
-
-
 exit
 
 

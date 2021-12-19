@@ -377,7 +377,7 @@ function main {
   ## full system backup
   rsync -aAXHv --exclude={"/dev/*","/proc/*","/sys/*","/tmp/*","/run/*","/mnt/*","/media/*","/lost+found","/${duplicate##*/}"} / "${duplicate}"
 
-  ## configure grub automatically
+  ## config boot loader GRUB automatically
   arch-chroot "${duplicate}" grub-mkconfig -o /boot/grub/grub.cfg
 
   ## generate a new machine-id in the next boot
