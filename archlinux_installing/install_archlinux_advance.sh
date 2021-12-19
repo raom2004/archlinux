@@ -311,27 +311,30 @@ function main {
   pacstrap /mnt networkmanager
   # boot loader	
   pacstrap /mnt grub os-prober
+  # system backup	
+  [[ "${recovery_partition}" =~  ^([yY])$ ]] && pacstrap /mnt rsync
 
 
   ## generate fstab
   genfstab -L /mnt >> /mnt/etc/fstab
 
 
-  ## copy script2.sh to new system
-  cp "$PWD"/script2.sh /mnt/home || cp arch/script2.sh /mnt/home 
+  ## copy chroot-script.sh to new system
+  cp "$PWD"/chroot-script.sh /mnt/home \
+    || cp arch/chroot-script.sh /mnt/home 
 
 
-  ## change root and run script2.sh
-  arch-chroot /mnt sh /home/script2.sh \
-	      "$target_device" \
-	      "$host_name" \
-	      "$root_password" \
-	      "$user_name" \
-	      "$user_password" \
-	      "$user_shell" \
-	      "$shell_keymap" \
-	      "$autolog_tty" \
-	      "$recovery_partition"
+  ## change root and run chroot-script.sh
+  arch-chroot /mnt sh /home/chroot-script.sh \
+	      "${target_device}" \
+	      "${host_name}" \
+	      "${root_password}" \
+	      "${user_name}" \
+	      "${user_password}" \
+	      "${user_shell}" \
+	      "${shell_keymap}" \
+	      "${autolog_tty}" \
+	      "${recovery_partition}"
 
 
   ## remove script
@@ -372,7 +375,7 @@ function main {
   ### Option 2: create a copy of an existen archlinux installation
 
   ## full system backup
-  rsync -aAXHv --exclude={"/dev/*","/proc/*","/sys/*","/tmp/*","/run/*","/mnt/*","/media/*","/lost+found"} / "${duplicate}"
+  rsync -aAXHv --exclude={"/dev/*","/proc/*","/sys/*","/tmp/*","/run/*","/mnt/*","/media/*","/lost+found","/${duplicate##*/}"} / "${duplicate}"
 
   ## configure grub automatically
   arch-chroot "${duplicate}" grub-mkconfig -o /boot/grub/grub.cfg
