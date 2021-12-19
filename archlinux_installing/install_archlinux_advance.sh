@@ -377,7 +377,7 @@ function main {
   ### Option 2: create a copy of an existen archlinux installation
 
   ## full system backup
-  rsync -aAXHv --exclude={"/dev/*","/proc/*","/sys/*","/tmp/*","/run/*","/mnt/*","/media/*","/lost+found","/${duplicate##*/}"} / "${duplicate}"
+  arch-chroot /mnt rsync -aAXHv --exclude={"/dev/*","/proc/*","/sys/*","/tmp/*","/run/*","/mnt/*","/media/*","/lost+found","/${duplicate##*/}"} / "${duplicate}"
 
   ## config boot loader GRUB automatically
   arch-chroot "${duplicate}" grub-mkconfig -o /boot/grub/grub.cfg || arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
