@@ -336,6 +336,8 @@ function main {
 	      "${autolog_tty}" \
 	      "${recovery_partition}"
 
+  ## config boot loader GRUB
+  arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
 
   ## remove script
   #rm /mnt/home/script2.sh
