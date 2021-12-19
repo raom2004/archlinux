@@ -205,10 +205,12 @@ function main {
   [[ "${machine}" == 'VBox' ]] && target_device=/dev/sda
 
   # log parameters, for security passwords are hidden (read -s)
+  printf "${Green}"
   read -p "Enter HOST name: " host_name
   read -sp "Enter ROOT PASSWORD: " root_password
   read -p "Enter USER name: " user_name
   read -sp "Enter USER PASSWORD: " user_password
+  printf "${NC}"
 
   # parameters with fixed options that need to be validated
   read -p "Enter USER SHELL (e.g. bash, zsh) " user_shell
