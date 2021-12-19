@@ -287,7 +287,7 @@ function main {
     # root partition "/" 
     mount "${target_device}3" /mnt
     # discrete partitions
-    mkdir /mnt/{boot,home,install}
+    mkdir /mnt/{boot,home,recovery}
     mount "${target_device}1" /mnt/boot
     mount "${target_device}2" /mnt/home
     mount "${target_device}4" /mnt/recovery
