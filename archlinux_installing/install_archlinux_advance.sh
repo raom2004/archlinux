@@ -285,9 +285,10 @@ function main {
     # root partition "/" 
     mount "${target_device}3" /mnt
     # discrete partitions
-    mkdir /mnt/{boot,home}
+    mkdir /mnt/{boot,home,install}
     mount "${target_device}1" /mnt/boot
     mount "${target_device}2" /mnt/home
+    mount "${target_device}4" /mnt/install
   fi
 
 
@@ -298,7 +299,8 @@ function main {
 
   ## install system elementary packages
   # esential packages
-  pacstrap /mnt base base-devel linux
+  # pacstrap /mnt base base-devel linux
+  pacstrap /mnt base linux
   # editors
   pacstrap /mnt vim nano
   # system tools	
@@ -336,61 +338,64 @@ function main {
 	      "${autolog_tty}" \
 	      "${recovery_partition}"
 
-  ## config boot loader GRUB
+  ### config boot loader GRUB
+
+  ## GRUB standard config
   arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
 
+  
   ## remove script
   #rm /mnt/home/script2.sh
 
-  
-  ### SYSTEM RECOVERY:
+  if [[ "${recovery_partition}" =~  ^([yY])$ ]]; then
+    ### SYSTEM RECOVERY:
 
-  # source:
-  # https://wiki.archlinux.org/title/Install_Arch_Linux_from_existing_Linux
+    # source:
+    # https://wiki.archlinux.org/title/Install_Arch_Linux_from_existing_Linux
 
-  ## mounting device
-  duplicate=/mnt/install
-  mkdir -p "${duplicate}"
-  mount "${target_device}4" "${duplicate}"
+    ## mounting device
+    # duplicate=/mnt/install
+    
 
+    ## Option 1: create a new archlinux installation 
+    
+    # ## avoid redownloading all the packages 
+    # pacstrap -c "${duplicate}" --cachedir /mnt/var/cache/pacman/pkg \
+      # 	   base base-devel linux \
+      # 	   vim nano \
+      # 	   zsh sudo git wget \
+      # 	   gvfs \
+      # 	   dhcpcd \
+      # 	   networkmanager \
+      # 	   grub os-prober
 
-  ## Option 1: create a new archlinux installation 
-  
-  # ## avoid redownloading all the packages 
-  # pacstrap -c "${duplicate}" --cachedir /mnt/var/cache/pacman/pkg \
-  # 	   base base-devel linux \
-  # 	   vim nano \
-  # 	   zsh sudo git wget \
-  # 	   gvfs \
-  # 	   dhcpcd \
-  # 	   networkmanager \
-  # 	   grub os-prober
+    ## configure grub automatically
+    # arch-chroot "${duplicate}" grub-mkconfig -o /boot/grub/grub.cfg
 
-  ## configure grub automatically
-  # arch-chroot "${duplicate}" grub-mkconfig -o /boot/grub/grub.cfg
-
-  ## sidable lvmetad (maybe required)
+    ## sidable lvmetad (maybe required)
     # sed -i 's%use_lvmetad = 0%use_lvmetad = 1%' \
       # "${duplicate}/etc/lvm/lvm.conf""
-  
+    
 
-  ### Option 2: create a copy of an existen archlinux installation
+    ### Option 2: create a copy of an existen archlinux installation
 
-  ## full system backup
-  arch-chroot /mnt rsync -aAXHv --exclude={"/dev/*","/proc/*","/sys/*","/tmp/*","/run/*","/mnt/*","/media/*","/lost+found","/${duplicate##*/}"} / "/${duplicate##*/}"
+    ## full system backup
+    arch-chroot /mnt rsync -aAXHv --exclude={"/dev/*","/proc/*","/sys/*","/tmp/*","/run/*","/mnt/*","/media/*","/lost+found","/install"} / "/install"
 
-  ## config boot loader GRUB automatically
-  arch-chroot "${duplicate}" grub-mkconfig -o /boot/grub/grub.cfg || arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
+    ## config boot loader GRUB automatically
+    
+    arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
 
-  ## generate a new machine-id in the next boot
-  rm -rf "${duplicate}/etc/machine-id"
-  
-  ## copy script2.sh to new system
-  # cp "$PWD"/script2.sh /mnt/home || cp arch/script2.sh /mnt/home 
-  
-  ## make pacman use the package database downloaded in the new system
-  # sed 's%#\[testing\]%[custom]\nSigLevel = Optional TrustAll\nServer = file:///mnt/var/cache/pacman/pkg\n%' /etc/pacman.conf
+    ## generate a new machine-id in the next boot
+    rm -rf "${duplicate}/etc/machine-id"
+    
+    ## copy script2.sh to new system
+    # cp "$PWD"/script2.sh /mnt/home || cp arch/script2.sh /mnt/home 
+    
+    ## make pacman use the package database downloaded in the new system
+    # sed 's%#\[testing\]%[custom]\nSigLevel = Optional TrustAll\nServer = file:///mnt/var/cache/pacman/pkg\n%' /etc/pacman.conf
 
+  fi
   
   ## generate a log file with installation runtime
   script_end_time="$(date +%s)"

@@ -82,7 +82,12 @@ echo "127.0.0.1	localhost
 
 ## Install & Config a Bootloader (GRUB)
 
-grub-install "${target_device}"
+# grub-install "${target_device}"
+
+  # https://wiki.archlinux.org/title/GRUB/Tips_and_tricks#Multiple_entries
+grub-install --target=i386-pc \
+	     --grub-setup=/bin/true \
+	     --debug "${target_device}"
 
 # add other operative systems (Mac, Windows, etc)
 echo "GRUB_DISABLE_OS_PROBER=false" >> /etc/default/grub
