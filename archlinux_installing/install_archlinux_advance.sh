@@ -290,7 +290,7 @@ function main {
     mkdir /mnt/{boot,home,install}
     mount "${target_device}1" /mnt/boot
     mount "${target_device}2" /mnt/home
-    mount "${target_device}4" /mnt/install
+    mount "${target_device}4" /mnt/recovery
   fi
 
 
@@ -301,8 +301,7 @@ function main {
 
   ## install system elementary packages
   # esential packages
-  # pacstrap /mnt base base-devel linux
-  pacstrap /mnt base linux
+  pacstrap /mnt base base-devel linux
   # editors
   pacstrap /mnt vim nano
   # system tools	
@@ -356,7 +355,7 @@ function main {
     # https://wiki.archlinux.org/title/Install_Arch_Linux_from_existing_Linux
 
     ## mounting device
-    # duplicate=/mnt/install
+    # duplicate=/mnt/recovery
     
 
     ## Option 1: create a new archlinux installation 
@@ -382,14 +381,16 @@ function main {
     ### Option 2: create a copy of an existen archlinux installation
 
     ## full system backup
-    arch-chroot /mnt rsync -aAXHv --exclude={"/dev/*","/proc/*","/sys/*","/tmp/*","/run/*","/mnt/*","/media/*","/lost+found","/install"} / "/install"
+    arch-chroot /mnt rsync -aAXHv --exclude={"/dev/*","/proc/*","/sys/*","/tmp/*","/run/*","/mnt/*","/media/*","/lost+found","/recovery"} / "/recovery"
 
-    ## config boot loader GRUB automatically
+    ## update fstab
+    genfstab -L /mnt/recovery >> /mnt/recovery/etc/fstab
     
+    ## config boot loader GRUB automatically
     arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
 
     ## generate a new machine-id in the next boot
-    rm -rf "${duplicate}/etc/machine-id"
+    rm -rf /mnt/recovery/etc/machine-id
     
     ## copy script2.sh to new system
     # cp "$PWD"/script2.sh /mnt/home || cp arch/script2.sh /mnt/home 
