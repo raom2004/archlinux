@@ -22,9 +22,14 @@ function prompt_command {
 # This function gets called every time PS1 is shown
 PROMPT_COMMAND=prompt_command
 
-# Set prompt
+## Set prompt
+
+## simple version
 # PS1="\$GIT_STATUS \u@\h:\w\$ "
-PS1="${Yellow}\u${NC}${BWhite}@\h${NC}: ${Blue}\w${NC} \$GIT_STATUS\\$ "
+## colored version
+# PS1="${Cyan}\u${NC}${BWhite}@\h${NC}: ${Cyan}\w${NC} \$GIT_STATUS\\$ "
+## adcance version with git prompt
+PS1="${Cyan}\u${NC}${BWhite}@\h${NC}: ${Cyan}\w${NC} $(__git_ps1 "${Cyan}(${NC}%s${Cyan})${NC}") \$ "
 
 
 ## TODO: customizing prompt with smiles

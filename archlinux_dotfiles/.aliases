@@ -8,6 +8,7 @@
 
 ## frequent operations
 
+alias ls="ls --color=auto"
 alias ll="ls -l"
 alias lo="ls -o"
 alias lh="ls -lh"
