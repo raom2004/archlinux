@@ -4,7 +4,7 @@
 # Requirements: rsync
 if ! pacman -Qs rsync; then 
     echo "Command not found but required: rsync
-You can install with: sudo pacman -Syu rsync"
+You can install it with: sudo pacman -Syu rsync"
     exit 0
 fi
 

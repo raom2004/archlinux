@@ -24,7 +24,7 @@ PROMPT_COMMAND=prompt_command
 
 # Set prompt
 # PS1="\$GIT_STATUS \u@\h:\w\$ "
-PS1="${Yellow}\u${NC}${BWhite}\u@\h${NC}: ${Blue}\w${NC} \$GIT_STATUS\\$ "
+PS1="${Yellow}\u${NC}${BWhite}@\h${NC}: ${Blue}\w${NC} \$GIT_STATUS\\$ "
 
 
 ## TODO: customizing prompt with smiles

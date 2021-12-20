@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # ~/.aliases
-# Purpose: speed comand-line working by aliases
+# Purpose: facilitate shell command-line typing by using aliases
 
 ### ALIAS DECLARATION
 
@@ -18,8 +18,8 @@ alias la="ls -la"
 
 alias srn="sudo reboot now"
 alias ssn="sudo shutdown now"
-alias syu="sudo pacman -Syu"
-
+alias spS="sudo pacman -Syu"
+alias mygit="git clone https://github.com/raom2004"
 
 # Local Variables:
 # sh-basic-offset: 2

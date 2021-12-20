@@ -21,7 +21,7 @@ function amiroot
   if [[ "$UID" -eq "$ROOT_UID" ]]; then
     echo "You are root."
   else
-    echo "root priviledges required. Cancelling"
+    echo "Root priviledges required. Cancelling"
     exit 0
   fi
 }
@@ -48,9 +48,9 @@ function nullify
 
 function try 
 {
-  set -e
+  set -o errtrace    # inherit any trap on ERROR
   "$@"
-  set +e
+  set +o errtrace    # turn off the flag
 }
 
 
@@ -84,20 +84,20 @@ function aur
   set -o errexit
 
   ## complete the AUR URL if user provided only the package name
-  if [[ ! "${1}" == *"https://"* ]];then
+  if [[ ! "$1" == *"https://"* ]];then
     # set the value of $1
-    set -- "$(printf "https://aur.archlinux.org/%s.git" "${1}")"
+    set -- "$(printf "https://aur.archlinux.org/%s.git" "$1")"
   fi
 
   ## check if user provided a valid git repo
-  verify_if_git_repo_exists="$(git ls-remote ${1} HEAD)"
+  verify_if_git_repo_exists="$(git ls-remote $1 HEAD)"
   if [[ -n "${check_if_git_repo_exists}" ]];then
-    printf "Git repository not found or incorrect:\n%s\n" "${1}"
+    printf "Git repository not found or incorrect:\n%s\n" "$1"
     exit 0
   fi
 
   ## check if AUR package is allready installed
-  package_name="$(basename ${1} .git)"
+  package_name="$(basename $1 .git)"
   search_package_in_system="$(pacman -Qm ${package_name})"
   if [[ -n "${search_package_in_system}" ]]; then
     printf "AUR package %s is allready installed\n" "${package_name}"
@@ -109,7 +109,7 @@ function aur
 
   ## install aur package after check it was not previously installed
   printf "installing AUR package %s\n" "${package_name}"
-  git clone "${1}" /tmp/"${package_name}"
+  git clone "$1" /tmp/"${package_name}"
   cd /tmp/"${package_name}"
   makepkg -Ccsri --noconfirm --needed
   cd "${OLDPWD}"
@@ -131,23 +131,23 @@ function dirsize {
 
 function extract
 {
-  if [[ -f "${1}" ]]; then
-    case "${1}" in
-      *.tar.bz2)   tar xvjf $1    ;;
-      *.tar.gz)    tar xvzf $1    ;;
-      *.bz2)       bunzip2 $1     ;;
-      *.rar)       unrar x $1       ;;
-      *.gz)        gunzip $1      ;;
-      *.tar)       tar xvf $1     ;;
-      *.tbz2)      tar xvjf $1    ;;
-      *.tgz)       tar xvzf $1    ;;
-      *.zip)       unzip $1       ;;
-      *.Z)         uncompress $1  ;;
-      *.7z)        7z x $1        ;;
-      *)           echo "don't know how to extract '${1}'..." ;;
+  if [[ -f "$1" ]]; then
+    case "$1" in
+      *.tar.bz2)   tar xvjf "$1"    ;;
+      *.tar.gz)    tar xvzf "$1"    ;;
+      *.bz2)       bunzip2 "$1"     ;;
+      *.rar)       unrar x "$1"     ;;
+      *.gz)        gunzip "$1"      ;;
+      *.tar)       tar xvf "$1"     ;;
+      *.tbz2)      tar xvjf "$1"    ;;
+      *.tgz)       tar xvzf "$1"    ;;
+      *.zip)       unzip "$1"       ;;
+      *.Z)         uncompress "$1"  ;;
+      *.7z)        7z x "$1"        ;;
+      *)           echo "don't know how to extract '$1'..." ;;
     esac
   else
-    echo "'${1}' is not a valid file!"
+    echo "'$1' is not a valid file!"
   fi
 }
 
@@ -157,7 +157,7 @@ function extract
 function up
 {
   local d=""
-  limit="${1}"
+  limit="$1"
   for ((i=1 ; i <= limit ; i++))
   do
     d="${d}"/..
@@ -172,17 +172,17 @@ function up
 
 function repeat
 {
-  if [[ $# == 0 ]]; then
+  if (( $# == 0 )); then
     sudo $(history -p '!!')
   else
-    sudo "${@}"
+    sudo "$@"
   fi
 }
 
 
 function mybackup
 {
-  cp "${1}" \
+  cp "$1" \
      ~/.backup/"$(basename \"${1}\")"-"$(date +%Y%m%d%H%M)".backup
 }
 
