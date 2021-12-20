@@ -443,6 +443,7 @@ function main {
   # shutdown now
 
   echo "${BBlue}Installation successful${NC}"
+
 }
 
 main "$@"
