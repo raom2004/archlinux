@@ -433,14 +433,16 @@ function main {
 
 
   ## umount archlinux new system partition /mnt 
-  umount -R /mnt
+  # umount -R /mnt
   # [[ -d /mnt2 ]] && umount /mnt2
 
 
   ## restore bash history
   set -o history 
 
-  shutdown now
+  # shutdown now
+
+  echo "${BBlue}Installation successful${NC}"
 }
 
 main "$@"

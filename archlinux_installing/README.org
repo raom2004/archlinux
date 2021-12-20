@@ -1,0 +1,77 @@
+#!/bin/bash
+#
+# install_archlinux_advance.sh
+#  Bash script that automates archlinux install 
+#  This script can create discrete partitions for:
+#   * /boot to install boot loaader for BIOS/GPT
+#   * /home for user files
+#   * /     for system files
+#   * /recovery a rsycn backup of "/" for testing and recovery
+#
+# Dependencies:
+#  9 positional arguments
+
+
+######################################################################
+### README: (5 minutes read..)
+
+
+## ARCHLINUX PARTITIONING AND MOUNTING: Basic concepts 
+#
+# The most basic archlinux install can be done in one drive, for example
+# "/dev/sda". So we can create a unique partition "/dev/sda1" and install
+# the entire system in a unique mountpoint, called root "/". 
+# The /etc/fstab scheme for this archlinux install, will look like this:
+#   /dev/sda2    /         ext4    rw,relatime    0 1
+#
+# But archlinux can have more mount options instead of the root "/" alone.
+# The most frequent individual mountpoints, are:
+#  /        the root directory, that stores all the files and directories.
+#  /boot    the boot directory, contains the boot loader, e.g. GRUB.
+#  /home    a home directory, that storesa all the user personal data.
+# Important: each mountpoint require an individual partition.
+#
+# Archlinux promote such separete scheme, because it has advantages:
+#  An individual /boot is useful to support BIOS/GPT and UEFI/GPT.
+#  An individual /home is useful to share user files.
+#  An individual / is useful to restore or recover the system
+#   without messing up the other mountpoints (like /boot and /home).
+#
+# Separated mountpoints also allow to you to set more restrictive
+# options for each mountpoint. For this reason, Archlinux security promote
+# to use of the mentioned mountpoints, and others, like: 
+#  /var     for variable data files, like system logging, user caches, etc
+#  /dev/shm a world-writeble directory to store user files in memory  
+#  /tmp     temporal files
+# These separated mountpoints allow you to improbe Archlinux security
+# More info: https://wiki.archlinux.org/title/Security#Mount_options
+
+
+## STANDARD PARTITIONING SCHEME USED IN THIS ARCHLINUX INSTALLER:
+#
+# In this installer we use a simple scheme with 3 different partitions
+# and mountpoints, like this /etc/fstab:
+#  /dev/sda3    /         ext4    rw,relatime    0 1
+#  /dev/sda1    /boot     ext2    rw,relatime    0 2
+#  /dev/sda2    /home     ext4    rw,relatime    0 2
+# The /etc/fstab will be used for the bootloader to mount the system
+
+## THE RECOVERY PARTITION:
+#
+# We will duplicate the root "/" mountpoint from /dev/sda3
+# into /dev/sda4. And we will update the /etc/fstab in /dev/sda4,
+# to look like this:
+#  /dev/sda4    /         ext4    rw,relatime    0 1
+#  /dev/sda1    /boot     ext2    rw,relatime    0 2
+#  /dev/sda2    /home     ext4    rw,relatime    0 2
+# Finally, we will update our bootloader configuration, to work properly.
+# This way we will have to booteable root "/" mountpoints, ready for
+# testing purposes or recover the system
+#
+# End README
+######################################################################
+
+
+# Local Variables:
+# sh-basic-offset: 2
+# End:
