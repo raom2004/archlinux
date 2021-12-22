@@ -29,7 +29,8 @@ PROMPT_COMMAND=prompt_command
 ## colored version
 # PS1="${Cyan}\u${NC}${BWhite}@\h${NC}: ${Cyan}\w${NC} \$GIT_STATUS\\$ "
 ## adcance version with git prompt
-PS1="${Cyan}\u${NC}${BWhite}@\h${NC}: ${Cyan}\w${NC} $(__git_ps1 "${Cyan}(${NC}%s${Cyan})${NC}") \$ "
+source /usr/share/git/git-prompt.sh
+PS1="${Cyan}\u${NC}${BWhite}@\h${NC}: ${Cyan}\w${NC}$(__git_ps1 "${Cyan}(${NC}%s${Cyan})${NC}") \$ "
 
 
 ## TODO: customizing prompt with smiles
