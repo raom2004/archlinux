@@ -11,7 +11,8 @@ function prompt_command {
     # Check if we are inside a git repository
     if git status > /dev/null 2>&1; then
         # Only get the name of the branch
-        export GIT_STATUS=$(git status | grep 'On branch' | cut -b 10-)
+        # export GIT_STATUS="($(git status | grep 'On branch' | cut -b 11-))"
+        export GIT_STATUS="$(echo "${Cyan}(${NC}$(git status | grep 'On branch' | cut -b 11-)${Cyan})${NC}")"
     else
         export GIT_STATUS=""
     fi
@@ -24,13 +25,16 @@ PROMPT_COMMAND=prompt_command
 
 ## Set prompt
 
+## testing
+PS1="${Cyan}\u${NC}@\h: ${Cyan}\w${NC} ${BWhite}\$GIT_STATUS${NC} \\$ "
+
 ## simple version
 # PS1="\$GIT_STATUS \u@\h:\w\$ "
 ## colored version
 # PS1="${Cyan}\u${NC}${BWhite}@\h${NC}: ${Cyan}\w${NC} \$GIT_STATUS\\$ "
 ## adcance version with git prompt
-source /usr/share/git/git-prompt.sh
-PS1="${Cyan}\u${NC}${BWhite}@\h${NC}: ${Cyan}\w${NC}$(__git_ps1 "${Cyan}(${NC}%s${Cyan})${NC}") \$ "
+# source /usr/share/git/git-prompt.sh
+# PS1="${Cyan}\u${NC}${BWhite}@\h${NC}:${Cyan}\w${NC}$(__git_ps1 "${Cyan} (${NC}%s${Cyan})${NC}") \$ "
 
 
 ## TODO: customizing prompt with smiles

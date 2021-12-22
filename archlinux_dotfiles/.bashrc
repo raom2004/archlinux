@@ -69,7 +69,7 @@ export HISTFILESIZE=20000
 export HISTSIZE=10000
 
 
-# TODO: command not found
+# shell command not found # activated by /etc/bash.bashrc
 # source /usr/share/doc/pkgfile/command-not-found.bash
 
 # Local Variables:
