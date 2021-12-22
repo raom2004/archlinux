@@ -10,6 +10,7 @@
 
 # tab completion: require only one tab to show all completions available
 set show-all-if-ambiguous on
+set completion-ignore-case on
 
 
 # coloring completion of filenames
@@ -21,12 +22,12 @@ set menu-complete-display-prefix On
 
 
 # search through shell history
-# "\e[A": history-search-backward
-# "\e[B": history-search-forward
+bind '"\e[A": history-search-backward'
+bind '"\e[B": history-search-forward'
 
 
 # line wrap on window resize
-shopt -s checkwinsize
+# shopt -s checkwinsize		# activated by /etc/bash.bashrc
 # complete command names
 complete -cf sudo
 
