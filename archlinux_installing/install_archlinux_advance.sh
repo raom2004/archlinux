@@ -91,17 +91,17 @@ The system locale is set to american english (LANG=en_EN.UTF-8), but:
 
 The archlinux installer include other advanced options, such as:
   * Activate automatic logging on tty1 (available for testing purposes).
-  * Create a DUPLICATE OF THE SYSTEM, with dd, for RECOVERY and TESTING.
+  * Create a booteable backup, with rsync, for RECOVERY and TESTING.
 
-Why this installer include an option to DUPLICATE THE SYSTEM?
+Why this installer include an option for a booteable backup?
   Well, archlinux maintenance require packages and kernel upgrades
   that eventually could break the system. For this reason, have a
-  booteable duplicate of the system its advantageus for: test upgrades
-  before apply them in the main system or easily recover the system
-  after an important failure.
+  booteable backup its advantageus for: test upgrades before apply
+  them in the main system or easily recover the system after an
+  important failure.
 
 How this installer will partition the disk?
-The standard install WITHOUT recovery, will partition the disk, such as:
+The standard install WITHOUT basckup, will partition the disk, such as:
   * A /boot partition, dedicated for the bootloader (GRUB) for BIOS/GPT. 
   * A /root partition, for the archlinux system.
 
