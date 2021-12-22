@@ -304,6 +304,10 @@ function main {
   pacstrap /mnt base base-devel linux
   # editors
   pacstrap /mnt vim nano
+  # system shell	
+  pacstrap /mnt zsh
+  # command-line support for command not found
+  pacstrap /mnt pkgfile
   # system tools	
   pacstrap /mnt zsh sudo git wget
   # system mounting tools
@@ -339,9 +343,12 @@ function main {
 	      "${autolog_tty}" \
 	      "${recovery_partition}"
 
-  ### config boot loader GRUB
 
-  ## GRUB standard config
+  ## update pkgfile database (to support shell command not found message)
+  arch-chroot /mnt pkgfile -u
+
+  
+  ## config boot loader GRUB
   arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
 
   
