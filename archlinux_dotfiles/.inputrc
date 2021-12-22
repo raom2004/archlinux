@@ -22,8 +22,8 @@ set menu-complete-display-prefix On
 
 
 # search through shell history
-'"\e[A": history-search-backward' 2>/dev/null
-'"\e[B": history-search-forward' 2>/dev/null
+"\e[A": history-search-backward 2>/dev/null
+"\e[B": history-search-forward 2>/dev/null
 
 
 # line wrap on window resize
