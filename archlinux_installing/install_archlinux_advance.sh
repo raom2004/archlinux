@@ -306,10 +306,10 @@ function main {
   pacstrap /mnt vim nano
   # system shell	
   pacstrap /mnt zsh
-  # command-line support for command not found
+  # shell additional functions
   pacstrap /mnt pkgfile
   # system tools	
-  pacstrap /mnt zsh sudo git wget
+  pacstrap /mnt sudo git wget
   # system mounting tools
   pacstrap /mnt gvfs
   # network
@@ -388,8 +388,20 @@ function main {
     ### Option 2: create a copy of an existen archlinux installation
 
     ## full system backup
-    arch-chroot /mnt rsync -aAXHv --exclude={"/dev/*","/proc/*","/sys/*","/tmp/*","/run/*","/mnt/*","/media/*","/lost+found","/recovery"} / "/recovery"
-
+    arch-chroot /mnt rsync \
+		-aAXHv \
+		--exclude={"/dev/*",
+			   "/proc/*",
+			   "/sys/*",
+			   "/tmp/*",
+			   "/run/*",
+			   "/mnt/*",
+			   "/media/*",
+			   "/lost+found",
+			   "/recovery"} \
+			     / \
+			     "/recovery"
+    
     ## update fstab
     genfstab -L /mnt/recovery >> /mnt/recovery/etc/fstab
     
