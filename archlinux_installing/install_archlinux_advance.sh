@@ -221,8 +221,8 @@ function main {
   [[ ! "${autolog_tty}" =~ ^([yY]|[nN])$ ]] && err >> "${log}"
 
   # ask user to create a recovery partition and MBR
-  read -p "Create a recovery partition?[y/N]" recovery_partition
-  [[ ! "${recovery_partition}" =~ ^([yY]|[nN])$ ]] && err >> "${log}"
+  read -p "Create a backup partition?[y/N]" backup_partition
+  [[ ! "${backup_partition}" =~ ^([yY]|[nN])$ ]] && err >> "${log}"
 
 
   ### SET TIME AND SYNCHRONIZE SYSTEM CLOCK
@@ -233,7 +233,7 @@ function main {
   ### DISK PARTITIONING, FORMATING AND MOUNTING
 
   ## - 1 - Partitioning a HDD, NO Partition Recovery
-  if [[ ! "${recovery_partition}" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+  if [[ ! "${backup_partition}" =~ ^([yY][eE][sS]|[yY])$ ]]; then
 
     ## General Disk Partitioning Scheme: 3 partitions in 8GB
     #  /boot (/dev/sdx1, 300MB)
@@ -262,7 +262,7 @@ function main {
   fi
 
   ## - 2 - Partitioning a HDD, WITH Partition Recovery
-  if [[ "${recovery_partition}" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+  if [[ "${backup_partition}" =~ ^([yY][eE][sS]|[yY])$ ]]; then
 
     ## General Disk Partitioning Scheme: 4 partitions
     #  /boot (/dev/sdx1, 300MB, shared between /root directories)
@@ -319,7 +319,7 @@ function main {
   # boot loader	
   pacstrap /mnt grub os-prober
   # system backup	
-  [[ "${recovery_partition}" =~  ^([yY])$ ]] && pacstrap /mnt rsync
+  [[ "${backup_partition}" =~  ^([yY])$ ]] && pacstrap /mnt rsync
 
 
   ## generate fstab
@@ -340,9 +340,7 @@ function main {
 	      "${user_password}" \
 	      "${user_shell}" \
 	      "${shell_keymap}" \
-	      "${autolog_tty}" \
-	      "${recovery_partition}"
-
+	      "${autolog_tty}" 
 
   ## update pkgfile database (to support shell command not found message)
   arch-chroot /mnt pkgfile -u
@@ -355,7 +353,7 @@ function main {
   ## remove script
   #rm /mnt/home/script2.sh
 
-  if [[ "${recovery_partition}" =~  ^([yY])$ ]]; then
+  if [[ "${backup_partition}" =~  ^([yY])$ ]]; then
     ### SYSTEM RECOVERY:
 
     # source:

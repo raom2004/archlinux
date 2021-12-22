@@ -33,7 +33,6 @@ user_password="$5"
 user_shell="$6"
 shell_keymap="$7"
 autolog_tty="$8"
-recovery_partition="$9"
 
 ## Time Configuration
 ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime
