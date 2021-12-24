@@ -25,10 +25,6 @@ SAVEHIST=1000
 #------------------------------
 # Variables
 #------------------------------
-export BROWSER="chromium"
-export EDITOR="nvim"
-export PATH="${PATH}:${HOME}/bin:${HOME}/.cabal/bin"
-export GOPATH="$HOME/go"
 
 #-----------------------------
 # Dircolors
@@ -55,11 +51,6 @@ bindkey "^[[F" end-of-line
 #------------------------------
 # Alias stuff
 #------------------------------
-alias ls="ls --color -F"
-alias ll="ls --color -lh"
-alias spm="sudo pacman"
-alias gr="gvim --remote-silent"
-alias vr="vim --remote-silent"
 
 #------------------------------
 # ShellFuncs
@@ -102,30 +93,6 @@ zstyle ':completion:*:*:killall:*' menu yes select
 zstyle ':completion:*:killall:*'   force-list always
 
 #------------------------------
-# Window title
-#------------------------------
-case $TERM in
-  termite|*xterm*|rxvt|rxvt-unicode|rxvt-256color|rxvt-unicode-256color|(dt|k|E)term)
-    precmd () {
-      vcs_info
-      print -Pn "\e]0;[%n@%M][%~]%#\a"
-    } 
-    preexec () { print -Pn "\e]0;[%n@%M][%~]%# ($1)\a" }
-    ;;
-  screen|screen-256color)
-    precmd () { 
-      vcs_info
-      print -Pn "\e]83;title \"$1\"\a" 
-      print -Pn "\e]0;$TERM - (%L) [%n@%M]%# [%~]\a" 
-    }
-    preexec () { 
-      print -Pn "\e]83;title \"$1\"\a" 
-      print -Pn "\e]0;$TERM - (%L) [%n@%M]%# [%~] ($1)\a" 
-    }
-    ;; 
-esac
-
-#------------------------------
 # Prompt
 #------------------------------
 autoload -U colors zsh/terminfo
@@ -134,25 +101,25 @@ colors
 autoload -Uz vcs_info
 zstyle ':vcs_info:*' enable git hg
 zstyle ':vcs_info:*' check-for-changes true
-# zstyle ':vcs_info:git*' formats "%{${fg[cyan]}%}[%{${fg[green]}%}%s%{${fg[cyan]}%}][%{${fg[blue]}%}%r/%S%%{${fg[cyan]}%}][%{${fg[blue]}%}%b%{${fg[yellow]}%}%m%u%c%{${fg[cyan]}%}]%{$reset_color%}"
-zstyle ':vcs_info:git*' formats "
-%{${fg[cyan]}%}
-[
-%{${fg[green]}%}
-%s
-%{${fg[cyan]}%}
-][
-%{${fg[blue]}%}
-%r/%S%
-%{${fg[cyan]}%}
-][
-%{${fg[blue]}%}
-%b
-%{${fg[yellow]}%}
-%m%u%c%
-{${fg[cyan]}%}
-]
-%{$reset_color%}"
+zstyle ':vcs_info:git*' formats "%{${fg[cyan]}%}[%{${fg[green]}%}%s%{${fg[cyan]}%}][%{${fg[blue]}%}%r/%S%%{${fg[cyan]}%}][%{${fg[blue]}%}%b%{${fg[yellow]}%}%m%u%c%{${fg[cyan]}%}]%{$reset_color%}"
+# zstyle ':vcs_info:git*' formats "
+# %{${fg[cyan]}%}
+# [
+# %{${fg[green]}%}
+# %s
+# %{${fg[cyan]}%}
+# ][
+# %{${fg[blue]}%}
+# %r/%S%
+# %{${fg[cyan]}%}
+# ][
+# %{${fg[blue]}%}
+# %b
+# %{${fg[yellow]}%}
+# %m%u%c%
+# {${fg[cyan]}%}
+# ]
+# %{$reset_color%}"
 
 setup_git_prompt() {
     if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
@@ -190,13 +157,15 @@ setup_git_prompt() {
 
 setprompt() {
   setopt prompt_subst
-
+  
   if [[ -n "$SSH_CLIENT"  ||  -n "$SSH2_CLIENT" ]]; then 
     p_host='%F{yellow}%M%f'
   else
     p_host='%M'
   fi
 
+  setup_git_prompt
+  
   PS1=${(j::Q)${(Z:Cn:):-$'
     %(!.%F{red}%n%f.%F{cyan}%n%f)
     @
