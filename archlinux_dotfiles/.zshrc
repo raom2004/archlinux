@@ -183,7 +183,7 @@ setup_git_prompt() {
 
     git_branch="${git_branch:-no branch}"
 
-    git_prompt=" %F{blue}[%F{253}${git_branch}${git_status_dirty}${git_status_stash}%F{blue}]"
+    git_prompt=" %F{cyan}[%F{253}${git_branch}${git_status_dirty}${git_status_stash}%F{cyan}]"
 
 }
 
@@ -202,7 +202,7 @@ setprompt() {
     @
     ${p_host}
     " "
-    %F{blue}%~%f
+    %F{cyan}%~%f
     " "
     %(!.%F{red}%#%f.%F{cyan}%#%f)
     ${git_prompt}
