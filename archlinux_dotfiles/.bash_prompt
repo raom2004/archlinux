@@ -26,7 +26,7 @@ PROMPT_COMMAND=prompt_command
 
 ## testing
 # PS1="${Cyan}\u${NC}@\h: ${Cyan}\w${NC}${BWhite}\$GIT_STATUS${NC}\\$ "
-PS1="${Cyan}\u${NC}@\h: \w ${cyan}\$GIT_STATUS${NC}\\$ "
+PS1="${Cyan}\u${NC}@\h: \w ${Cyan}\$GIT_STATUS${NC}\\$ "
 
 ## simple version
 # PS1="\$GIT_STATUS \u@\h:\w\$ "
