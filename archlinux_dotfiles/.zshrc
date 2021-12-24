@@ -8,9 +8,16 @@
 #-----------------------------
 # Source some stuff
 #-----------------------------
+# zsh color
 if [[ -f /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]]; then
   . /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 fi
+
+# shell aliases and functions
+for file in ~/.{aliases,functions}; do
+  [[ -r "${file}" ]] && [[ -f "${file}" ]] && source "${file}"
+done
+unset file
 
 BASE16_SHELL="$HOME/.config/base16-shell/base16-default.dark.sh"
 [[ -s $BASE16_SHELL ]] && source $BASE16_SHELL
@@ -21,10 +28,6 @@ BASE16_SHELL="$HOME/.config/base16-shell/base16-default.dark.sh"
 HISTFILE=~/.histfile
 HISTSIZE=1000
 SAVEHIST=1000
-
-#------------------------------
-# Variables
-#------------------------------
 
 #-----------------------------
 # Dircolors
@@ -47,10 +50,6 @@ bindkey '^[[B' down-line-or-search
 bindkey '^[[C' forward-char 
 bindkey "^[[H" beginning-of-line
 bindkey "^[[F" end-of-line
-
-#------------------------------
-# Alias stuff
-#------------------------------
 
 #------------------------------
 # ShellFuncs
@@ -120,5 +119,11 @@ zstyle ':vcs_info:git:*' formats       '(%b%u%c)'
 zstyle ':vcs_info:git:*' actionformats '(%b|%a%u%c)'
 # end
 
+
+
+# emacs:
+# Local Variables:
+# sh-basic-offset: 2
+# End:
 
 # vim: set ts=2 sw=2 et:

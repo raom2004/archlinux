@@ -72,6 +72,7 @@ export HISTSIZE=10000
 # shell command not found # activated by /etc/bash.bashrc
 # source /usr/share/doc/pkgfile/command-not-found.bash
 
+# emacs:
 # Local Variables:
 # sh-basic-offset: 2
 # End:
