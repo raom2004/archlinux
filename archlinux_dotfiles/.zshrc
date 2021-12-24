@@ -194,16 +194,18 @@ setprompt() {
   if [[ -n "$SSH_CLIENT"  ||  -n "$SSH2_CLIENT" ]]; then 
     p_host='%F{yellow}%M%f'
   else
-    p_host='%F{green}%M%f'
+    p_host='%M'
   fi
 
   PS1=${(j::Q)${(Z:Cn:):-$'
     %(!.%F{red}%n%f.%F{cyan}%n%f)
     @
     ${p_host}
-    ""
+    " "
     %F{blue}%~%f
+    " "
     %(!.%F{red}%#%f.%F{cyan}%#%f)
+    ${git_prompt}
     " "
   '}}
 
