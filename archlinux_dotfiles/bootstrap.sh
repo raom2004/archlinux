@@ -1,10 +1,10 @@
 #
-# /bootstrap.sh
+# ./bootstrap.sh
 #  synchronize dotfile from working directory to $HOME/
 # Requirements: rsync
 if ! pacman -Qs rsync; then 
     echo "Command not found but required: rsync
-You can install it with: sudo pacman -Syu rsync"
+You can install with: sudo pacman -Syu rsync"
     exit 0
 fi
 
@@ -26,7 +26,7 @@ function doIt
 	source ~/.bashrc
 }
 
-if [ "${1}" == "--force" -o "${1}" == "-f" ]; then
+if [ "$1" == "--force" -o "$1" == "-f" ]; then
 	doIt
 else
 	read -p "This may overwrite existing files in your home directory. Are you sure? (y/n) " -n 1

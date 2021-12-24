@@ -1,32 +1,51 @@
 * dotfiles
-User-specific application configuration files whose filename starts
-with a dot. 
+Dotfiles are user-specific application configuration files whose
+filename starts with a dot. This git repository store dotfiles
+relevant for bash and zsh shell customization as well as vim editor.
 
-I found two different methods to maintain a control version of the dotfiles:
+To maintain the dotfiles under control version, the archlinux official guides describe two different methods: 
 
-** A bare repository
+ - A bare repository (only requires git)
+ - A bootstrap script (require git and rsync)
 
-This Git repo is intended to track dotfiles directly. Initially I consider to use the method "bare repository and alias method" described in
+Both methods are easy to use, specially the bootstrap method, reason why it is under active use during this repository maintenance.
+
+** 1. A bare repository
+
+This Git repo is intended to track dotfiles directly. This method called "bare repository and alias method" is described in more detail here:
+
 https://wiki.archlinux.org/title/Dotfiles.
 
-command required
+The only requirement is to create a git bare repository and create an
+alias for git to be able to use all the git commands without interfere
+with other git repositories located in other directories located the home
+"~/" folder.
+
+- Commands required:
 
 #+begin_src bash :results verbatim
+# create a git bare repository
 git init --bare $HOME/.dotfiles
+# create an alias in your dotfiles
 alias config='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
+# show only changes in dotfiles
 config config status.showUntrackedFiles no
 #+end_src
 
 
-** A bootstrap script
+** 2. A bootstrap script
 
-The idea is to have the git repository in a folder and use a script to synchronize each file. The advantage is that running the script the files will be updated, and the git command do not need any alias as the previous method. 
+This method only require two steps:
+- Download the dotfile git repository to a folder of your choice 
+- Run the script "bootstrap.sh" to synchronize the dotfiles from the dotfiles folder to the home "~/" folder. 
 
-script required
+This method do not require the use of aliases, and the bootstrap.sh script can be edited to perform any other requirement. 
+
+- Only script required:
 
 #+begin_src bash :results verbatim :tangle ./bootstrap.sh
 #
-# /bootstrap.sh
+# ./bootstrap.sh
 #  synchronize dotfile from working directory to $HOME/
 # Requirements: rsync
 if ! pacman -Qs rsync; then 
@@ -53,7 +72,7 @@ function doIt
 	source ~/.bashrc
 }
 
-if [ "${1}" == "--force" -o "${1}" == "-f" ]; then
+if [ "$1" == "--force" -o "$1" == "-f" ]; then
 	doIt
 else
 	read -p "This may overwrite existing files in your home directory. Are you sure? (y/n) " -n 1
