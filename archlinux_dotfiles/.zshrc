@@ -108,7 +108,7 @@ setopt prompt_subst
 add-zsh-hook precmd vcs_info
 # add ${vcs_info_msg_0} to the prompt
 # e.g. here we add the Git information in red  
-PROMPT='%1~ %F{red}${vcs_info_msg_0_}%f %# '
+PROMPT='%F{cyan}%n%f@%M: %~ %F{cyan}${vcs_info_msg_0_}%f %# '
 
 # Enable checking for (un)staged changes, enabling use of %u and %c
 zstyle ':vcs_info:*' check-for-changes true
@@ -119,94 +119,6 @@ zstyle ':vcs_info:*' stagedstr ' +'
 zstyle ':vcs_info:git:*' formats       '(%b%u%c)'
 zstyle ':vcs_info:git:*' actionformats '(%b|%a%u%c)'
 # end
-
-
-
-# autoload -Uz vcs_info
-# zstyle ':vcs_info:*' enable git hg
-# zstyle ':vcs_info:*' check-for-changes true
-# zstyle ':vcs_info:git*' formats "%{${fg[cyan]}%}[%{${fg[green]}%}%s%{${fg[cyan]}%}][%{${fg[blue]}%}%r/%S%%{${fg[cyan]}%}][%{${fg[blue]}%}%b%{${fg[yellow]}%}%m%u%c%{${fg[cyan]}%}]%{$reset_color%}"
-
-# zstyle ':vcs_info:git*' formats "
-# %{${fg[cyan]}%}
-# [
-# %{${fg[green]}%}
-# %s
-# %{${fg[cyan]}%}
-# ][
-# %{${fg[blue]}%}
-# %r/%S%
-# %{${fg[cyan]}%}
-# ][
-# %{${fg[blue]}%}
-# %b
-# %{${fg[yellow]}%}
-# %m%u%c%
-# {${fg[cyan]}%}
-# ]
-# %{$reset_color%}"
-
-# setup_git_prompt() {
-#     if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-#         unset git_prompt
-#         return 0
-#     fi
-
-#     local git_status_dirty git_status_stash git_branch
-
-#     if [ "$(git --no-optional-locks status --untracked-files='no' --porcelain)" ]; then
-#         git_status_dirty='%F{green}*'
-#     else
-#         unset git_status_dirty
-#     fi
-
-#     if [ "$(git stash list)" ]; then
-#         git_status_stash="%F{yellow}▲"
-#     else
-#         unset git_status_stash
-#     fi
-
-#     git_branch="$(git symbolic-ref HEAD 2>/dev/null)"
-#     git_branch="${git_branch#refs/heads/}"
-
-#     if [ "${#git_branch}" -ge 24 ]; then
-#         git_branch="${git_branch:0:21}..."
-#     fi
-
-#     git_branch="${git_branch:-no branch}"
-
-#     git_prompt=" %F{cyan}[%F{253}${git_branch}${git_status_dirty}${git_status_stash}%F{cyan}]"
-
-# }
-
-
-# setprompt() {
-#   setopt prompt_subst
-  
-#   if [[ -n "$SSH_CLIENT"  ||  -n "$SSH2_CLIENT" ]]; then 
-#     p_host='%F{yellow}%M%f'
-#   else
-#     p_host='%M'
-#   fi
-
-#   setup_git_prompt
-  
-#   PS1=${(j::Q)${(Z:Cn:):-$'
-#     %(!.%F{red}%n%f.%F{cyan}%n%f)
-#     @
-#     ${p_host}
-#     " "
-#     %F{cyan}%~%f
-#     " "
-#     %(!.%F{red}%#%f.%#)
-#     ${git_prompt}
-#     " "
-#   '}}
-
-#   PS2=$'%_>'
-#   #RPROMPT=$'${vcs_info_msg_0_}'
-# }
-# setprompt
 
 
 # vim: set ts=2 sw=2 et:

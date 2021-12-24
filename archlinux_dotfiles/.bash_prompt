@@ -11,7 +11,7 @@ function prompt_command {
     # Check if we are inside a git repository
     if git status > /dev/null 2>&1; then
         # Only get the name of the branch
-        export GIT_STATUS=" ($(git status | grep 'On branch' | cut -b 11-)) "
+        export GIT_STATUS="($(git status | grep 'On branch' | cut -b 11-)) "
     else
         export GIT_STATUS=""
     fi
@@ -25,7 +25,8 @@ PROMPT_COMMAND=prompt_command
 ## Set prompt
 
 ## testing
-PS1="${Cyan}\u${NC}@\h: ${Cyan}\w ${NC}${BWhite}\$GIT_STATUS${NC}\\$ "
+# PS1="${Cyan}\u${NC}@\h: ${Cyan}\w${NC}${BWhite}\$GIT_STATUS${NC}\\$ "
+PS1="${Cyan}\u${NC}@\h: \w ${cyan}\$GIT_STATUS${NC}\\$ "
 
 ## simple version
 # PS1="\$GIT_STATUS \u@\h:\w\$ "
