@@ -2,6 +2,7 @@
 # File:     .zshrc   ZSH resource file                             #
 # Version:  0.1.16                                                 #
 # Author:   Øyvind "Mr.Elendig" Heggstad <mrelendig@har-ikkje.net> #
+# Source:   https://raw.githubusercontent.com/MrElendig/dotfiles-alice/master/.zshrc #
 #------------------------------------------------------------------#
 
 #-----------------------------
@@ -133,7 +134,59 @@ colors
 autoload -Uz vcs_info
 zstyle ':vcs_info:*' enable git hg
 zstyle ':vcs_info:*' check-for-changes true
-zstyle ':vcs_info:git*' formats "%{${fg[cyan]}%}[%{${fg[green]}%}%s%{${fg[cyan]}%}][%{${fg[blue]}%}%r/%S%%{${fg[cyan]}%}][%{${fg[blue]}%}%b%{${fg[yellow]}%}%m%u%c%{${fg[cyan]}%}]%{$reset_color%}"
+# zstyle ':vcs_info:git*' formats "%{${fg[cyan]}%}[%{${fg[green]}%}%s%{${fg[cyan]}%}][%{${fg[blue]}%}%r/%S%%{${fg[cyan]}%}][%{${fg[blue]}%}%b%{${fg[yellow]}%}%m%u%c%{${fg[cyan]}%}]%{$reset_color%}"
+zstyle ':vcs_info:git*' formats "
+%{${fg[cyan]}%}
+[
+%{${fg[green]}%}
+%s
+%{${fg[cyan]}%}
+][
+%{${fg[blue]}%}
+%r/%S%
+%{${fg[cyan]}%}
+][
+%{${fg[blue]}%}
+%b
+%{${fg[yellow]}%}
+%m%u%c%
+{${fg[cyan]}%}
+]
+%{$reset_color%}"
+
+setup_git_prompt() {
+    if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+        unset git_prompt
+        return 0
+    fi
+
+    local git_status_dirty git_status_stash git_branch
+
+    if [ "$(git --no-optional-locks status --untracked-files='no' --porcelain)" ]; then
+        git_status_dirty='%F{green}*'
+    else
+        unset git_status_dirty
+    fi
+
+    if [ "$(git stash list)" ]; then
+        git_status_stash="%F{yellow}▲"
+    else
+        unset git_status_stash
+    fi
+
+    git_branch="$(git symbolic-ref HEAD 2>/dev/null)"
+    git_branch="${git_branch#refs/heads/}"
+
+    if [ "${#git_branch}" -ge 24 ]; then
+        git_branch="${git_branch:0:21}..."
+    fi
+
+    git_branch="${git_branch:-no branch}"
+
+    git_prompt=" %F{blue}[%F{253}${git_branch}${git_status_dirty}${git_status_stash}%F{blue}]"
+
+}
+
 
 setprompt() {
   setopt prompt_subst
@@ -145,14 +198,12 @@ setprompt() {
   fi
 
   PS1=${(j::Q)${(Z:Cn:):-$'
-    %F{cyan}[%f
-    %(!.%F{red}%n%f.%F{green}%n%f)
-    %F{cyan}@%f
+    %(!.%F{red}%n%f.%F{cyan}%n%f)
+    @
     ${p_host}
-    %F{cyan}][%f
+    ""
     %F{blue}%~%f
-    %F{cyan}]%f
-    %(!.%F{red}%#%f.%F{green}%#%f)
+    %(!.%F{red}%#%f.%F{cyan}%#%f)
     " "
   '}}
 
