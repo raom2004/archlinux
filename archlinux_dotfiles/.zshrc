@@ -204,7 +204,7 @@ setprompt() {
     " "
     %F{cyan}%~%f
     " "
-    %(!.%F{red}%#%f.%F{cyan}%#%f)
+    %(!.%F{red}%#%f.%#)
     ${git_prompt}
     " "
   '}}
