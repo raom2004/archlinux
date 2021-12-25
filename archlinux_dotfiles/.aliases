@@ -20,7 +20,6 @@ alias la="ls -la"
 alias srn="sudo reboot now"
 alias ssn="sudo shutdown now"
 alias spS="sudo pacman -Syu"
-alias mygit="git clone https://github.com/raom2004"
 
 # Local Variables:
 # sh-basic-offset: 2
