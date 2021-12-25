@@ -60,6 +60,18 @@ exec /usr/bin/Xorg -nolisten tcp -nolisten local "$@" vt$XDG_VTNR
 ' > $HOME/.xserverrc
 
 
+echo '[Unit]
+Description=Config xfce
+Wants=NetworkManager-wait-online.service
+After=NetworkManager-wait-online.service
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/bin/env bash $HOME/Projects/archlinux-desktop-xfce/setup-xfce.sh
+[Install]
+WantedBy=default.target' > ~/.config/systemd/user/setup-xfce.service
+
+
 ## now you can run the desktop with
 # startx
 
