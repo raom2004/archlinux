@@ -60,20 +60,52 @@ exec /usr/bin/Xorg -nolisten tcp -nolisten local "$@" vt$XDG_VTNR
 ' > $HOME/.xserverrc
 
 
-sudo bash -c "echo '[Unit]
-Description=Config xfce
-Wants=network-online.target
-After=network-online.target
-# Wants=NetworkManager-wait-online.service
-# After=NetworkManager-wait-online.service
+# sudo bash -c "echo '[Unit]
+# Description=Config xfce
+# Wants=network-online.target
+# After=network-online.target
+# # Wants=NetworkManager-wait-online.service
+# # After=NetworkManager-wait-online.service
+# [Service]
+# Type=oneshot
+# RemainAfterExit=yes
+# ExecStart=/usr/bin/xfce4-terminal
+# # -e $HOME/Projects/archlinux-desktop-xfce/setup-xfce.sh
+# [Install]
+# WantedBy=default.target' > /etc/systemd/system/my.service"
+# sudo systemctl enable my.service
+
+## TODO: test new way
+# source: https://bbs.archlinux.org/viewtopic.php?id=247292
+
+mkdir -p ~/.config/systemd/user/
+echo '[Unit]
+Description=User Graphical Login
+Requires=default.target
+After=default.target
+' > ~/.config/systemd/user/user-graphical-login-target
+
+mkdir -p ~/.local/bin/scripts/
+echo '#!/usr/bin/env bash
+systemctl --user import-environment
+systemctl --user start user-graphical-login.target
+' > ~/.local/bin/scripts/import_env.sh
+
+echo "[Unit]
+Description=Start tmux in detached session
+Requires=user-graphical-login.target
+After=user-graphical-login.target
+
 [Service]
-Type=oneshot
-RemainAfterExit=yes
-ExecStart=/usr/bin/env bash xfce4-terminal
-# -e $HOME/Projects/archlinux-desktop-xfce/setup-xfce.sh
+Type=forking
+ExecStart=/usr/bin/tmux new-session -s '%u-init' -d;
+ExecStop=/usr/bin/tmux kill-session -t '%u-init'
+
 [Install]
-WantedBy=default.target' > /etc/systemd/system/my.service"
-sudo systemctl enable my.service
+WantedBy=user-graphical-login.target
+" > ~/.config/systemd/user/tmux@.service
+
+
 
 # if the other fail you can try by user instead of admin
 # ~/.config/systemd/user/setup-xfce.service
