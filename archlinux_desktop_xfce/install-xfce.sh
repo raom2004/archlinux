@@ -27,10 +27,10 @@ fi
 
 ## .xinitrc 
 # create xinitrc from template
-head -n50 /etc/X11/xinit/xinitrc > /home/*/.xinitrc
+head -n50 /etc/X11/xinit/xinitrc > $HOME/.xinitrc
 # set keymap
 mykeymap="$(localectl | awk 'tolower($0) ~ /keymap/{ printf $3 }')"
-echo "setxkbmap ${mykeymap}" >> /home/*/.xinitrc
+echo "setxkbmap ${mykeymap}" >> $HOME/.xinitrc
 unset mykeymap
 # start xfce but let place to add other desktops in the future 
 echo '# Here Xfce is kept as default
@@ -43,7 +43,7 @@ case $session in
 esac
 ' >> /home/*/.xinitrc
 # run application during desktop startup
-echo 'sh -c "sleep 3 && emacs"' >> /home/*/.xinitrc
+echo 'sh -c "sleep 3 && emacs"' >> $HOME/.xinitrc
 
 # IMPORTANT: run xinitrc as normal user
 # chown "${USER}:${USER}" /home/*/.xinitrc
@@ -56,7 +56,7 @@ echo 'sh -c "sleep 3 && emacs"' >> /home/*/.xinitrc
 echo '#!/bin/sh
 
 exec /usr/bin/Xorg -nolisten tcp -nolisten local "$@" vt$XDG_VTNR
-' > /home/*/.xserverrc
+' > $HOME/.xserverrc
 
 
 ## now you can run the desktop with
