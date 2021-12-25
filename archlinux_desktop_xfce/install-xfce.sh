@@ -60,16 +60,23 @@ exec /usr/bin/Xorg -nolisten tcp -nolisten local "$@" vt$XDG_VTNR
 ' > $HOME/.xserverrc
 
 
-echo '[Unit]
+sudo bash -c "echo '[Unit]
 Description=Config xfce
-Wants=NetworkManager-wait-online.service
-After=NetworkManager-wait-online.service
+Wants=network-online.target
+After=network-online.target
+# Wants=NetworkManager-wait-online.service
+# After=NetworkManager-wait-online.service
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-ExecStart=/usr/bin/env bash $HOME/Projects/archlinux-desktop-xfce/setup-xfce.sh
+ExecStart=/usr/bin/env bash xfce4-terminal
+# -e $HOME/Projects/archlinux-desktop-xfce/setup-xfce.sh
 [Install]
-WantedBy=default.target' > ~/.config/systemd/user/setup-xfce.service
+WantedBy=default.target' > /etc/systemd/system/my.service"
+sudo systemctl enable my.service
+
+# if the other fail you can try by user instead of admin
+# ~/.config/systemd/user/setup-xfce.service
 
 
 ## now you can run the desktop with
