@@ -193,8 +193,11 @@ function mybackup
 
 function mygit
 {
-  [[ -z $1 ]] || echo "https://github.com/raom2004/$1"
-  # git clone "https://github.com/raom2004/$1"
+  if [[ -z $1 ]]; then
+    echo "mygit require an argument"
+  else
+    git clone "https://github.com/raom2004/$1"
+  fi
 }
 
 
