@@ -42,7 +42,7 @@ case $session in
     # No known session, try to run it as command
     *                 ) exec $1;;
 esac
-' >> /home/*/.xinitrc
+' >> $HOME/.xinitrc
 # run application during desktop startup
 echo 'sh -c "sleep 3 && emacs"' >> $HOME/.xinitrc
 
