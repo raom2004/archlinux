@@ -180,11 +180,22 @@ function repeat
 }
 
 
+## create a backup file
+
 function mybackup
 {
   cp "$1" \
      ~/.backup/"$(basename \"${1}\")"-"$(date +%Y%m%d%H%M)".backup
 }
+
+
+## reduce typing for my own git repo
+
+function mygit
+{
+  git clone https://github.com/raom2004/"$1"
+}
+
 
 # Local Variables:
 # sh-basic-offset: 2
