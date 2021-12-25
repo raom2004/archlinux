@@ -193,7 +193,9 @@ function mybackup
 
 function mygit
 {
-  git clone "https://github.com/raom2004/$1"
+  url="https://github.com/raom2004/$1"
+  git clone ${url}
+  unset url
 }
 
 
