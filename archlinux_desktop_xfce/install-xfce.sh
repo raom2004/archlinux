@@ -83,7 +83,7 @@ echo '[Unit]
 Description=User Graphical Login
 Requires=default.target
 After=default.target
-' > ~/.config/systemd/user/user-graphical-login-target
+' > ~/.config/systemd/user/user-graphical-login.target
 
 mkdir -p ~/.local/bin/scripts/
 echo '#!/usr/bin/env bash
