@@ -17,9 +17,10 @@ set -o xtrace      # trace & expand what gets executed (useful for debug)
 
 # install desktop and sound control
 if [[ ! -n "$(pacman -Qs xfce4)" ]]; then
-    sudo pacman -Sy --needed --noconfirm \
-	 xfce4 xfce4-pulseaudio-plugin \
-	 pavucontrol pavucontrol-qt
+  sudo pacman -Sy --needed --noconfirm \
+       xorg-server xterm \
+       xfce4 xfce4-pulseaudio-plugin \
+       pavucontrol pavucontrol-qt
 fi
 
 ### run desktop creating the dotfiles ".xinitrc" and ".serverrc":
