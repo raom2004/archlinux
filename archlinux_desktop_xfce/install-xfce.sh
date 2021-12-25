@@ -44,7 +44,7 @@ case $session in
 esac
 ' >> $HOME/.xinitrc
 # run application during desktop startup
-# echo 'sh -c "sleep 3 && emacs"' >> $HOME/.xinitrc
+echo 'sh -c "sleep 3 && emacs"' >> $HOME/.xinitrc
 
 # IMPORTANT: run xinitrc as normal user
 # chown "${USER}:${USER}" /home/*/.xinitrc
