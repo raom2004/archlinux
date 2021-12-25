@@ -24,7 +24,7 @@ function doIt
 	  --exclude "README.org" \
 	  --exclude "LICENSE" \
 	  -avh --no-perms . ~
-    source ~/.bashrc
+    source $HOME/.bashrc
 }
 
 if [ "$1" == "--force" -o "$1" == "-f" ]; then
