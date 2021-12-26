@@ -110,7 +110,7 @@ exec /usr/bin/Xorg -nolisten tcp -nolisten local "$@" vt$XDG_VTNR
 # xdg directories
 # source: https://wiki.archlinux.org/title/XDG_Base_Directory
 
-mkdir -p ${XDG_CONFIG_HOME}/autostart
+mkdir -p ${HOME}/.config/autostart
 echo '[Desktop Entry]
 Type=Application
 Encoding=UTF-8
@@ -121,7 +121,7 @@ Comment[es]=Script para la configuración básica del escritório Cinnamon
 Exec=gnome-terminal -- bash -c "sh ${HOME}/Projects/archlinux-desktop-xfce;exec bash"
 Terminal=true
 X-GNOME-Autostart-enabled=true
-NoDisplay=false' > ${XDG_CONFIG_HOME}/autostart/script3.desktop
+NoDisplay=false' > ${HOME}/.config/autostart/script3.desktop
 
 
 # if the other fail you can try by user instead of admin
