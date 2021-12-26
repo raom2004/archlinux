@@ -16,23 +16,69 @@ set -o xtrace      # trace & expand what gets executed (useful for debug)
 
 
 # install desktop and sound control
-if [[ ! -n "$(pacman -Qs xfce4)" ]]; then
-  sudo pacman -Sy --needed --noconfirm \
-       xorg-server xterm \
-       xfce4 xfce4-pulseaudio-plugin \
-       pavucontrol pavucontrol-qt
+# if [[ ! -n "$(pacman -Qs xfce4)" ]]; then
+
+## update complete system packages
+
+sudo pacman -Syu
+
+## install graphical user interface (display server with nvidia support)
+
+sudo pacman -Sy --needed --noconfirm xorg-{server,xrandr} xterm
+
+# alternatives: xorg-xinit xorg-clock
+
+## install desktop packages
+
+sudo pacman -Sy --needed --noconfirm \
+     xfce4 \
+     xfce4-{pulseaudio-plugin,screenshooter} \
+     pavucontrol pavucontrol-qt \
+     papirus-icon-theme
+
+## install web browser
+
+sudo pacman -Sy --needed --noconfirm firefox
+
+## install packages for wider support of glyphs and fonts  
+
+sudo pacman -Sy --needed --noconfirm \
+     ttf-{hanazono,font-awesome,ubuntu-font-family}
+
+## package to identify system manufacture
+
+sudo pacman -Sy --needed --noconfirm dmidecode
+
+### INSTALL PACKAGES ACCORDING TO SYSTEM (REAL VS VIRTUALIZED) #######
+
+## Check if archlinux install run in VIRTUAL or REAL system
+check_actual_system="$(dmidecode -s system-manufacturer)"
+
+# If VIRTUAL system, install virtualbox support:
+if [[ "${check_actual_system}" != "innotek GmbH" ]]; then
+  sudo pacman -Sy --needed --noconfirm virtualbox-guest-utils
 fi
+
+# packages for hardware functionallity
+sudo pacman -Sy --needed --noconfirm linux-firmware
+# multi-OS support packages
+sudo pacman -Sy --needed --noconfirm \
+	   usbutils \
+	   dosfstools ntfs-3g amd-ucode intel-ucode
+# heavy code editor packages
+sudo pacman -Sy --needed --noconfirm emacs
+
 
 ### run desktop creating the dotfiles ".xinitrc" and ".serverrc":
 # source: https://wiki.archlinux.org/title/Xinit#xinitrc
 
-## .xinitrc 
-# create xinitrc from template
+## ~/.xinitrc
+# create a new ~/.xinitrc from template
 head -n50 /etc/X11/xinit/xinitrc > $HOME/.xinitrc
 # set keymap
-mykeymap="$(localectl | awk 'tolower($0) ~ /keymap/{ printf $3 }')"
+desktop_keymap="$(localectl | awk 'tolower($0) ~ /keymap/{ printf $3 }')"
 echo "setxkbmap ${mykeymap}" >> $HOME/.xinitrc
-unset mykeymap
+unset desktop_keymap
 # start xfce but let place to add other desktops in the future 
 echo '# Here Xfce is kept as default
 session=${1:-xfce}
@@ -44,13 +90,13 @@ case $session in
 esac
 ' >> $HOME/.xinitrc
 # run application during desktop startup
-echo 'sh -c "sleep 3 && emacs"' >> $HOME/.xinitrc
+# echo 'sh -c "sleep 3 && emacs"' >> $HOME/.xinitrc
 
 # IMPORTANT: run xinitrc as normal user
-# chown "${USER}:${USER}" /home/*/.xinitrc
+# chown "${USER}:${USER}" "$HOME/.xinitrc"
 
 
-## .serverrc
+## ~/.serverrc
 # In order to maintain an authenticated session with logind and to
 # prevent bypassing the screen locker by switching terminals,
 # it is recommended to specify vt$XDG_VTNR in the ~/.xserverrc file: 
@@ -105,23 +151,47 @@ exec /usr/bin/Xorg -nolisten tcp -nolisten local "$@" vt$XDG_VTNR
 # WantedBy=user-graphical-login.target
 # " > ~/.config/systemd/user/tmux@.service
 
-## TODO2: test new way
+## setup desktop xfce by autostart desktop entry
 # source: https://bbs.archlinux.org/viewtopic.php?id=247292
 # xdg directories
 # source: https://wiki.archlinux.org/title/XDG_Base_Directory
 
-mkdir -p ${HOME}/.config/autostart
+mkdir -p $HOME/.config/autostart
 echo '[Desktop Entry]
 Type=Application
 Encoding=UTF-8
 Version=1.0
 Name=script3
-Comment[C]=Script for basic config of Cinnamon Desktop
-Comment[es]=Script para la configuración básica del escritório Cinnamon
-Exec=gnome-terminal -- bash -c "sh ${HOME}/Projects/archlinux-desktop-xfce;exec bash"
+Comment[C]=Script for basic config of xfce4 Desktop
+Comment[es]=Script para la configuración básica del escritório xfce4
+Exec=/usr/bin/gnome-terminal -- bash -c "sh ${HOME}/Projects/archlinux-desktop-xfce/include/setup-xfce.sh;exec bash"
 Terminal=true
 X-GNOME-Autostart-enabled=true
-NoDisplay=false' > ${HOME}/.config/autostart/script3.desktop
+NoDisplay=false' > $HOME/.config/autostart/setup-xfce.desktop
+
+# echo '[Desktop Entry]
+# Type=Application
+# Encoding=UTF-8
+# Version=1.0
+# Name=script3
+# Comment[C]=Script for basic config of xfce4 Desktop
+# Comment[es]=Script para la configuración básica del escritório xfce4
+# Exec=bash -c "sh ${HOME}/Projects/archlinux-desktop-xfce/include/setup-xfce.sh;exec bash"
+# Terminal=true
+# X-GNOME-Autostart-enabled=true
+# NoDisplay=false' > $HOME/.config/autostart/script3.desktop
+
+echo "[Desktop Entry]
+Type=Application
+Encoding=UTF-8
+Version=1.0
+Name=emacs
+Comment[C]=Script for basic config of emacs
+Comment[es]=Script para la configuración básica de emacs
+Exec=emacs -q -l --eval \"(progn (load-theme 'misterioso)(set-cursor-color \\\"turquoise\\\"))\"
+# Terminal=true
+X-GNOME-Autostart-enabled=true
+NoDisplay=false" > $HOME/.config/autostart/emacs.desktop
 
 
 # if the other fail you can try by user instead of admin

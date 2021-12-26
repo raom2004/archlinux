@@ -31,8 +31,8 @@ pactl -- set-sink-volume 0 50%
 
 ## install theme, icons and wallpaper
 
-# create target directories
-mkdir -p ~/{.themes,.icons,.wallpapers}
+# create target dot directories
+mkdir -p ~/.{themes,icons,wallpapers}
 
 
 ## install themes
@@ -74,11 +74,12 @@ image="https://wallpaperforu.com/wp-content/uploads/2020/07/space-wallpaper-2007
 wget --output-document=$HOME/.wallpapers/space-wallpaper.jpg "$image"
 
 # find path for xfce wallpaper 
-image_path="$(xfconf-query -c xfce4-desktop -lv | awk '/monitor/{ print $1 }' | head -n1)"
+image_path="$(xfconf-query -c xfce4-desktop -lv | awk '/monitor.*last/{ print $1 }' | head -n1)"
 
 # set wallpaper in xfce by xfconf-query
 xfconf-query -c xfce4-desktop \
 	     -p "$image_path" \
+	     -t string \
 	     --set $HOME/.wallpapers/space-wallpaper.jpg
 
 ## sonido
@@ -119,7 +120,7 @@ xfconf-query -c xfce4-desktop -v --create -p /desktop-icons/style \
 	     -t int -s 0
 
 ## set custom keyboard shortcuts
-sh ./shortcuts_xfce.sh
+sh shortcuts-xfce.sh
 
 
 # Local Variables:
