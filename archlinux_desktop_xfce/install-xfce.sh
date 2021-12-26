@@ -75,36 +75,53 @@ exec /usr/bin/Xorg -nolisten tcp -nolisten local "$@" vt$XDG_VTNR
 # WantedBy=default.target' > /etc/systemd/system/my.service"
 # sudo systemctl enable my.service
 
-## TODO: test new way
+## TODO1: test new way
 # source: https://bbs.archlinux.org/viewtopic.php?id=247292
 
-mkdir -p ~/.config/systemd/user/
-echo '[Unit]
-Description=User Graphical Login
-Requires=default.target
-After=default.target
-' > ~/.config/systemd/user/user-graphical-login.target
+# mkdir -p ~/.config/systemd/user/
+# echo '[Unit]
+# Description=User Graphical Login
+# Requires=default.target
+# After=default.target
+# ' > ~/.config/systemd/user/user-graphical-login.target
 
-mkdir -p ~/.local/bin/scripts/
-echo '#!/usr/bin/env bash
-systemctl --user import-environment
-systemctl --user start user-graphical-login.target
-' > ~/.local/bin/scripts/import_env.sh
+# mkdir -p ~/.local/bin/scripts/
+# echo '#!/usr/bin/env bash
+# systemctl --user import-environment
+# systemctl --user start user-graphical-login.target
+# ' > ~/.local/bin/scripts/import_env.sh
 
-echo "[Unit]
-Description=Start tmux in detached session
-Requires=user-graphical-login.target
-After=user-graphical-login.target
+# echo "[Unit]
+# Description=Start tmux in detached session
+# Requires=user-graphical-login.target
+# After=user-graphical-login.target
 
-[Service]
-Type=forking
-ExecStart=/usr/bin/tmux new-session -s '%u-init' -d;
-ExecStop=/usr/bin/tmux kill-session -t '%u-init'
+# [Service]
+# Type=forking
+# ExecStart=/usr/bin/tmux new-session -s '%u-init' -d;
+# ExecStop=/usr/bin/tmux kill-session -t '%u-init'
 
-[Install]
-WantedBy=user-graphical-login.target
-" > ~/.config/systemd/user/tmux@.service
+# [Install]
+# WantedBy=user-graphical-login.target
+# " > ~/.config/systemd/user/tmux@.service
 
+## TODO2: test new way
+# source: https://bbs.archlinux.org/viewtopic.php?id=247292
+# xdg directories
+# source: https://wiki.archlinux.org/title/XDG_Base_Directory
+
+mkdir -p ${XDG_CONFIG_HOME}/autostart
+echo '[Desktop Entry]
+Type=Application
+Encoding=UTF-8
+Version=1.0
+Name=script3
+Comment[C]=Script for basic config of Cinnamon Desktop
+Comment[es]=Script para la configuración básica del escritório Cinnamon
+Exec=gnome-terminal -- bash -c "sh ${HOME}/Projects/archlinux-desktop-xfce;exec bash"
+Terminal=true
+X-GNOME-Autostart-enabled=true
+NoDisplay=false' > ${XDG_CONFIG_HOME}/autostart/script3.desktop
 
 
 # if the other fail you can try by user instead of admin
