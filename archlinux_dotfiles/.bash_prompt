@@ -1,0 +1,56 @@
+#!/bin/bash
+#
+# ~/.bash_prompt
+#
+# Dependencies: None
+
+
+### FUNCTION DECLARATION
+
+function prompt_command {
+    # Check if we are inside a git repository
+    if git status > /dev/null 2>&1; then
+        # Only get the name of the branch
+        export GIT_STATUS="($(git status | grep 'On branch' | cut -b 11-)) "
+    else
+        export GIT_STATUS=""
+    fi
+}
+
+### CODE
+
+# This function gets called every time PS1 is shown
+PROMPT_COMMAND=prompt_command
+
+## Set prompt
+
+## testing
+# PS1="${Cyan}\u${NC}@\h: ${Cyan}\w${NC}${BWhite}\$GIT_STATUS${NC}\\$ "
+PS1="${Cyan}\u${NC}@\h: \w ${Cyan}\$GIT_STATUS${NC}\\$ "
+
+## simple version
+# PS1="\$GIT_STATUS \u@\h:\w\$ "
+## colored version
+# PS1="${Cyan}\u${NC}${BWhite}@\h${NC}: ${Cyan}\w${NC} \$GIT_STATUS\\$ "
+## adcance version with git prompt
+# source /usr/share/git/git-prompt.sh
+# PS1="${Cyan}\u${NC}${BWhite}@\h${NC}:${Cyan}\w${NC}$(__git_ps1 "${Cyan} (${NC}%s${Cyan})${NC}") \$ "
+
+
+## TODO: customizing prompt with smiles
+# RESET="\[\017\]"
+# NORMAL="\[\033[0m\]"
+# RED="\[\033[31;1m\]"
+# YELLOW="\[\033[33;1m\]"
+# WHITE="\[\033[37;1m\]"
+# SMILEY="${WHITE}:)${NORMAL}"
+# FROWNY="${RED}:(${NORMAL}"
+# SELECT="if [ \$? = 0 ]; then echo \"${SMILEY}\"; else echo \"${FROWNY}\"; fi"
+
+# Throw it all together 
+# PS1="${RESET}${YELLOW}\h${NORMAL} \`${SELECT}\` ${YELLOW}>${NORMAL} "
+
+
+# Local Variables:
+# sh-basic-offset: 2
+# End:

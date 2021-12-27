@@ -1,0 +1,26 @@
+#!/bin/bash
+#
+# ~/.aliases
+# Purpose: facilitate shell command-line typing by using aliases
+
+### ALIAS DECLARATION
+
+
+## frequent operations
+
+alias ls="ls --color=auto"
+alias ll="ls -l"
+alias lo="ls -o"
+alias lh="ls -lh"
+alias la="ls -la"
+
+
+## sys admin aliases
+
+alias srn="sudo reboot now"
+alias ssn="sudo shutdown now"
+alias spS="sudo pacman -Syu"
+
+# Local Variables:
+# sh-basic-offset: 2
+# End:

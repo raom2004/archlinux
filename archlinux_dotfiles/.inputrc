@@ -1,0 +1,37 @@
+#!/bin/bash
+#
+# ~/.inputrc
+#
+# Purpose:
+#  This file contain a bash component called Readline, 
+#  useful for bash completion, format and window responsive resize 
+# Source: https://wiki.archlinux.org/title/Readline
+
+
+# tab completion: require only one tab to show all completions available
+set show-all-if-ambiguous on
+set completion-ignore-case on
+
+
+# coloring completion of filenames
+set colored-stats On
+set visible-stats On
+set mark-symlinked-directories On
+set colored-completion-prefix On
+set menu-complete-display-prefix On
+
+
+# search through shell history
+"\e[A": history-search-backward 2>/dev/null
+"\e[B": history-search-forward 2>/dev/null
+
+
+# line wrap on window resize
+# shopt -s checkwinsize		# activated by /etc/bash.bashrc
+# complete command names
+# complete -cf sudo
+
+
+# Local Variables:
+# sh-basic-offset: 2
+# End:

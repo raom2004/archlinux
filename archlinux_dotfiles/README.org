@@ -1,0 +1,87 @@
+* dotfiles
+Dotfiles are user-specific configuration files whose filename starts
+with a dot. This git repository store dotfiles relevant for bash and
+zsh shell customization, as well as vim editor.
+
+To maintain dotfiles under control version, here will be described two
+different methods:
+
+ - A bare repository (only requires git)
+ - A bootstrap script (require git and rsync)
+
+Both methods are easy to use, specially the bootstrap method, but you can decide which method adapts better to your needs.
+
+** 1. A bare repository
+
+This Git repo is intended to track dotfiles directly. This method called "bare repository and alias method" is described in more detail here:
+
+https://wiki.archlinux.org/title/Dotfiles.
+
+The only requirement is to create a git bare repository and add an
+alias into your ~/.bashrc or ~/.zshrc file, to be able to use the git
+commands without interfere with other repositories located in the home
+"~/" folder.
+
+- Commands required:
+
+#+begin_src bash :results verbatim
+# create a git bare repository
+git init --bare $HOME/.dotfiles
+# create an alias in your dotfiles
+alias config='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
+# show only changes in dotfiles
+config config status.showUntrackedFiles no
+#+end_src
+
+
+** 2. A bootstrap script
+
+This method only require two steps:
+- Download the dotfile git repository to a folder of your choice 
+- Run the script "bootstrap.sh" to synchronize the dotfiles from the dotfiles folder to the home "~/" folder. 
+
+This method do not require the use of aliases, and the "bootstrap.sh" script can be edited to perform any other requirement. 
+
+- Only script required:
+
+#+begin_src bash :results verbatim :tangle ./bootstrap.sh
+#!/bin/bash
+#
+# ./bootstrap.sh
+#  synchronize dotfile from working directory to $HOME/
+# Requirements: rsync
+if ! pacman -Qs rsync; then 
+    echo "Command not found but required: rsync
+You can install with: sudo pacman -Syu rsync"
+    exit 0
+fi
+
+# Set the actual working directory
+cd "$(dirname "${BASH_SOURCE}")"
+
+# update changes in repository
+git pull origin main
+
+# perform synchonization of dotfiles
+# from this working directory to $HOME directory
+function doIt
+{
+	rsync --exclude ".git/" \
+		--exclude "bootstrap.sh" \
+		--exclude "README.org" \
+		--exclude "LICENSE" \
+		-avh --no-perms . ~
+	source ~/.bashrc
+}
+
+if [ "$1" == "--force" -o "$1" == "-f" ]; then
+	doIt
+else
+	read -p "This may overwrite existing files in your home directory. Are you sure? (y/n) " -n 1
+	echo ""
+	if [[ $REPLY =~ ^[Yy]$ ]]; then
+		doIt
+	fi
+fi
+unset doIt
+#+end_src
