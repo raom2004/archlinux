@@ -1,0 +1,12 @@
+#+startup: showeverything entitiesplane nohideblocks inlineimages logdone
+#+options: creator:nil author:nil toc:nil date:nil email:nil num:nil title:nil \n:t
+#+title: README
+#+date: <2021-12-24 Fri>
+#+author: Ricardo Orbegozo
+#+email: raom2004@gmail.com
+#+language: en
+#+creator: Emacs 27.2 (Org mode 9.3.7)
+
+* Archlinux desktop xfce
+This git repository contain all the files required to install and configure a customized xfce archlinux desktop.
+
