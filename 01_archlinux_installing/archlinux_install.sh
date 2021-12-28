@@ -447,7 +447,7 @@ function main {
 
   # shutdown now
 
-  echo "${BBlue}Installation successful${NC}"
+  echo "${Blue}Installation successful${NC}"
 
 }
 
