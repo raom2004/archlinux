@@ -330,8 +330,9 @@ function main {
   cp "$PWD"/chroot-script.sh /mnt/home \
     || cp arch/chroot-script.sh /mnt/home 
 
-
   ## change root and run chroot-script.sh
+  # turn off bash debugging option: to avoid show sensitive passwords 
+  set +o xtrace 
   arch-chroot /mnt sh /home/chroot-script.sh \
 	      "${target_device}" \
 	      "${host_name}" \
@@ -341,7 +342,10 @@ function main {
 	      "${user_shell}" \
 	      "${shell_keymap}" \
 	      "${autolog_tty}" 
+  # restore bash debugging option
+  set -o xtrace      # trace & expand what gets executed 
 
+  
   ## update pkgfile database (to support shell command not found message)
   arch-chroot /mnt pkgfile -u
 
