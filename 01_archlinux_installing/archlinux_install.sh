@@ -396,9 +396,7 @@ function main {
 			   "/mnt/*",
 			   "/media/*",
 			   "/lost+found",
-			   "/recovery"} \
-			     / \
-			     "/recovery"
+			   "/recovery"} / /recovery
     
     ## update fstab
     genfstab -L /mnt/recovery >> /mnt/recovery/etc/fstab

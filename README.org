@@ -1,0 +1,47 @@
+* Arch Linux 
+
+Arch Linux is a minimalist and flexible Linux distribution,
+characterized for an excellent documentation and thousands of
+high-quality packages, allowing users to design a highly customized
+system.
+
+Arch Linux encourage users to assembly a system selecting packages
+based on it purpose that fits their unique needs. As a result, users
+will obtain a lightweight and powerful Linux system, versatile and
+easy to manage.
+
+For beginners, Arch Linux installation process, configuration and debugging, can be challenging specially when the documentation have not being read extensively.
+
+The purpose of this github repository is to contain all the essential
+tips to install and customize Arch Linux, including how-to design
+scripts to automatize such a processes. Accumulating the experience
+acquired after read the documentation and experiment with it.
+
+* Why Arch Linux instead of many other Linux distritutions 
+
+The answer is simply, reproducibility and sharing!. But please, let me explain why:
+
+As a researcher, the scientific activity involves making scientific
+methods, data and outcomes available for everyone. Make science open
+and reproducible allow other scientist to replicate and adapt such
+methods to their own needs, contributions that summarized can be
+translated into a collaborative global progress.
+
+This contributive philosophy is also present in the open source
+operating system Linux, which source code is easily available for
+everyone. Anyone capable of coding can contribute, modify, enhance and
+distribute the code to anyone and for any purpose, with hundreds of distributions available.
+
+Linux beginner-friendly distributions provides a pre-configured system
+with packages that can be unnecessary, or designed for user data
+collection (e.g. Ubuntu and Canonical's commercial nature). On the
+other hand, Arch Linux offer a different and more functional approach.
+
+Arch Linux system can customize to fit specific needs, avoiding
+packages that can compromise sensitive data. Due to its minimalist
+design, an Arch Linux system can be easily reproduced and distributed
+to other users, by building an USB/CD ISO image or installed as a
+persistent live USB drive. Arch Linux require less space and memory
+resources than beginner-friendly distributions, facilitating to
+migrate a running Arch Linux to another machine, a KVM instance or a
+VirtualBox machine.
