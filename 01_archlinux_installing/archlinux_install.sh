@@ -386,17 +386,15 @@ function main {
     ### Option 2: create a copy of an existen archlinux installation
 
     ## full system backup
-    arch-chroot /mnt rsync \
-		-aAXHv \
-		--exclude={"/dev/*",
-			   "/proc/*",
-			   "/sys/*",
-			   "/tmp/*",
-			   "/run/*",
-			   "/mnt/*",
-			   "/media/*",
-			   "/lost+found",
-			   "/recovery"} / /recovery
+    arch-chroot /mnt rsync -aAXHv --exclude={"/dev/*",
+					     "/proc/*",
+					     "/sys/*",
+					     "/tmp/*",
+					     "/run/*",
+					     "/mnt/*",
+					     "/media/*",
+					     "/lost+found",
+					     "/recovery"} / /recovery
     
     ## update fstab
     genfstab -L /mnt/recovery >> /mnt/recovery/etc/fstab
