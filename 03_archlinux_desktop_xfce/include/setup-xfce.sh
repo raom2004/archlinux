@@ -120,7 +120,7 @@ xfconf-query -c xfce4-desktop -v --create -p /desktop-icons/style \
 	     -t int -s 0
 
 ## set custom keyboard shortcuts
-sh shortcuts-xfce.sh
+sh ./shortcuts-xfce.sh
 
 
 # Local Variables:
