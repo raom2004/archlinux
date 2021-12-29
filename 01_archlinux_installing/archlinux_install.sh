@@ -332,7 +332,7 @@ function main {
 
   
   ## change root and run chroot-script.sh
-  set +o xtrace 		# avoid show sensitive passwords 
+  set +o xtrace 	  # avoid show sensitive passwords 
   arch-chroot /mnt sh /home/chroot-script.sh \
 	      "${target_device}" \
 	      "${host_name}" \
@@ -342,7 +342,7 @@ function main {
 	      "${user_shell}" \
 	      "${shell_keymap}" \
 	      "${autolog_tty}" 
-  set -o xtrace		  # restore trace & expand what gets executed 
+  set -o xtrace		  # trace & expand what gets executed 
 
   
   ## update pkgfile database (to support shell command not found message)

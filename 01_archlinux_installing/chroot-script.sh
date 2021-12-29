@@ -34,6 +34,11 @@ user_shell="$6"
 shell_keymap="$7"
 autolog_tty="$8"
 
+
+# trace & expand what gets executed 
+set -o xtrace
+
+
 ## Time Configuration
 ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime
 hwclock --systohc
@@ -103,7 +108,7 @@ sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g' /etc/sudoers
 # set root password
 echo -e "${root_password}\n${root_password}" | (passwd root)
 # create new user
-useradd -m "{$user_name}" -s /bin/"{$user_shell}"
+useradd -m "${user_name}" -s /bin/"${user_shell}"
 # set new user password
 echo -e "${user_password}\n${user_password}" | (passwd $user_name)
 # set user groups
