@@ -1,4 +1,4 @@
-#+HTML:<div align=center><img src=./images/ubuntu-canonical-logo.png>
+#+HTML:<div align=center>
 #+CAPTION: Arch Linux
 #+NAME: Fig. 1
 [[./images/arch-linux-logo.png]]
@@ -9,9 +9,11 @@
 
 Arch Linux is a minimalist and flexible Linux distribution, characterized for an excellent documentation and thousands of high-quality packages, allowing users to design a highly customized system. This is completely opposite to Linux beginner-friendly distributions which provides a pre-configured system with packages that can be unnecessary, or designed for user data collection (e.g. Ubuntu and Canonical's commercial nature).
 
+#+HTML:<div align=center>
 #+CAPTION: Ubuntu/Canonical
 #+NAME: Fig. 2
 [[./images/ubuntu-canonical-logo.png]]
+#+HTML:</div>
 
 Arch Linux encourage users to assembly a system selecting packages based on it purpose that fits their unique needs. As a result, users will obtain a lightweight and powerful Linux system, versatile and easy to manage. For beginners, Arch Linux installation process, configuration and debugging, can be challenging specially when the documentation have not being read extensively.
 

@@ -20,7 +20,7 @@ set -o xtrace      # trace & expand what gets executed (useful for debug)
 
 ## update complete system packages
 
-sudo pacman -Syu
+sudo pacman -Syu --noconfirm
 
 ## install graphical user interface (display server with nvidia support)
 
