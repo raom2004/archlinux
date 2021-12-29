@@ -4,9 +4,12 @@
 #  synchronize dotfile from working directory to $HOME/
 # Requirements: rsync
 if ! pacman -Qs rsync; then 
-    echo "Command not found but required: rsync
-You can install with: sudo pacman -Syu rsync"
-    exit 0
+    echo "rsync: Command not found but required."
+    read -p "Do you want to install rsync? (Y/n) " -n 1
+    echo ""
+    if [[ ! "$REPLY" =~ ^([nN][oO]|[nN])$ ]]; then
+	sudo pacman -Syu rsync
+    fi
 fi
 
 # Set the actual working directory
@@ -24,7 +27,7 @@ function doIt
 	  --exclude "README.org" \
 	  --exclude "LICENSE" \
 	  -avh --no-perms . ~
-    source $HOME/.bashrc
+    source "$HOME"/.bashrc
 }
 
 if [ "$1" == "--force" -o "$1" == "-f" ]; then
@@ -32,7 +35,7 @@ if [ "$1" == "--force" -o "$1" == "-f" ]; then
 else
     read -p "This may overwrite existing files in your home directory. Are you sure? (y/n) " -n 1
     echo ""
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
+    if [[ "$REPLY" =~ ^[Yy]$ ]]; then
 	doIt
     fi
 fi
