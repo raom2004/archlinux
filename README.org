@@ -1,23 +1,25 @@
-* Arch Linux 
 
-Arch Linux is a minimalist and flexible Linux distribution,
-characterized for an excellent documentation and thousands of
-high-quality packages, allowing users to design a highly customized
-system.
+* Draft
 
-Arch Linux encourage users to assembly a system selecting packages
-based on it purpose that fits their unique needs. As a result, users
-will obtain a lightweight and powerful Linux system, versatile and
-easy to manage.
+** Arch Linux 
 
-For beginners, Arch Linux installation process, configuration and debugging, can be challenging specially when the documentation have not being read extensively.
+#+CAPTION: Arch Linux
+#+NAME: Fig. 1
+[[./images/arch-linux-logo.png]]
 
-The purpose of this github repository is to contain all the essential
-tips to install and customize Arch Linux, including how-to design
-scripts to automatize such a processes. Accumulating the experience
-acquired after read the documentation and experiment with it.
 
-* Why Arch Linux instead of many other Linux distritutions 
+Arch Linux is a minimalist and flexible Linux distribution, characterized for an excellent documentation and thousands of high-quality packages, allowing users to design a highly customized system. This is completely opposite to Linux beginner-friendly distributions which provides a pre-configured system with packages that can be unnecessary, or designed for user data collection (e.g. Ubuntu and Canonical's commercial nature).
+
+#+CAPTION: Ubuntu/Canonical
+#+NAME: Fig. 2
+[[./images/ubuntu-canonical-logo.png]]
+
+Arch Linux encourage users to assembly a system selecting packages based on it purpose that fits their unique needs. As a result, users will obtain a lightweight and powerful Linux system, versatile and easy to manage. For beginners, Arch Linux installation process, configuration and debugging, can be challenging specially when the documentation have not being read extensively.
+
+
+The purpose of this github repository is to contain all the essential tips to install and customize Arch Linux, including how-to design scripts to automatize such a processes. Accumulating the experience acquired after read the documentation and experiment with it.
+
+** Why Arch Linux instead of many other Linux distritutions 
 
 The answer is simply, reproducibility and sharing!. But please, let me explain why:
 
