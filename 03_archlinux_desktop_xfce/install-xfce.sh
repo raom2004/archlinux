@@ -198,8 +198,9 @@ NoDisplay=false" > $HOME/.config/autostart/emacs.desktop
 # ~/.config/systemd/user/setup-xfce.service
 
 
-## now you can run the desktop with
-# startx
+echo "Installation successful
+Now you can run the desktop with:
+$ startx"
 
 
 # emacs:
