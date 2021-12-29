@@ -151,6 +151,8 @@ exec /usr/bin/Xorg -nolisten tcp -nolisten local "$@" vt$XDG_VTNR
 # WantedBy=user-graphical-login.target
 # " > ~/.config/systemd/user/tmux@.service
 
+# Exec=/usr/bin/xfce4-terminal -- bash -c "sh ${HOME}/Projects/archlinux-desktop-xfce/include/setup-xfce.sh;exec bash"
+
 ## setup desktop xfce by autostart desktop entry
 # source: https://bbs.archlinux.org/viewtopic.php?id=247292
 # xdg directories
@@ -164,7 +166,7 @@ Version=1.0
 Name=script3
 Comment[C]=Script for basic config of xfce4 Desktop
 Comment[es]=Script para la configuración básica del escritório xfce4
-Exec=/usr/bin/xfce4-terminal -- bash -c "sh ${HOME}/Projects/archlinux-desktop-xfce/include/setup-xfce.sh;exec bash"
+Exec=/usr/bin/xfce4-terminal -c "sh ${HOME}/Projects/archlinux/03_archlinux_desktop_xfce/setup-xfce.sh;exec bash"
 Terminal=true
 X-GNOME-Autostart-enabled=true
 NoDisplay=false' > $HOME/.config/autostart/setup-xfce.desktop
