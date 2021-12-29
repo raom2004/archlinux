@@ -233,7 +233,7 @@ function main {
   ### DISK PARTITIONING, FORMATING AND MOUNTING
 
   ## - 1 - Partitioning a HDD, NO Partition Recovery
-  if [[ "${backup_partition}" =~ ^([nN][oO]|[nN])$ ]]; then
+  if [[ ! "${backup_partition}" =~ ^([yY][eE][sS]|[yY])$ ]]; then
 
     ## General Disk Partitioning Scheme: 3 partitions in 8GB disk
     #  /boot (/dev/sdx1, 300MB)
