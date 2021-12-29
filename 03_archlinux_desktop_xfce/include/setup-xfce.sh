@@ -15,13 +15,9 @@ set -o pipefail    # CATCH failed piped commands
 set -o xtrace      # trace & expand what gets executed (useful for debug)
 
 
-# # install sound control and restard required
-# if [[ ! -n "$(pacman -Qs pavucontrol-qt)" ]]; then
-#     sudo pacman -Sy --needed --noconfirm \
-# 	 xfce4 pavucontrol pavucontrol-qt xfce4-pulseaudio-plugin
-#     sudo reboot now
-# fi
-
+# Set the actual working directory
+cd "$(dirname "${BASH_SOURCE}")"
+echo "$PWD"
 
 ## unmute pulseaudio
 # turn on audio
@@ -120,7 +116,7 @@ xfconf-query -c xfce4-desktop -v --create -p /desktop-icons/style \
 	     -t int -s 0
 
 ## set custom keyboard shortcuts
-sh ./shortcuts-xfce.sh
+sh "$PWD"/shortcuts-xfce.sh
 
 
 ## setup xfce complete: remove autostart file
