@@ -235,17 +235,17 @@ function main {
   ## - 1 - Partitioning a HDD, NO Partition Recovery
   if [[ ! "${backup_partition}" =~ ^([yY][eE][sS]|[yY])$ ]]; then
 
-    ## General Disk Partitioning Scheme: 3 partitions in 8GB
+    ## General Disk Partitioning Scheme: 3 partitions in 8GB disk
     #  /boot (/dev/sdx1, 300MB)
-    #  /home (/dev/sdx2, 3.7GB)
-    #  /root (/dev/sdx3, 4GB remaining space)
+    #  /home (/dev/sdx2, 700MB)
+    #  /root (/dev/sdx3, remaining space)
 
     ## Partitioning disk with MBR table:
     parted -s "${target_device}" mklabel msdos
     parted -s -a optimal "${target_device}" mkpart primary ext2 0% 300MB
     parted -s "${target_device}" set 1 boot on
-    parted -s -a optimal "${target_device}" mkpart primary ext4 300MB 4GB
-    parted -s -a optimal "${target_device}" mkpart primary ext4 4GB 8GB
+    parted -s -a optimal "${target_device}" mkpart primary ext4 300MB 1GB
+    parted -s -a optimal "${target_device}" mkpart primary ext4 1GB 8GB
 
     ## Formating partitions (-F=overwrite if necessary)
     mkfs.ext2 -F "${target_device}1"
@@ -264,7 +264,7 @@ function main {
   ## - 2 - Partitioning a HDD, WITH Partition Recovery
   if [[ "${backup_partition}" =~ ^([yY][eE][sS]|[yY])$ ]]; then
 
-    ## General Disk Partitioning Scheme: 4 partitions
+    ## General Disk Partitioning Scheme: 4 partitions in 12 GB disk
     #  /boot (/dev/sdx1, 300MB, shared between /root directories)
     #  /home (/dev/sdx2, 3.7GB, shared between /root directories)
     #  /root (/dev/sdx3, 4GB, original)
