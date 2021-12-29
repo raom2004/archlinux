@@ -52,7 +52,7 @@ sudo pacman -Sy --needed --noconfirm dmidecode
 ### INSTALL PACKAGES ACCORDING TO SYSTEM (REAL VS VIRTUALIZED) #######
 
 ## Check if archlinux install run in VIRTUAL or REAL system
-check_actual_system="$(dmidecode -s system-manufacturer)"
+check_actual_system="$(sudo dmidecode -s system-manufacturer)"
 
 # If VIRTUAL system, install virtualbox support:
 if [[ "${check_actual_system}" != "innotek GmbH" ]]; then

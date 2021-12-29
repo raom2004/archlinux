@@ -8,7 +8,8 @@ if ! pacman -Qs rsync; then
     read -p "Do you want to install rsync? (Y/n) " -n 1
     echo ""
     if [[ ! "$REPLY" =~ ^([nN][oO]|[nN])$ ]]; then
-	sudo pacman -Syu rsync
+	sudo pacman -Syu --needed --noconfirm \
+	     rsync 
     fi
 fi
 
