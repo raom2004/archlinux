@@ -123,6 +123,10 @@ xfconf-query -c xfce4-desktop -v --create -p /desktop-icons/style \
 sh ./shortcuts-xfce.sh
 
 
+## setup xfce complete: remove autostart file
+rm -rf $HOME/.config/autostart/setup-xfce.desktop
+
+
 # Local Variables:
 # sh-basic-offset: 2
 # End:

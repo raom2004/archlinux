@@ -204,6 +204,8 @@ echo "Installation successful
 Now you can run the desktop with:
 $ startx"
 
+startx
+
 
 # emacs:
 # Local Variables:
