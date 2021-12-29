@@ -424,7 +424,7 @@ function main {
 
   # shutdown now
 
-  printf "${Blue}Installation successful${NC}"
+  printf "${Blue}Installation successful${NC}\n"
 
 }
 
