@@ -69,8 +69,9 @@ export HISTFILESIZE=20000
 export HISTSIZE=10000
 
 
-# shell command not found # activated by /etc/bash.bashrc
-# source /usr/share/doc/pkgfile/command-not-found.bash
+# shell command not found
+source /usr/share/doc/pkgfile/command-not-found.bash
+# can be also activated by /etc/bash.bashrc
 
 # emacs:
 # Local Variables:

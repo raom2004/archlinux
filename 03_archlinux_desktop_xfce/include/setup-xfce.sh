@@ -123,6 +123,7 @@ sh "$PWD"/shortcuts-xfce.sh
 rm -rf $HOME/.config/autostart/setup-xfce.desktop
 
 
+xfce4-session-logout -l
 # Local Variables:
 # sh-basic-offset: 2
 # End:
