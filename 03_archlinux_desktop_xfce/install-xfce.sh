@@ -183,17 +183,17 @@ NoDisplay=false' > $HOME/.config/autostart/setup-xfce.desktop
 # X-GNOME-Autostart-enabled=true
 # NoDisplay=false' > $HOME/.config/autostart/script3.desktop
 
-echo "[Desktop Entry]
-Type=Application
-Encoding=UTF-8
-Version=1.0
-Name=emacs
-Comment[C]=Script for basic config of emacs
-Comment[es]=Script para la configuración básica de emacs
-Exec=emacs -q -l --eval \"(progn (load-theme 'misterioso)(set-cursor-color \\\"turquoise\\\"))\"
-# Terminal=true
-X-GNOME-Autostart-enabled=true
-NoDisplay=false" > $HOME/.config/autostart/emacs.desktop
+# echo "[Desktop Entry]
+# Type=Application
+# Encoding=UTF-8
+# Version=1.0
+# Name=emacs
+# Comment[C]=Script for basic config of emacs
+# Comment[es]=Script para la configuración básica de emacs
+# Exec=emacs -q -l --eval \"(progn (load-theme 'misterioso)(set-cursor-color \\\"turquoise\\\"))\"
+# # Terminal=true
+# X-GNOME-Autostart-enabled=true
+# NoDisplay=false" > $HOME/.config/autostart/emacs.desktop
 
 
 # if the other fail you can try by user instead of admin
