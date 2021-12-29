@@ -61,10 +61,6 @@ echo "KEYMAP=${shell_keymap}" > /etc/vconsole.conf
 
 ## Network Configuration
 echo "${host_name}" > /etc/hostname
-# bash -c "echo \"127.0.0.1	localhost
-# ::1		localhost
-# 127.0.1.1	${host_name}.localdomain	${host_name}\" \
-#  >> /etc/hosts"
 echo "127.0.0.1	localhost
 ::1		localhost
 127.0.1.1	${host_name}.localdomain	${host_name}
@@ -105,13 +101,13 @@ sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g' /etc/sudoers
 
 ## Accounts Config
 # set root password
-echo -e "$root_password\n$root_password" | (passwd root)
+echo -e "${root_password}\n${root_password}" | (passwd root)
 # create new user
-useradd -m "$user_name" -s /bin/"$user_shell"
+useradd -m "{$user_name}" -s /bin/"{$user_shell}"
 # set new user password
-echo -e "$user_password\n$user_password" | (passwd $user_name)
+echo -e "${user_password}\n${user_password}" | (passwd $user_name)
 # set user groups
-usermod -aG audio,network,optical,power,storage,wheel "$user_name"
+usermod -aG audio,network,optical,power,storage,wheel "${user_name}"
 # Note: there are more groups available, like: autologin,kvm,vboxusers,lp
 
 

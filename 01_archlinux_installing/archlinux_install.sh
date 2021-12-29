@@ -233,7 +233,7 @@ function main {
   ### DISK PARTITIONING, FORMATING AND MOUNTING
 
   ## - 1 - Partitioning a HDD, NO Partition Recovery
-  if [[ ! "${backup_partition}" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+  if [[ "${backup_partition}" =~ ^([nN][oO]|[nN])$ ]]; then
 
     ## General Disk Partitioning Scheme: 3 partitions in 8GB disk
     #  /boot (/dev/sdx1, 300MB)
@@ -245,7 +245,7 @@ function main {
     parted -s -a optimal "${target_device}" mkpart primary ext2 0% 300MB
     parted -s "${target_device}" set 1 boot on
     parted -s -a optimal "${target_device}" mkpart primary ext4 300MB 1GB
-    parted -s -a optimal "${target_device}" mkpart primary ext4 1GB 8GB
+    parted -s -a optimal "${target_device}" mkpart primary ext4 1GB 100%
 
     ## Formating partitions (-F=overwrite if necessary)
     mkfs.ext2 -F "${target_device}1"
@@ -330,9 +330,9 @@ function main {
   cp "$PWD"/chroot-script.sh /mnt/home \
     || cp arch/chroot-script.sh /mnt/home 
 
+  
   ## change root and run chroot-script.sh
-  # turn off bash debugging option: to avoid show sensitive passwords 
-  set +o xtrace 
+  set +o xtrace 		# avoid show sensitive passwords 
   arch-chroot /mnt sh /home/chroot-script.sh \
 	      "${target_device}" \
 	      "${host_name}" \
@@ -342,8 +342,7 @@ function main {
 	      "${user_shell}" \
 	      "${shell_keymap}" \
 	      "${autolog_tty}" 
-  # restore bash debugging option
-  set -o xtrace      # trace & expand what gets executed 
+  set -o xtrace		  # restore trace & expand what gets executed 
 
   
   ## update pkgfile database (to support shell command not found message)
@@ -358,36 +357,10 @@ function main {
   #rm /mnt/home/script2.sh
 
   if [[ "${backup_partition}" =~  ^([yY])$ ]]; then
-    ### SYSTEM RECOVERY:
 
+    ## SYSTEM RECOVERY: Make a copy of an existen archlinux installation
     # source:
     # https://wiki.archlinux.org/title/Install_Arch_Linux_from_existing_Linux
-
-    ## mounting device
-    # duplicate=/mnt/recovery
-    
-
-    ## Option 1: create a new archlinux installation 
-    
-    # ## avoid redownloading all the packages 
-    # pacstrap -c "${duplicate}" --cachedir /mnt/var/cache/pacman/pkg \
-      # 	   base base-devel linux \
-      # 	   vim nano \
-      # 	   zsh sudo git wget \
-      # 	   gvfs \
-      # 	   dhcpcd \
-      # 	   networkmanager \
-      # 	   grub os-prober
-
-    ## configure grub automatically
-    # arch-chroot "${duplicate}" grub-mkconfig -o /boot/grub/grub.cfg
-
-    ## sidable lvmetad (maybe required)
-    # sed -i 's%use_lvmetad = 0%use_lvmetad = 1%' \
-      # "${duplicate}/etc/lvm/lvm.conf""
-    
-
-    ### Option 2: create a copy of an existen archlinux installation
 
     ## full system backup
     arch-chroot /mnt rsync -aAXHv --exclude={"/dev/*","/proc/*","/sys/*","/tmp/*","/run/*","/mnt/*","/media/*","/lost+found","/recovery"} / /recovery
