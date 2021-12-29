@@ -77,7 +77,7 @@ sudo pacman -Sy --needed --noconfirm emacs
 head -n50 /etc/X11/xinit/xinitrc > $HOME/.xinitrc
 # set keymap
 desktop_keymap="$(localectl | awk 'tolower($0) ~ /keymap/{ printf $3 }')"
-echo "setxkbmap ${desktop_mykeymap}" >> $HOME/.xinitrc
+echo "setxkbmap ${desktop_keymap}" >> $HOME/.xinitrc
 unset desktop_keymap
 # start xfce but let place to add other desktops in the future 
 echo '# Here Xfce is kept as default
