@@ -68,6 +68,8 @@ xfconf-query --channel xsettings \
 # download image
 image="https://wallpaperforu.com/wp-content/uploads/2020/07/space-wallpaper-200707153544191600x1200.jpg"
 wget --output-document=$HOME/.wallpapers/space-wallpaper.jpg "$image"
+image="https://www.setaswall.com/wp-content/uploads/2017/11/Arch-Linux-Wallpaper-28-1920x1080.jpg"
+wget --output-document=$HOME/.wallpapers/archlinux-wallpaper.jpg "$image"
 
 # find path for xfce wallpaper 
 image_path="$(xfconf-query -c xfce4-desktop -lv | awk '/monitor.*last/{ print $1 }' | head -n1)"
