@@ -89,11 +89,6 @@ case $session in
     *                 ) exec $1;;
 esac
 ' >> $HOME/.xinitrc
-# run application during desktop startup
-# echo 'sh -c "sleep 3 && emacs"' >> $HOME/.xinitrc
-
-# IMPORTANT: run xinitrc as normal user
-# chown "${USER}:${USER}" "$HOME/.xinitrc"
 
 
 ## ~/.serverrc
@@ -190,7 +185,7 @@ Version=1.0
 Name=emacs
 Comment[C]=Script for basic config of emacs
 Comment[es]=Script para la configuración básica de emacs
-Exec=emacs -q -l --eval \"(progn (load-theme 'misterioso)(set-cursor-color \\\"turquoise\\\"))\"
+Exec=emacs -q --eval \"(progn (load-theme 'misterioso)(set-cursor-color \\\"turquoise\\\"))\"
 # Terminal=true
 X-GNOME-Autostart-enabled=true
 NoDisplay=false" > $HOME/.config/autostart/emacs.desktop
