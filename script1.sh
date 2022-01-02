@@ -41,7 +41,7 @@ if [[ ${boot_mode} == "BIOS" ]]; then
     printf "BIOS detected! you can select a GPT or MBR partition table:\n"
     select OPTION in MBR GPT; do
 	case ${OPTION} in
-	    GPT)
+	    MBR)
 		## HDD partitioning (BIOS/MBR)
 		parted -s /dev/sda mklabel msdos
 		parted -s -a optimal /dev/sda mkpart primary ext4 0% 100%
@@ -54,7 +54,7 @@ if [[ ${boot_mode} == "BIOS" ]]; then
 		mount /dev/sda1 /mnt
 		break
 		;;
-	    MBR)
+	    GPT)
 		## HDD partitioning (UEFI/GPT)
 		parted -s /dev/sda mklabel gpt
 		parted -s -a optimal /dev/sda mkpart primary ext2 0% 2MiB
