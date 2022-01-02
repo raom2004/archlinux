@@ -30,8 +30,11 @@ timedatectl set-ntp true
 
 
 # BIOS and UEFI support
-check_efivars_dir="$(ls /sys/firmware/efi/efivars)"
-[[ -z "$check_efivars_dir" ]] && boot_mode="BIOS" || boot_mode="UEFI"
+if ! ls /sys/firmware/efi/efivars >& /dev/null; then
+    boot_mode="BIOS"
+else
+    boot_mode="UEFI"
+fi
 
 if [[ ${boot_mode} == "BIOS" ]]; then
     printf "BIOS detected! you can select a GPT or MBR partition table:\n"
