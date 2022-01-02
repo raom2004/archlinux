@@ -93,6 +93,10 @@ if [[ ${boot_mode} == "UEFI" ]]; then
 fi
 
 
+## Important: update package manager keyring before install packages
+pacman -Syy --noconfirm archlinux-keyring
+
+
 ## install system packages (with support for wifi and ethernet)
 pacstrap /mnt base base-devel linux \
 	 zsh sudo vim git wget \
