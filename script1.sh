@@ -39,7 +39,7 @@ fi
 
 if [[ ${boot_mode} == "BIOS" ]]; then
     printf "BIOS detected! you can select a GPT or MBR partition table:\n"
-    while getopts 'm:g:' OPTION
+    while getopts mg OPTION
     do
 	case ${OPTION} in
 	    m)
