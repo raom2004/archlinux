@@ -36,45 +36,52 @@ else
     boot_mode="UEFI"
 fi
 
-
 if [[ ${boot_mode} == "BIOS" ]]; then
     printf "BIOS detected! you can select a GPT or MBR partition table:\n"
-    while getopts mg OPTION
+    while getopts gm OPTION
     do
 	case ${OPTION} in
-	    m)
-		## HDD partitioning (BIOS/MBR)
-		parted -s /dev/sda mklabel msdos
-		parted -s -a optimal /dev/sda mkpart primary ext4 0% 100%
-		parted -s /dev/sda set 1 boot on
-		
-		## HDD formating (-F: overwrite if necessary)
-		mkfs.ext4 -F /dev/sda1
-
-		## HDD mounting
-		mount /dev/sda1 /mnt
-		;;
 	    g)
-		## HDD partitioning (UEFI/GPT)
-		parted -s /dev/sda mklabel gpt
-		parted -s -a optimal /dev/sda mkpart primary ext2 0% 2MiB
-		parted -s /dev/sda set 1 bios_grub on
-		parted -s -a optimal /dev/sda mkpart primary ext4 2MiB 100%
-		
-		## HDD formating (-F: overwrite if necessary)
-		mkfs.ext4 -F /dev/sda2
-		
-		## HDD mounting
-		mount /dev/sda2 /mnt
-		mkdir -p /mnt/boot
-		# mount /dev/sda1 /mnt/boot # mount it just before installing GRUB
+		partition_table="BIOS/GPT"
+		;;
+	    m)
+		partition_table="BIOS/MBR"
 		;;
 	esac
     done
+    printf "..partition selected: ${Green}${partition_table}${NC}\n"
+else
+    printf "..partition detected: ${Green}${partition_table}${NC}\n"
 fi
 
 
-if [[ ${boot_mode} == "UEFI" ]]; then
+if [[ ${partition_table} == "BIOS/MBR" ]]; then
+else
+    ## HDD partitioning (BIOS/MBR)
+    parted -s /dev/sda mklabel msdos
+    parted -s -a optimal /dev/sda mkpart primary ext4 0% 100%
+    parted -s /dev/sda set 1 boot on
+
+    ## HDD formating (-F: overwrite if necessary)
+    mkfs.ext4 -F /dev/sda1
+
+    ## HDD mounting
+    mount /dev/sda1 /mnt
+elif [[ ${partition_table} == "BIOS/GPT" ]]; then
+    ## HDD partitioning (UEFI/GPT)
+    parted -s /dev/sda mklabel gpt
+    parted -s -a optimal /dev/sda mkpart primary ext2 0% 2MiB
+    parted -s /dev/sda set 1 bios_grub on
+    parted -s -a optimal /dev/sda mkpart primary ext4 2MiB 100%
+
+    ## HDD formating (-F: overwrite if necessary)
+    mkfs.ext4 -F /dev/sda2
+
+    ## HDD mounting
+    mount /dev/sda2 /mnt
+    mkdir -p /mnt/boot
+    # mount /dev/sda1 /mnt/boot # mount it just before installing GRUB
+elif [[ ${boot_mode} == "UEFI" ]]; then
     ## HDD partitioning (UEFI/GPT)
     parted -s /dev/sda mklabel gpt
     parted -s -a optimal /dev/sda mkpart primary ext2 0% 2MiB
@@ -90,7 +97,6 @@ if [[ ${boot_mode} == "UEFI" ]]; then
     mkdir -p /mnt/boot/efi
     mount /dev/sda1 /mnt/boot/efi
 fi
-
 
 ## install system packages (with support for wifi and ethernet)
 pacstrap /mnt base base-devel linux \
