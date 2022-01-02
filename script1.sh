@@ -76,9 +76,9 @@ fi
 if [[ ${boot_mode} == "UEFI" ]]; then
     ## HDD partitioning (UEFI/GPT)
     parted -s /dev/sda mklabel gpt
-    parted -s -a optimal /dev/sda mkpart primary ext2 0% 2MiB
+    parted -s -a optimal /dev/sda mkpart primary 0% 2MiB
     parted -s /dev/sda set 1 esp on
-    parted -s -a optimal /dev/sda mkpart primary ext4 2MiB 100%
+    parted -s -a optimal /dev/sda mkpart primary 2MiB 100%
 
     ## HDD formating (-F: overwrite if necessary)
     mkfs.fat -F 32 -n ESP /dev/sda2
