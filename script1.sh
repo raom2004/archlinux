@@ -66,8 +66,6 @@ if [[ ${boot_mode} == "BIOS" ]]; then
 		
 		## HDD mounting
 		mount /dev/sda2 /mnt
-		mkdir -p /mnt/boot
-		# mount /dev/sda1 /mnt/boot # mount it just before installing GRUB
 		break
 		;;
 	esac
