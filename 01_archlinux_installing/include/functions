@@ -107,6 +107,8 @@ function choose_a_drive_for_install_archlinux
   eval "${__resultvar}"="'${mymountpoint}'"
 }
 
+
+# emacs:
 # Local Variables:
 # sh-basic-offset: 2
 # End:

@@ -147,6 +147,7 @@ systemctl enable NetworkManager	# wifi
 exit
 
 
+# emacs:
 # Local Variables:
 # sh-basic-offset: 2
 # End:

@@ -36,3 +36,9 @@ Light_Cyan='\033[1;36m'
 Light_Gray='\033[0;37m'
 White='\033[1;37m'
 NC='\033[0m' # No Color
+
+
+# emacs:
+# Local Variables:
+# sh-basic-offset: 2
+# End:

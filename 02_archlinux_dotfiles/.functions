@@ -78,10 +78,11 @@ function check_internet
 function aur 
 {
   ## run only if internet connection is available
-  check_internet
+  check_internet		
 
-  ##  EXIT if any command fails
-  set -o errexit
+  ##  FLASH FLAGS FOR SECURITY AND DEBUGGING
+  set -o errexit		# EXIT if script command fails
+  set -o xtrace			# trace & expand what gets executed
 
   ## complete the AUR URL if user provided only the package name
   if [[ ! "$1" == *"https://"* ]];then
@@ -91,8 +92,9 @@ function aur
 
   ## check if user provided a valid git repo
   verify_if_git_repo_exists="$(git ls-remote $1 HEAD)"
-  if [[ -n "${check_if_git_repo_exists}" ]];then
+  if (( "${#check_if_git_repo_exists}" -eq 0 )); then
     printf "Git repository not found or incorrect:\n%s\n" "$1"
+    sleep 3
     exit 0
   fi
 
@@ -101,6 +103,7 @@ function aur
   search_package_in_system="$(pacman -Qm ${package_name})"
   if [[ -n "${search_package_in_system}" ]]; then
     printf "AUR package %s is allready installed\n" "${package_name}"
+    sleep 3
     exit 0
   fi
 
@@ -194,13 +197,14 @@ function mybackup
 function mygit
 {
   if [[ -z $1 ]]; then
-    echo "mygit require an argument"
+    echo "mygit require the name of the repository"
   else
     git clone "https://github.com/raom2004/$1"
   fi
 }
 
 
+# emacs:
 # Local Variables:
 # sh-basic-offset: 2
 # End:

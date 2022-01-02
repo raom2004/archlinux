@@ -78,7 +78,7 @@ image_path="$(xfconf-query -c xfce4-desktop -lv | awk '/monitor.*last/{ print $1
 xfconf-query -c xfce4-desktop \
 	     -p "$image_path" \
 	     -t string \
-	     --set $HOME/.wallpapers/space-wallpaper.jpg
+	     --set $HOME/.wallpapers/archlinux-wallpaper.jpg
 
 ## sonido
 #activar sonido
@@ -125,7 +125,11 @@ sh "$PWD"/shortcuts-xfce.sh
 rm -rf $HOME/.config/autostart/setup-xfce.desktop
 
 
-xfce4-session-logout -l
+echo "install finished succesfully. Exiting now!"
+sleep 3 && xfce4-session-logout -l
+
+
+# emacs:
 # Local Variables:
 # sh-basic-offset: 2
 # End:

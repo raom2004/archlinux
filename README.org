@@ -7,7 +7,7 @@
 
 #+HTML:</div>
 
-Arch Linux is a minimalist and flexible Linux distribution, characterized for an excellent documentation and thousands of high-quality packages, allowing users to design a highly customized system. This is completely opposite to Linux beginner-friendly distributions which provides a pre-configured system with packages that can be unnecessary, or designed for user data collection (e.g. Ubuntu and Canonical's commercial nature).
+Arch Linux is a minimalist and flexible Linux distribution, characterized for an excellent documentation and thousands of high-quality packages, allowing users to design a highly customized system. This philosophy is opposite to Linux beginner-friendly distributions which provides a pre-configured system with packages that can be unnecessary, or designed for user data collection (e.g. Ubuntu and Canonical's commercial nature).
 
 #+HTML:<div align=center>
 #+CAPTION: Ubuntu/Canonical
@@ -15,36 +15,271 @@ Arch Linux is a minimalist and flexible Linux distribution, characterized for an
 [[./images/ubuntu-canonical-logo.png]]
 #+HTML:</div>
 
-Arch Linux encourage users to assembly a system selecting packages based on it purpose that fits their unique needs. As a result, users will obtain a lightweight and powerful Linux system, versatile and easy to manage. For beginners, Arch Linux installation process, configuration and debugging, can be challenging specially when the documentation have not being read extensively.
+Arch Linux encourage their users to assembly a system selecting packages that fits their unique needs. As a result, an Arch Linux user will obtain a lightweight and powerful system, versatile and easy to manage. However, the installation process, configuration and debugging can be challenging for beginners, specially when the documentation have not being read extensively.
+
+This github repository summarizes the experience after install and customize Arch Linux systems using bash scripts, based in the official documentation.
+
+** Who may read this repository?
+
+If you have installed before Arch Linux following the official guide, congratulations because is not an easy process!. But what now? well, you can repeat the process, this time using a bash script, in such case, this repository is definitely for you!. 
+
+But what if you haven't installed Arch Linux?. You can find also useful this repository, because you can have a look over the commands required to install and configure an Arch Linux system.
+
+** Install Arch Linux using scripts: the easiest example 
+
+The most simple way to install Arch Linux by bash commands, in my honest opinion, requires only 3 scripts:
+
+- [[./script1.sh][script1.sh]] for disk partitioning, formatting and mounting, as well as Arch Linux package installation with pacstrap.
+
+- [[./script2.sh][script2.sh]] which contain all the commands that must be run inside the new Arch Linux system, using arch-chroot to configure locale, time, initramfs, root and user passwords, sudo, keymap, a preferred shell (like bash or zsh), and the boot loader. 
+
+- [[./script3.sh][script3.sh]] which will run on first boot inside the desktop to setup user configuration files (also known as dotfiles) and desktop customizations itself.
+
+This scheme of 3 scripts is the most minimalist way to install Arch Linux. You can copy and edit such scripts to your own needs, testing and debugging it in a virtual machine, until you achieve the Arch Linux system that you desire. 
+
+In the end, you will have your own Arch Linux installer scripts which can recreate a complete installation in approx. 15 min, depending on internet connection and you custom configuration. 
+
+This approach is quite simple and easy to read and understand. Indeed, it is the easiest example of how-to install Arch Linux using scripts. It is useful for test and debug new configurations, dotfiles or changes in desktop, specially in a virtual machine. 
+
+** Install Arch Linux using scripts: a more advance example
+
+As mentioned before, achieve a first Arch Linux installation is not easy, but once you understand the process inside a virtual machine, the next natural step is to install Arch Linux in a Real Machine. In this regard, this chapter covers:
+- Disk partitioning, like BIOS/MBR, BIOS/GPT and UEFI/GPT
+- Boot loader
+- System and user documents backup, and system update
+- Security and documents encryption
 
 
-The purpose of this github repository is to contain all the essential tips to install and customize Arch Linux, including how-to design scripts to automatize such a processes. Accumulating the experience acquired after read the documentation and experiment with it.
+*** Disk Partitioning: compatibility is everything
 
-** Why Arch Linux instead of many other Linux distritutions 
+Linux has multiple option for partitioning, here we will use parted, and the partitions we will made specifically for the bootloader GRUB
 
-The answer is simply, reproducibility and sharing!. But please, let me explain why:
+**** BIOS/MBR
 
-As a researcher, the scientific activity involves making scientific
-methods, data and outcomes available for everyone. Make science open
-and reproducible allow other scientist to replicate and adapt such
-methods to their own needs, contributions that summarized can be
-translated into a collaborative global progress.
+In basic terms, Arch Linux as any other linux distro, can be installed and only precise one unique partition, the single root partition "/".
 
-This contributive philosophy is also present in the open source
-operating system Linux, which source code is easily available for
-everyone. Anyone capable of coding can contribute, modify, enhance and
-distribute the code to anyone and for any purpose, with hundreds of distributions available.
+The most simple example of BIOS/MBR disk partitioning, is:
 
-Linux beginner-friendly distributions provides a pre-configured system
-with packages that can be unnecessary, or designed for user data
-collection (e.g. Ubuntu and Canonical's commercial nature). On the
-other hand, Arch Linux offer a different and more functional approach.
+#+begin_src bash :results verbatim
+## HDD partitioning (BIOS/MBR)
+parted -s /dev/sda mklabel msdos
+parted -s -a optimal /dev/sda mkpart primary ext4 0% 100%
+parted -s /dev/sda set 1 boot on
 
-Arch Linux system can customize to fit specific needs, avoiding
-packages that can compromise sensitive data. Due to its minimalist
-design, an Arch Linux system can be easily reproduced and distributed
-to other users, by building an USB/CD ISO image or installed as a
-persistent live USB drive. Arch Linux require less space and memory
-resources than beginner-friendly distributions, facilitating to
-migrate a running Arch Linux to another machine, a KVM instance or a
-VirtualBox machine.
+## HDD formating (-F: overwrite if necessary)
+mkfs.ext4 -F /dev/sda1
+
+## HDD mounting
+mount /dev/sda1 /mnt 
+#+end_src
+
+**** BIOS/GPT
+
+If you want to make the same but with support for BIOS/GPT, you will need some changes according to the boot loader, which in this case is GRUB:
+- Change the table partitioning from "msdos" (MBR) to "gpt"
+- GPT require a BIOS boot partition
+- Replace the "boot" flag for "bios_grub"
+
+The example od BIOS/GPT partitioning table, is:
+
+#+begin_src bash :results verbatim
+## HDD partitioning (BIOS/GPT)
+parted -s /dev/sda mklabel gpt
+parted -s -a optimal /dev/sda mkpart primary ext2 0% 2MiB
+parted -s /dev/sda set 1 bios_grub on
+parted -s -a optimal /dev/sda mkpart primary ext4 2MiB 100%
+
+## HDD formating (-F: overwrite if necessary)
+mkfs.ext4 -F /dev/sda2
+
+## HDD mounting
+mount /dev/sda2 /mnt
+mkdir -p /mnt/boot
+# mount /dev/sda1 /mnt/boot # must be mounted just before installing GRUB
+#+end_src
+
+**** UEFI/GPT
+
+THe UEFI/GPT is similar to the previous, with just few modifications:
+- Create a boot partition with fat32 as the file system type
+- Replace the "bios_grub" flag for "esp"
+
+The example of UEFI/GPT partitioning table, is:
+
+#+begin_src bash :results verbatim
+## HDD partitioning (UEFI/GPT)
+parted -s /dev/sda mklabel gpt
+parted -s -a optimal /dev/sda mkpart primary ext2 0% 2MiB
+parted -s /dev/sda set 1 esp on
+parted -s -a optimal /dev/sda mkpart primary ext4 2MiB 100%
+
+## HDD formating (-F: overwrite if necessary)
+mkfs.fat -F 32 -n ESP /dev/sda2
+mkfs.ext4 -F /dev/sda2
+
+## HDD mounting
+mount /dev/sda2 /mnt
+mkdir -p /mnt/boot/efi
+mount /dev/sda1 /mnt/boot/efi
+#+end_src
+
+
+**** Disk partitioning, all together: BIOS/MBR, BIOS/GPT and UEFI/GPT
+
+What happen when we want to support the options mentioned?. Well, Arch Linux can detect if have booted from BIOS or UEFI, which can be quite useful to make a conditional like this:
+
+#+begin_src bash :results verbatim
+# BIOS and UEFI support
+check_efivars_dir="$(ls /sys/firmware/efi/efivars)"
+[[ -z "$check_efivars_dir" ]] && boot_mode="BIOS" || boot_mode="UEFI"
+
+if [[ ${boot_mode} == "BIOS" ]]; then
+    printf "BIOS detected! you can select a GPT or MBR partition table:\n"
+    while getopts gm OPTION
+    do
+	case ${OPTION} in
+	    g)
+		partition_table="BIOS/GPT"
+		;;
+	    m)
+		partition_table="BIOS/MBR"
+		;;
+	esac
+    done
+    printf "..partition selected: ${Green}${partition_table}${NC}\n"
+else
+    printf "..partition detected: ${Green}${partition_table}${NC}\n"
+fi
+
+
+if [[ ${partition_table} == "BIOS/MBR" ]]; then
+else
+    ## HDD partitioning (BIOS/MBR)
+    parted -s /dev/sda mklabel msdos
+    parted -s -a optimal /dev/sda mkpart primary ext4 0% 100%
+    parted -s /dev/sda set 1 boot on
+
+    ## HDD formating (-F: overwrite if necessary)
+    mkfs.ext4 -F /dev/sda1
+
+    ## HDD mounting
+    mount /dev/sda1 /mnt
+elif [[ ${partition_table} == "BIOS/GPT" ]]; then
+    ## HDD partitioning (UEFI/GPT)
+    parted -s /dev/sda mklabel gpt
+    parted -s -a optimal /dev/sda mkpart primary ext2 0% 2MiB
+    parted -s /dev/sda set 1 bios_grub on
+    parted -s -a optimal /dev/sda mkpart primary ext4 2MiB 100%
+
+    ## HDD formating (-F: overwrite if necessary)
+    mkfs.ext4 -F /dev/sda2
+
+    ## HDD mounting
+    mount /dev/sda2 /mnt
+    mkdir -p /mnt/boot
+    # mount /dev/sda1 /mnt/boot # mount it just before installing GRUB
+elif [[ ${boot_mode} == "UEFI" ]]; then
+    ## HDD partitioning (UEFI/GPT)
+    parted -s /dev/sda mklabel gpt
+    parted -s -a optimal /dev/sda mkpart primary ext2 0% 2MiB
+    parted -s /dev/sda set 1 esp on
+    parted -s -a optimal /dev/sda mkpart primary ext4 2MiB 100%
+
+    ## HDD formating (-F: overwrite if necessary)
+    mkfs.fat -F 32 -n ESP /dev/sda2
+    mkfs.ext4 -F /dev/sda2
+
+    ## HDD mounting
+    mount /dev/sda2 /mnt
+    mkdir -p /mnt/boot/efi
+    mount /dev/sda1 /mnt/boot/efi
+fi
+#+end_src
+
+
+The objective: 
+
+Install an Arch Linux system configuring dotfiles and desktop by bash scripts. 
+
+# This text include how-to install Arch Linux in internal drive, but also in USB external removable media, called also USB persistent installation.
+
+How we will get there? Covering the next items:
+
+- Pre-installation, steps to prepare the new system
+- Installation, selecting the most relevant packages
+- Configuration, from file system table to boot loader config
+- Post-installation, using dotfiles and a lightweight desktop (xfce)
+
+Important: this text do not cover how-to prepare an installation
+medium like an USB flash drive, but you can find it [[https://wiki.archlinux.org/title/USB_flash_installation_medium][here]].
+
+** How to install Arch Linux by bash scripts: the 5 min version.
+
+
+
+
+
+
+
+
+- Pre-installation
+
+  * 1.1-1.3 Prepare an installation image (out of the scope)
+  * 1.4 Boot the live environment
+  * 1.5 Set the console keyboard layout
+  * 1.6 Verify the boot mode
+  * 1.7 Connect to the internet
+  * 1.8 Update the system clock
+  * 1.9 Partition the disks
+    * 1.9.1 Example layouts
+  * 1.10 Format the partitions
+  * 1.11 Mount the file systems
+
+- Installation
+
+  * 2.1 Select the mirrors
+  * 2.2 Install essential packages
+
+- Configure the system
+
+  * 3.1 Fstab
+  * 3.2 Chroot
+  * 3.3 Time zone
+  * 3.4 Localization
+  * 3.5 Network configuration
+  * 3.6 Initramfs
+  * 3.7 Root password
+  * 3.8 Boot loader
+
+- Reboot
+- Post-installation
+
+
+# ** Why Arch Linux instead of many other Linux distritutions 
+
+# The answer is simply, reproducibility and sharing!. But please, let me explain why:
+
+# As a researcher, the scientific activity involves making scientific
+# methods, data and outcomes available for everyone. Make science open
+# and reproducible allow other scientist to replicate and adapt such
+# methods to their own needs, contributions that summarized can be
+# translated into a collaborative global progress.
+
+# This contributive philosophy is also present in the open source
+# operating system Linux, which source code is easily available for
+# everyone. Anyone capable of coding can contribute, modify, enhance and
+# distribute the code to anyone and for any purpose, with hundreds of distributions available.
+
+# Linux beginner-friendly distributions provides a pre-configured system
+# with packages that can be unnecessary, or designed for user data
+# collection (e.g. Ubuntu and Canonical's commercial nature). On the
+# other hand, Arch Linux offer a different and more functional approach.
+
+# Arch Linux system can customize to fit specific needs, avoiding
+# packages that can compromise sensitive data. Due to its minimalist
+# design, an Arch Linux system can be easily reproduced and distributed
+# to other users, by building an USB/CD ISO image or installed as a
+# persistent live USB drive. Arch Linux require less space and memory
+# resources than beginner-friendly distributions, facilitating to
+# migrate a running Arch Linux to another machine, a KVM instance or a
+# VirtualBox machine.

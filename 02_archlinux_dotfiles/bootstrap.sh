@@ -41,3 +41,9 @@ else
     fi
 fi
 unset doIt
+
+
+# emacs:
+# Local Variables:
+# sh-basic-offset: 2
+# End:
