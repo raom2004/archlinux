@@ -81,7 +81,7 @@ if [[ ${boot_mode} == "UEFI" ]]; then
     parted -s -a optimal /dev/sda mkpart primary 2MiB 100%
 
     ## HDD formating (-F: overwrite if necessary)
-    mkfs.fat -F 32 -n ESP /dev/sda2
+    mkfs.fat -F 32 -n ESP /dev/sda1
     mkfs.ext4 -F /dev/sda2
 
     ## HDD mounting
