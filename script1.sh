@@ -52,6 +52,7 @@ if [[ ${boot_mode} == "BIOS" ]]; then
 
 		## HDD mounting
 		mount /dev/sda1 /mnt
+		brake
 		;;
 	    MBR)
 		## HDD partitioning (UEFI/GPT)
@@ -67,6 +68,7 @@ if [[ ${boot_mode} == "BIOS" ]]; then
 		mount /dev/sda2 /mnt
 		mkdir -p /mnt/boot
 		# mount /dev/sda1 /mnt/boot # mount it just before installing GRUB
+		brake
 		;;
 	esac
     done
