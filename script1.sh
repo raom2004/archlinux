@@ -105,8 +105,13 @@ pacstrap /mnt base base-devel linux \
 	 gnome-terminal terminator cinnamon livecd-sounds \
 	 firefox \
 	 virtualbox-guest-utils
-	 
-	 
+
+
+## package required for GRUB to boot UEFI
+if [[ ${boot_mode} == "UEFI" ]]; then
+    pacstrap /mnt efibootmgr	 
+fi
+
 
 ## generate file system table
 genfstab -L /mnt >> /mnt/etc/fstab
