@@ -9,7 +9,7 @@
 
 * Arch Linux 
 
-Arch Linux is a minimalist and flexible Linux distribution, which excellent documentation and high-quality packages that allow users to design a highly customized system. A philosophy opposite to *Linux beginner-friendly distributions* which provides a pre-configured system with packages that can be unnecessary, or designed for user data collection (e.g. Ubuntu and Canonical's commercial nature).
+Arch Linux is a minimalist and flexible Linux distribution, which excellent documentation and high-quality packages that allow users to design a highly customized system. A philosophy opposite to Linux beginner-friendly distributions which provides a pre-configured system with packages that can be unnecessary, or *designed for user data collection* (e.g. Ubuntu and Canonical's commercial nature).
 
 #+HTML:<div align=center>
 #+CAPTION: archlinux-Ubuntu/Canonical
@@ -19,11 +19,11 @@ Arch Linux is a minimalist and flexible Linux distribution, which excellent docu
 
 Arch Linux philosophy encourage users to select packages that fits their unique needs, obtaining a lightweight powerful system, easy to manage. However, the installation process, configuration and debugging, can be challenging for beginners, specially when the documentation have not being extensively read.
 
-For this reason, this repository summarizes the tips and recommendations to install and customize Arch Linux systems using bash scripts, based in the official documentation and the information available on internet.
+For this reason, *this repository summarizes the tips and recommendations to install and customize Arch Linux systems using bash scripts*, based in the official documentation and the actual information available on internet.
 
 ** Who may read this repository?
 
-If you have installed Arch Linux before following the official guide, congratulations because is not an easy process! But what now? well, you can repeat the process this time understanding how to put your code adequately in bash scripts, in such case, this repository is definitely for you!
+If you have installed Arch Linux before, congratulations because is not an easy process! But what now? well, you can repeat the process this time understanding how to put your code adequately in bash scripts, in such case, this repository is definitely for you!
 
 But what if you haven't installed Arch Linux before? well you will definitely find this repository useful because it allows you to have a look over the commands required to install and configure Arch Linux.
 
