@@ -28,15 +28,15 @@ But what if you haven't installed Arch Linux before? well you will definitely fi
 
 ** Install Arch Linux using scripts: the easy version
 
-The most easy version to install Arch Linux by bash commands, requires only 3 scripts
+The most easy version to install Arch Linux by bash commands, requires only 3 scripts:
 
 [[./script1.sh][script1.sh]]
-- To perform the critical pre-installation steps, such as:
+To perform the critical pre-installation steps, such as:
   - Disk partitioning, formatting and mounting
-  - Package installation with pacstrap
+  - Package installation with =pacstrap=
 
 [[./script2.sh][script2.sh]] 
-- To setup the new Arch Linux system using arch-chroot, for:
+To setup the new Arch Linux system using =arch-chroot=, for:
   - Locale config
   - Time
   - Initramfs
@@ -47,18 +47,18 @@ The most easy version to install Arch Linux by bash commands, requires only 3 sc
   - Install a boot loader 
 
 [[./script3.sh][script3.sh]] 
-- A script that run on first desktop boot, to:
-  - Set user configuration files (also known as dotfiles)
+A script that run on *first desktop boot*, to:
+  - Set user configuration files (also known as =dotfiles=)
   - Set the desktop customizations itself
 
-This approach is the easiest example of how-to install Arch Linux using scripts. It is useful for test and debugging new install configurations, dotfiles or changes in desktop customization preferably inside a virtual machine.
+This approach is the easiest example of how-to install Arch Linux using scripts. It is useful for *test* and *debugging* new install configurations, dotfiles or changes in desktop customization preferably *in a virtual machine*.
 
 ** Install Arch Linux using scripts: the advance version
 
-As mentioned before a first Arch Linux installation is not easy, but once you understand the process inside a virtual machine, the next natural step is to make a Real Machine installation. 
+As mentioned before a first Arch Linux installation is not easy, but once you understand the process inside a virtual machine, the next natural step is to *install Arch Linux in a Real Machine*. 
 
 In this regard, this chapter covers important aspects related to:
-- [[Disk partitioning BIOS/MBR, BIOS/GPT, UEFI/GPT and their encryption]]
+- Disk partitioning BIOS/MBR, BIOS/GPT, UEFI/GPT and their encryption
 - Package install with pacstrap and keyring update
 - Boot loader common mistakes
 - System backup, user documents backup and system update
