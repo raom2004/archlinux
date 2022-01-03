@@ -1,6 +1,14 @@
+#+startup: showeverything nohideblocks inlineimages
+#+title: README
+#+date: <2022-01-03 Mon>
+#+author: Ricardo A. O. Medina
+#+email: raom2004@gmail.com
+#+language: en
+#+creator: Emacs 27.2 (Org mode 9.3.7)
+
 * Arch Linux 
 
-Arch Linux is a minimalist and flexible Linux distribution, which excellent documentation and high-quality packages allow users to design a highly customized system. A philosophy opposite to Linux beginner-friendly distributions which provides a pre-configured system with packages that can be unnecessary, or designed for user data collection (e.g. Ubuntu and Canonical's commercial nature).
+Arch Linux is a minimalist and flexible Linux distribution, which excellent documentation and high-quality packages that allow users to design a highly customized system. A philosophy opposite to *Linux beginner-friendly distributions* which provides a pre-configured system with packages that can be unnecessary, or designed for user data collection (e.g. Ubuntu and Canonical's commercial nature).
 
 #+HTML:<div align=center>
 #+CAPTION: archlinux-Ubuntu/Canonical
@@ -8,45 +16,58 @@ Arch Linux is a minimalist and flexible Linux distribution, which excellent docu
 [[./images/arch-linux-vs-ubuntu.png]]
 #+HTML:</div>
 
-Arch Linux encourage users to select packages that fits their unique needs, obtaining a lightweight and powerful system, versatile and easy to manage. However, the installation process, configuration and debugging can be challenging for beginners, specially when the documentation have not being read extensively.
+Arch Linux philosophy encourage users to select packages that fits their unique needs, obtaining a lightweight powerful system, easy to manage. However, the installation process, configuration and debugging, can be challenging for beginners, specially when the documentation have not being extensively read.
 
-This github repository summarizes tips and recommendations to install and customize Arch Linux systems using bash scripts, based in the official documentation and the information available on internet
+For this reason, this repository summarizes the tips and recommendations to install and customize Arch Linux systems using bash scripts, based in the official documentation and the information available on internet.
 
 ** Who may read this repository?
 
-If you have installed Arch Linux before following the official guide, congratulations because is not an easy process!. But what now? well, you can repeat the process this time using a bash script, in such case, this repository is definitely for you!. 
+If you have installed Arch Linux before following the official guide, congratulations because is not an easy process! But what now? well, you can repeat the process this time understanding how to put your code adequately in bash scripts, in such case, this repository is definitely for you!
 
-But what if you haven't installed Arch Linux before?. You can definitely find this repository useful because it allows you to have a look over the commands required to install and configure an Arch Linux system, as a template simple enough to be understandable.
+But what if you haven't installed Arch Linux before? well you will definitely find this repository useful because it allows you to have a look over the commands required to install and configure Arch Linux.
 
-** Install Arch Linux using scripts: the easiest example 
+** Install Arch Linux using scripts: the easy version
 
-The most simple way to install Arch Linux by bash commands, in my honest opinion, requires only 3 scripts:
+The most easy version to install Arch Linux by bash commands, requires only 3 scripts
 
-- [[./script1.sh][script1.sh]] for disk partitioning, formatting and mounting, as well as Arch Linux package installation with pacstrap.
+[[./script1.sh][script1.sh]]
+- To perform the critical pre-installation steps, such as:
+  - Disk partitioning, formatting and mounting
+  - Package installation with pacstrap
 
-- [[./script2.sh][script2.sh]] which contain all the commands that must be run inside the new Arch Linux system, using arch-chroot to configure locale, time, initramfs, root and user passwords, sudo, keymap, a preferred shell (like bash or zsh), and the boot loader. 
+[[./script2.sh][script2.sh]] 
+- To setup the new Arch Linux system using arch-chroot, for:
+  - Locale config
+  - Time
+  - Initramfs
+  - Accounts and passwords
+  - sudo
+  - keymap
+  - The preferred shell (e.g. bash or zsh)
+  - Install a boot loader 
 
-- [[./script3.sh][script3.sh]] which will run on first boot inside the desktop to setup user configuration files (also known as dotfiles) and desktop customizations itself.
+[[./script3.sh][script3.sh]] 
+- A script that run on first desktop boot, to:
+  - Set user configuration files (also known as dotfiles)
+  - Set the desktop customizations itself
 
-This scheme of 3 scripts is the most minimalist way to install Arch Linux. You can copy and edit such scripts to your own needs, testing and debugging it in a virtual machine, until you achieve the Arch Linux system that you desire. 
+This approach is the easiest example of how-to install Arch Linux using scripts. It is useful for test and debugging new install configurations, dotfiles or changes in desktop customization preferably inside a virtual machine.
 
-In the end, you will have your own Arch Linux installer scripts which can recreate a complete installation in approx. 15 min, depending on internet connection and you custom configuration. 
+** Install Arch Linux using scripts: the advance version
 
-This approach is quite simple and easy to read and understand. Indeed, it is the easiest example of how-to install Arch Linux using scripts. It is useful for test and debug new configurations, dotfiles or changes in desktop, specially in a virtual machine. 
+As mentioned before a first Arch Linux installation is not easy, but once you understand the process inside a virtual machine, the next natural step is to make a Real Machine installation. 
 
-** Install Arch Linux using scripts: a more advance example
-
-As mentioned before, achieve a first Arch Linux installation is not easy, but once you understand the process inside a virtual machine, the next natural step is to install Arch Linux in a Real Machine. In this regard, this chapter covers importants aspects in when Arch Linux will be installed in a real machine, such as:
-- Disk partitioning, like BIOS/MBR, BIOS/GPT and UEFI/GPT
+In this regard, this chapter covers important aspects related to:
+- [[Disk partitioning BIOS/MBR, BIOS/GPT, UEFI/GPT and their encryption]]
 - Package install with pacstrap and keyring update
-- Boot loader
-- System and user documents backup, and system update
+- Boot loader common mistakes
+- System backup, user documents backup and system update
 - Security and documents encryption
 
 
-*** Disk Partitioning: compatibility is everything
+*** Disk partitioning BIOS/MBR, BIOS/GPT, UEFI/GPT and their encryption
 
-Linux has multiple schemes for disk partitioning. Here we will checkout the most standard schemes using parted and the bootloader GRUB.
+This chapter cover the most standard disk partitioning schemes using =parted= and the bootloader =GRUB=.
 
 **** BIOS/MBR
 
