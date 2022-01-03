@@ -55,7 +55,7 @@ if [[ ${boot_mode} == "BIOS" ]]; then
 		break
 		;;
 	    GPT)
-		## HDD partitioning (UEFI/GPT)
+		## HDD partitioning (BIOS/GPT)
 		parted -s /dev/sda mklabel gpt
 		parted -s -a optimal /dev/sda mkpart primary ext2 0% 2MiB
 		parted -s /dev/sda set 1 bios_grub on

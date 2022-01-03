@@ -1,29 +1,22 @@
-#+HTML:<div align=center>
-#+CAPTION: Arch Linux
-#+NAME: Fig. 1
-[[./images/arch-linux-logo.png]]
-
 * Arch Linux 
 
-#+HTML:</div>
-
-Arch Linux is a minimalist and flexible Linux distribution, characterized for an excellent documentation and thousands of high-quality packages, allowing users to design a highly customized system. This philosophy is opposite to Linux beginner-friendly distributions which provides a pre-configured system with packages that can be unnecessary, or designed for user data collection (e.g. Ubuntu and Canonical's commercial nature).
+Arch Linux is a minimalist and flexible Linux distribution, which excellent documentation and high-quality packages allow users to design a highly customized system. A philosophy opposite to Linux beginner-friendly distributions which provides a pre-configured system with packages that can be unnecessary, or designed for user data collection (e.g. Ubuntu and Canonical's commercial nature).
 
 #+HTML:<div align=center>
-#+CAPTION: Ubuntu/Canonical
-#+NAME: Fig. 2
-[[./images/ubuntu-canonical-logo.png]]
+#+CAPTION: archlinux-Ubuntu/Canonical
+#+NAME: Fig. 1
+[[./images/arch-linux-vs-ubuntu.png]]
 #+HTML:</div>
 
-Arch Linux encourage their users to assembly a system selecting packages that fits their unique needs. As a result, an Arch Linux user will obtain a lightweight and powerful system, versatile and easy to manage. However, the installation process, configuration and debugging can be challenging for beginners, specially when the documentation have not being read extensively.
+Arch Linux encourage users to select packages that fits their unique needs, obtaining a lightweight and powerful system, versatile and easy to manage. However, the installation process, configuration and debugging can be challenging for beginners, specially when the documentation have not being read extensively.
 
-This github repository summarizes the experience after install and customize Arch Linux systems using bash scripts, based in the official documentation.
+This github repository summarizes tips and recommendations to install and customize Arch Linux systems using bash scripts, based in the official documentation and the information available on internet
 
 ** Who may read this repository?
 
-If you have installed before Arch Linux following the official guide, congratulations because is not an easy process!. But what now? well, you can repeat the process, this time using a bash script, in such case, this repository is definitely for you!. 
+If you have installed Arch Linux before following the official guide, congratulations because is not an easy process!. But what now? well, you can repeat the process this time using a bash script, in such case, this repository is definitely for you!. 
 
-But what if you haven't installed Arch Linux?. You can find also useful this repository, because you can have a look over the commands required to install and configure an Arch Linux system.
+But what if you haven't installed Arch Linux before?. You can definitely find this repository useful because it allows you to have a look over the commands required to install and configure an Arch Linux system, as a template simple enough to be understandable.
 
 ** Install Arch Linux using scripts: the easiest example 
 
@@ -43,8 +36,9 @@ This approach is quite simple and easy to read and understand. Indeed, it is the
 
 ** Install Arch Linux using scripts: a more advance example
 
-As mentioned before, achieve a first Arch Linux installation is not easy, but once you understand the process inside a virtual machine, the next natural step is to install Arch Linux in a Real Machine. In this regard, this chapter covers:
+As mentioned before, achieve a first Arch Linux installation is not easy, but once you understand the process inside a virtual machine, the next natural step is to install Arch Linux in a Real Machine. In this regard, this chapter covers importants aspects in when Arch Linux will be installed in a real machine, such as:
 - Disk partitioning, like BIOS/MBR, BIOS/GPT and UEFI/GPT
+- Package install with pacstrap and keyring update
 - Boot loader
 - System and user documents backup, and system update
 - Security and documents encryption
@@ -52,7 +46,7 @@ As mentioned before, achieve a first Arch Linux installation is not easy, but on
 
 *** Disk Partitioning: compatibility is everything
 
-Linux has multiple option for partitioning, here we will use parted, and the partitions we will made specifically for the bootloader GRUB
+Linux has multiple schemes for disk partitioning. Here we will checkout the most standard schemes using parted and the bootloader GRUB.
 
 **** BIOS/MBR
 
@@ -80,7 +74,7 @@ If you want to make the same but with support for BIOS/GPT, you will need some c
 - GPT require a BIOS boot partition
 - Replace the "boot" flag for "bios_grub"
 
-The example od BIOS/GPT partitioning table, is:
+The example of BIOS/GPT partitioning table, is:
 
 #+begin_src bash :results verbatim
 ## HDD partitioning (BIOS/GPT)
@@ -93,28 +87,29 @@ parted -s -a optimal /dev/sda mkpart primary ext4 2MiB 100%
 mkfs.ext4 -F /dev/sda2
 
 ## HDD mounting
+# BIOS/GPT require space for the partition bios_grub
+# but only require to mount the root partition "/"
 mount /dev/sda2 /mnt
-mkdir -p /mnt/boot
-# mount /dev/sda1 /mnt/boot # must be mounted just before installing GRUB
 #+end_src
 
 **** UEFI/GPT
 
-THe UEFI/GPT is similar to the previous, with just few modifications:
+The UEFI/GPT partition table is similar to the previous, with just few modifications:
 - Create a boot partition with fat32 as the file system type
 - Replace the "bios_grub" flag for "esp"
+- Install package "efibootmbr" with pacstrap
 
 The example of UEFI/GPT partitioning table, is:
 
 #+begin_src bash :results verbatim
 ## HDD partitioning (UEFI/GPT)
 parted -s /dev/sda mklabel gpt
-parted -s -a optimal /dev/sda mkpart primary ext2 0% 2MiB
+parted -s -a optimal /dev/sda mkpart primary 0% 512MiB
 parted -s /dev/sda set 1 esp on
-parted -s -a optimal /dev/sda mkpart primary ext4 2MiB 100%
+parted -s -a optimal /dev/sda mkpart primary 512MiB 100%
 
 ## HDD formating (-F: overwrite if necessary)
-mkfs.fat -F 32 -n ESP /dev/sda2
+mkfs.fat -F32 /dev/sda1
 mkfs.ext4 -F /dev/sda2
 
 ## HDD mounting
@@ -123,6 +118,12 @@ mkdir -p /mnt/boot/efi
 mount /dev/sda1 /mnt/boot/efi
 #+end_src
 
+#+begin_src bash :results verbatim
+## package required for GRUB to boot in UEFI mode
+if [[ ${boot_mode} == "UEFI" ]]; then
+    pacstrap /mnt efibootmgr	 
+fi
+#+end_src
 
 **** Disk partitioning, all together: BIOS/MBR, BIOS/GPT and UEFI/GPT
 
@@ -130,69 +131,69 @@ What happen when we want to support the options mentioned?. Well, Arch Linux can
 
 #+begin_src bash :results verbatim
 # BIOS and UEFI support
-check_efivars_dir="$(ls /sys/firmware/efi/efivars)"
-[[ -z "$check_efivars_dir" ]] && boot_mode="BIOS" || boot_mode="UEFI"
-
-if [[ ${boot_mode} == "BIOS" ]]; then
-    printf "BIOS detected! you can select a GPT or MBR partition table:\n"
-    while getopts gm OPTION
-    do
-	case ${OPTION} in
-	    g)
-		partition_table="BIOS/GPT"
-		;;
-	    m)
-		partition_table="BIOS/MBR"
-		;;
-	esac
-    done
-    printf "..partition selected: ${Green}${partition_table}${NC}\n"
+if ! ls /sys/firmware/efi/efivars >& /dev/null; then
+    boot_mode="BIOS"
 else
-    printf "..partition detected: ${Green}${partition_table}${NC}\n"
+    boot_mode="UEFI"
 fi
 
 
-if [[ ${partition_table} == "BIOS/MBR" ]]; then
-else
-    ## HDD partitioning (BIOS/MBR)
-    parted -s /dev/sda mklabel msdos
-    parted -s -a optimal /dev/sda mkpart primary ext4 0% 100%
-    parted -s /dev/sda set 1 boot on
+if [[ ${boot_mode} == "BIOS" ]]; then
+    printf "BIOS detected! you can select a GPT or MBR partition table:\n"
+    select OPTION in MBR GPT; do
+	case ${OPTION} in
+	    MBR)
+		## HDD partitioning (BIOS/MBR)
+		parted -s /dev/sda mklabel msdos
+		parted -s -a optimal /dev/sda mkpart primary ext4 0% 100%
+		parted -s /dev/sda set 1 boot on
+		
+		## HDD formating (-F: overwrite if necessary)
+		mkfs.ext4 -F /dev/sda1
 
-    ## HDD formating (-F: overwrite if necessary)
-    mkfs.ext4 -F /dev/sda1
+		## HDD mounting
+		mount /dev/sda1 /mnt
+		break
+		;;
+	    GPT)
+		## HDD partitioning (BIOS/GPT)
+		parted -s /dev/sda mklabel gpt
+		parted -s -a optimal /dev/sda mkpart primary ext2 0% 2MiB
+		parted -s /dev/sda set 1 bios_grub on
+		parted -s -a optimal /dev/sda mkpart primary ext4 2MiB 100%
+		
+		## HDD formating (-F: overwrite if necessary)
+		mkfs.ext4 -F /dev/sda2
+		
+		## HDD mounting
+		mount /dev/sda2 /mnt
+		break
+		;;
+	esac
+    done
+fi
 
-    ## HDD mounting
-    mount /dev/sda1 /mnt
-elif [[ ${partition_table} == "BIOS/GPT" ]]; then
+
+if [[ ${boot_mode} == "UEFI" ]]; then
     ## HDD partitioning (UEFI/GPT)
     parted -s /dev/sda mklabel gpt
-    parted -s -a optimal /dev/sda mkpart primary ext2 0% 2MiB
-    parted -s /dev/sda set 1 bios_grub on
-    parted -s -a optimal /dev/sda mkpart primary ext4 2MiB 100%
-
-    ## HDD formating (-F: overwrite if necessary)
-    mkfs.ext4 -F /dev/sda2
-
-    ## HDD mounting
-    mount /dev/sda2 /mnt
-    mkdir -p /mnt/boot
-    # mount /dev/sda1 /mnt/boot # mount it just before installing GRUB
-elif [[ ${boot_mode} == "UEFI" ]]; then
-    ## HDD partitioning (UEFI/GPT)
-    parted -s /dev/sda mklabel gpt
-    parted -s -a optimal /dev/sda mkpart primary ext2 0% 2MiB
+    parted -s -a optimal /dev/sda mkpart primary 0% 512MiB
     parted -s /dev/sda set 1 esp on
-    parted -s -a optimal /dev/sda mkpart primary ext4 2MiB 100%
+    parted -s -a optimal /dev/sda mkpart primary 512MiB 100%
 
     ## HDD formating (-F: overwrite if necessary)
-    mkfs.fat -F 32 -n ESP /dev/sda2
+    mkfs.fat -F32 /dev/sda1
     mkfs.ext4 -F /dev/sda2
 
     ## HDD mounting
     mount /dev/sda2 /mnt
     mkdir -p /mnt/boot/efi
     mount /dev/sda1 /mnt/boot/efi
+fi
+
+## package required for GRUB to boot in UEFI mode
+if [[ ${boot_mode} == "UEFI" ]]; then
+    pacstrap /mnt efibootmgr	 
 fi
 #+end_src
 
@@ -213,14 +214,70 @@ How we will get there? Covering the next items:
 Important: this text do not cover how-to prepare an installation
 medium like an USB flash drive, but you can find it [[https://wiki.archlinux.org/title/USB_flash_installation_medium][here]].
 
-** How to install Arch Linux by bash scripts: the 5 min version.
+**** Advance disk partitioning: encrypted partitioning with LUKS LVM
+
+After explain some examples of the most standard disk partitioning schemes, it is important to mentioned that disk partitioning can be completely encrypted. This specific item have been very well described [[https://www.rohlix.eu/post/linux-disk-encryption-with-bios-uefi-using-mbr-gpt-luks-lvm-and-grub/][here]].
+
+*** Install essential packages with pacstrap and the keyring update
+
+The first pacstrap that I wrote, looked like this:
+
+#+begin_src bash :results verbatim
+## install system packages (with support for wifi and ethernet)
+pacstrap /mnt base base-devel linux \
+	 zsh sudo vim git wget \
+	 dhcpcd \
+	 networkmanager \
+	 grub os-prober \
+	 xorg-server lightdm lightdm-gtk-greeter \
+	 gnome-terminal terminator cinnamon livecd-sounds \
+	 firefox \
+	 virtualbox-guest-utils
+#+end_src
+
+The problem with this approach is that is not easy to comment the function of each package. I also found an additional problem when the archlinux install image is old enough to prompt an error about gpg keyring. For this reason I started to use a different approach, like this:
+
+#+begin_src bash :results verbatim
+## Important: update package manager keyring before install packages
+pacman -Syy --noconfirm archlinux-keyring
 
 
+## Install System Elementary Packages
+# esential packages
+pacstrap /mnt base base-devel linux
+# code editors
+pacstrap /mnt vim nano
+# system shell	
+pacstrap /mnt zsh
+# system shell additional functions
+pacstrap /mnt pkgfile
+# system tools	
+pacstrap /mnt sudo git wget
+# system tools for file system mounting
+pacstrap /mnt gvfs
+# system backup	
+pacstrap /mnt rsync
+# network package
+pacstrap /mnt dhcpcd
+# wifi package
+pacstrap /mnt networkmanager
+# boot loader	
+pacstrap /mnt grub os-prober
+# boot loader package to boot GRUB if UEFI mode
+[[ ${boot_mode} == "UEFI" ]] && pacstrap /mnt efibootmgr	 
+#+end_src
 
+In the example above the overuse of pacstrap can be abusive, I am agree, but this way it looks more readable and maintainable too. Indeed, it is easy to note that an essential package is missing for Arch Linux installation in any real machine:
 
+#+begin_src bash :results verbatim
+pacstrap /mnt linux-firmware
+#+end_src
 
+# This list what is called "elementary packages", a minimun Arch Linux packages that allow to connect to internet, mount usb drivers, and make the boot loader to recognize other operating systems previously installed, like MS Windows, MacOS or even other Linux present. If you need to mount a HDD formated for MS Windows, you will need also other packages, such as:
 
-
+# #+begin_src bash :results verbatim
+# pacstrap /mnt ntfs-3g 
+# #+end_src
 
 - Pre-installation
 
