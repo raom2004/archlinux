@@ -81,8 +81,9 @@ function aur
   check_internet		
 
   ## check positional argument
-  if [[ $# -eq 0 ]]; then
+  if (( "$#" -eq 0 )); then
     echo "$0 requires an argument, can be an AUR package name or an url"
+    exit 0
   fi
   
   ##  FLASH FLAGS FOR SECURITY AND DEBUGGING
