@@ -31,37 +31,32 @@ But what if you haven't installed Arch Linux before? well you will definitely fi
 
 The most easy version to install Arch Linux by bash commands, requires only 3 scripts:
 
-[[./script1.sh][script1.sh]]
-To perform the critical pre-installation steps, such as:
+- [[./script1.sh][script1.sh]] - To perform the critical pre-installation steps, such as:
   - Disk partitioning, formatting and mounting
   - Package installation with =pacstrap=
 
-[[./script2.sh][script2.sh]] 
-To setup the new Arch Linux system using =arch-chroot=, for:
+- [[./script2.sh][script2.sh]] - To setup the new Arch Linux system using =arch-chroot=, for:
   - Locale config
   - Time
   - Initramfs
   - Accounts and passwords
   - sudo
   - keymap
-  - The preferred shell (e.g. bash or zsh)
+  - Set a preferred shell (e.g. bash or zsh)
   - Install a boot loader 
 
-[[./script3.sh][script3.sh]] 
-A script that run on *first desktop boot*, to:
+- [[./script3.sh][script3.sh]] - A script that run on *first desktop boot*, to:
   - Set user configuration files (also known as =dotfiles=)
   - Set the desktop customizations itself
 
-This approach is the easiest example of how-to install Arch Linux using scripts. It is useful for *test* and *debugging* new install configurations, dotfiles or changes in desktop customization preferably *in a virtual machine*.
+This approach is the easiest example of how-to install Arch Linux using scripts. It is useful for *test* and *debugging* Arch Linux configurations, dotfiles or changes in desktop customization, preferably *in a virtual machine*.
 
 ** Install Arch Linux using scripts: the advance version
 
-As mentioned before a first Arch Linux installation is not easy, but once you understand the process inside a virtual machine, the next natural step is to *install Arch Linux in a Real Machine*. 
-
-In this regard, this chapter covers important aspects related to:
+Once you understand how to install Arch Linux inside a virtual machine, the next natural step is to *install Arch Linux in a Real Machine*. In this regard, this chapter covers important aspects, such as:
 - Disk partitioning BIOS/MBR, BIOS/GPT, UEFI/GPT and their encryption
 - Package install with pacstrap and keyring update
-- Boot loader common mistakes
+- GRUB: booting more than one operative system
 - System backup, user documents backup and system update
 - Security and documents encryption
 
@@ -72,9 +67,9 @@ This chapter cover the most standard disk partitioning schemes using =parted= an
 
 **** BIOS/MBR
 
-In basic terms, Arch Linux as any other linux distro, can be installed and only precise one unique partition, the single root partition "/".
+Arch Linux as any other linux distro only precise one unique partition, the single root partition "/".
 
-The most simple example of BIOS/MBR disk partitioning, is:
+The example of such BIOS/MBR disk partitioning, is:
 
 #+begin_src bash :results verbatim
 ## HDD partitioning (BIOS/MBR)
@@ -91,10 +86,10 @@ mount /dev/sda1 /mnt
 
 **** BIOS/GPT
 
-If you want to make the same but with support for BIOS/GPT, you will need some changes according to the boot loader, which in this case is GRUB:
-- Change the table partitioning from "msdos" (MBR) to "gpt"
-- GPT require a BIOS boot partition
-- Replace the "boot" flag for "bios_grub"
+If you want to support BIOS/GPT, you will need some changes according to the boot loader, which in this case is GRUB:
+- Change the table partitioning from =msdos= to =gpt=
+- GPT require a BIOS boot partition (that don't require to be mounted)
+- Replace the =boot= flag for =bios_grub=
 
 The example of BIOS/GPT partitioning table, is:
 
@@ -110,7 +105,7 @@ mkfs.ext4 -F /dev/sda2
 
 ## HDD mounting
 # BIOS/GPT require space for the partition bios_grub
-# but only require to mount the root partition "/"
+# but such boot partition don't require to be mounted
 mount /dev/sda2 /mnt
 #+end_src
 
@@ -286,7 +281,9 @@ pacstrap /mnt networkmanager
 # boot loader	
 pacstrap /mnt grub os-prober
 # boot loader package to boot GRUB if UEFI mode
-[[ ${boot_mode} == "UEFI" ]] && pacstrap /mnt efibootmgr	 
+if [[ ${boot_mode} == "UEFI" ]]; then
+    pacstrap /mnt efibootmgr
+fi
 #+end_src
 
 In the example above the overuse of pacstrap can be abusive, I am agree, but this way it looks more readable and maintainable too. Indeed, it is easy to note that an essential package is missing for Arch Linux installation in any real machine:
@@ -301,8 +298,20 @@ pacstrap /mnt linux-firmware
 # pacstrap /mnt ntfs-3g 
 # #+end_src
 
-- Pre-installation
+*** Boot loader common mistakes
 
+
+
+*** System backup, user documents backup and system update
+
+
+
+*** Security and documents encryption
+
+
+
+
+- Pre-installation
   * 1.1-1.3 Prepare an installation image (out of the scope)
   * 1.4 Boot the live environment
   * 1.5 Set the console keyboard layout
@@ -315,12 +324,10 @@ pacstrap /mnt linux-firmware
   * 1.11 Mount the file systems
 
 - Installation
-
   * 2.1 Select the mirrors
   * 2.2 Install essential packages
 
 - Configure the system
-
   * 3.1 Fstab
   * 3.2 Chroot
   * 3.3 Time zone

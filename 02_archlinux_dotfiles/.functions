@@ -80,6 +80,11 @@ function aur
   ## run only if internet connection is available
   check_internet		
 
+  ## check positional argument
+  if [[ $# -eq 0 ]]; then
+    echo "$0 requires an argument, can be an AUR package name or an url"
+  fi
+  
   ##  FLASH FLAGS FOR SECURITY AND DEBUGGING
   set -o errexit		# EXIT if script command fails
   set -o xtrace			# trace & expand what gets executed
