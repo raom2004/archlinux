@@ -50,6 +50,10 @@ mkdir /mnt/boot
 mount /dev/sda1 /mnt/boot
 
 
+## Important: update package manager keyring before install packages
+pacman -Syy --noconfirm archlinux-keyring
+
+
 ## install system packages (with support for wifi and ethernet)
 pacstrap /mnt base base-devel linux \
 	 zsh sudo vim git wget \
