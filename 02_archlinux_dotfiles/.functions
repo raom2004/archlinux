@@ -82,7 +82,7 @@ function aur
 
   ## check positional argument
   if (( "$#" -eq 0 )); then
-    echo "$0 requires an argument, can be an AUR package name or an url"
+    echo "$0 requires an argument, can be an aur package NAME or URL"
     exit 0
   fi
   
@@ -104,11 +104,11 @@ function aur
     exit 0
   fi
 
-  ## check if AUR package is allready installed
+  ## check if AUR package is already on system
   package_name="$(basename $1 .git)"
   search_package_in_system="$(pacman -Qm ${package_name})"
   if [[ -n "${search_package_in_system}" ]]; then
-    printf "AUR package %s is allready installed\n" "${package_name}"
+    printf "AUR package %s is already on system\n" "${package_name}"
     sleep 3
     exit 0
   fi

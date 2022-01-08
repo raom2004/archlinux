@@ -4,9 +4,9 @@
 #
 # Summary:
 # * This script contain all the commands required to config
-#   a new arch linux system from inside using arch-chroot.
-# * This script create a script3.dektop autostart app to
-#   run the scrip3.sh on first boot and configure the new desktop 
+#   a new arch linux install and require arch-chroot.
+# * This script also create a script3.desktop autostart app which
+#   run the scrip3.sh on first boot to configure the new desktop 
 
 
 ## show all the command that get executed and exit if anything fails

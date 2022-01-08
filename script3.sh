@@ -16,13 +16,14 @@ set -xe
 # install aur packages without confirmation
 function aur_install {
     folder="$(basename $1 .git)"
-    if [[ ! -n "$(pacman -Qm $folder)" ]]; then 
-	echo "installing AUR package $folder"
-	git clone "$1" /tmp/$folder
-	cd /tmp/$folder
+    if [[ ! -n "$(pacman -Qm ${folder})" ]]; then 
+	echo "installing AUR package ${folder}"
+	git clone "$1" "/tmp/${folder}"
+	cd "/tmp/${folder}"
 	makepkg -sri --noconfirm
 	cd $OLDPWD
     fi
+    unset -v folder
 }
 
 
@@ -31,17 +32,17 @@ sudo pacman -S --needed xdg-user-dirs  --noconfirm
 LC_ALL=C xdg-user-dirs-update --force
 
 
-## ADD ADDITIONAL KEYMAP LAYOUT (e.g. español)
-if [ -z "$(setxkbmap -query  | awk '/us,|,us/{ print $0 } ')" ]; then
+## ADD ADDITIONAL KEYMAP LAYOUT (e.g. Spanish)
+if [[ -z "$(setxkbmap -query  | awk '/us,|,us/{ print $0 } ')" ]]; then
   localectl set-x11-keymap "es,us" pc105
 fi
 
 
 ## ENABLE AUTOLOGIN
 if [ -n "$(grep '#autologin-guest=false' /etc/lightdm/lightdm.conf)" ];then
-    sudo bash -c "sed -i 's/#autologin-guest=false/autologin-guest=false/g;
-             	s/#autologin-user=/autologin-user=$USER/g;
-    	     	s/#autologin-user-timeout=0/autologin-user-timeout=0/g'\
+    sudo bash -c "sed -i 's/\(#\)autologin-guest=false/\1/g;
+             	s/\(#\)autologin-user=/\1$USER/g;
+    	     	s/\(#\)autologin-user-timeout=0/\1/g'\
 		/etc/lightdm/lightdm.conf"
     # add user to autologin
     sudo groupadd -r autologin
@@ -55,8 +56,8 @@ if [ ! -n "$(grep GRUB_FORCE_HIDDEN_MENU /etc/default/grub)" ]; then
 GRUB_FORCE_HIDDEN_MENU=\"true\"
     # GRUB menu is hiden until you press \"shift\"' > /etc/default/grub"
     # add script required for this funtionallity
-    url="https://raw.githubusercontent.com/raom2004/arch/master/desktop-customization/31_hold_shift"
-    sudo wget $url --directory-prefix=/etc/grub.d/ 
+    url="https://gist.githubusercontent.com/anonymous/8eb2019db2e278ba99be/raw/257f15100fd46aeeb8e33a7629b209d0a14b9975/gistfile1.sh"
+    sudo wget "${url}" -O /etc/grub.d/31_hold_shift
     # asign permissions & re-generate bootloader
     sudo chmod a+x /etc/grub.d/31_hold_shift
     sudo grub-mkconfig -o /boot/grub/grub.cfg
@@ -106,21 +107,29 @@ sudo pacman -S --needed --noconfirm \
      ttf-dejavu
 
 # Pacman 
-sudo sed -i 's/#Color/Color/' /etc/pacman.conf
+sudo sed -i 's/\(#\)Color/\1/' /etc/pacman.conf
+
 # Bash
 sudo pacman -S --needed --noconfirm bash-completion
-wget $url --output-document=/$HOME/.bashrc
+url="https://raw.githubusercontent.com/raom2004/archlinux/part/02_archlinux_dotfiles/.bashrc"
+wget "$url" --output-document=/$HOME/.bashrc
+
+# Bash prompt
+url="https://raw.githubusercontent.com/raom2004/archlinux/part/02_archlinux_dotfiles/.bash_prompt"
+wget "$url" --output-document=/$HOME/.bash_prompt
 
 # Zsh
-sudo rm -rf /$HOME/.zshrc
-wget $url --output-document=/$HOME/.zshrc
-
+[[ -f "/$HOME/.zshrc" ]] && sudo mv /$HOME/.zshrc /$HOME/.zshrc_backup
+url="https://raw.githubusercontent.com/raom2004/archlinux/part/02_archlinux_dotfiles/.zshrc"
+wget "$url" --output-document=/$HOME/.zshrc
+unset -v url
 
 ## CONFIGURE SOUND
 sudo pacman -S --needed --noconfirm \
      pulsemixer \
      sound-theme-freedesktop \
      deepin-sound-theme
+
 # Set Sounds (require deepin sounds package)
 if [[ -n "$(ls /usr/share/sounds/deepin)" ]]; then
     gsettings set org.cinnamon.desktop.sound event-sounds true
@@ -150,7 +159,7 @@ if [[ -n "$(ls /usr/share/sounds/deepin)" ]]; then
 fi
 
 
-## turn on audio (it is off by default)
+## turn on audio (because its off by default)
 pactl set-sink-mute 0 0
 pactl -- set-sink-volume 0 50%
 

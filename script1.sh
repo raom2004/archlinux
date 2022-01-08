@@ -3,10 +3,10 @@
 # ./script1.sh is a script to install Arch Linux amd configure a desktop
 #
 # Summary:
-# * This script contain all the commands required to prepare a new system
-#   to install Arch Linux.
+# * This script contain all the commands required to prepare a system
+#   for a new Arch Linux installation.
 # * This script also call the script2.sh to execute all the commands
-#   that must be run inside the new system, by arch-chroot.
+#   that must be run inside the new Arch Linux install, by arch-chroot.
 
 
 ## show what get executed and exit if any command fails
@@ -29,70 +29,25 @@ export user_password
 timedatectl set-ntp true
 
 
-# BIOS and UEFI support
-if ! ls /sys/firmware/efi/efivars >& /dev/null; then
-    boot_mode="BIOS"
-else
-    boot_mode="UEFI"
-fi
+## HDD partition (BIOS/MBR)
+parted -s /dev/sda \
+       mklabel msdos \
+       mkpart primary ext2 0% 2% \
+       set 1 boot on \
+       mkpart primary ext4 2% 100%
 
 
-if [[ ${boot_mode} == "BIOS" ]]; then
-    printf "BIOS detected! you can select a GPT or MBR partition table:\n"
-    select OPTION in MBR GPT; do
-	case ${OPTION} in
-	    MBR)
-		## HDD partitioning (BIOS/MBR)
-		parted -s /dev/sda mklabel msdos
-		parted -s -a optimal /dev/sda mkpart primary ext4 0% 100%
-		parted -s /dev/sda set 1 boot on
-		
-		## HDD formating (-F: overwrite if necessary)
-		mkfs.ext4 -F /dev/sda1
-
-		## HDD mounting
-		mount /dev/sda1 /mnt
-		break
-		;;
-	    GPT)
-		## HDD partitioning (BIOS/GPT)
-		parted -s /dev/sda mklabel gpt
-		parted -s -a optimal /dev/sda mkpart primary ext2 0% 2MiB
-		parted -s /dev/sda set 1 bios_grub on
-		parted -s -a optimal /dev/sda mkpart primary ext4 2MiB 100%
-		
-		## HDD formating (-F: overwrite if necessary)
-		mkfs.ext4 -F /dev/sda2
-		
-		## HDD mounting
-		mount /dev/sda2 /mnt
-		break
-		;;
-	esac
-    done
-fi
+## HDD formating
+mkfs.ext2 /dev/sda1
+mkfs.ext4 /dev/sda2
 
 
-if [[ ${boot_mode} == "UEFI" ]]; then
-    ## HDD partitioning (UEFI/GPT)
-    parted -s /dev/sda mklabel gpt
-    parted -s -a optimal /dev/sda mkpart primary 0% 512MiB
-    parted -s /dev/sda set 1 esp on
-    parted -s -a optimal /dev/sda mkpart primary 512MiB 100%
-
-    ## HDD formating (-F: overwrite if necessary)
-    mkfs.fat -F32 /dev/sda1
-    mkfs.ext4 -F /dev/sda2
-
-    ## HDD mounting
-    mount /dev/sda2 /mnt
-    mkdir -p /mnt/boot/efi
-    mount /dev/sda1 /mnt/boot/efi
-fi
-
-
-## Important: update package manager keyring before install packages
-pacman -Syy --noconfirm archlinux-keyring
+## HDD partitioning mounting
+# root partition "/"
+mount /dev/sda2 /mnt
+# boot partition "/boot"
+mkdir /mnt/boot
+mount /dev/sda1 /mnt/boot
 
 
 ## install system packages (with support for wifi and ethernet)
@@ -105,13 +60,8 @@ pacstrap /mnt base base-devel linux \
 	 gnome-terminal terminator cinnamon livecd-sounds \
 	 firefox \
 	 virtualbox-guest-utils
-
-
-## package required for GRUB to boot UEFI
-if [[ ${boot_mode} == "UEFI" ]]; then
-    pacstrap /mnt efibootmgr	 
-fi
-
+	 
+	 
 
 ## generate file system table
 genfstab -L /mnt >> /mnt/etc/fstab
