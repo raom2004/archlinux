@@ -10,9 +10,10 @@
 * Arch Linux: automating installation scripts
 
 ** Content
+ #+begin_quote
  - [[Intro]]
    - [[Who may read this repository?]]
- - [[Arch Linux: automated installation scripts]]
+ - [[Arch Linux\: automated installation scripts]]
  - [[Improving the automated installation scripts]]
    - [[Disk partitioning BIOS/MBR, BIOS/GPT, UEFI/GPT and their encryption]]
    - [[BIOS/MBR]]
@@ -24,6 +25,7 @@
  - [[TODO User data encryption]]
  - [[TODO System backup, user documents backup and system update]]
  - [[TODO Security and documents encryption]]
+ #+end_quote
 
 
 ** Intro
