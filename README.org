@@ -21,7 +21,7 @@
 
 Arch Linux philosophy encourage users to select packages that fulfill their unique needs, obtaining a powerful and lightweight system, easy to manage. However, the installation process, configuration and debugging, can be challenging for beginners, specially when the documentation have not been extensively read.
 
-For this reason, this repository summarizes the tips and recommendations to *automate Arch Linux installation* using bash scripts, based in the official documentation and information available on internet.
+For this reason, this repository summarizes the tips and recommendations to *automate Arch Linux installation* using scripts based in the official documentation and Arch Linux forums.
 
 ** Who may read this repository?
 
