@@ -9,6 +9,23 @@
 
 * Arch Linux: automating installation scripts
 
+** Content
+ - [[Intro]]
+   - [[Who may read this repository?]]
+ - [[Arch Linux: automated installation scripts]]
+ - [[Improving the automated installation scripts]]
+   - [[Disk partitioning BIOS/MBR, BIOS/GPT, UEFI/GPT and their encryption]]
+   - [[BIOS/MBR]]
+   - [[BIOS/GPT]]
+   - [[UEFI/GPT]]
+   - [[Disk partitioning, all together: BIOS/MBR, BIOS/GPT and UEFI/GPT]]
+   - [[Advance disk partitioning: encrypted partitioning with LUKS LVM]]
+ - [[Packages installing with pacstrap and the importance of keyring update]]
+ - [[TODO User data encryption]]
+ - [[TODO System backup, user documents backup and system update]]
+ - [[TODO Security and documents encryption]]
+
+
 ** Intro
 
 *Arch Linux* is a minimalist and flexible Linux distribution which excellent documentation and high-quality packages that *allow users to design a highly customized system*. A philosophy *opposite to Linux beginner-friendly distributions* which provides a pre-configured system with packages that are unnecessary or *designed for user data collection* (e.g. Ubuntu and Canonical's commercial nature).
@@ -23,7 +40,7 @@ Arch Linux philosophy encourage users to select packages that fulfill their uniq
 
 For this reason, this repository summarizes the tips and recommendations to *automate Arch Linux installation* using scripts based in the official documentation and Arch Linux forums.
 
-** Who may read this repository?
+*** Who may read this repository?
 
 Have installed Arch Linux before?, do you want to simplify this process putting your code inside scripts but you are not sure how to do it? well, this repo contains all you need to achieve it!
 
@@ -69,7 +86,7 @@ This chapter cover the most standard disk partitioning schemes using =parted= an
 
 **** BIOS/MBR
 
-Arch Linux as any other linux distro only precise one unique partition, the single root partition "/".
+Arch Linux, as any other linux distro, only precise one unique partition, the single root partition =/=.
 
 The example of such BIOS/MBR disk partitioning, is:
 
@@ -115,8 +132,8 @@ mount /dev/sda2 /mnt
 
 The UEFI/GPT partition table is similar to the previous, with just few modifications:
 - Create a boot partition with fat32 as the file system type
-- Replace the "bios_grub" flag for "esp"
-- Install package "efibootmbr" with pacstrap
+- Replace the =bios_grub= flag for =esp=
+- Install package =efibootmbr= with pacstrap
 
 The example of UEFI/GPT partitioning table, is:
 
@@ -146,7 +163,7 @@ fi
 
 **** Disk partitioning, all together: BIOS/MBR, BIOS/GPT and UEFI/GPT
 
-What happen when we want to support the options mentioned?. Well, Arch Linux can detect if have booted from BIOS or UEFI, which can be quite useful to make a conditional like this:
+What happen when we want to support the options mentioned?. Well, Arch Linux can detect if have booted from =BIOS= or =UEFI=, which can be quite useful to make a conditional like this:
 
 #+begin_src bash :results verbatim
 # BIOS and UEFI support
@@ -217,21 +234,21 @@ fi
 #+end_src
 
 
-The objective: 
+# The objective: 
 
-Install an Arch Linux system configuring dotfiles and desktop by bash scripts. 
+# Install an Arch Linux system configuring dotfiles and desktop by bash scripts. 
 
 # This text include how-to install Arch Linux in internal drive, but also in USB external removable media, called also USB persistent installation.
 
-How we will get there? Covering the next items:
+# How we will get there? Covering the next items:
 
-- Pre-installation, steps to prepare the new system
-- Installation, selecting the most relevant packages
-- Configuration, from file system table to boot loader config
-- Post-installation, using dotfiles and a lightweight desktop (xfce)
+# - Pre-installation, steps to prepare the new system
+# - Installation, selecting the most relevant packages
+# - Configuration, from file system table to boot loader config
+# - Post-installation, using dotfiles and a lightweight desktop (xfce)
 
-Important: this text do not cover how-to prepare an installation
-medium like an USB flash drive, but you can find it [[https://wiki.archlinux.org/title/USB_flash_installation_medium][here]].
+# Important: this text do not cover how-to prepare an installation
+# medium like an USB flash drive, but you can find it [[https://wiki.archlinux.org/title/USB_flash_installation_medium][here]].
 
 **** Advance disk partitioning: encrypted partitioning with LUKS LVM
 
