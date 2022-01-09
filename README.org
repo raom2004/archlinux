@@ -33,21 +33,18 @@ But what if you haven't installed Arch Linux before? well you will definitely fi
 
 The easiest version to install Arch Linux by shell commands, requires only 3 scripts:
 
-- [[./script1.sh][script1.sh]] - To perform the critical pre-installation steps, such as:
-  - Disk partitioning, formatting and mounting
+- [[./script1.sh][script1.sh]] - perform the critical pre-installation steps, such as:
+  - Disk partitioning and formatting =parted=, in addition to mounting
   - Package installation with =pacstrap=
 
-- [[./script2.sh][script2.sh]] - To setup the new Arch Linux system using =arch-chroot=, for:
-  - Locale config
-  - Time
-  - Initramfs
-  - Accounts and passwords
-  - sudo
+- [[./script2.sh][script2.sh]] - setup the new Arch Linux system using =chroot=, for:
+  - Locale config, datetime and initramfs
+  - User accounts configuration, passwords and permissions, including =sudo=
   - keymap
-  - Set a preferred shell (e.g. bash, zsh, etc)
-  - Install a boot loader 
+  - Set a preferred shell, like =bash=, =zsh= or other
+  - Install a boot loader =grub=
 
-- [[./script3.sh][script3.sh]] - A script that run on *first desktop boot*, to:
+- [[./script3.sh][script3.sh]] - is a script that will run on *first desktop boot*, able to:
   - Set user configuration files (also known as =dotfiles=)
   - Set the desktop customizations itself
 
@@ -55,9 +52,9 @@ IMHO, this approach is the easiest example of how-to install Arch Linux using sc
 
 ** Improving the automated installation scripts
 
-Once you understand how to install Arch Linux inside a virtual machine, the next natural step is to *install Arch Linux in a Real Machine*. During such process, the scripts must be adapted to the target system, specially the table disk partitioning, hardware, encryption, booting support for preexistent operative systems, user data encryption and the most relevant aspects in Arch Linux, backup an maintenance. 
+Once you understand how to install Arch Linux inside a virtual machine, the next natural step is to *install Arch Linux in a Real Machine*. During such process, some relevant aspects must need to be addressed, like disk partitioning table according to hardware requirements, booting support for preexistent operative systems, system encryption, user data encryption, and the most relevant aspects in Arch Linux, backup an maintenance. 
 
-In this regard, this chapter covers important aspects, such as:
+In this regard, this chapter covers some of the aspects mentioned, such as:
 - Disk partitioning BIOS/MBR, BIOS/GPT, UEFI/GPT and their encryption
 - Package installing with pacstrap and the importance of keyring update
 - User data encryption
