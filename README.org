@@ -34,21 +34,22 @@ But what if you haven't installed Arch Linux before? well you will definitely fi
 The easiest version to install Arch Linux by shell commands, requires only 3 scripts:
 
 - [[./script1.sh][script1.sh]] - perform the critical pre-installation steps, such as:
-  - Disk partitioning and formatting =parted=, in addition to mounting
+  - Disk partitioning and formatting with =parted=, as well as partition mounting
   - Package installation with =pacstrap=
 
 - [[./script2.sh][script2.sh]] - setup the new Arch Linux system using =chroot=, for:
-  - Locale config, datetime and initramfs
-  - User accounts configuration, passwords and permissions, including =sudo=
+  - Config locale and datetime
+  - create the initial ram filesystem =initramfs=
+  - Config User accounts, passwords and permissions, including =sudo=
   - keymap
-  - Set a preferred shell, like =bash=, =zsh= or other
+  - Set a preferred shell, like =bash= or =zsh=
   - Install a boot loader =grub=
 
 - [[./script3.sh][script3.sh]] - is a script that will run on *first desktop boot*, able to:
   - Set user configuration files (also known as =dotfiles=)
   - Set the desktop customizations itself
 
-IMHO, this approach is the easiest example of how-to install Arch Linux using scripts. It is useful for *test* and *debugging* Arch Linux configurations, dotfiles or changes in desktop customization, preferably *in a virtual machine*.
+IMHO, this approach is the easiest example of how-to install Arch Linux using scripts. It is useful for *test* and *debugging* new Arch Linux configurations, dotfiles or desktop customizations, preferably *in a virtual machine*.
 
 ** Improving the automated installation scripts
 
