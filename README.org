@@ -7,9 +7,11 @@
 #+language: en
 #+creator: Emacs 27.2 (Org mode 9.3.7)
 
-* Arch Linux 
+* Arch Linux: automating installation scripts
 
-Arch Linux is a minimalist and flexible Linux distribution, which excellent documentation and high-quality packages that allow users to design a highly customized system. A philosophy opposite to Linux beginner-friendly distributions which provides a pre-configured system with packages that can be unnecessary, or *designed for user data collection* (e.g. Ubuntu and Canonical's commercial nature).
+** Intro
+
+Arch Linux is a minimalist and flexible Linux distribution which excellent documentation and high-quality packages allow users to design a highly customized system. A philosophy opposite to Linux beginner-friendly distributions which provides a pre-configured system with packages that are unnecessary or *designed for user data collection* (e.g. Ubuntu and Canonical's commercial nature).
 
 #+HTML:<div align=center>
 #+CAPTION: archlinux-Ubuntu/Canonical
@@ -17,19 +19,19 @@ Arch Linux is a minimalist and flexible Linux distribution, which excellent docu
 [[./images/arch-linux-vs-ubuntu.png]]
 #+HTML:</div>
 
-Arch Linux philosophy encourage users to select packages that fits their unique needs, obtaining a lightweight powerful system, easy to manage. However, the installation process, configuration and debugging, can be challenging for beginners, specially when the documentation have not being extensively read.
+Arch Linux philosophy encourage users to select packages that fulfill their unique needs, obtaining a powerful and lightweight system, easy to manage. However, the installation process, configuration and debugging, can be challenging for beginners, specially when the documentation have not being extensively read.
 
-For this reason, *this repository summarizes the tips and recommendations to install and customize Arch Linux systems using bash scripts*, based in the official documentation and the actual information available on internet.
+For this reason, this repository summarizes the tips and recommendations to *automate Arch Linux installation* using bash scripts, based in the official documentation and information available on internet.
 
 ** Who may read this repository?
 
-If you have installed Arch Linux before, congratulations because is not an easy process! But what now? well, you can repeat the process this time understanding how to put your code adequately in bash scripts, in such case, this repository is definitely for you!
+Have installed Arch Linux before?, do you want to simplify this process putting your code inside scripts but you are not sure how to do it? well, this repo contains all you need to achieve it!
 
 But what if you haven't installed Arch Linux before? well you will definitely find this repository useful because it allows you to have a look over the commands required to install and configure Arch Linux.
 
-** Install Arch Linux using scripts: the easy version
+** Arch Linux: automated installation scripts
 
-The most easy version to install Arch Linux by bash commands, requires only 3 scripts:
+The easiest version to install Arch Linux by shell commands, requires only 3 scripts:
 
 - [[./script1.sh][script1.sh]] - To perform the critical pre-installation steps, such as:
   - Disk partitioning, formatting and mounting
@@ -42,23 +44,25 @@ The most easy version to install Arch Linux by bash commands, requires only 3 sc
   - Accounts and passwords
   - sudo
   - keymap
-  - Set a preferred shell (e.g. bash or zsh)
+  - Set a preferred shell (e.g. bash, zsh, etc)
   - Install a boot loader 
 
 - [[./script3.sh][script3.sh]] - A script that run on *first desktop boot*, to:
   - Set user configuration files (also known as =dotfiles=)
   - Set the desktop customizations itself
 
-This approach is the easiest example of how-to install Arch Linux using scripts. It is useful for *test* and *debugging* Arch Linux configurations, dotfiles or changes in desktop customization, preferably *in a virtual machine*.
+IMHO, this approach is the easiest example of how-to install Arch Linux using scripts. It is useful for *test* and *debugging* Arch Linux configurations, dotfiles or changes in desktop customization, preferably *in a virtual machine*.
 
-** Install Arch Linux using scripts: the advance version
+** Improving the automated installation scripts
 
-Once you understand how to install Arch Linux inside a virtual machine, the next natural step is to *install Arch Linux in a Real Machine*. In this regard, this chapter covers important aspects, such as:
+Once you understand how to install Arch Linux inside a virtual machine, the next natural step is to *install Arch Linux in a Real Machine*. During such process, the scripts must be adapted to the target system, specially the table disk partitioning, hardware, encryption, booting support for preexistent operative systems, user data encryption and the most relevant aspects in Arch Linux, backup an maintenance. 
+
+In this regard, this chapter covers important aspects, such as:
 - Disk partitioning BIOS/MBR, BIOS/GPT, UEFI/GPT and their encryption
-- Package install with pacstrap and keyring update
-- GRUB: booting more than one operative system
-- System backup, user documents backup and system update
-- Security and documents encryption
+- Package installing with pacstrap and the importance of keyring update
+- User data encryption
+- How to backup the entire system, and make it bootable too
+- Arch Linux maintenance: maint
 
 
 *** Disk partitioning BIOS/MBR, BIOS/GPT, UEFI/GPT and their encryption
@@ -235,7 +239,7 @@ medium like an USB flash drive, but you can find it [[https://wiki.archlinux.org
 
 After explain some examples of the most standard disk partitioning schemes, it is important to mentioned that disk partitioning can be completely encrypted. This specific item have been very well described [[https://www.rohlix.eu/post/linux-disk-encryption-with-bios-uefi-using-mbr-gpt-luks-lvm-and-grub/][here]].
 
-*** Install essential packages with pacstrap and the keyring update
+*** Packages installing with pacstrap and the importance of keyring update
 
 The first pacstrap that I wrote, looked like this:
 
@@ -298,74 +302,9 @@ pacstrap /mnt linux-firmware
 # pacstrap /mnt ntfs-3g 
 # #+end_src
 
-*** Boot loader common mistakes
+*** TODO User data encryption
 
+*** TODO System backup, user documents backup and system update
 
+*** TODO Security and documents encryption
 
-*** System backup, user documents backup and system update
-
-
-
-*** Security and documents encryption
-
-
-
-
-- Pre-installation
-  * 1.1-1.3 Prepare an installation image (out of the scope)
-  * 1.4 Boot the live environment
-  * 1.5 Set the console keyboard layout
-  * 1.6 Verify the boot mode
-  * 1.7 Connect to the internet
-  * 1.8 Update the system clock
-  * 1.9 Partition the disks
-    * 1.9.1 Example layouts
-  * 1.10 Format the partitions
-  * 1.11 Mount the file systems
-
-- Installation
-  * 2.1 Select the mirrors
-  * 2.2 Install essential packages
-
-- Configure the system
-  * 3.1 Fstab
-  * 3.2 Chroot
-  * 3.3 Time zone
-  * 3.4 Localization
-  * 3.5 Network configuration
-  * 3.6 Initramfs
-  * 3.7 Root password
-  * 3.8 Boot loader
-
-- Reboot
-- Post-installation
-
-
-# ** Why Arch Linux instead of many other Linux distritutions 
-
-# The answer is simply, reproducibility and sharing!. But please, let me explain why:
-
-# As a researcher, the scientific activity involves making scientific
-# methods, data and outcomes available for everyone. Make science open
-# and reproducible allow other scientist to replicate and adapt such
-# methods to their own needs, contributions that summarized can be
-# translated into a collaborative global progress.
-
-# This contributive philosophy is also present in the open source
-# operating system Linux, which source code is easily available for
-# everyone. Anyone capable of coding can contribute, modify, enhance and
-# distribute the code to anyone and for any purpose, with hundreds of distributions available.
-
-# Linux beginner-friendly distributions provides a pre-configured system
-# with packages that can be unnecessary, or designed for user data
-# collection (e.g. Ubuntu and Canonical's commercial nature). On the
-# other hand, Arch Linux offer a different and more functional approach.
-
-# Arch Linux system can customize to fit specific needs, avoiding
-# packages that can compromise sensitive data. Due to its minimalist
-# design, an Arch Linux system can be easily reproduced and distributed
-# to other users, by building an USB/CD ISO image or installed as a
-# persistent live USB drive. Arch Linux require less space and memory
-# resources than beginner-friendly distributions, facilitating to
-# migrate a running Arch Linux to another machine, a KVM instance or a
-# VirtualBox machine.

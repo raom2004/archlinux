@@ -71,12 +71,12 @@ pacstrap /mnt base base-devel linux \
 genfstab -L /mnt >> /mnt/etc/fstab
 
 
-## Run comands of script2.sh inside new system with arch-chroot 
+## scripting inside chroot from outside: script2.sh
 # copy script2.sh to new system
 cp ./script2.sh /mnt/home
-# run script2.sh
+# run script2.sh commands inside chroot
 arch-chroot /mnt bash /home/script2.sh
-# remove script2.sh in the end
+# remove script2.sh after completed
 rm /mnt/home/script2.sh
 
 
