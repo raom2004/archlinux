@@ -16,7 +16,7 @@
 #+HTML:<div align=center>
 #+CAPTION: archlinux-Ubuntu/Canonical
 #+NAME: Fig. 1
-[[./images/arch-linux-vs-ubuntu.png]]
+[[./.images/arch-linux-vs-ubuntu.png]]
 #+HTML:</div>
 
 Arch Linux philosophy encourage users to select packages that fulfill their unique needs, obtaining an incredibly powerful and lightweight system, easy to manage. However, the installation process, configuration and debugging, can be challenging for beginners, specially when the documentation have not been extensively read.
