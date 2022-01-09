@@ -11,7 +11,7 @@
 
 ** Intro
 
-Arch Linux is a minimalist and flexible Linux distribution which excellent documentation and high-quality packages allow users to design a highly customized system. A philosophy opposite to Linux beginner-friendly distributions which provides a pre-configured system with packages that are unnecessary or *designed for user data collection* (e.g. Ubuntu and Canonical's commercial nature).
+*Arch Linux* is a minimalist and flexible Linux distribution which excellent documentation and high-quality packages that *allow users to design a highly customized system*. A philosophy opposite to *Linux beginner-friendly distributions* which provides a pre-configured system with packages that are unnecessary or *designed for user data collection* (e.g. Ubuntu and Canonical's commercial nature).
 
 #+HTML:<div align=center>
 #+CAPTION: archlinux-Ubuntu/Canonical
