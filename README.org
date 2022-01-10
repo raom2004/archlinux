@@ -44,9 +44,11 @@ In both cases, this repository is definitely for you!
 The most easy example to automatize the Arch Linux install, consist in 3 scripts for specific tasks.
 
 **** The [[./script1.sh][script1.sh]] performs the critical pre-installation steps, such as:
+  #+begin_quote
   - Disk partitioning and formatting with =parted=
   - partitions mounting
   - Package installation with =pacstrap=
+  #+end_quote
 
 **** The [[./script2.sh][script2.sh]] setup the new Arch Linux system using =chroot=, to configure:
   - Locale and datetime
