@@ -17,14 +17,14 @@ Arch Linux is a minimalist and flexible Linux distribution which excellent docum
 [[./.images/arch-linux-vs-ubuntu.png]]
 #+HTML:</div>
 
-Arch Linux philosophy encourage users to install packages that fulfill their unique needs, obtaining an incredibly powerful and lightweight system, easy to manage. However, the installation and configuration process can be challenging for beginners, specially when the documentation have not been extensively read. On the other hand, once a user have completed such process, it can be a little painful to reintroduce all the commands to achieve an Arch Linux installation.
+Arch Linux philosophy encourage users to install packages that fulfill their unique needs, obtaining an incredibly powerful and lightweight system, easy to manage. However, the installation and configuration process can be challenging for beginners, specially when the documentation have not been extensively read. But what to do once a user had completed such process?
 
-For the above mentioned, *this repository* summarizes tips and recommendations to *automate Arch Linux installation using scripts*, based in the official documentation and Arch Linux forums.
+Well, *you can automatize the Arch Linux installation using the scripts described in this repository*, which summarizes tips and recommendations found it in the official documentation and Arch Linux forums.
 
-Who may read this repository:
-- If you have installed Arch Linux before and now want to automate the process using scripts! well, this repository is for you!
+Who may read this repository?
+- If you had installed Arch Linux before and now want to automate the process using scripts! well, this repository is for you!
 
-- If you haven't installed Arch Linux before but definitely wants to have a look over the commands required to install and configure Arch Linux, this repository is also for you!
+- If you hadn't installed Arch Linux before but definitely wants to have a look over the commands required to configure Arch Linux, this repository is also for you!
 
 ** Content
  #+begin_quote
