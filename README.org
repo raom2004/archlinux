@@ -47,9 +47,7 @@ In both cases, this repository is definitely for you!
 
 The easiest version to install Arch Linux, requires only 3 scripts:
 
-*** [[./script1.sh][script1.sh]]
-
-Which perform the critical pre-installation steps, such as:
+**** [[./script1.sh][script1.sh]] performs the critical pre-installation steps, such as:
   - Disk partitioning and formatting with =parted=
   - partitions mounting
   - Package installation with =pacstrap=
