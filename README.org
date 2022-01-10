@@ -264,7 +264,7 @@ pacstrap /mnt base base-devel linux \
 	 virtualbox-guest-utils
 #+end_src
 
-The problem with this approach is that is not easy to comment the function of each package. I also found an additional problem when the archlinux install image is old enough to prompt an error about gpg keyring. For this reason I started to use a different approach, like this:
+The problem with this approach is the difficulty to add comments about the purpose of each package. I also found an additional problem when the archlinux install image is old enough to prompt an error about gpg keyring. For this reason I started to use a different approach, like this:
 
 #+begin_src bash :results verbatim
 ## Important: update package manager to avoid gpg keyrong errors
