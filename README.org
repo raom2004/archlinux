@@ -275,8 +275,8 @@ For the previously mentioned, I started to use a different approach, like this:
 ## Update package manager to avoid gpg keyring errors during install
 pacman -Syy --noconfirm archlinux-keyring
 
-## Install System Elementary Packages
-# Arch Linux esential packages
+## Install Arch Linux Packages:
+# esential packages
 pacstrap /mnt base base-devel linux
 # code editors
 pacstrap /mnt vim nano
