@@ -35,13 +35,11 @@ In both cases, this repository is definitely for you!
 ** Content
  #+begin_quote
  - [[Arch Linux - automated installation scripts - an easy example]]
+   - [[script1.sh]]
+   - [[script2.sh]]
+   - [[script3.sh]]
  - [[Improving the automated installation scripts]]
    - [[Disk partitioning BIOS/MBR, BIOS/GPT, UEFI/GPT and their encryption]]
-     - [[BIOS/MBR]]
-     - [[BIOS/GPT]]
-     - [[UEFI/GPT]]
-     - [[Disk partitioning, all together - BIOS/MBR, BIOS/GPT and UEFI/GPT]]
-     - [[Advance disk partitioning - encrypted partitioning with LUKS LVM]]
    - [[Packages installing with pacstrap and the importance of keyring update]]
    - [[TODO User data encryption]]
    - [[TODO System backup, user documents backup and system update]]
