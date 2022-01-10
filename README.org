@@ -23,9 +23,9 @@ Well, *you can automatize the Arch Linux installation using the scripts describe
 
 Who may read this repository:
 
- - Everyone who has installed Arch Linux before and want to automate the process using scripts? this repository is for you!
+ - Everyone who has installed Arch Linux before and wants to automatize the process using scripts? this repository is for you!
 
- - Everyone who hadn't installed Arch Linux before but definitely wants to have a look over the commands required? this repository is also for you!
+ - Everyone who has not installed Arch Linux before but definitely wants to have a look over the commands required? this repository is also for you!
 
 ** Content
  #+begin_quote
