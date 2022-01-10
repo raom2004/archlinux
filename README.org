@@ -90,7 +90,7 @@ This chapter cover the most standard disk partitioning tables using =parted= and
 
 Arch Linux, as any other linux distro, only precise one unique partition, the single root partition =/=.
 
-The example of such BIOS/MBR disk partitioning, is:
+The example of BIOS/MBR disk partitioning table, is:
 
 #+begin_src bash :results verbatim
 ## HDD partitioning (BIOS/MBR)
@@ -107,14 +107,14 @@ mount /dev/sda1 /mnt
 
 *** BIOS/GPT
 
-If you want to support BIOS/GPT, you will need some changes according to the boot loader, which in this case is GRUB:
+Contrary to BIOS/MBR, a BIOS/GPT disk partitioning table, requires:
 #+begin_quote
-- Change the table partitioning from =msdos= to =gpt=
-- GPT require a BIOS boot partition (that don't require to be mounted)
-- Replace the =boot= flag for =bios_grub=
+- A table partitioning =gpt= instead of =msdos="
+- A BIOS boot partition (which do not require to be mounted)
+- The flag =bios_grub= instead of =boot=
 #+end_quote
 
-The example of BIOS/GPT partitioning table, is:
+The example of BIOS/GPT disk partitioning table, is:
 
 #+begin_src bash :results verbatim
 ## HDD partitioning (BIOS/GPT)
@@ -134,14 +134,14 @@ mount /dev/sda2 /mnt
 
 *** UEFI/GPT
 
-The UEFI/GPT partition table is similar to the previous, with just few modifications:
+The UEFI/GPT partition table is similar to the previous, with few modifications:
 #+begin_quote
-- Create a boot partition with fat32 as the file system type
-- Replace the =bios_grub= flag for =esp=
-- Install package =efibootmbr= with pacstrap
+- A boot partition with =fat32= as the file system type
+- The flag =esp= instead of =bios_grub=
+- Install the =efibootmbr= package
 #+end_quote
 
-The example of UEFI/GPT partitioning table, is:
+The example of UEFI/GPT disk partitioning table, is:
 
 #+begin_src bash :results verbatim
 ## HDD partitioning (UEFI/GPT)
@@ -161,7 +161,7 @@ mount /dev/sda1 /mnt/boot/efi
 #+end_src
 
 #+begin_src bash :results verbatim
-## package required for GRUB to boot in UEFI mode
+## install package required for GRUB to boot in UEFI mode
 if [[ ${boot_mode} == "UEFI" ]]; then
     pacstrap /mnt efibootmgr	 
 fi
