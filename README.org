@@ -169,7 +169,7 @@ fi
 
 *** Disk partitioning, all together
 
-What happen when we want to support the options mentioned? In such case Arch Linux can detect if it has booted from =BIOS= or =UEFI=, which can be quite useful to make a conditional like this:
+What happen when we want to support the options mentioned? In such case, Arch Linux can detect if it has booted from =BIOS= or =UEFI=, which can be quite useful to make a conditional like this:
 
 #+begin_src bash :results verbatim
 # BIOS and UEFI support
