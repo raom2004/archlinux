@@ -43,7 +43,7 @@ In both cases, this repository is definitely for you!
 
 ** Arch Linux - automated installation scripts - an easy example
 
-The most easy example to automatize the Arch Linux install, requires 3 scripts with very well defined tasks:
+The most easy example to automatize the Arch Linux install, requires almost 3 scripts for specific tasks.
 
 **** The [[./script1.sh][script1.sh]] performs the critical pre-installation steps, such as:
   - Disk partitioning and formatting with =parted=
