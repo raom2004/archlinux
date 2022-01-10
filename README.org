@@ -50,7 +50,7 @@ In both cases, this repository is definitely for you!
 
 The easiest version to install Arch Linux, requires only 3 scripts:
 
-*** script 1 
+*** script 1
 file: [[./script1.sh][script1.sh]]
 
 Which perform the critical pre-installation steps, such as:
