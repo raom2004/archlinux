@@ -19,12 +19,13 @@ Arch Linux is a minimalist and flexible Linux distribution which excellent docum
 
 Arch Linux philosophy encourage users to install packages that fulfill their unique needs, obtaining an incredibly powerful and lightweight system, easy to manage. However, the installation and configuration process can be challenging for beginners, specially when the documentation have not been extensively read. But what to do once a user had completed such process?
 
-Well, *you can automatize the Arch Linux installation using the scripts described in this repository*, which summarizes tips and recommendations found it in the official documentation and Arch Linux forums.
+Well, *you can automatize the Arch Linux installation using the scripts described in this repository*, with tips and recommendations found in the official documentation and Arch Linux forums.
 
-Who may read this repository?
-- If you had installed Arch Linux before and now want to automate the process using scripts! well, this repository is for you!
+- Who may read this repository
 
-- If you hadn't installed Arch Linux before but definitely wants to have a look over the commands required to configure Arch Linux, this repository is also for you!
+  - Had installed Arch Linux before and want to automate the process using scripts? Well, this repository is for you!
+
+  - Hadn't you installed Arch Linux before but definitely wants to have a look over the commands required? this repository is also for you!
 
 ** Content
  #+begin_quote
@@ -44,41 +45,41 @@ Who may read this repository?
 
 ** Arch Linux - automated installation scripts - easy example
 
-The easiest version to install Arch Linux by shell commands, requires only 3 scripts:
+The easiest version to install Arch Linux, requires only 3 scripts:
 
 - [[./script1.sh][script1.sh]] - which perform the critical pre-installation steps, such as:
   - Disk partitioning and formatting with =parted=, as well as partition mounting
   - Package installation with =pacstrap=
 
-- [[./script2.sh][script2.sh]] - which setup the new Arch Linux system using =chroot=, to config:
+- [[./script2.sh][script2.sh]] - which setup the new Arch Linux system using =chroot=, to configure:
   - Locale and datetime
-  - The keymap of the keyboard
-  - the preferred shell, like =bash= or =zsh=
-  - the initial ram filesystem =initramfs=
+  - The keyboard keymap
+  - The preferred shell, like =bash= or =zsh=
+  - the initial ram filesystem, =initramfs=
   - User accounts, passwords and permissions, including =sudo=
-  - the installation of the boot loader =grub=
+  - The installation of the boot loader =grub=
 
 - [[./script3.sh][script3.sh]] - which will run on *first desktop boot*, to setup:
   - The user configuration files (also known as =dotfiles=)
   - The desktop customizations itself
 
-IMHO, this approach is the easiest example of how-to install Arch Linux using scripts. It is useful for *test* and *debugging* new Arch Linux configurations, dotfiles or desktop customizations, preferably *in a virtual machine*.
+IMHO, this is the easiest approach to install Arch Linux using scripts. It is quite useful for *testing* and *debugging* new Arch Linux configurations, dotfiles and desktop customizations, preferably *inside a virtual machine* before a real Machine.
 
 ** Improving the automated installation scripts
 
-Once you understand how to install Arch Linux inside a virtual machine, the next natural step is to *install Arch Linux in a Real Machine*. During such process, some relevant aspects must need to be addressed, like disk partitioning table according to hardware requirements, booting support for preexistent operative systems, system encryption, user data encryption, and the most relevant aspects in Arch Linux, backup an maintenance. 
+Install Arch Linux in real machines usually need to address some advanced aspects, like disk partitioning according to the firmware available (UEFI, BIOS), partition tables (MBR, GPT), boot support for additional operative systems, user data or system encryption, and last but not least, Arch Linux backup and maintenance. 
 
-In this regard, this chapter covers some of the aspects mentioned, such as:
+In this regard, this chapter covers recomendations about:
 - Disk partitioning BIOS/MBR, BIOS/GPT, UEFI/GPT and their encryption
-- Package installing with pacstrap and the importance of keyring update
+- Installing packages with pacstrap and the importance of keyring update
 - User data encryption
-- How to backup the entire system, and make it bootable too
-- Arch Linux maintenance: maint
+- How to make a backup of the entire system, and make it bootable too
+- Arch Linux maintenance using maint
 
 
 *** Disk partitioning BIOS/MBR, BIOS/GPT, UEFI/GPT and their encryption
 
-This chapter cover the most standard disk partitioning schemes using =parted= and the bootloader =GRUB=.
+This chapter cover the most standard disk partitioning tables using =parted= and the bootloader =GRUB=.
 
 **** BIOS/MBR
 
@@ -159,7 +160,7 @@ fi
 
 **** Disk partitioning, all together - BIOS/MBR, BIOS/GPT and UEFI/GPT
 
-What happen when we want to support the options mentioned?. Well, Arch Linux can detect if have booted from =BIOS= or =UEFI=, which can be quite useful to make a conditional like this:
+What happen when we want to support the options mentioned?. Well, Arch Linux can detect if it has booted from =BIOS= or =UEFI=, which can be quite useful to make a conditional like this:
 
 #+begin_src bash :results verbatim
 # BIOS and UEFI support
@@ -229,7 +230,6 @@ if [[ ${boot_mode} == "UEFI" ]]; then
 fi
 #+end_src
 
-
 # The objective: 
 
 # Install an Arch Linux system configuring dotfiles and desktop by bash scripts. 
@@ -250,7 +250,11 @@ fi
 
 After explain some examples of the most standard disk partitioning schemes, it is important to mentioned that disk partitioning can be completely encrypted. This specific item have been very well described [[https://www.rohlix.eu/post/linux-disk-encryption-with-bios-uefi-using-mbr-gpt-luks-lvm-and-grub/][here]].
 
-*** Packages installing with pacstrap and the importance of keyring update
+In summary, this chapter described few but relevant aspects about the disk partitioning according to the boot loader =GRUB=. The disk partitioning tables described here works quite well, but you can add other partitions to these examples, taking extra care to avoid an Arch Linux install unable to boot.
+
+The examples were made with the boot loader =GRUB= because it supports [[https://wiki.archlinux.org/title/Arch_boot_process#Boot_loader][almost everything]], like different firmwares, partition tables, multi-boot, file systems, RAID and LVM and their encryption, in addition to the documentation and forums available.
+
+*** Installing packages with pacstrap and the importance of keyring update
 
 The first pacstrap that I wrote, looked like this:
 
@@ -270,7 +274,7 @@ pacstrap /mnt base base-devel linux \
 The problem with this approach is that is not easy to comment the function of each package. I also found an additional problem when the archlinux install image is old enough to prompt an error about gpg keyring. For this reason I started to use a different approach, like this:
 
 #+begin_src bash :results verbatim
-## Important: update package manager keyring before install packages
+## Important: update package manager to avoid gpg keyrong errors
 pacman -Syy --noconfirm archlinux-keyring
 
 
@@ -285,7 +289,7 @@ pacstrap /mnt zsh
 pacstrap /mnt pkgfile
 # system tools	
 pacstrap /mnt sudo git wget
-# system tools for file system mounting
+# support for file system mounting
 pacstrap /mnt gvfs
 # system backup	
 pacstrap /mnt rsync
@@ -294,18 +298,22 @@ pacstrap /mnt dhcpcd
 # wifi package
 pacstrap /mnt networkmanager
 # boot loader	
-pacstrap /mnt grub os-prober
-# boot loader package to boot GRUB if UEFI mode
-if [[ ${boot_mode} == "UEFI" ]]; then
+pacstrap /mnt grub
+# boot loader support for additional operative systems
+pacstrap /mnt os-prober
+# boot loader support to boot in UEFI mode (required for GRUB)
+if [[ "${boot_mode}" == "UEFI" ]]; then
     pacstrap /mnt efibootmgr
 fi
 #+end_src
 
-In the example above the overuse of pacstrap can be abusive, I am agree, but this way it looks more readable and maintainable too. Indeed, it is easy to note that an essential package is missing for Arch Linux installation in any real machine:
+In the example above the repeated use of pacstrap can be abusive, but this way it looks more readable and maintainable too. Indeed, it is easy to note that an essential package is missing for Arch Linux installation in any real machine:
 
 #+begin_src bash :results verbatim
 pacstrap /mnt linux-firmware
 #+end_src
+
+
 
 # This list what is called "elementary packages", a minimun Arch Linux packages that allow to connect to internet, mount usb drivers, and make the boot loader to recognize other operating systems previously installed, like MS Windows, MacOS or even other Linux present. If you need to mount a HDD formated for MS Windows, you will need also other packages, such as:
 
@@ -313,9 +321,7 @@ pacstrap /mnt linux-firmware
 # pacstrap /mnt ntfs-3g 
 # #+end_src
 
-*** TODO User data encryption
-
-*** TODO System backup, user documents backup and system update
-
-*** TODO Security and documents encryption
+*** User data encryption
+*** How to make a backup of the entire system, and make it bootable too
+*** Arch Linux maintenance using maint
 
