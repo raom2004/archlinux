@@ -30,8 +30,8 @@ In both cases, this repository is definitely for you!
 
 * Content
 #+begin_quote
- - [[Automated installation scripts - an easy example]]
- - [[Automated installation scripts - advanced aspects]]
+ - [[Automated installation scripts - example]]
+ - [[Advanced aspects]]
    - [[Disk partitioning BIOS/MBR, BIOS/GPT, UEFI/GPT and their encryption]]
    - [[Packages installing with pacstrap and the importance of keyring update]]
    - [[TODO User data encryption]]
@@ -39,7 +39,7 @@ In both cases, this repository is definitely for you!
    - [[TODO Security and documents encryption]]
 #+end_quote
 
-* Automated installation scripts - an easy example
+* Automated installation scripts - example
 
 The most easy example to automatize the Arch Linux install, requires almost 3 scripts for specific tasks.
 
@@ -62,7 +62,7 @@ The most easy example to automatize the Arch Linux install, requires almost 3 sc
 
 This is an easy approach to install Arch Linux using scripts. It is quite useful for *testing* and *debugging* new Arch Linux configurations, dotfiles and desktop customizations, preferably *inside a virtual machine*. In next chapter we will talk about Arch Linux install in real Machines.
 
-* Automated installation scripts - advanced aspects
+* Advanced aspects
 
 Install Arch Linux in real machines usually need to address some advanced aspects, like disk partitioning according to the firmware available (UEFI, BIOS), partition tables (MBR, GPT), boot support for additional operative systems, user data or system encryption, and last but not least, Arch Linux backup and maintenance. 
 
