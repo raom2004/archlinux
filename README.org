@@ -47,14 +47,12 @@ In both cases, this repository is definitely for you!
 
 The easiest version to install Arch Linux, requires only 3 scripts:
 
-file: [[./script1.sh][script1.sh]]
-Which perform the critical pre-installation steps, such as:
+*** [[./script1.sh][script1.sh]], which perform the critical pre-installation steps, such as:
   - Disk partitioning and formatting with =parted=
   - partitions mounting
   - Package installation with =pacstrap=
 
-file: [[./script2.sh][script2.sh]]
-Which setup the new Arch Linux system using =chroot=, to configure:
+*** [[./script2.sh][script2.sh]], which setup the new Arch Linux system using =chroot=, to configure:
   - Locale and datetime
   - The keyboard keymap
   - The preferred shell, like =bash= or =zsh=
@@ -62,8 +60,7 @@ Which setup the new Arch Linux system using =chroot=, to configure:
   - User accounts, passwords and permissions, including =sudo=
   - The installation of the boot loader =grub=
 
-file: [[./script2.sh][script3.sh]]
-Which will run on *first desktop boot*, to setup:
+*** [[./script2.sh][script3.sh]], which will run on *first desktop boot*, to setup:
   - The user configuration files (also known as =dotfiles=)
   - The desktop customizations itself
 
