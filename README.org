@@ -27,8 +27,6 @@ But what Haven't you installed Arch Linux before? don't panic, you will definite
 
 ** Content
  #+begin_quote
- - [[Intro]]
-   - [[Who may read this repository?]]
  - [[Arch Linux - automated installation scripts]]
  - [[Improving the automated installation scripts]]
    - [[Disk partitioning BIOS/MBR, BIOS/GPT, UEFI/GPT and their encryption]]
@@ -42,11 +40,6 @@ But what Haven't you installed Arch Linux before? don't panic, you will definite
  - [[TODO System backup, user documents backup and system update]]
  - [[TODO Security and documents encryption]]
  #+end_quote
-
-
-
-*** Who may read this repository?
-
 
 ** Arch Linux - automated installation scripts
 
