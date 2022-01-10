@@ -35,9 +35,9 @@ In both cases, this repository is definitely for you!
 ** Content
  #+begin_quote
  - [[Arch Linux - automated installation scripts - an easy example]]
-   - [[script1]]
-   - [[script2]]
-   - [[script3]]
+   - [[script1.sh]]
+   - [[script2.sh]]
+   - [[script3.sh]]
  - [[Improving the automated installation scripts]]
    - [[Disk partitioning BIOS/MBR, BIOS/GPT, UEFI/GPT and their encryption]]
    - [[Packages installing with pacstrap and the importance of keyring update]]
