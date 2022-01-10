@@ -19,7 +19,7 @@ Arch Linux is a minimalist and flexible Linux distribution which excellent docum
 [[./.images/arch-linux-vs-ubuntu.png]]
 #+HTML:</div>
 
-Arch Linux philosophy encourage users to install packages that fulfill their unique needs, obtaining an incredibly powerful and lightweight system, easy to manage. However, the installation and configuration process can be challenging for beginners, specially when the documentation have not been extensively read. But what to do once a user has completed such process?
+Arch Linux encourage users to install packages that fulfill their unique needs, obtaining a lightweight and incredibly powerful system, easy to manage. However, the installation and configuration process can be challenging for beginners, specially when the documentation have not been extensively read. But what to do once a user has completed such process?
 
 Well, *you can automatize the Arch Linux installation using the scripts described in this repository*, with tips and recommendations found in the documentation and forums, useful for: 
  - Everyone who has installed Arch Linux before and wants to automatize the process using scripts.
