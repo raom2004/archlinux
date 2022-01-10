@@ -66,7 +66,7 @@ The most easy example to automatize the Arch Linux install, requires almost 3 sc
   - The user configuration files (also known as =dotfiles=)
   - The desktop customizations itself
 
-IMHO, this is the easiest approach to install Arch Linux using scripts. It is quite useful for *testing* and *debugging* new Arch Linux configurations, dotfiles and desktop customizations, preferably *inside a virtual machine* before a real Machine.
+This is an easy approach to install Arch Linux using scripts. It is quite useful for *testing* and *debugging* new Arch Linux configurations, dotfiles and desktop customizations, preferably *inside a virtual machine*. In next chapter we will talk about Arch Linux install in real Machines.
 
 ** Improving the automated installation scripts
 
