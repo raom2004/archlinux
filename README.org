@@ -51,16 +51,20 @@ The most easy example to automatize the Arch Linux install, consist in 3 scripts
   #+end_quote
 
 **** The [[./script2.sh][script2.sh]] setup the new Arch Linux system using =chroot=, to configure:
+  #+begin_quote
   - Locale and datetime
   - The keyboard keymap
   - The preferred shell, like =bash= or =zsh=
   - the initial ram filesystem, =initramfs=
   - User accounts, passwords and permissions, including =sudo=
   - The installation of the boot loader =grub=
+  #+end_quote
 
 **** The [[./script2.sh][script3.sh]] runs on *first desktop boot*, to setup:
+  #+begin_quote
   - The user configuration files (also known as =dotfiles=)
   - The desktop customizations itself
+  #+end_quote
 
 This is an easy approach to install Arch Linux using scripts. It is quite useful for *testing* and *debugging* new Arch Linux configurations, dotfiles and desktop customizations, preferably *inside a virtual machine*. In next chapter we will talk about Arch Linux install in real Machines.
 
