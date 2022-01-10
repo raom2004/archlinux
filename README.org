@@ -272,9 +272,8 @@ This code has two important problems:
 For the previously mentioned, I started to use a different approach, like this:
 
 #+begin_src bash :results verbatim
-## Update package manager to avoid gpg keyrong errors
+## Update package manager to avoid gpg keyring errors during install
 pacman -Syy --noconfirm archlinux-keyring
-
 
 ## Install System Elementary Packages
 # esential packages
