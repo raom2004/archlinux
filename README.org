@@ -9,27 +9,6 @@
 
 * Arch Linux: automating installation scripts
 
-** Content
- #+begin_quote
- - [[Intro]]
-   - [[Who may read this repository?]]
- - [[Arch Linux\: automated installation scripts]]
- - [[Improving the automated installation scripts]]
-   - [[Disk partitioning BIOS/MBR, BIOS/GPT, UEFI/GPT and their encryption]]
-   - [[BIOS/MBR]]
-   - [[BIOS/GPT]]
-   - [[UEFI/GPT]]
-   - [[Disk partitioning, all together: BIOS/MBR, BIOS/GPT and UEFI/GPT]]
-   - [[Advance disk partitioning: encrypted partitioning with LUKS LVM]]
- - [[Packages installing with pacstrap and the importance of keyring update]]
- - [[TODO User data encryption]]
- - [[TODO System backup, user documents backup and system update]]
- - [[TODO Security and documents encryption]]
- #+end_quote
-
-
-** Intro
-
 *Arch Linux* is a minimalist and flexible Linux distribution which excellent documentation and high-quality packages that *allow users to design a highly customized system*. A philosophy *opposite to Linux beginner-friendly distributions* which provides a pre-configured system with packages that are unnecessary or *designed for user data collection* (e.g. Ubuntu and Canonical's commercial nature).
 
 #+HTML:<div align=center>
@@ -38,17 +17,38 @@
 [[./.images/arch-linux-vs-ubuntu.png]]
 #+HTML:</div>
 
-Arch Linux philosophy encourage users to select packages that fulfill their unique needs, obtaining an incredibly powerful and lightweight system, easy to manage. However, the installation process, configuration and debugging, can be challenging for beginners, specially when the documentation have not been extensively read.
+Arch Linux philosophy encourage users to select packages that fulfill their unique needs, obtaining an incredibly powerful and lightweight system, easy to manage. However, the installation and configuration process can be challenging for beginners, specially when the documentation have not been extensively read.
 
-For this reason, this repository summarizes the tips and recommendations to *automate Arch Linux installation* using scripts based in the official documentation and Arch Linux forums.
+This repository summarizes tips and recommendations to *automate Arch Linux installation* using scripts based in the official documentation and Arch Linux forums.
+
+This way, if you want to automate the Arch Linux installation but you are not sure how achieve this using scripts? well, this repo contains all you need to achieve it!
+
+But what Haven't you installed Arch Linux before? don't panic, you will definitely find this repository useful because it allows you to have a look over the commands required to install and configure Arch Linux.
+
+** Content
+ #+begin_quote
+ - [[Intro]]
+   - [[Who may read this repository?]]
+ - [[Arch Linux - automated installation scripts]]
+ - [[Improving the automated installation scripts]]
+   - [[Disk partitioning BIOS/MBR, BIOS/GPT, UEFI/GPT and their encryption]]
+   - [[BIOS/MBR]]
+   - [[BIOS/GPT]]
+   - [[UEFI/GPT]]
+   - [[Disk partitioning, all together - BIOS/MBR, BIOS/GPT and UEFI/GPT]]
+   - [[Advance disk partitioning - encrypted partitioning with LUKS LVM]]
+ - [[Packages installing with pacstrap and the importance of keyring update]]
+ - [[TODO User data encryption]]
+ - [[TODO System backup, user documents backup and system update]]
+ - [[TODO Security and documents encryption]]
+ #+end_quote
+
+
 
 *** Who may read this repository?
 
-Have installed Arch Linux before?, do you want to simplify this process putting your code inside scripts but you are not sure how to do it? well, this repo contains all you need to achieve it!
 
-But what if you haven't installed Arch Linux before? well you will definitely find this repository useful because it allows you to have a look over the commands required to install and configure Arch Linux.
-
-** Arch Linux: automated installation scripts
+** Arch Linux - automated installation scripts
 
 The easiest version to install Arch Linux by shell commands, requires only 3 scripts:
 
@@ -163,7 +163,7 @@ if [[ ${boot_mode} == "UEFI" ]]; then
 fi
 #+end_src
 
-**** Disk partitioning, all together: BIOS/MBR, BIOS/GPT and UEFI/GPT
+**** Disk partitioning, all together - BIOS/MBR, BIOS/GPT and UEFI/GPT
 
 What happen when we want to support the options mentioned?. Well, Arch Linux can detect if have booted from =BIOS= or =UEFI=, which can be quite useful to make a conditional like this:
 
@@ -252,7 +252,7 @@ fi
 # Important: this text do not cover how-to prepare an installation
 # medium like an USB flash drive, but you can find it [[https://wiki.archlinux.org/title/USB_flash_installation_medium][here]].
 
-**** Advance disk partitioning: encrypted partitioning with LUKS LVM
+**** Advance disk partitioning - encrypted partitioning with LUKS LVM
 
 After explain some examples of the most standard disk partitioning schemes, it is important to mentioned that disk partitioning can be completely encrypted. This specific item have been very well described [[https://www.rohlix.eu/post/linux-disk-encryption-with-bios-uefi-using-mbr-gpt-luks-lvm-and-grub/][here]].
 
