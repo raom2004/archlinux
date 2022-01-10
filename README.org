@@ -276,7 +276,7 @@ For the previously mentioned, I started to use a different approach, like this:
 pacman -Syy --noconfirm archlinux-keyring
 
 ## Install System Elementary Packages
-# esential packages
+# Arch Linux esential packages
 pacstrap /mnt base base-devel linux
 # code editors
 pacstrap /mnt vim nano
