@@ -9,7 +9,7 @@
 
 * Arch Linux: automating installation scripts
 
-** Intro
+* Intro
 
 Arch Linux is a minimalist and flexible Linux distribution which excellent documentation and high-quality packages allow users to design a highly customized system. A philosophy opposite to Linux beginner-friendly distributions which provides a pre-configured system with packages that are unnecessary or designed for user data collection (e.g. Ubuntu and Canonical's commercial nature).
 
@@ -23,19 +23,13 @@ Arch Linux encourage users to install packages that fulfill their unique needs, 
 
 But what to do once someone has completed Arch Linux install? 
 
-*You can automatize the Arch Linux installation using the scripts described in this repository*, with tips and recommendations found in the official documentation and forums, useful for: 
+*You can automatize the Arch Linux installation using the scripts described in this repository*, with tips and recommendations from the official documentation and forums, useful for: 
  - Everyone who has installed Arch Linux before and wants to automatize the process using scripts.
  - Someone who has not installed Arch Linux before but definitely wants to have a look over the commands required.
 In both cases, this repository is definitely for you!
 
-# Who may read this repository?
-
-#  - Everyone who has installed Arch Linux before and wants to automatize the process using scripts? this repository is for you!
-
-#  - Everyone who has not installed Arch Linux before but definitely wants to have a look over the commands required? this repository is also for you!
-
-** Content
- #+begin_quote
+* Content
+#+begin_quote
  - [[Arch Linux - automated installation scripts - an easy example]]
  - [[Improving the automated installation scripts]]
    - [[Disk partitioning BIOS/MBR, BIOS/GPT, UEFI/GPT and their encryption]]
@@ -43,9 +37,9 @@ In both cases, this repository is definitely for you!
    - [[TODO User data encryption]]
    - [[TODO System backup, user documents backup and system update]]
    - [[TODO Security and documents encryption]]
- #+end_quote
+#+end_quote
 
-** Arch Linux - automated installation scripts - an easy example
+* Arch Linux - automated installation scripts - an easy example
 
 The most easy example to automatize the Arch Linux install, requires almost 3 scripts for specific tasks.
 
@@ -68,7 +62,7 @@ The most easy example to automatize the Arch Linux install, requires almost 3 sc
 
 This is an easy approach to install Arch Linux using scripts. It is quite useful for *testing* and *debugging* new Arch Linux configurations, dotfiles and desktop customizations, preferably *inside a virtual machine*. In next chapter we will talk about Arch Linux install in real Machines.
 
-** Improving the automated installation scripts
+* Improving the automated installation scripts
 
 Install Arch Linux in real machines usually need to address some advanced aspects, like disk partitioning according to the firmware available (UEFI, BIOS), partition tables (MBR, GPT), boot support for additional operative systems, user data or system encryption, and last but not least, Arch Linux backup and maintenance. 
 
@@ -80,11 +74,11 @@ In this regard, this chapter covers recomendations about:
 - Arch Linux maintenance using maint
 
 
-*** Disk partitioning BIOS/MBR, BIOS/GPT, UEFI/GPT and their encryption
+** Disk partitioning BIOS/MBR, BIOS/GPT, UEFI/GPT and their encryption
 
 This chapter cover the most standard disk partitioning tables using =parted= and the bootloader =GRUB=.
 
-**** BIOS/MBR
+*** BIOS/MBR
 
 Arch Linux, as any other linux distro, only precise one unique partition, the single root partition =/=.
 
@@ -103,7 +97,7 @@ mkfs.ext4 -F /dev/sda1
 mount /dev/sda1 /mnt 
 #+end_src
 
-**** BIOS/GPT
+*** BIOS/GPT
 
 If you want to support BIOS/GPT, you will need some changes according to the boot loader, which in this case is GRUB:
 - Change the table partitioning from =msdos= to =gpt=
@@ -128,7 +122,7 @@ mkfs.ext4 -F /dev/sda2
 mount /dev/sda2 /mnt
 #+end_src
 
-**** UEFI/GPT
+*** UEFI/GPT
 
 The UEFI/GPT partition table is similar to the previous, with just few modifications:
 - Create a boot partition with fat32 as the file system type
@@ -161,7 +155,7 @@ if [[ ${boot_mode} == "UEFI" ]]; then
 fi
 #+end_src
 
-**** Disk partitioning, all together - BIOS/MBR, BIOS/GPT and UEFI/GPT
+*** Disk partitioning, all together - BIOS/MBR, BIOS/GPT and UEFI/GPT
 
 What happen when we want to support the options mentioned?. Well, Arch Linux can detect if it has booted from =BIOS= or =UEFI=, which can be quite useful to make a conditional like this:
 
@@ -249,7 +243,7 @@ fi
 # Important: this text do not cover how-to prepare an installation
 # medium like an USB flash drive, but you can find it [[https://wiki.archlinux.org/title/USB_flash_installation_medium][here]].
 
-**** Advance disk partitioning - encrypted partitioning with LUKS LVM
+*** Advance disk partitioning - encrypted partitioning with LUKS LVM
 
 After explain some examples of the most standard disk partitioning schemes, it is important to mentioned that disk partitioning can be completely encrypted. This specific item have been very well described [[https://www.rohlix.eu/post/linux-disk-encryption-with-bios-uefi-using-mbr-gpt-luks-lvm-and-grub/][here]].
 
@@ -257,7 +251,7 @@ In summary, this chapter described few but relevant aspects about the disk parti
 
 The examples were made with the boot loader =GRUB= because it supports [[https://wiki.archlinux.org/title/Arch_boot_process#Boot_loader][almost everything]], like different firmwares, partition tables, multi-boot, file systems, RAID and LVM and their encryption, in addition to the documentation and forums available.
 
-*** Installing packages with pacstrap and the importance of keyring update
+** Installing packages with pacstrap and the importance of keyring update
 
 The first pacstrap that I wrote, looked like this:
 
@@ -324,7 +318,7 @@ pacstrap /mnt linux-firmware
 # pacstrap /mnt ntfs-3g 
 # #+end_src
 
-*** User data encryption
-*** How to make a backup of the entire system, and make it bootable too
+** User data encryption
+** How to make a backup of the entire system, and make it bootable too
 *** Arch Linux maintenance using maint
 
