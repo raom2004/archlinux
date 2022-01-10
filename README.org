@@ -167,7 +167,7 @@ if [[ ${boot_mode} == "UEFI" ]]; then
 fi
 #+end_src
 
-*** Disk partitioning, all together - BIOS/MBR, BIOS/GPT and UEFI/GPT
+*** Disk partitioning, all together
 
 What happen when we want to support the options mentioned?. Well, Arch Linux can detect if it has booted from =BIOS= or =UEFI=, which can be quite useful to make a conditional like this:
 
@@ -239,7 +239,7 @@ if [[ ${boot_mode} == "UEFI" ]]; then
 fi
 #+end_src
 
-*** Advance disk partitioning - encrypted partitioning with LUKS LVM
+*** Encrypted partitioning with LUKS and LVM
 
 After explain some examples of the most standard disk partitioning schemes, it is important to mentioned that disk partitioning can be completely encrypted. This specific item have been very well described [[https://www.rohlix.eu/post/linux-disk-encryption-with-bios-uefi-using-mbr-gpt-luks-lvm-and-grub/][here]].
 
