@@ -43,14 +43,14 @@ In both cases, this repository is definitely for you!
 
 ** Arch Linux - automated installation scripts - an easy example
 
-The easiest version to install Arch Linux, requires only 3 scripts.
+The most easy example to automatize the Arch Linux install, requires 3 scripts with very well defined tasks:
 
-**** The [[./script1.sh][script1.sh]] performs the critical pre-installation steps, such as:
+The [[./script1.sh][script1.sh]] performs the critical pre-installation steps, such as:
   - Disk partitioning and formatting with =parted=
   - partitions mounting
   - Package installation with =pacstrap=
 
-**** The [[./script2.sh][script2.sh]] setup the new Arch Linux system using =chroot=, to configure:
+The [[./script2.sh][script2.sh]] setup the new Arch Linux system using =chroot=, to configure:
   - Locale and datetime
   - The keyboard keymap
   - The preferred shell, like =bash= or =zsh=
@@ -58,7 +58,7 @@ The easiest version to install Arch Linux, requires only 3 scripts.
   - User accounts, passwords and permissions, including =sudo=
   - The installation of the boot loader =grub=
 
-**** The [[./script2.sh][script3.sh]] runs on *first desktop boot*, to setup:
+The [[./script2.sh][script3.sh]] runs on *first desktop boot*, to setup:
   - The user configuration files (also known as =dotfiles=)
   - The desktop customizations itself
 
