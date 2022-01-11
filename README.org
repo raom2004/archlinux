@@ -1,4 +1,4 @@
-#+startup: showeverything nohideblocks inlineimages
+#+startup: showeverything nohideblocks
 #+options: creator:nil author:nil toc:t date:t email:nil num:nil title:nil \n:t
 #+title: README
 #+date: <2022-01-03 Mon>
@@ -11,7 +11,7 @@
 
 * Intro
 
-Arch Linux is a minimalist and flexible Linux distribution which excellent documentation and high-quality packages allow users to design a highly customized system. A philosophy opposite to Linux beginner-friendly distributions which provides a pre-configured system with packages that are unnecessary or designed for user data collection (e.g. Ubuntu and Canonical's commercial nature).
+Arch Linux is a minimalist and flexible Linux distribution, which excellent documentation and high-quality packages, allow users to design a highly customized system. A philosophy quite opposite to Linux beginner-friendly distributions, pre-configured with packages that can be unnecessary or designed for user data collection (e.g. Ubuntu and Canonical's commercial nature).
 
 #+HTML:<div align=center>
 #+CAPTION: archlinux-Ubuntu/Canonical
@@ -19,12 +19,10 @@ Arch Linux is a minimalist and flexible Linux distribution which excellent docum
 [[./.images/arch-linux-vs-ubuntu.png]]
 #+HTML:</div>
 
-Arch Linux encourage users to install packages that fulfill their unique needs, obtaining a lightweight and incredibly powerful system, easy to manage. However, the installation and configuration process can be challenging for beginners, specially when the documentation have not been extensively read. 
+Arch Linux encourage users to only install packages that fulfills their unique needs, obtaining a incredibly lightweight and powerful system, easy to manage. But remember, every treasure comes with a price. Arch Linux installation and hardware configuration can be challenging and time consuming to do the first time. But don't panic! Once the documentation have been extensively read and the installation commands has been understood, it becomes quite easy to have a complete Arch Linux system, up and running, in just few minutes! How? 
 
-But what to do once someone has completed Arch Linux install? 
-
-*You can automatize the Arch Linux installation using the scripts described in this repository*, with tips and recommendations from the official documentation and forums, useful for: 
- - Everyone who has installed Arch Linux before and wants to automatize the process using scripts.
+*You can automatize the Arch Linux installation using scripts, like the described in this repository*. Which tips and recommendations, collected from the official documentation and forums, are useful for: 
+ - Everyone who has installed Arch Linux before and wants to speed up the process using scripts, or
  - Someone who has not installed Arch Linux before but definitely wants to have a look over the commands required.
 In both cases, this repository is definitely for you!
 
@@ -41,12 +39,12 @@ In both cases, this repository is definitely for you!
 
 * Automated installation scripts - example
 
-The most easy example to automatize the Arch Linux install, consist in 3 scripts for specific tasks.
+The most easy example to automatize the Arch Linux install, consist in 3 scripts, each of them for specific tasks.
 
 **** The [[./script1.sh][script1.sh]] performs the critical pre-installation steps, such as:
   #+begin_quote
-  - Disk partitioning and formatting with =parted=
-  - partitions mounting
+  - Disk partitioning and formatting with =parted=, as well as mounting
+  - Generate a file system table =fstab= 
   - Package installation with =pacstrap=
   #+end_quote
 
@@ -55,7 +53,7 @@ The most easy example to automatize the Arch Linux install, consist in 3 scripts
   - Locale and datetime
   - The keyboard keymap
   - The preferred shell, like =bash= or =zsh=
-  - the initial ram filesystem, =initramfs=
+  - the initial ram filesystem =initramfs=
   - User accounts, passwords and permissions, including =sudo=
   - The installation of the boot loader =grub=
   #+end_quote
@@ -66,11 +64,12 @@ The most easy example to automatize the Arch Linux install, consist in 3 scripts
   - The desktop customizations itself
   #+end_quote
 
-This is an easy approach to install Arch Linux using scripts. It is quite useful for *testing* and *debugging* new Arch Linux configurations, dotfiles and desktop customizations, preferably *inside a virtual machine*. In next chapter we will talk about Arch Linux install in real Machines.
+This is an easy approach to install Arch Linux using scripts. A process that can take 5 to 15 minutes, depending in your machine and internet connection. The scripts described are quite useful for *testing* and *debugging* new Arch Linux configurations, dotfiles and desktop customizations, preferably *inside a virtual machine*. 
+The next chapter will covers specific topics about Arch Linux install inside real machines.
 
 * Advanced aspects
 
-Install Arch Linux in real machines usually need to address some advanced aspects, like disk partitioning according to the firmware available (UEFI, BIOS), partition tables (MBR, GPT), boot support for additional operative systems, user data or system encryption, and last but not least, Arch Linux backup and maintenance. 
+The installation of Arch Linux in real machines usually address some advanced aspects, like disk partitioning according to the firmware available (UEFI, BIOS), partitioning tables (MBR, GPT), boot support for additional operative systems, user data or system encryption, and last but not least, system backup and maintenance. 
 
 **** In this regard, this chapter covers recommendations about:
 #+begin_quote
@@ -81,14 +80,17 @@ Install Arch Linux in real machines usually need to address some advanced aspect
 - Arch Linux maintenance using maint
 #+end_quote
 
-
 ** Disk partitioning BIOS/MBR, BIOS/GPT, UEFI/GPT and their encryption
 
-This chapter cover the most standard disk partitioning tables using =parted= and the bootloader =GRUB=.
+This chapter covers the most standard disk partitioning using =parted=, according to the requirements of the boot loader =GRUB=. 
+
+The disk partitioning tables described here are the most easy examples and works quite well. You are free to add other partitions if you want, taking extra care to avoid an Arch Linux install unable to boot.
+
+The examples were made with the boot loader =GRUB= because it supports [[https://wiki.archlinux.org/title/Arch_boot_process#Boot_loader][almost everything]], like different firmwares, partitioning tables, multi-boot, file systems, RAID and LVM and their encryption, in addition to the documentation and forums available.
 
 *** BIOS/MBR
 
-Arch Linux, as any other linux distro, only precise one unique partition, the single root partition =/=.
+The BIOS/MBR partitioning table only precise one unique partition, the single root partition =/=.
 
 The example of BIOS/MBR disk partitioning table, is:
 
@@ -109,9 +111,9 @@ mount /dev/sda1 /mnt
 
 Contrary to BIOS/MBR, a BIOS/GPT disk partitioning table, requires:
 #+begin_quote
-- A table partitioning =gpt= instead of =msdos="
-- A BIOS boot partition (which do not require to be mounted)
-- The flag =bios_grub= instead of =boot=
+- A table partitioning =gpt=
+- A BIOS boot partition of almost 2MiB (do not require to be mounted)
+- The flag =bios_grub=
 #+end_quote
 
 The example of BIOS/GPT disk partitioning table, is:
@@ -136,8 +138,8 @@ mount /dev/sda2 /mnt
 
 The UEFI/GPT partition table is similar to the previous, with few modifications:
 #+begin_quote
-- A boot partition with =fat32= as the file system type
-- The flag =esp= instead of =bios_grub=
+- A boot partition of > 300MiB, type =fat32=, required to be mounted
+- The flag =esp=
 - Install the =efibootmbr= package
 #+end_quote
 
@@ -169,7 +171,9 @@ fi
 
 *** Disk partitioning, all together
 
-What happen when we want to support the options mentioned? In such case, Arch Linux can detect if it has booted from =BIOS= or =UEFI=, which can be quite useful to make a conditional like this:
+What happen when we want to support all the options mentioned? 
+
+In such case, Arch Linux can detect if it has booted from =BIOS= or =UEFI=, which can be quite useful to make a conditional like this:
 
 #+begin_src bash :results verbatim
 # BIOS and UEFI support
@@ -241,11 +245,7 @@ fi
 
 *** Encrypted partitioning with LUKS and LVM
 
-After explain some examples of the most standard disk partitioning schemes, it is important to mentioned that disk partitioning can be completely encrypted. This specific item have been very well described [[https://www.rohlix.eu/post/linux-disk-encryption-with-bios-uefi-using-mbr-gpt-luks-lvm-and-grub/][here]].
-
-In summary, this chapter described few but relevant aspects about the disk partitioning according to the boot loader =GRUB=. The disk partitioning tables described here works quite well, but you can add other partitions to these examples, taking extra care to avoid an Arch Linux install unable to boot.
-
-The examples were made with the boot loader =GRUB= because it supports [[https://wiki.archlinux.org/title/Arch_boot_process#Boot_loader][almost everything]], like different firmwares, partition tables, multi-boot, file systems, RAID and LVM and their encryption, in addition to the documentation and forums available.
+After explain some examples of the most standard disk partitioning schemes, it is important to mentioned that disk partitioning can be completely encrypted. An specific item very well described [[https://www.rohlix.eu/post/linux-disk-encryption-with-bios-uefi-using-mbr-gpt-luks-lvm-and-grub/][here]].
 
 ** Installing packages with pacstrap and the importance of keyring update
 
