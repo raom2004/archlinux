@@ -28,6 +28,7 @@ function doIt
 	  --exclude "README.org" \
 	  --exclude "LICENSE" \
 	  -avh --no-perms . ~
+
     source "$HOME"/.bashrc
 }
 
