@@ -66,7 +66,6 @@ pacstrap /mnt base base-devel linux \
 	 virtualbox-guest-utils
 	 
 	 
-
 ## generate file system table
 genfstab -L /mnt >> /mnt/etc/fstab
 
