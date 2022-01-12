@@ -98,7 +98,7 @@ systemctl enable NetworkManager
 # run xfce desktop environment in next boot
 systemctl enable lightdm
 
-
+exit
 ## Hot to customize a new desktop on first boot?
 # With a startup script that just need to steps:
 #  * Create a script3.sh with your customizations
