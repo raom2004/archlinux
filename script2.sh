@@ -110,7 +110,7 @@ Type=Application
 Name=script3
 Comment[C]=Script to config a new Desktop on first boot
 Terminal=true
-Exec=gnome-terminal -- bash -c "bash /usr/bin/script3.sh; exec bash"
+Exec=gnome-terminal -- bash -c "sudo bash /usr/bin/script3.sh; exec bash"
 X-GNOME-Autostart-enabled=true
 NoDisplay=false
 ' > /home/"${user_name}"/.config/autostart/script3.desktop
