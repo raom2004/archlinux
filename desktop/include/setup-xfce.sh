@@ -17,7 +17,6 @@ set -o xtrace      # trace & expand what gets executed (useful for debug)
 
 # Set the actual working directory
 cd "$(dirname "${BASH_SOURCE}")"
-echo "$PWD"
 
 ## unmute pulseaudio
 # turn on audio
@@ -70,21 +69,19 @@ image="https://wallpaperforu.com/wp-content/uploads/2020/07/space-wallpaper-2007
 wget --output-document=$HOME/.wallpapers/space-wallpaper.jpg "$image"
 image="https://www.setaswall.com/wp-content/uploads/2017/11/Arch-Linux-Wallpaper-28-1920x1080.jpg"
 wget --output-document=$HOME/.wallpapers/archlinux-wallpaper.jpg "$image"
-
 # find path for xfce wallpaper 
 image_path="$(xfconf-query -c xfce4-desktop -lv | awk '/monitor.*last/{ print $1 }' | head -n1)"
-
 # set wallpaper in xfce by xfconf-query
 xfconf-query -c xfce4-desktop \
 	     -p "$image_path" \
 	     -t string \
 	     --set $HOME/.wallpapers/archlinux-wallpaper.jpg
 
-## sonido
-#activar sonido
+## Sound
+# activate sound
 xfconf-query -c xsettings -p /Net/EnableEventSounds --set true
 
-## panel config
+## config xfce panel
 my_bar_position="$(xrandr | awk -F'x' '/*/{ printf $1-8 }' )"
 
 xfconf-query -c xfce4-panel -p /panels/panel-2/position \
@@ -108,7 +105,7 @@ xfconf-query -c xfce4-panel -p /panels/panel-2/leave-opacity \
 xfconf-query -c xfce4-panel -p /panels/panel-2/autohide-behavior \
 	     --set 2
 
-## mouse/touchpad config
+## config mouse/touchpad
 xfconf-query -c pointers -p /ETPS2_Elantech_Touchpad/Properties/libinput_Tapping_Enabled \
 	     -n -t int \
 	     --set 1
@@ -118,7 +115,8 @@ xfconf-query -c xfce4-desktop -v --create -p /desktop-icons/style \
 	     -t int -s 0
 
 ## set custom keyboard shortcuts
-sh "$PWD"/shortcuts-xfce.sh
+# sh "$PWD"/shortcuts-xfce.sh
+sh /usr/bin/shortcuts-xfce.sh
 
 
 ## setup xfce complete: remove autostart file

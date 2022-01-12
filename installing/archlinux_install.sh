@@ -300,8 +300,12 @@ function main {
   pacman -Syy --noconfirm archlinux-keyring
 
   ## install system elementary packages
-  # esential packages
-  pacstrap /mnt base base-devel linux
+  # essential
+  pacstrap /mnt base base-devel
+  # linux kernel
+  pacstrap /mnt linux
+  # packages for hardware functionallity
+  pacstrap /mnt linux-firmware
   # editors
   pacstrap /mnt vim nano
   # system shell	
@@ -318,10 +322,14 @@ function main {
   pacstrap /mnt networkmanager
   # boot loader	
   pacstrap /mnt grub os-prober
+  # multi-OS support packages
+  pacstrap /mnt usbutils dosfstools ntfs-3g amd-ucode intel-ucode
   # system backup	
-  [[ "${backup_partition}" =~  ^([yY])$ ]] && pacstrap /mnt rsync
+  pacstrap /mnt rsync
+  # inmprove glyphs support
+  pacstrap /mnt ttf-{hanazono,font-awesome,ubuntu-font-family}
 
-
+  
   ## generate fstab
   genfstab -L /mnt >> /mnt/etc/fstab
 

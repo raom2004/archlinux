@@ -15,8 +15,11 @@ set -o pipefail    # CATCH failed piped commands
 set -o xtrace      # trace & expand what gets executed (useful for debug)
 
 
-# install desktop and sound control
-# if [[ ! -n "$(pacman -Qs xfce4)" ]]; then
+# verify if packages were pre-installed
+if [[ ! -n "$(pacman -Qs xfce4)" ]]; then
+  echo "xfce4 is already on system"
+  exit 0
+fi
 
 ## update complete system packages
 
@@ -28,7 +31,7 @@ sudo pacman -Sy --needed --noconfirm xorg-{server,xrandr} xterm
 
 # alternatives: xorg-xinit xorg-clock
 
-## install desktop packages
+## install desktop and sound control packages
 
 sudo pacman -Sy --needed --noconfirm \
      xfce4 \
@@ -39,11 +42,6 @@ sudo pacman -Sy --needed --noconfirm \
 ## install web browser
 
 sudo pacman -Sy --needed --noconfirm firefox
-
-## install packages for wider support of glyphs and fonts  
-
-sudo pacman -Sy --needed --noconfirm \
-     ttf-{hanazono,font-awesome,ubuntu-font-family}
 
 ## package to identify system manufacture
 
@@ -59,12 +57,6 @@ if [[ "${check_actual_system}" == "innotek GmbH" ]]; then
   sudo pacman -Sy --needed --noconfirm virtualbox-guest-utils
 fi
 
-# packages for hardware functionallity
-sudo pacman -Sy --needed --noconfirm linux-firmware
-# multi-OS support packages
-sudo pacman -Sy --needed --noconfirm \
-	   usbutils \
-	   dosfstools ntfs-3g amd-ucode intel-ucode
 # heavy code editor packages
 sudo pacman -Sy --needed --noconfirm emacs
 
@@ -153,6 +145,11 @@ exec /usr/bin/Xorg -nolisten tcp -nolisten local "$@" vt$XDG_VTNR
 # xdg directories
 # source: https://wiki.archlinux.org/title/XDG_Base_Directory
 
+# Exec=/usr/bin/bash -c "bash \"${PWD}\"/include/setup-xfce.sh;exec bash"
+
+cp ./include/setup-xfce.sh /usr/bin/setup-xfce.sh
+cp ./include/shortcuts-xfce.sh /usr/bin/shortcuts-xfce.sh
+
 mkdir -p $HOME/.config/autostart
 echo '[Desktop Entry]
 Type=Application
@@ -161,7 +158,7 @@ Version=1.0
 Name=script3
 Comment[C]=Script for basic config of xfce4 Desktop
 Comment[es]=Script para la configuración básica del escritório xfce4
-Exec=/usr/bin/bash -c "bash \"${PWD}\"/include/setup-xfce.sh;exec bash"
+Exec=/usr/bin/bash -c "bash /usr/bin/setup-xfce.sh;exec bash"
 Terminal=true
 X-GNOME-Autostart-enabled=true
 NoDisplay=false' > $HOME/.config/autostart/setup-xfce.desktop
@@ -178,28 +175,28 @@ NoDisplay=false' > $HOME/.config/autostart/setup-xfce.desktop
 # X-GNOME-Autostart-enabled=true
 # NoDisplay=false' > $HOME/.config/autostart/script3.desktop
 
-echo "[Desktop Entry]
-Type=Application
-Encoding=UTF-8
-Version=1.0
-Name=emacs
-Comment[C]=Script for basic config of emacs
-Comment[es]=Script para la configuración básica de emacs
-Exec=emacs -q --eval \"(progn (load-theme 'misterioso)(set-cursor-color \\\"turquoise\\\"))\"
-# Terminal=true
-X-GNOME-Autostart-enabled=true
-NoDisplay=false" > $HOME/.config/autostart/emacs.desktop
-
-
 # if the other fail you can try by user instead of admin
 # ~/.config/systemd/user/setup-xfce.service
 
 
 echo "Installation successful
-Now you can run the desktop with:
+the system will start automatically in 3 seconds
 $ startx"
+sleep 3 && startx
 
-startx
+# example of autostart app
+echo "[Desktop Entry]
+Type=Application
+Encoding=UTF-8
+Version=1.0
+Name=emacs
+Comment[C]=Script to config emacs
+Comment[es]=Script para configurar emacs
+Comment[de]=Skript zum Konfigurieren von Emacs
+Exec=emacs -q --eval \"(progn (load-theme 'misterioso)(set-cursor-color \\\"turquoise\\\"))\"
+# Terminal=true
+X-GNOME-Autostart-enabled=true
+NoDisplay=false" > $HOME/.config/autostart/emacs.desktop
 
 
 # emacs:
