@@ -81,6 +81,7 @@ rm /mnt/home/script2.sh
 
 ## Copy script3.sh with desktop customizations to run on first boot 
 cp ./script3.sh /mnt/usr/bin/script3.sh
+chmod +x /mnt/usr/bin/script3.sh
 
 
 ## In the end unmount everything and exiting
