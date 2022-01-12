@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# script1.h: bash script for install archlinux with support for BIOS/MBR 
+# script1.sh: bash script for install archlinux with support for BIOS/MBR 
 
 # Dependencies:
 #  built-in files (see above)
@@ -29,9 +29,8 @@ source ./include/ANSI_escape_colors
 source ./include/functions
 
 
-### VARIABLE DECLARATION
+### GLOBAL VARIABLE DECLARATION
 
-installer_version=v0.8.1
 script_start_time="$(date +%s)"	# record runtime of the archlinux install
 log=archlinux_install_script.log
 
@@ -40,9 +39,8 @@ log=archlinux_install_script.log
 
 ########################################
 # Purpose: display usage of this archlinux installer bash script 
-# Arguments: global variable "installer_version"
+# Arguments: none
 ########################################
-
 function prerequirements {
   ##  Verify Internet Connection
   if ! ping -c 1 -q google.com >&/dev/null; then
@@ -60,12 +58,12 @@ function prerequirements {
 
 ########################################
 # Purpose: display usage of this archlinux installer bash script 
-# Arguments: global variable "installer_version"
+# Arguments: none
 ########################################
 function display_usage
 {
   printf "
-ARCHLINUX installer Version %s
+ARCHLINUX installer
 Summary: A bash script that automates the archlinux install. 
   * It follows the archlinux official guidelines.
   * The installation supports internal HDD or USB/SD removable devices.
@@ -117,7 +115,7 @@ IMPORTANT: System Locale
   * After the install, you can overrride this system locale by editing:
     $XDG_CONFIG_HOME/locale.conf (usually ~/.config/locale.conf)
   
-" "${installer_version}"
+"
   exit 0
 }
 
@@ -188,7 +186,7 @@ function main {
   fi
 
   ### CREATE LOG FILE WITH SYSTEM INFO
-  echo "Archlinux installer version: ${installer_version}" > "${log}"
+  echo "Archlinux installer" > "${log}"
   echo "Start time: ${script_start_time}" >> "${log}"
   echo "Machine: ${machine}" >> "${log}"
   echo "Boot Mode: ${boot_mode}" >> "${log}"
@@ -204,25 +202,40 @@ function main {
   # in VirtualBox machine please set target device without dialog
   [[ "${machine}" == 'VBox' ]] && target_device=/dev/sda
 
-  # log parameters, for security passwords are hidden (read -s)
-  printf "${Green}"
-  read -p "Enter HOST name: " host_name
-  read -sp "Enter ROOT PASSWORD: " root_password
-  read -p "Enter USER name: " user_name
-  read -sp "Enter USER PASSWORD: " user_password
-  printf "${NC}"
+  # log parameters
+  set +o xtrace			# please do not show passwords
+  printf "\nEnter ${Green}HOST name${NC}:"
+  read host_name
+  printf "\n\nEnter ${Green}ROOT PASSWORD${NC}: "
+  read -s root_password
+  printf "\n\nEnter ${Green}USER name${NC}: "
+  read user_name
+  printf "\n\nEnter ${Green}USER PASSWORD${NC}: "
+  read -s user_password
+  printf "\n\n"
+  set -o xtrace			# trace & expand what gets executed
+  
+  # parameters to select only if machine is real
+  if [[ "${machine}" == 'REAL' ]]; then
+    read -p "Enter USER SHELL (e.g. bash, zsh) " user_shell
+    [[ ! "${user_shell}" =~ ^([b][a]|[z])(sh)$ ]] && err >> "${log}"
+    read -p "Enter SHELL KEYMAP (e.g. en, de, fr) " shell_keymap
+    [[ ! "${shell_keymap}" =~ ^([a-z][a-z])$ ]] && err >> "${log}"
+    read -p "Do you want to AUTOLOG IN TTY1 at startup?[y/N]" autolog_tty
+    [[ ! "${autolog_tty}" =~ ^([yY]|[nN])$ ]] && err >> "${log}"
+    # ask user to create a recovery partition and MBR
+    read -p "Create a backup partition?[y/N]" backup_partition
+    [[ ! "${backup_partition}" =~ ^([yY]|[nN])$ ]] && err >> "${log}"
+  fi
 
-  # parameters with fixed options that need to be validated
-  read -p "Enter USER SHELL (e.g. bash, zsh) " user_shell
-  [[ ! "${user_shell}" =~ ^([b][a]|[z])(sh)$ ]] && err >> "${log}"
-  read -p "Enter SHELL KEYMAP (e.g. en, de, fr) " shell_keymap
-  [[ ! "${shell_keymap}" =~ ^([a-z][a-z])$ ]] && err >> "${log}"
-  read -p "Do you want to AUTOLOG IN TTY1 at startup?[y/N]" autolog_tty
-  [[ ! "${autolog_tty}" =~ ^([yY]|[nN])$ ]] && err >> "${log}"
+  # if virtual machine set commond variables
+  if [[ "${machine}" == 'VBox' ]]; then
+    user_shell="bash"
+    shell_keymap="es"
+    autolog_tty="y"
+    backup_partition="N"
+  fi
 
-  # ask user to create a recovery partition and MBR
-  read -p "Create a backup partition?[y/N]" backup_partition
-  [[ ! "${backup_partition}" =~ ^([yY]|[nN])$ ]] && err >> "${log}"
 
 
   ### SET TIME AND SYNCHRONIZE SYSTEM CLOCK
@@ -232,7 +245,7 @@ function main {
 
   ### DISK PARTITIONING, FORMATING AND MOUNTING
 
-  ## - 1 - Partitioning a HDD, NO Partition Recovery
+  ## - 1 - Partitioning a HDD, WITHOUT Partition Recovery
   if [[ ! "${backup_partition}" =~ ^([yY][eE][sS]|[yY])$ ]]; then
 
     ## General Disk Partitioning Scheme: 3 partitions in 8GB disk
@@ -300,12 +313,10 @@ function main {
   pacman -Syy --noconfirm archlinux-keyring
 
   ## install system elementary packages
-  # essential
-  pacstrap /mnt base base-devel
-  # linux kernel
-  pacstrap /mnt linux
+  # essential packages
+  pacstrap /mnt base base-devel linux 
   # packages for hardware functionallity
-  pacstrap /mnt linux-firmware
+  [[ "${machine}" == 'REAL' ]] && pacstrap /mnt linux-firmware
   # editors
   pacstrap /mnt vim nano
   # system shell	
@@ -335,13 +346,13 @@ function main {
 
 
   ## copy chroot-script.sh to new system
-  cp "$PWD"/chroot-script.sh /mnt/home \
-    || cp arch/chroot-script.sh /mnt/home 
+  cp "$PWD"/script2.sh /mnt/home \
+    || cp arch/script2.sh /mnt/home 
 
   
   ## change root and run chroot-script.sh
-  set +o xtrace 	  # avoid show sensitive passwords 
-  arch-chroot /mnt sh /home/chroot-script.sh \
+  set +o xtrace			# avoid to show passwords 
+  arch-chroot /mnt sh /home/script2.sh \
 	      "${target_device}" \
 	      "${host_name}" \
 	      "${root_password}" \
@@ -350,10 +361,10 @@ function main {
 	      "${user_shell}" \
 	      "${shell_keymap}" \
 	      "${autolog_tty}" 
-  set -o xtrace		  # trace & expand what gets executed 
+  set -o xtrace			# trace & expand what gets executed
 
   
-  ## update pkgfile database (to support shell command not found message)
+  ## update pkgfile database (to activate shell: command not found)
   arch-chroot /mnt pkgfile -u
 
   
@@ -432,7 +443,7 @@ function main {
 
   # shutdown now
 
-  printf "${Blue}Installation successful${NC}\n"
+  printf "${Green}Installation successful${NC}\n"
 
 }
 

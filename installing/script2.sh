@@ -61,7 +61,10 @@ echo 'LC_TIME=en_GB.UTF-8'           >> /etc/locale.conf
 
 
 ## Keyboard Configuration
-echo "KEYMAP=${shell_keymap}" > /etc/vconsole.conf
+# https://wiki.archlinux.org/title/Linux_console/Keyboard_configuration
+if ! localectl set-keymap --no-convert es; then
+  echo "KEYMAP=${shell_keymap}" > /etc/vconsole.conf
+fi
 
 
 ## Network Configuration
@@ -120,6 +123,9 @@ usermod -aG audio,network,optical,power,storage,wheel "${user_name}"
 pacman -S --needed --noconfirm xdg-user-dirs
 LC_ALL=C xdg-user-dirs-update --force
 
+## create $USER locale
+# source: https://wiki.archlinux.org/title/Locale#Setting_the_locale
+echo 'LANG=de_DE.UTF-8' > /home/"${user_name}"/.config/locale.conf
 
 ## autologing tty
 if [[ "${autolog_tty}" =~ ^([yY][eE][sS]|[yY])$ ]]; then

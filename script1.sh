@@ -29,7 +29,7 @@ export user_password
 timedatectl set-ntp true
 
 
-## HDD partition (BIOS/MBR)
+## HDD partitioning (BIOS/MBR)
 parted -s /dev/sda \
        mklabel msdos \
        mkpart primary ext2 0% 2% \
@@ -37,12 +37,12 @@ parted -s /dev/sda \
        mkpart primary ext4 2% 100%
 
 
-## HDD formating
-mkfs.ext2 /dev/sda1
-mkfs.ext4 /dev/sda2
+## HDD patitions formating (-F=overwrite if necessary)
+mkfs.ext2 -F /dev/sda1
+mkfs.ext4 -F /dev/sda2
 
 
-## HDD partitioning mounting
+## HDD partitions mounting
 # root partition "/"
 mount /dev/sda2 /mnt
 # boot partition "/boot"
@@ -81,7 +81,6 @@ rm /mnt/home/script2.sh
 
 ## Copy script3.sh with desktop customizations to run on first boot 
 cp ./script3.sh /mnt/usr/bin/script3.sh
-
 
 
 ## In the end unmount everything and exiting

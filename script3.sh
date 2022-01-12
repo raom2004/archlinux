@@ -18,7 +18,8 @@ function aur_install {
     folder="$(basename $1 .git)"
     if [[ ! -n "$(pacman -Qm ${folder})" ]]; then 
 	echo "installing AUR package ${folder}"
-	git clone "$1" "/tmp/${folder}"
+	[[ -d /tmp/"${folder}" ]] && rm -rf /tmp/"${folder}"
+	git clone "$1 /tmp/${folder}"
 	cd "/tmp/${folder}"
 	makepkg -sri --noconfirm
 	cd $OLDPWD
@@ -28,7 +29,7 @@ function aur_install {
 
 
 ## ADD USER STANDARD DIRECTORIES
-sudo pacman -S --needed xdg-user-dirs  --noconfirm
+sudo pacman -S --needed --noconfirm xdg-user-dirs
 LC_ALL=C xdg-user-dirs-update --force
 
 
@@ -50,7 +51,7 @@ if [ -n "$(grep '#autologin-guest=false' /etc/lightdm/lightdm.conf)" ];then
 fi
 
 
-## HIDE BOOTLOADER MENU AT STARTUP (and show it pressing SHIFT key)
+## HIDE BOOT LOADER MENU AT STARTUP (and show it pressing SHIFT key)
 if [ ! -n "$(grep GRUB_FORCE_HIDDEN_MENU /etc/default/grub)" ]; then
     sudo bash -c "echo '
 GRUB_FORCE_HIDDEN_MENU=\"true\"
@@ -65,8 +66,7 @@ fi
 
 
 ## THEME CUSTOMIZATION
-sudo pacman -S --needed arc-gtk-theme \
-     papirus-icon-theme --noconfirm
+sudo pacman -S --needed --noconfirm arc-gtk-theme papirus-icon-theme 
 # arch cursor
 aur_install https://aur.archlinux.org/xcursor-arch-cursor-complete.git
 # desktop font 
@@ -89,7 +89,7 @@ gsettings set org.cinnamon.desktop.interface icon-theme 'ePapirus'
 gsettings set org.cinnamon.desktop.interface gtk-theme 'Arc-Dark'
 gsettings set org.cinnamon.desktop.interface font-name 'Zekton 10'
 gsettings set org.cinnamon.desktop.interface cursor-theme 'ArchCursorComplete'
-# set nemo font
+# set file manager font
 gsettings set org.nemo.desktop font 'Zekton 10'
 # set window manager settings
 gsettings set org.cinnamon.desktop.wm.preferences titlebar-font 'Zekton Bold 10'
@@ -111,16 +111,16 @@ sudo sed -i 's/\(#\)Color/\1/' /etc/pacman.conf
 
 # Bash
 sudo pacman -S --needed --noconfirm bash-completion
-url="https://raw.githubusercontent.com/raom2004/archlinux/part/02_archlinux_dotfiles/.bashrc"
+url="https://raw.githubusercontent.com/raom2004/archlinux/master/dotfiles/.bashrc"
 wget "$url" --output-document=/$HOME/.bashrc
 
 # Bash prompt
-url="https://raw.githubusercontent.com/raom2004/archlinux/part/02_archlinux_dotfiles/.bash_prompt"
+url="https://raw.githubusercontent.com/raom2004/archlinux/master/dotfiles/.bash_prompt"
 wget "$url" --output-document=/$HOME/.bash_prompt
 
 # Zsh
 [[ -f "/$HOME/.zshrc" ]] && sudo mv /$HOME/.zshrc /$HOME/.zshrc_backup
-url="https://raw.githubusercontent.com/raom2004/archlinux/part/02_archlinux_dotfiles/.zshrc"
+url="https://raw.githubusercontent.com/raom2004/archlinux/master/dotfiles/.zshrc"
 wget "$url" --output-document=/$HOME/.zshrc
 unset -v url
 

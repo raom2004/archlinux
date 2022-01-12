@@ -56,13 +56,33 @@ grub-mkconfig -o /boot/grub/grub.cfg
 # sudo requires to turn on "wheel" groups
 sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g' /etc/sudoers
 # set root password
-echo -e "$root_password\n$root_password" | (passwd root)
+echo -e "${root_password}\n${root_password}" | (passwd root)
 # create new user and set ZSH as shell
 useradd -m "$user_name" -s /bin/zsh
 # set new user password
-echo -e "$user_password\n$user_password" | (passwd $user_name)
+echo -e "${user_password}\n${user_password}" | (passwd $user_name)
 # set user groups
-usermod -aG wheel,audio,optical,storage,power,network "$user_name"
+usermod -aG wheel,audio,optical,storage,power,network "${user_name}"
+
+
+## DOTFILES
+# ~/.bashrc
+url="https://raw.githubusercontent.com/raom2004/archlinux/master/dotfiles/.bashrc"
+wget "${url}" --output-document=/home/"${user_name}"/.bashrc
+# ~/.zshrc
+url="https://raw.githubusercontent.com/raom2004/archlinux/master/dotfiles/.zshrc"
+wget "${url}" --output-document=/home/"${user_name}"/.zshrc
+
+## CUSTOMIZED DOTFILES
+# ~/.aliases
+url="https://raw.githubusercontent.com/raom2004/archlinux/master/dotfiles/.aliases"
+wget "${url}" --output-document=/home/"${user_name}"/.aliases
+# ~/.bash_prompt
+url="https://raw.githubusercontent.com/raom2004/archlinux/master/dotfiles/.bash_prompt"
+wget "${url}" --output-document=/home/"${user_name}"/.bash_prompt
+# ~/.functions
+url="https://raw.githubusercontent.com/raom2004/archlinux/master/dotfiles/.functions"
+wget "${url}" --output-document=/home/"${user_name}"/.functions
 
 
 ## Enable Requited Services:
