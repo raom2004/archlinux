@@ -165,7 +165,8 @@ pactl -- set-sink-volume 0 50%
 
 
 ## systemctl disable script3.service
-sudo rm -rf /etc/xdg/autostart/script3.desktop
+# sudo rm -rf /etc/xdg/autostart/script3.desktop
+sudo rm -rf ~/.config/autostart/script3.desktop
 
 
 # restart
