@@ -98,9 +98,8 @@ systemctl enable lightdm
 # With a startup script that just need to steps:
 #  * Create a script3.sh with your customizations
 #  * Create script3.desktop entry to autostart script3.sh at first boot
-# Exec=/usr/bin/bash -c "bash /usr/bin/script3.sh;exec bash"
-# NoDisplay=false' > /etc/xdg/autostart/script3.desktop
-mkdir -p /home/"${user_name}"/.config/autostart
+# create autostart dir and desktop entry
+mkdir -p /home/"${user_name}"/.config/autostart/
 echo '[Desktop Entry]
 Type=Application
 Name=script3
@@ -108,8 +107,14 @@ Comment[C]=Script to config a new Desktop on first boot
 Terminal=true
 Exec=gnome-terminal -- bash -c "bash /usr/bin/script3.sh; exec bash"
 X-GNOME-Autostart-enabled=true
-NoDisplay=false' > /home/"${user_name}"/.config/autostart/script3.desktop
-
+NoDisplay=false
+' > /home/"${user_name}"/.config/autostart/script3.desktop
+# set desktop entry permissions
+chown "${user_name}:${user_name}" \
+      /home/"${user_name}"/.config/autostart/script3.desktop
+# saved usseful lines
+# Exec=/usr/bin/bash -c "bash /usr/bin/script3.sh;exec bash"
+# NoDisplay=false' > /etc/xdg/autostart/script3.desktop
 
 ## exit if no errors stops the script (option "set -ex")
 exit
