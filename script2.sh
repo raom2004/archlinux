@@ -100,6 +100,7 @@ systemctl enable lightdm
 #  * Create script3.desktop entry to autostart script3.sh at first boot
 # Exec=/usr/bin/bash -c "bash /usr/bin/script3.sh;exec bash"
 # NoDisplay=false' > /etc/xdg/autostart/script3.desktop
+mkdir -p /home/"${user_name}"/.config/autostart
 echo '[Desktop Entry]
 Type=Application
 Name=script3
