@@ -316,29 +316,29 @@ function main {
   # essential packages
   pacstrap /mnt base base-devel linux 
   # packages for hardware functionallity
-  [[ "${machine}" == 'REAL' ]] && pacstrap /mnt linux-firmware
+  # [[ "${machine}" == 'REAL' ]] && pacstrap /mnt linux-firmware
   # editors
   pacstrap /mnt vim nano
   # system shell	
-  pacstrap /mnt zsh
+  # pacstrap /mnt zsh
   # shell additional functions
-  pacstrap /mnt pkgfile
+  # pacstrap /mnt pkgfile
   # system tools	
   pacstrap /mnt sudo git wget
   # system mounting tools
-  pacstrap /mnt gvfs
+  # pacstrap /mnt gvfs
   # network
   pacstrap /mnt dhcpcd
   # wifi
-  pacstrap /mnt networkmanager
+  # pacstrap /mnt networkmanager
   # boot loader	
-  pacstrap /mnt grub os-prober
+  pacstrap /mnt grub #os-prober
   # multi-OS support packages
-  pacstrap /mnt usbutils dosfstools ntfs-3g amd-ucode intel-ucode
+  # pacstrap /mnt usbutils dosfstools ntfs-3g amd-ucode intel-ucode
   # system backup	
-  pacstrap /mnt rsync
+  # pacstrap /mnt rsync
   # inmprove glyphs support
-  pacstrap /mnt ttf-{hanazono,font-awesome,ubuntu-font-family}
+  # pacstrap /mnt ttf-{hanazono,font-awesome,ubuntu-font-family}
 
   
   ## generate fstab
@@ -349,7 +349,7 @@ function main {
   cp "$PWD"/script2.sh /mnt/home \
     || cp arch/script2.sh /mnt/home 
 
-  
+  exit 0
   ## change root and run chroot-script.sh
   set +o xtrace			# avoid to show passwords 
   arch-chroot /mnt sh /home/script2.sh \
