@@ -53,18 +53,14 @@ sed -i 's/#\(fr_FR.UTF-8\)/\1/' /etc/locale.gen
 sed -i 's/#\(ru_RU.UTF-8\)/\1/' /etc/locale.gen
 sed -i 's/#\(zh_CN.UTF-8\)/\1/' /etc/locale.gen
 locale-gen
-echo 'LANG=en_US.UTF-8'               > /etc/locale.conf
-echo 'LANGUAGE=en_US:en_GB:en'       >> /etc/locale.conf
-echo 'LC_COLLATE=C'                  >> /etc/locale.conf
-echo 'LC_MESSAGES=en_US.UTF-8'       >> /etc/locale.conf
-echo 'LC_TIME=en_GB.UTF-8'           >> /etc/locale.conf
-
-
-## Keyboard Configuration
-# https://wiki.archlinux.org/title/Linux_console/Keyboard_configuration
-if ! localectl set-keymap --no-convert es; then
-  echo "KEYMAP=${shell_keymap}" > /etc/vconsole.conf
-fi
+echo 'LANG=en_US.UTF-8'         > /etc/locale.conf
+echo 'LANGUAGE=en_US:en_GB:en'  >> /etc/locale.conf
+echo 'LC_COLLATE=C'             >> /etc/locale.conf
+echo 'LC_MESSAGES=en_US.UTF-8'  >> /etc/locale.conf
+echo 'LC_TIME=en_GB.UTF-8'      >> /etc/locale.conf
+# Keyboard Configuration
+echo "KEYMAP=${shell_keymap}" > /etc/vconsole.conf
+localectl set-keymap --no-convert es # do not work under chroot
 
 
 ## Network Configuration
@@ -119,10 +115,13 @@ pacman -S --needed --noconfirm xdg-user-dirs
 LC_ALL=C xdg-user-dirs-update --force
 
 
-## $USER CONFIGURATION AND STANDARD DOTFILES
-# locale: https://wiki.archlinux.org/title/Locale#Setting_the_locale
+## create $USER locale
+# https://wiki.archlinux.org/title/Locale#Setting_the_locale
 mkdir -p /home/"${user_name}"/.config
-echo 'LANG=de_DE.UTF-8' > /home/"${user_name}"/.config/locale.conf
+echo 'LANGUAGE=en'            > /home/"${user_name}"/.config/locale.conf
+echo 'LC_MESSAGES=en:de'      >> /home/"${user_name}"/.config/locale.conf
+
+## create $USER standard dotfiles
 # ~/.bashrc
 url="https://raw.githubusercontent.com/raom2004/archlinux/master/dotfiles/.bashrc"
 wget "${url}" --output-document=/home/"${user_name}"/.bashrc
@@ -130,7 +129,8 @@ wget "${url}" --output-document=/home/"${user_name}"/.bashrc
 url="https://raw.githubusercontent.com/raom2004/archlinux/master/dotfiles/.zshrc"
 wget "${url}" --output-document=/home/"${user_name}"/.zshrc
 
-## $USER CUSTOMIZED DOTFILES
+
+## create $USER CUSTOMIZED DOTFILES
 # ~/.aliases
 url="https://raw.githubusercontent.com/raom2004/archlinux/master/dotfiles/.aliases"
 wget "${url}" --output-document=/home/"${user_name}"/.aliases
@@ -140,11 +140,23 @@ wget "${url}" --output-document=/home/"${user_name}"/.bash_prompt
 # ~/.functions
 url="https://raw.githubusercontent.com/raom2004/archlinux/master/dotfiles/.functions"
 wget "${url}" --output-document=/home/"${user_name}"/.functions
+# ~/.vimrc
+url="https://raw.githubusercontent.com/raom2004/archlinux/master/dotfiles/.vimrc"
+wget "${url}" --output-document=/home/"${user_name}"/.vimrc
 
 
-## RECTIFY $USER PERMISSIONS 
-chown -R "${user_name}":"${user_name}" /home/"${user_name}"/*
+## RECTIFY DOTFILES PERMISSIONS 
+chown -R "${user_name}":"${user_name}" /home/"${user_name}"/.*
 
+
+## shell support for: command not found
+pacman -S --noconfirm pkgfile && pkgfile -u
+
+
+## Pacman Package Manager Customization
+sed -i 's/#\(Color\)/\1/' /etc/pacman.conf
+# improve compiling time adding processors "nproc"
+sed -i 's/#MAKEFLAGS="-j2"/MAKEFLAGS="-j$(nproc)"/' /etc/makepkg.conf
 
 ## autologing tty
 if [[ "${autolog_tty}" =~ ^([yY][eE][sS]|[yY])$ ]]; then
@@ -154,20 +166,6 @@ ExecStart=
 ExecStart=-/sbin/agetty --autologin ${user_name} --noclear %%I $TERM
 " > /etc/systemd/system/getty@tty1.service.d/autologin.conf
 fi
-
-
-## Pacman customization
-# Pacman Package Manager Ciustomization: activate color
-sed -i 's/#\(Color\)/\1/' /etc/pacman.conf
-# improve compiling time adding processors "nproc"
-sed -i 's/#MAKEFLAGS="-j2"/MAKEFLAGS="-j$(nproc)"/' /etc/makepkg.conf
-
-
-## shell customization  
-# shell support for: command not found
-pacman -S --noconfirm pkgfile 
-# update database
-pkgfile -u
 
 
 ## Enable Requited Services
