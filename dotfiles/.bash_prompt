@@ -51,6 +51,9 @@ PS1="${Cyan}\u${NC}@\h: \w ${Cyan}\$GIT_STATUS${NC}\\$ "
 # PS1="${RESET}${YELLOW}\h${NORMAL} \`${SELECT}\` ${YELLOW}>${NORMAL} "
 
 
+# emacs:
 # Local Variables:
 # sh-basic-offset: 2
 # End:
+
+# vim: set ts=2 sw=2 et:

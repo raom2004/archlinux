@@ -48,3 +48,5 @@ unset doIt
 # Local Variables:
 # sh-basic-offset: 2
 # End:
+
+# vim: set ts=2 sw=2 et:

@@ -21,6 +21,10 @@ alias srn="sudo reboot now"
 alias ssn="sudo shutdown now"
 alias spS="sudo pacman -Syu"
 
+
+# emacs:
 # Local Variables:
 # sh-basic-offset: 2
 # End:
+
+# vim: set ts=2 sw=2 et:

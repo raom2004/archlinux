@@ -73,7 +73,19 @@ export HISTSIZE=10000
 source /usr/share/doc/pkgfile/command-not-found.bash
 # can be also activated by /etc/bash.bashrc
 
+
+# vim customization
+if [[ -d ~/.vim ]]; then
+  url=https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+  curl -fLo ~/.vim/autoload/plug.vim --create-dirs "${url}"
+  unset -v url
+  vim +PlugInstall +qall
+fi
+    
+
 # emacs:
 # Local Variables:
 # sh-basic-offset: 2
 # End:
+
+# vim: set ts=2 sw=2 et:
