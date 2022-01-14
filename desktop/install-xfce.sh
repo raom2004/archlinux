@@ -20,7 +20,7 @@ if [[ ! -d "$HOME/.vim/plugged/jummidark.vim" ]]; then
 fi
 
 # verify if packages were pre-installed
-if [[ ! -n "$(pacman -Qs xfce4)" ]]; then
+if [[ -n "$(pacman -Qs xfce4)" ]]; then
   echo "xfce4 is already on system"
   exit 0
 fi
