@@ -94,11 +94,9 @@ if [[ "${autolog_tty}" =~ ^([yY][eE][sS]|[yY])$ ]];then
 fi
 
 
-## turn on "wheel" groups, required by sudo
-sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g' /etc/sudoers
-
-
 ## Accounts Config
+# turn on "wheel" groups, required by sudo
+sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g' /etc/sudoers
 # set root password
 echo -e "${root_password}\n${root_password}" | (passwd root)
 # create new user
@@ -110,16 +108,15 @@ usermod -aG audio,network,optical,power,storage,wheel "${user_name}"
 # Note: there are more groups available, like: autologin,kvm,vboxusers,lp
 
 
-## create $USER dirs
+## create $USER dirs (ENGLISH)
 pacman -S --needed --noconfirm xdg-user-dirs
 LC_ALL=C xdg-user-dirs-update --force
 
 
-## create $USER locale
-# https://wiki.archlinux.org/title/Locale#Setting_the_locale
+## Overriding system locale per $USER session
 mkdir -p /home/"${user_name}"/.config
-echo 'LANGUAGE=de_DE.UTF-8'    > /home/"${user_name}"/.config/locale.conf
-echo 'LC_MESSAGES=en_US.UTF-8' >> /home/"${user_name}"/.config/locale.conf
+echo 'LANGUAGE=en_GB.UTF-8' > /home/"${user_name}"/.config/locale.conf
+
 
 ## create $USER standard dotfiles
 # ~/.bashrc

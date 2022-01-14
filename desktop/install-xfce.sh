@@ -64,11 +64,9 @@ fi
 # sudo pacman -Sy --needed --noconfirm emacs
 
 
-### run desktop creating the dotfiles ".xinitrc" and ".serverrc":
+## create dotfiles ".xinitrc" and ".serverrc" and run "desktop"
 # source: https://wiki.archlinux.org/title/Xinit#xinitrc
-
-## ~/.xinitrc
-# create a new ~/.xinitrc from template
+# ~/.xinitrc: create from template
 head -n50 /etc/X11/xinit/xinitrc > $HOME/.xinitrc
 # set keymap
 desktop_keymap="$(localectl | awk 'tolower($0) ~ /keymap/{ printf $3 }')"
@@ -84,9 +82,7 @@ case $session in
     *                 ) exec $1;;
 esac
 ' >> $HOME/.xinitrc
-
-
-## ~/.serverrc
+# ~/.serverrc
 # In order to maintain an authenticated session with logind and to
 # prevent bypassing the screen locker by switching terminals,
 # it is recommended to specify vt$XDG_VTNR in the ~/.xserverrc file: 
