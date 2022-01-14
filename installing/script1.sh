@@ -237,7 +237,6 @@ function main {
   fi
 
 
-
   ### SET TIME AND SYNCHRONIZE SYSTEM CLOCK
 
   timedatectl set-ntp true
@@ -245,65 +244,58 @@ function main {
 
   ### DISK PARTITIONING, FORMATING AND MOUNTING
 
-  ## - 1 - Partitioning a HDD, WITHOUT Partition Recovery
-  if [[ ! "${backup_partition}" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+  disk_usage=50%
 
-    ## General Disk Partitioning Scheme: 3 partitions in 8GB disk
-    #  /boot (/dev/sdx1, 300MB)
-    #  /home (/dev/sdx2, 700MB)
-    #  /root (/dev/sdx3, remaining space)
+  if [[ ${boot_mode} == "BIOS" ]]; then
+    printf "BIOS detected! you can select a GPT or MBR partition table:\n"
+    select OPTION in MBR GPT; do
+      case ${OPTION} in
+	MBR)
+	  ## HDD partitioning (BIOS/MBR)
+	  parted -s "${target_device}" mklabel msdos
+	  parted -s -a optimal "${target_device}" mkpart primary ext4 0% "${disk_usage}"
+	  parted -s "${target_device}" set 1 boot on
+	  
+	  ## HDD formating (-F: overwrite if necessary)
+	  mkfs.ext4 -F "${target_device}1"
 
-    ## Partitioning disk with MBR table:
-    parted -s "${target_device}" mklabel msdos
-    parted -s -a optimal "${target_device}" mkpart primary ext2 0% 300MB
-    parted -s "${target_device}" set 1 boot on
-    parted -s -a optimal "${target_device}" mkpart primary ext4 300MB 1GB
-    parted -s -a optimal "${target_device}" mkpart primary ext4 1GB 100%
-
-    ## Formating partitions (-F=overwrite if necessary)
-    mkfs.ext2 -F "${target_device}1"
-    mkfs.ext4 -F "${target_device}2"
-    mkfs.ext4 -F "${target_device}3"
-    
-    ## Mounting partitions
-    # partition "/"
-    mount "${target_device}3" /mnt
-    # partition "/boot"
-    mkdir /mnt/{boot,home}
-    mount "${target_device}1" /mnt/boot
-    mount "${target_device}2" /mnt/home
+	  ## HDD mounting
+	  mount "${target_device}1" /mnt
+	  break
+	  ;;
+	GPT)
+	  ## HDD partitioning (BIOS/GPT)
+	  parted -s "${target_device}" mklabel gpt
+	  parted -s -a optimal "${target_device}" mkpart primary ext2 0% 2MiB
+	  parted -s "${target_device}" set 1 bios_grub on
+	  parted -s -a optimal "${target_device}" mkpart primary ext4 2MiB "${disk_usage}"
+	  
+	  ## HDD formating (-F: overwrite if necessary)
+	  mkfs.ext4 -F "${target_device}2"
+	  
+	  ## HDD mounting
+	  mount "${target_device}2" /mnt
+	  break
+	  ;;
+      esac
+    done
   fi
 
-  ## - 2 - Partitioning a HDD, WITH Partition Recovery
-  if [[ "${backup_partition}" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+  if [[ ${boot_mode} == "UEFI" ]]; then
+    ## HDD partitioning (UEFI/GPT)
+    parted -s "${target_device}" mklabel gpt
+    parted -s -a optimal "${target_device}" mkpart primary 0% 512MiB
+    parted -s "${target_device}" set 1 esp on
+    parted -s -a optimal "${target_device}" mkpart primary 512MiB "${disk_usage}"
 
-    ## General Disk Partitioning Scheme: 4 partitions in 12 GB disk
-    #  /boot (/dev/sdx1, 300MB, shared between /root directories)
-    #  /home (/dev/sdx2, 3.7GB, shared between /root directories)
-    #  /root (/dev/sdx3, 4GB, original)
-    #  /root (/dev/sdx4, 4GB, duplicate for recovery or testing purposes)
-
-    ## Partitioning disk:
-    parted -s "${target_device}" mklabel msdos # MBR partition table
-    parted -s -a optimal "${target_device}" mkpart primary ext2 0% 300MB
-    parted -s -a optimal "${target_device}" mkpart primary ext4 300MB 4GB
-    parted -s -a optimal "${target_device}" mkpart primary ext4 4GB 8GB
-    parted -s -a optimal "${target_device}" mkpart primary ext4 8GB 12GB
-
-    ## Formating partitions (-F=overwrite if necessary)
-    mkfs.ext2 -F "${target_device}1"
+    ## HDD formating (-F: overwrite if necessary)
+    mkfs.fat -F32 "${target_device}1"
     mkfs.ext4 -F "${target_device}2"
-    mkfs.ext4 -F "${target_device}3"
-    mkfs.ext4 -F "${target_device}4"
 
-    ## Mounting partitions
-    # root partition "/" 
-    mount "${target_device}3" /mnt
-    # discrete partitions
-    mkdir /mnt/{boot,home,recovery}
-    mount "${target_device}1" /mnt/boot
-    mount "${target_device}2" /mnt/home
-    mount "${target_device}4" /mnt/recovery
+    ## HDD mounting
+    mount "${target_device}2" /mnt
+    mkdir -p /mnt/boot/efi
+    mount "${target_device}1" /mnt/boot/efi
   fi
 
 
@@ -321,8 +313,6 @@ function main {
   pacstrap /mnt vim nano
   # system shell	
   # pacstrap /mnt zsh
-  # shell additional functions
-  # pacstrap /mnt pkgfile
   # system tools	
   pacstrap /mnt sudo git wget
   # system mounting tools
@@ -331,14 +321,18 @@ function main {
   pacstrap /mnt dhcpcd
   # wifi
   # pacstrap /mnt networkmanager
-  # boot loader	
-  pacstrap /mnt grub #os-prober
   # multi-OS support packages
   # pacstrap /mnt usbutils dosfstools ntfs-3g amd-ucode intel-ucode
   # system backup	
   # pacstrap /mnt rsync
   # inmprove glyphs support
   # pacstrap /mnt ttf-{hanazono,font-awesome,ubuntu-font-family}
+  # boot loader	
+  pacstrap /mnt grub #os-prober
+  ## package required for GRUB to boot in UEFI mode
+  if [[ ${boot_mode} == "UEFI" ]]; then
+    pacstrap /mnt efibootmgr	 
+  fi
 
   
   ## generate fstab
@@ -362,10 +356,6 @@ function main {
 	      "${shell_keymap}" \
 	      "${autolog_tty}" 
   set -o xtrace			# trace & expand what gets executed
-
-  
-  ## update pkgfile database (to activate shell: command not found)
-  arch-chroot /mnt pkgfile -u
 
   
   ## config boot loader GRUB

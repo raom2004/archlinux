@@ -69,15 +69,16 @@ The next chapter will covers specific topics about Arch Linux install inside rea
 
 * Advanced aspects
 
-The installation of Arch Linux in real machines usually address some advanced aspects, like disk partitioning according to the firmware available (UEFI, BIOS), partitioning tables (MBR, GPT), boot support for additional operative systems, user data or system encryption, and last but not least, system backup and maintenance. 
+The installation of Arch Linux in real machines usually address some advanced aspects, like partition the disk according to the firmware available (UEFI, BIOS) and partitioning table (MBR, GPT) supported, encapsulate the new system to install packages and configurate it from inside, make system bootable as well as coexistent operative systems, user data or system encryption, and last but not least, system backup and maintenance. 
 
 **** In this regard, this chapter covers recommendations about:
 #+begin_quote
 - Disk partitioning BIOS/MBR, BIOS/GPT, UEFI/GPT and their encryption
 - Installing packages with pacstrap and the importance of keyring update
-- User data encryption
-- How to make a backup of the entire system, and make it bootable too
-- Arch Linux maintenance using maint
+- What is Arch-chroot? is not just a chroot
+#TODO - User data encryption
+#TODO - How to make a backup of the entire system, and make it bootable too
+#TODO - Arch Linux maintenance using maint
 #+end_quote
 
 ** Disk partitioning BIOS/MBR, BIOS/GPT, UEFI/GPT and their encryption
@@ -311,7 +312,36 @@ pacstrap /mnt linux-firmware
 #+end_src
 
 
-** User data encryption
-** How to make a backup of the entire system, and make it bootable too
-*** Arch Linux maintenance using maint
+** What is Arch-chroot? well, it is not just a chroot
+=chroot= is a lightweight environment that provides functionality equivalent to a virtual machine. In few words: chroot is a captive system. For example, when you run an interactive shell with chroot, this encapsulated environment prevent it to interact with your regular system ([[https://www.howtogeek.com/441534/how-to-use-the-chroot-command-on-linux/][source]]). 
+
+=arch-chroot= is a shell script that prepares a new "root directory" with the necessary system mounts (/proc, /sys, /dev, etc.) and files (/etc/resolv.conf), then does an unshare'd chroot into it. You'll therefore be left with a chroot environment that's detached from both the main filesystem and process tree ([[https://www.quora.com/How-is-arch-chroot-different-from-chroot?share=1][source]]). You can check the system mounts inside arch-chroot by running =findmnt=.
+
+Indeed, =arch-chroot= together with =pacstrap= and =genfstab= are part of the =arch-install-scripts=, aimed to automate what the authors call "menial tasks" ([[https://github.com/archlinux/arch-install-scripts][source]]), simplifying the commands required to install Arch Linux compared to more advance Linux installations (Linux From Scratch).
+
+This way, when we run =arch-chroot= we are indeed running =unshare= and =chroot= together, as we can see in the last line of the script:
+
+#+begin_src bash :results output :wrap example bash
+cat /bin/arch-chroot | tail -n1
+#+end_src
+
+#+RESULTS:
+#+begin_example bash
+SHELL=/bin/bash unshare --fork --pid chroot "${chroot_args[@]}" -- "$chrootdir" "$@"
+#+end_example
+
+TODO
+https://unix.stackexchange.com/questions/482894/why-do-i-get-permission-denied-when-using-unshare
+https://man.archlinux.org/man/core/util-linux/unshare.1.en#EXAMPLES
+https://stackoverflow.com/questions/64254531/how-unshare-makes-possible-to-use-chroot-without-real-root
+https://www.cloudsavvyit.com/731/what-is-chroot-on-linux-and-how-do-you-use-it/
+
+So, to clarify what this line even does, we can see a simple example of the use of unshare:
+
+#+begin_example bash
+unshare --fork --pid --mount-proc readlink /proc/self
+#+end_example
+# ** User data encryption
+# ** How to make a backup of the entire system, and make it bootable too
+# ** Arch Linux maintenance using maint
 

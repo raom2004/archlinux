@@ -79,20 +79,15 @@ echo "127.0.0.1	localhost
 
 
 ## bash script to handle encrypted root filesystems 
-
 # mkinitcpio -p 
 
 
 ## Install & Config a Bootloader (GRUB)
-
 # grub-install "${target_device}"
-
-  # https://wiki.archlinux.org/title/GRUB/Tips_and_tricks#Multiple_entries
+# https://wiki.archlinux.org/title/GRUB/Tips_and_tricks#Multiple_entries
 grub-install --target=i386-pc "${target_device}"
-
 # add other operative systems (Mac, Windows, etc)
 echo "GRUB_DISABLE_OS_PROBER=false" >> /etc/default/grub
-
 # if autologging yes, hidde GRUB menu at startup
 if [[ "${autolog_tty}" =~ ^([yY][eE][sS]|[yY])$ ]];then
   echo "GRUB_FORCE_HIDDEN_MENU=true" >> /etc/default/grub
@@ -123,9 +118,30 @@ usermod -aG audio,network,optical,power,storage,wheel "${user_name}"
 pacman -S --needed --noconfirm xdg-user-dirs
 LC_ALL=C xdg-user-dirs-update --force
 
-## create $USER locale
-# source: https://wiki.archlinux.org/title/Locale#Setting_the_locale
+
+## $USER configuration and STANDARD DOTFILES
+# locale: https://wiki.archlinux.org/title/Locale#Setting_the_locale
+mkdir -p /home/"${user_name}"/.config/locale.conf
 echo 'LANG=de_DE.UTF-8' > /home/"${user_name}"/.config/locale.conf
+# ~/.bashrc
+url="https://raw.githubusercontent.com/raom2004/archlinux/master/dotfiles/.bashrc"
+wget "${url}" --output-document=/home/"${user_name}"/.bashrc
+# ~/.zshrc
+url="https://raw.githubusercontent.com/raom2004/archlinux/master/dotfiles/.zshrc"
+wget "${url}" --output-document=/home/"${user_name}"/.zshrc
+
+## CUSTOMIZED DOTFILES
+# ~/.aliases
+url="https://raw.githubusercontent.com/raom2004/archlinux/master/dotfiles/.aliases"
+wget "${url}" --output-document=/home/"${user_name}"/.aliases
+# ~/.bash_prompt
+url="https://raw.githubusercontent.com/raom2004/archlinux/master/dotfiles/.bash_prompt"
+wget "${url}" --output-document=/home/"${user_name}"/.bash_prompt
+# ~/.functions
+url="https://raw.githubusercontent.com/raom2004/archlinux/master/dotfiles/.functions"
+wget "${url}" --output-document=/home/"${user_name}"/.functions
+chown "${user_name}":"${user_name}" /home/"${user_name}"/*
+
 
 ## autologing tty
 if [[ "${autolog_tty}" =~ ^([yY][eE][sS]|[yY])$ ]]; then
@@ -137,8 +153,18 @@ ExecStart=-/sbin/agetty --autologin ${user_name} --noclear %%I $TERM
 fi
 
 
-## Pacman Package Manager: activate color
+## Pacman customization
+# Pacman Package Manager Ciustomization: activate color
 sed -i 's/#\(Color\)/\1/' /etc/pacman.conf
+# improve compiling time adding processors "nproc"
+sed -i 's/#MAKEFLAGS="-j2"/MAKEFLAGS="-j$(nproc)"/' /etc/makepkg.conf
+
+
+## shell customization  
+# shell support for: command not found
+pacstrap /mnt pkgfile
+# update database
+arch-chroot /mnt pkgfile -u
 
 
 ## Enable Requited Services
