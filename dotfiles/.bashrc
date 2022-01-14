@@ -72,12 +72,6 @@ export HISTSIZE=10000
 # shell command not found
 source /usr/share/doc/pkgfile/command-not-found.bash
 # can be also activated by /etc/bash.bashrc
-
-
-# vim customization
-if [[ ! -d ~/.vim/plugged ]]; then
-  vim -E -s -u "~/.vimrc" +PlugInstall +qall
-fi
     
 
 # emacs:

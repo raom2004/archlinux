@@ -14,6 +14,10 @@ set -o nounset     # EXIT if script try to use undeclared variables
 set -o pipefail    # CATCH failed piped commands
 set -o xtrace      # trace & expand what gets executed (useful for debug)
 
+# vim customization
+if [[ ! -d "$HOME/.vim/plugged/jummidark.vim" ]]; then
+  vim -E -s -u "$HOME/.vimrc" +PlugInstall +qall
+fi
 
 # verify if packages were pre-installed
 if [[ ! -n "$(pacman -Qs xfce4)" ]]; then
@@ -28,7 +32,6 @@ sudo pacman -Syu --noconfirm
 ## install graphical user interface (display server with nvidia support)
 
 sudo pacman -Sy --needed --noconfirm xorg-{server,xrandr} xterm
-
 # alternatives: xorg-xinit xorg-clock
 
 ## install desktop and sound control packages
@@ -58,7 +61,7 @@ if [[ "${check_actual_system}" == "innotek GmbH" ]]; then
 fi
 
 # heavy code editor packages
-sudo pacman -Sy --needed --noconfirm emacs
+# sudo pacman -Sy --needed --noconfirm emacs
 
 
 ### run desktop creating the dotfiles ".xinitrc" and ".serverrc":
