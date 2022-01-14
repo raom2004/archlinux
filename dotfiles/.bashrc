@@ -75,11 +75,11 @@ source /usr/share/doc/pkgfile/command-not-found.bash
 
 
 # vim customization
-if [[ -d ~/.vim ]]; then
+if [[ ! -d ~/.vim ]]; then
   url=https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
   curl -fLo ~/.vim/autoload/plug.vim --create-dirs "${url}"
   unset -v url
-  vim +PlugInstall +qall
+  echo | vim +PlugInstall +qall
 fi
     
 
