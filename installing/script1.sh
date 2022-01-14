@@ -343,7 +343,6 @@ function main {
   cp "$PWD"/script2.sh /mnt/home \
     || cp arch/script2.sh /mnt/home 
 
-  exit 0
   ## change root and run chroot-script.sh
   set +o xtrace			# avoid to show passwords 
   arch-chroot /mnt sh /home/script2.sh \
