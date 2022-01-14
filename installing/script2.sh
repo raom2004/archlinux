@@ -118,7 +118,7 @@ LC_ALL=C xdg-user-dirs-update --force
 ## create $USER locale
 # https://wiki.archlinux.org/title/Locale#Setting_the_locale
 mkdir -p /home/"${user_name}"/.config
-echo 'LANGUAGE=en'            > /home/"${user_name}"/.config/locale.conf
+echo 'LANGUAGE=de_DE.UTF-8'   > /home/"${user_name}"/.config/locale.conf
 echo 'LC_MESSAGES=en:de'      >> /home/"${user_name}"/.config/locale.conf
 
 ## create $USER standard dotfiles
