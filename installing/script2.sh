@@ -143,7 +143,9 @@ wget "${url}" --output-document=/home/"${user_name}"/.functions
 # ~/.vimrc
 url="https://raw.githubusercontent.com/raom2004/archlinux/master/dotfiles/.vimrc"
 wget "${url}" --output-document=/home/"${user_name}"/.vimrc
-
+# folder ~/.vim and vim plugin support
+url=https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+wget "${url}" -P /home/"${user_name}"/.vim/autoload
 
 ## RECTIFY DOTFILES PERMISSIONS 
 chown -R "${user_name}":"${user_name}" /home/"${user_name}"/.*

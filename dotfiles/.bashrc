@@ -75,11 +75,8 @@ source /usr/share/doc/pkgfile/command-not-found.bash
 
 
 # vim customization
-if [[ ! -d ~/.vim ]]; then
-  url=https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-  curl -fLo ~/.vim/autoload/plug.vim --create-dirs "${url}"
-  unset -v url
-  echo | vim +PlugInstall +qall
+if [[ ! -d ~/.vim/plugged ]]; then
+  vim -E -s -u "~/.vimrc" +PlugInstall +qall
 fi
     
 
