@@ -143,7 +143,7 @@ wget "${url}" --output-document=/home/"${user_name}"/.functions
 
 
 ## RECTIFY $USER PERMISSIONS 
-chown "${user_name}":"${user_name}" /home/"${user_name}"/*
+chown -R "${user_name}":"${user_name}" /home/"${user_name}"/*
 
 
 ## autologing tty
