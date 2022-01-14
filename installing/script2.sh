@@ -121,7 +121,7 @@ LC_ALL=C xdg-user-dirs-update --force
 
 ## $USER CONFIGURATION AND STANDARD DOTFILES
 # locale: https://wiki.archlinux.org/title/Locale#Setting_the_locale
-mkdir -p /home/"${user_name}"/.config/locale.conf
+mkdir -p /home/"${user_name}"/.config
 echo 'LANG=de_DE.UTF-8' > /home/"${user_name}"/.config/locale.conf
 # ~/.bashrc
 url="https://raw.githubusercontent.com/raom2004/archlinux/master/dotfiles/.bashrc"
