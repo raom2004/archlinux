@@ -320,7 +320,7 @@ function main {
   # network
   pacstrap /mnt dhcpcd
   # wifi
-  # pacstrap /mnt networkmanager
+  pacstrap /mnt networkmanager
   # multi-OS support packages
   # pacstrap /mnt usbutils dosfstools ntfs-3g amd-ucode intel-ucode
   # system backup	

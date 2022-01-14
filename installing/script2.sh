@@ -119,7 +119,7 @@ pacman -S --needed --noconfirm xdg-user-dirs
 LC_ALL=C xdg-user-dirs-update --force
 
 
-## $USER configuration and STANDARD DOTFILES
+## $USER CONFIGURATION AND STANDARD DOTFILES
 # locale: https://wiki.archlinux.org/title/Locale#Setting_the_locale
 mkdir -p /home/"${user_name}"/.config/locale.conf
 echo 'LANG=de_DE.UTF-8' > /home/"${user_name}"/.config/locale.conf
@@ -130,7 +130,7 @@ wget "${url}" --output-document=/home/"${user_name}"/.bashrc
 url="https://raw.githubusercontent.com/raom2004/archlinux/master/dotfiles/.zshrc"
 wget "${url}" --output-document=/home/"${user_name}"/.zshrc
 
-## CUSTOMIZED DOTFILES
+## $USER CUSTOMIZED DOTFILES
 # ~/.aliases
 url="https://raw.githubusercontent.com/raom2004/archlinux/master/dotfiles/.aliases"
 wget "${url}" --output-document=/home/"${user_name}"/.aliases
@@ -140,6 +140,9 @@ wget "${url}" --output-document=/home/"${user_name}"/.bash_prompt
 # ~/.functions
 url="https://raw.githubusercontent.com/raom2004/archlinux/master/dotfiles/.functions"
 wget "${url}" --output-document=/home/"${user_name}"/.functions
+
+
+## RECTIFY $USER PERMISSIONS 
 chown "${user_name}":"${user_name}" /home/"${user_name}"/*
 
 
@@ -162,9 +165,9 @@ sed -i 's/#MAKEFLAGS="-j2"/MAKEFLAGS="-j$(nproc)"/' /etc/makepkg.conf
 
 ## shell customization  
 # shell support for: command not found
-pacstrap /mnt pkgfile
+pacman -S --noconfirm pkgfile 
 # update database
-arch-chroot /mnt pkgfile -u
+pkgfile -u
 
 
 ## Enable Requited Services
