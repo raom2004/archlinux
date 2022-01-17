@@ -59,11 +59,11 @@ pacstrap /mnt base base-devel linux \
 	 zsh sudo vim git wget \
 	 dhcpcd \
 	 networkmanager \
-	 grub os-prober \
-	 xorg-server lightdm lightdm-gtk-greeter \
-	 gnome-terminal terminator cinnamon livecd-sounds \
-	 firefox \
-	 virtualbox-guest-utils
+	 grub # os-prober \
+	 # xorg-server lightdm lightdm-gtk-greeter \
+	 # gnome-terminal terminator cinnamon livecd-sounds \
+	 # firefox \
+	 # virtualbox-guest-utils
 	 
 	 
 ## generate file system table
@@ -72,17 +72,112 @@ genfstab -L /mnt >> /mnt/etc/fstab
 
 ## scripting inside chroot from outside: script2.sh
 # copy script2.sh to new system
-cp ./script2.sh /mnt/home
-# run script2.sh commands inside chroot
-arch-chroot /mnt bash /home/script2.sh
-# remove script2.sh after completed
-rm /mnt/home/script2.sh
+# cp ./script2.sh /mnt/home
+# # run script2.sh commands inside chroot
+# arch-chroot /mnt bash /home/script2.sh
+# # remove script2.sh after completed
+# rm /mnt/home/script2.sh
 
 
-## Copy script3.sh with desktop customizations to run on first boot 
-cp ./script3.sh /mnt/usr/bin/script3.sh
-chmod +x /mnt/usr/bin/script3.sh
+# ## Copy script3.sh with desktop customizations to run on first boot 
+# cp ./script3.sh /mnt/usr/bin/script3.sh
+# chmod +x /mnt/usr/bin/script3.sh
 
+### commands inside new system: chroot
+
+## Time Configuration 
+arch-chroot /mnt ln -sf /mnt/usr/share/zoneinfo/Europe/Berlin /mnt/etc/localtime
+arch-chroot /mnt hwclock --systohc
+
+
+## Language Configuration (support for us, gb, dk, es, de)
+sed -i 's/#en_US.UTF-8/en_US.UTF-8/' /mnt/etc/locale.gen
+sed -i 's/#en_GB.UTF-8/en_GB.UTF-8/' /mnt/etc/locale.gen
+sed -i 's/#en_DK.UTF-8/en_DK.UTF-8/' /mnt/etc/locale.gen
+sed -i 's/#es_ES.UTF-8/es_ES.UTF-8/' /mnt/etc/locale.gen
+sed -i 's/#de_DE.UTF-8/de_DE.UTF-8/' /mnt/etc/locale.gen
+arch-chroot /mnt locale-gen
+echo 'LANG=en_US.UTF-8'              >  /mnt/etc/locale.conf
+echo 'LANGUAGE=en_US:en_GB:en:'      >> /mnt/etc/locale.conf
+echo 'LC_COLLATE=C'                  >> /mnt/etc/locale.conf
+echo 'LC_MESSAGES=en_US.UTF-8'       >> /mnt/etc/locale.conf
+echo 'LC_TIME=en_DK.UTF-8'           >> /mnt/etc/locale.conf
+# Keyboard Configuration (e.g. set spanish as keyboard layout)
+# localectl set-keymap --no-convert es # do not work as chroot command
+echo 'KEYMAP=es' > /mnt/etc/vconsole.conf
+
+
+## Network Configuration
+echo "${host_name}" > /mnt/etc/hostname
+echo "127.0.0.1	localhost
+::1		localhost
+127.0.1.1	${host_name}.localdomain	${host_name}
+" >> /mnt/etc/hosts
+
+
+## Init ram filsesystem: Initramfs
+# Initramfs was run for pacstrap but must be run for LVM, encryption...:
+# mkinitcpio -P 
+
+
+## Install & Config a Bootloader
+arch-chroot /mnt grub-install /dev/sda
+arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
+
+
+## Accounts Config
+# sudo requires to turn on "wheel" groups
+sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g' /mnt/etc/sudoers
+# set root password
+arch-chroot /mnt \
+	    echo -e "${root_password}\n${root_password}" | (passwd root)
+# create new user and set ZSH as shell
+arch-chroot /mnt useradd -m "$user_name" -s /bin/zsh
+# set new user password
+arch-chroot /mnt echo -e "${user_password}\n${user_password}" | (passwd $user_name)
+# set user groups
+arch-chroot /mnt usermod -aG wheel,audio,optical,storage,power,network "${user_name}"
+
+
+## DOTFILES
+# ~/.bashrc
+url="https://raw.githubusercontent.com/raom2004/archlinux/master/dotfiles/.bashrc"
+# wget "${url}" --output-document=/home/"${user_name}"/.bashrc
+arch-chroot -u "${user_name}" /mnt \
+	    wget "${url}" \
+	    --output-document=/home/"${user_name}"/.bashrc
+# chown "${user_name}:${user_name}" /home/"${user_name}"/.bashrc
+# ~/.zshrc
+url="https://raw.githubusercontent.com/raom2004/archlinux/master/dotfiles/.zshrc"
+arch-chroot -u "${user_name}" /mnt \
+	    wget "${url}" --output-document=/home/"${user_name}"/.zshrc
+# chown "${user_name}:${user_name}" /home/"${user_name}"/.zshrc
+
+## CUSTOMIZED DOTFILES
+# ~/.aliases
+url="https://raw.githubusercontent.com/raom2004/archlinux/master/dotfiles/.aliases"
+arch-chroot -u "${user_name}" /mnt \
+	    wget "${url}" --output-document=/home/"${user_name}"/.aliases
+# chown "${user_name}:${user_name}" /home/"${user_name}"/.aliases
+# ~/.bash_prompt
+url="https://raw.githubusercontent.com/raom2004/archlinux/master/dotfiles/.bash_prompt"
+arch-chroot -u "${user_name}" /mnt \
+	    wget "${url}" --output-document=/home/"${user_name}"/.bash_prompt
+# chown "${user_name}:${user_name}" /home/"${user_name}"/.bash_prompt
+# ~/.functions
+url="https://raw.githubusercontent.com/raom2004/archlinux/master/dotfiles/.functions"
+arch-chroot -u "${user_name}" /mnt \
+	    wget "${url}" --output-document=/home/"${user_name}"/.functions
+# chown "${user_name}:${user_name}" /home/"${user_name}"/.functions
+
+
+## Enable Requited Services:
+# enable ethernet
+arch-chroot /mnt systemctl enable dhcpcd
+# enable wifi
+arch-chroot /mnt systemctl enable NetworkManager
+# run xfce desktop environment in next boot
+arch-chroot /mnt systemctl enable lightdm
 
 ## In the end unmount everything and exiting
 umount -R /mnt
