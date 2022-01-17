@@ -134,7 +134,7 @@ arch-chroot /mnt \
 # create new user and set ZSH as shell
 arch-chroot /mnt useradd -m "$user_name" -s /bin/zsh
 # set new user password
-arch-chroot /mnt echo -e "${user_password}\n${user_password}" | (passwd $user_name)
+arch-chroot /mnt echo -e "${user_password}\n${user_password}" | (passwd "${user_name}")
 # set user groups
 arch-chroot /mnt usermod -aG wheel,audio,optical,storage,power,network "${user_name}"
 
