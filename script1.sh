@@ -79,7 +79,7 @@ arch-chroot /mnt bash /home/script2.sh
 rm /mnt/home/script2.sh
 
 ## DOTFILES
-cp ./dotfiles/.* /mnt/home/"${user_name}"
+cp -r ./dotfiles/.* /mnt/home/"${user_name}"
 # set user permissions
 chown -R "${user_name}:${user_name}" /mnt/home/"${user_name}"/.*
 
