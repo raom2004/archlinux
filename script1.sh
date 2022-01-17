@@ -86,7 +86,7 @@ genfstab -L /mnt >> /mnt/etc/fstab
 ### commands inside new system: chroot
 
 ## Time Configuration 
-arch-chroot /mnt ln -sf /mnt/usr/share/zoneinfo/Europe/Berlin /mnt/etc/localtime
+arch-chroot /mnt ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime
 arch-chroot /mnt hwclock --systohc
 
 
