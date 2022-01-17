@@ -48,8 +48,17 @@ echo "127.0.0.1	localhost
 # mkinitcpio -P 
 
 
-## Install & Config a Bootloader
-grub-install /dev/sda
+## Boot loader GRUB
+# detect additional kernels or operative systems available
+echo "GRUB_DISABLE_OS_PROBER=false" >> /etc/default/grub
+# hide boot loader at startup
+echo "GRUB_FORCE_HIDDEN_MENU=true"  >> /etc/default/grub
+# press shift to show boot loader menu at start up
+url="https://gist.githubusercontent.com/anonymous/8eb2019db2e278ba99be/raw/257f15100fd46aeeb8e33a7629b209d0a14b9975/gistfile1.sh"
+wget "${url}" -O /etc/grub.d/31_hold_shift
+chmod a+x /etc/grub.d/31_hold_shift
+# Install & Config a boot loader GRUB
+grub-install --target=i386-pc /dev/sda
 grub-mkconfig -o /boot/grub/grub.cfg
 
 
