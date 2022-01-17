@@ -65,31 +65,6 @@ echo -e "${user_password}\n${user_password}" | (passwd $user_name)
 usermod -aG wheel,audio,optical,storage,power,network "${user_name}"
 
 
-## DOTFILES
-# ~/.bashrc
-url="https://raw.githubusercontent.com/raom2004/archlinux/master/dotfiles/.bashrc"
-wget "${url}" --output-document=/home/"${user_name}"/.bashrc
-chown "${user_name}:${user_name}" /home/"${user_name}"/.bashrc
-# ~/.zshrc
-url="https://raw.githubusercontent.com/raom2004/archlinux/master/dotfiles/.zshrc"
-wget "${url}" --output-document=/home/"${user_name}"/.zshrc
-chown "${user_name}:${user_name}" /home/"${user_name}"/.zshrc
-
-## CUSTOMIZED DOTFILES
-# ~/.aliases
-url="https://raw.githubusercontent.com/raom2004/archlinux/master/dotfiles/.aliases"
-wget "${url}" --output-document=/home/"${user_name}"/.aliases
-chown "${user_name}:${user_name}" /home/"${user_name}"/.aliases
-# ~/.bash_prompt
-url="https://raw.githubusercontent.com/raom2004/archlinux/master/dotfiles/.bash_prompt"
-wget "${url}" --output-document=/home/"${user_name}"/.bash_prompt
-chown "${user_name}:${user_name}" /home/"${user_name}"/.bash_prompt
-# ~/.functions
-url="https://raw.githubusercontent.com/raom2004/archlinux/master/dotfiles/.functions"
-wget "${url}" --output-document=/home/"${user_name}"/.functions
-chown "${user_name}:${user_name}" /home/"${user_name}"/.functions
-
-
 ## Enable Requited Services:
 # enable ethernet
 systemctl enable dhcpcd
@@ -98,7 +73,6 @@ systemctl enable NetworkManager
 # run xfce desktop environment in next boot
 systemctl enable lightdm
 
-exit
 ## Hot to customize a new desktop on first boot?
 # With a startup script that just need to steps:
 #  * Create a script3.sh with your customizations
