@@ -79,15 +79,15 @@ arch-chroot /mnt bash /home/script2.sh
 rm /mnt/home/script2.sh
 
 ## DOTFILES
-cp -r ./dotfiles/.* /mnt/home/"${user_name}"
+cp ./dotfiles/.* /mnt/home/"${user_name}"
 # set user permissions
-chown -R "${user_name}:${user_name}" /mnt/home/"${user_name}"/.*
+arch-chroot /mnt bash -c "chown -R ${user_name}:${user_name} /mnt/home/${user_name}/.[a-z]*"
 
 # ## Copy script3.sh with desktop customizations to run on first boot 
-# cp ./script3.sh /mnt/usr/bin/script3.sh
-# chmod +x /mnt/usr/bin/script3.sh
+cp ./script3.sh /mnt/usr/bin/script3.sh
+chmod +x /mnt/usr/bin/script3.sh
 
-
+exit
 ## In the end unmount everything and exiting
 umount -R /mnt
 shutdown now
