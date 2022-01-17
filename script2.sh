@@ -31,7 +31,8 @@ echo 'LC_COLLATE=C'                  >> /etc/locale.conf
 echo 'LC_MESSAGES=en_US.UTF-8'       >> /etc/locale.conf
 echo 'LC_TIME=en_DK.UTF-8'           >> /etc/locale.conf
 # Keyboard Configuration (e.g. set spanish as keyboard layout)
-localectl set-keymap --no-convert es
+# localectl set-keymap --no-convert es # do not work under chroot
+echo 'KEYMAP=es'                     > /etc/vconsole.conf
 
 
 ## Network Configuration
@@ -60,7 +61,7 @@ echo -e "${root_password}\n${root_password}" | (passwd root)
 # create new user and set ZSH as shell
 useradd -m "$user_name" -s /bin/zsh
 # set new user password
-echo -e "${user_password}\n${user_password}" | (passwd $user_name)
+echo -e "${user_password}\n${user_password}" | (passwd "${user_name}")
 # set user groups
 usermod -aG wheel,audio,optical,storage,power,network "${user_name}"
 
@@ -71,7 +72,7 @@ systemctl enable dhcpcd
 # enable wifi
 systemctl enable NetworkManager
 # run xfce desktop environment in next boot
-systemctl enable lightdm
+# systemctl enable lightdm
 
 ## Hot to customize a new desktop on first boot?
 # With a startup script that just need to steps:
