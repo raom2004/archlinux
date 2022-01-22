@@ -55,7 +55,7 @@ LANGUAGE:
 set +o xtrace      # please do not show sensitive data
 
 ## use positional arguments or declare variables hiding passwords by -sp option.
-case "$1" in
+case "${1: -*}" in
     --example|-e)
 	host_name="myhost"
 	root_password="rootpassword"
