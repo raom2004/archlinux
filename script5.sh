@@ -15,9 +15,6 @@ set -o pipefail    # CATCH failed piped commands
 set -o xtrace      # trace & expand what gets executed (useful for debug)
 
 
-umount -R /mnt
-mount /dev/sda2 /mnt
-
 ########################################
 # Purpose: display usage of this archlinux installer bash script 
 # Arguments: none
@@ -56,6 +53,9 @@ LANGUAGE:
 
 
 set +o xtrace      # please do not show sensitive data
+
+## reset /mnt if was previously mounted
+mount | grep mnt >& /dev/null || umount -R /mnt
 
 ## use positional arguments or declare variables hiding passwords by -sp option.
 case "${1:-*}" in
