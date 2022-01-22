@@ -15,9 +15,6 @@ set -o pipefail    # CATCH failed piped commands
 set -o xtrace      # trace & expand what gets executed (useful for debug)
 
 
-umount -R /mnt
-mount /dev/sda2 /mnt
-
 ########################################
 # Purpose: display usage of this archlinux installer bash script 
 # Arguments: none
@@ -89,6 +86,9 @@ set -o xtrace      # trace & expand what gets executed
 ## set time and synchronize system clock
 timedatectl set-ntp true
 
+
+## in case that /mnt was mounted previously, please unmount it
+mount | grep mnt >& /dev/null && umount -R /mnt
 
 ## HDD partitioning (BIOS/MBR)
 parted -s /dev/sda \
