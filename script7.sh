@@ -2,69 +2,107 @@
 #
 #script7.sh create user configuration
 
+### BASH SCRIPT FLAGS FOR SECURITY AND DEBUGGING ###################
 
-# set environment variables
+
+## shopt -o noclobber # avoid file overwriting (>) but can be forced (>|)
+set +o history     # disably bash history temporarilly
+set -o errtrace    # inherit any trap on ERROR
+set -o functrace   # inherit any trap on DEBUG and RETURN
+set -o errexit     # EXIT if script command fails
+set -o nounset     # EXIT if script try to use undeclared variables
+set -o pipefail    # CATCH failed piped commands
+set -o xtrace      # trace & expand what gets executed (useful for debug)
+
+
+## set environment variables
 PWD=/home/"${user_name}"
 LOGNAME="${user_name}"
 HOME=/home/"${user_name}"
 USER="${user_name}"
 
 
-# set user locale 
-mkdir -p $HOME/.config
-echo 'LANGUAGE=en_GB.UTF-8' > $HOME/.config/locale.conf
+## Audio
+pactl set-sink-mute 0 0		# turn on audio
+pactl -- set-sink-volume 0 50%	# set volume
 
 
-## create $USER standard dotfiles
-# ~/.bashrc
-url="https://raw.githubusercontent.com/raom2004/archlinux/master/dotfiles/.bashrc"
-wget "${url}" --output-document=$HOME/.bashrc
-# ~/.zshrc
-url="https://raw.githubusercontent.com/raom2004/archlinux/master/dotfiles/.zshrc"
-wget "${url}" --output-document=$HOME/.zshrc
+## install theme, icons and wallpaper
+# create dot directories
+mkdir -p $HOME/.{themes,icons,wallpapers}
 
 
-## create $USER CUSTOMIZED DOTFILES
-# ~/.aliases
-url="https://raw.githubusercontent.com/raom2004/archlinux/master/dotfiles/.aliases"
-wget "${url}" --output-document=$HOME/.aliases
-# ~/.bash_prompt
-url="https://raw.githubusercontent.com/raom2004/archlinux/master/dotfiles/.bash_prompt"
-wget "${url}" --output-document=$HOME/.bash_prompt
-# ~/.functions
-url="https://raw.githubusercontent.com/raom2004/archlinux/master/dotfiles/.functions"
-wget "${url}" --output-document=$HOME/.functions
-# ~/.vimrc
-url="https://raw.githubusercontent.com/raom2004/archlinux/master/dotfiles/.vimrc"
-wget "${url}" --output-document=$HOME/.vimrc
+## install theme
+xfconf-query --channel xsettings \
+	     --property /Net/ThemeName \
+	     --set Adwaita-dark
 
 
-## create folder ~/.vim and vim plugin support
-url=https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-wget "${url}" -P $HOME/.vim/autoload
-## vim config
-echo | vim -E -s -u "$HOME/.vimrc" +PlugInstall +qall
+## install icons
+xfconf-query --channel xsettings \
+	     --property /Net/IconThemeName \
+	     --set Papirus
+
+## set wallpaper
+
+# download image
+image="https://wallpaperforu.com/wp-content/uploads/2020/07/space-wallpaper-200707153544191600x1200.jpg"
+wget --output-document=$HOME/.wallpapers/space-wallpaper.jpg "$image"
+image="https://www.setaswall.com/wp-content/uploads/2017/11/Arch-Linux-Wallpaper-28-1920x1080.jpg"
+wget --output-document=$HOME/.wallpapers/archlinux-wallpaper.jpg "$image"
+# find path for xfce wallpaper 
+image_path="$(xfconf-query -c xfce4-desktop -lv | awk '/monitor.*last/{ print $1 }' | head -n1)"
+# set wallpaper in xfce by xfconf-query
+xfconf-query -c xfce4-desktop \
+	     -p "$image_path" \
+	     -t string \
+	     --set $HOME/.wallpapers/archlinux-wallpaper.jpg
+
+## Sound
+# activate sound
+xfconf-query -c xsettings -p /Net/EnableEventSounds --set true
+
+## config xfce panel
+my_bar_position="$(xrandr | awk -F'x' '/*/{ printf $1-8 }' )"
+xfconf-query -c xfce4-panel -p /panels/panel-2/position \
+	     --set "p=1;x=${my_bar_position};y=200"
+xfconf-query -c xfce4-panel -p /panels/panel-2/position-locked \
+	     --set true
+xfconf-query -c xfce4-panel -p /panels/panel-2/mode \
+	     -n -t int \
+	     --set 1
+xfconf-query -c xfce4-panel -p /panels/panel-2/enter-opacity \
+	     -n -t int \
+	     --set 65
+xfconf-query -c xfce4-panel -p /panels/panel-2/leave-opacity \
+	     -n -t int \
+	     --set 65
+xfconf-query -c xfce4-panel -p /panels/panel-2/autohide-behavior \
+	     --set 2
 
 
-# config desktop on first startup
-mkdir -p $HOME/.config/autostart/
-echo '[Desktop Entry]
-Type=Application
-Name=script3
-Comment[C]=Script to config a new Desktop on first boot
-Terminal=true
-Exec=gnome-terminal -- bash -c "sudo bash /usr/bin/script3.sh; exec bash"
-X-GNOME-Autostart-enabled=true
-NoDisplay=false
-' > $HOME/.config/autostart/script3.desktop
-ls -la $HOME/.config/autostart/script3.desktop
+## config mouse/touchpad
+xfconf-query -c pointers -p /ETPS2_Elantech_Touchpad/Properties/libinput_Tapping_Enabled \
+	     -n -t int \
+	     --set 1
 
 
-## RECTIFY USER PERMISSIONS
-chown -R "${user_name}":"${user_name}" $HOME/.*
+## remove desktop icons (value: 0=remove, 2=reinstale)
+xfconf-query -c xfce4-desktop -v --create -p /desktop-icons/style \
+	     -t int -s 0
 
 
-exit
+## set custom keyboard shortcuts
+# sh "$PWD"/shortcuts-xfce.sh
+# sh /usr/bin/shortcuts-xfce.sh
+
+
+## setup xfce complete: remove autostart file
+rm -rf $HOME/.config/autostart/script7.desktop
+
+
+echo "install finished succesfully. Exiting now!"
+sleep 3 && xfce4-session-logout -l
 
 
 # emacs:

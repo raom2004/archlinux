@@ -104,29 +104,39 @@ mkfs.ext2 -F /dev/sda1
 mkdir /mnt/boot && mount /dev/sda1 /mnt/boot
 
 
-## Important: update package manager keyring before install packages
+## Install packages
+# Important: update package manager keyring before install packages
 pacman -Syy --noconfirm archlinux-keyring
-## install system packages (with support for wifi and ethernet)
+# install minimum system packages (with support for wifi and ethernet)
 pacstrap /mnt base base-devel linux \
 	 zsh sudo vim git wget \
 	 dhcpcd \
 	 networkmanager \
 	 grub
-
-
-## generate file system table (required for boot loader)
+# install display server
+pacstrap /mnt xorg-{server,xrandr} xterm
+# install desktop packages (just xfce4)
+pacstrap /mnt xfce4 \
+	 xfce4-{pulseaudio-plugin,screenshooter} \
+	 pavucontrol pavucontrol-qt \
+	 papirus-icon-theme
+# install virtual machine support (VirtualBox) if neccesary
+pacman -Sy --noconfirm dmidecode
+my_system="$(sudo dmidecode -s system-manufacturer)"
+if [[ "${my_system}" == "innotek GmbH" ]]; then
+  pacstrap /mnt virtualbox-guest-utils
+fi
+# generate file system table (required for boot loader)
 genfstab -L /mnt >> /mnt/etc/fstab
 
 
 # scripting inside chroot from outside: script2.sh
 # copy script2.sh to new system
-cp ./script[6-7].sh /mnt/home
+cp ./script6.sh /mnt/home
+cp ./script7.sh /mnt/usr/bin
 # run script2.sh commands inside chroot
-# system configuration
 arch-chroot /mnt bash /home/script6.sh
-# user configuration
-arch-chroot /mnt bash /home/script7.sh
 # remove script2.sh after completed
-rm /mnt/home/script[6-7].sh
+rm /mnt/home/script6.sh
 
 echo "installation finished succesfully"
