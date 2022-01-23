@@ -55,7 +55,7 @@ LANGUAGE:
 set +o xtrace      # please do not show sensitive data
 
 ## restart /mnt if was previously mount
-mount | grep mnt >& /dev/null || umount -R /mnt
+mount | grep -q /mnt && umount -R /mnt
 
 ## use positional arguments or declare variables hiding passwords by -sp option.
 case "${1:-*}" in
