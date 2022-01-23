@@ -54,7 +54,7 @@ LANGUAGE:
 
 set +o xtrace      # please do not show sensitive data
 
-## reset /mnt if was previously mounted
+## restart /mnt if was previously mount
 mount | grep mnt >& /dev/null || umount -R /mnt
 
 ## use positional arguments or declare variables hiding passwords by -sp option.
@@ -76,7 +76,6 @@ case "${1:-*}" in
 	read -p "Enter NEW user: " user_name
 	read -sp "Enter NEW user PASSWORD: " user_password
 esac
-echo "$host_name"
 
 # make these variables available for script2.sh
 export host_name
@@ -121,10 +120,13 @@ genfstab -L /mnt >> /mnt/etc/fstab
 
 # scripting inside chroot from outside: script2.sh
 # copy script2.sh to new system
-cp ./script6.sh /mnt/home
+cp ./script[6-7].sh /mnt/home
 # run script2.sh commands inside chroot
+# system configuration
 arch-chroot /mnt bash /home/script6.sh
+# user configuration
+arch-chroot /mnt bash /home/script7.sh
 # remove script2.sh after completed
-rm /mnt/home/script6.sh
+rm /mnt/home/script[6-7].sh
 
 echo "installation finished succesfully"
