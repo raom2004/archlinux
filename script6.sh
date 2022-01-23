@@ -145,7 +145,7 @@ wget "${url}" --output-document=$HOME/.vimrc
 url=https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 wget "${url}" -P $HOME/.vim/autoload
 ## vim config
-vim -E -s -u $HOME/.vimrc +PlugInstall +qall
+vim -E -s -u $HOME/.vimrc +PlugInstall +qall | echo
 
 
 # config desktop on first startup
