@@ -64,7 +64,6 @@ case "${1:-*}" in
 	root_password="rootpassword"
 	user_name="myuser"
 	user_password="userpassword"
-	break
 	;;
     --help|-h)
 	display_usage
@@ -75,6 +74,7 @@ case "${1:-*}" in
 	read -sp "Enter ROOT password: " root_password
 	read -p "Enter NEW user: " user_name
 	read -sp "Enter NEW user PASSWORD: " user_password
+	;;
 esac
 
 # make these variables available for script2.sh
