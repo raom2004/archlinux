@@ -9,8 +9,16 @@
 #   run the scrip3.sh on first boot to configure the new desktop 
 
 
-## show all the command that get executed and exit if anything fails
-set -xe
+### BASH SCRIPT FLAGS FOR SECURITY AND DEBUGGING ###################
+
+# shopt -o noclobber # avoid file overwriting (>) but can be forced (>|)
+set +o history     # disably bash history temporarilly
+set -o errtrace    # inherit any trap on ERROR
+set -o functrace   # inherit any trap on DEBUG and RETURN
+set -o errexit     # EXIT if script command fails
+set -o nounset     # EXIT if script try to use undeclared variables
+set -o pipefail    # CATCH failed piped commands
+set -o xtrace      # trace & expand what gets executed (useful for debug)
 
 
 ## Time Configuration 
@@ -137,7 +145,7 @@ wget "${url}" --output-document=$HOME/.vimrc
 url=https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 wget "${url}" -P $HOME/.vim/autoload
 ## vim config
-vim -E -s -u '$HOME/.vimrc' +PlugInstall +qall
+vim -E -s -u $HOME/.vimrc +PlugInstall +qall
 
 
 # config desktop on first startup
