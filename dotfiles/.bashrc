@@ -74,6 +74,11 @@ source /usr/share/doc/pkgfile/command-not-found.bash
 # can be also activated by /etc/bash.bashrc
     
 
+## command-line keybindings
+# set -o emacs			# startdard option activated in bash
+# set -o vi
+
+
 # emacs:
 # Local Variables:
 # sh-basic-offset: 2
