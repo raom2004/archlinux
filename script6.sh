@@ -105,6 +105,11 @@ ExecStart=-/sbin/agetty --autologin ${user_name} --noclear %%I $TERM
 ### SET USER CONFIGURATION ###########################################
 
 
+# Create USER directories
+pacman -S --needed --noconfirm xdg-user-dirs
+LC_ALL=C xdg-user-dirs-update --force
+
+
 # set environment variables
 PWD=/home/"${user_name}"
 LOGNAME="${user_name}"

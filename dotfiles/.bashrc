@@ -72,10 +72,15 @@ export HISTSIZE=10000
 # shell command not found
 source /usr/share/doc/pkgfile/command-not-found.bash
 # can be also activated by /etc/bash.bashrc
-    
+
+
 ## set command-line keybindings
 # set -o emacs 			# stardand option in bash
 # set -o vi
+
+## bash key shortcuts
+# source: https://gist.github.com/tuxfight3r/60051ac67c5f0445efee
+
 
 # emacs:
 # Local Variables:
