@@ -80,7 +80,7 @@ useradd -m "$user_name" -s /bin/zsh
 # set new user password
 echo -e "${user_password}\n${user_password}" | (passwd "${user_name}")
 # set user groups
-usermod -aG wheel,audio,optical,storage,power,network "${user_name}"
+usermod -aG network,power,wheel,audio,optical,storage "${user_name}"
 
 
 ## start services on reboot:
@@ -158,7 +158,7 @@ Type=Application
 Name=script3
 Comment[C]=Script to config a new Desktop on first boot
 Terminal=true
-Exec=xfce4-terminal -e "bash -c \"sudo bash /usr/bin/script7.sh; exec bash\""
+Exec=xfce4-terminal -e "bash -c \"sudo bash \$HOME/script7.sh; exec bash\""
 X-GNOME-Autostart-enabled=true
 NoDisplay=false
 ' > $HOME/.config/autostart/script7.desktop

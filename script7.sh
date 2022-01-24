@@ -16,7 +16,7 @@ set -o xtrace      # trace & expand what gets executed (useful for debug)
 
 
 ## Audio
-pactl set-sink-mute 0 0		# turn on audio
+pactl -- set-sink-mute 0 0	# turn on audio
 pactl -- set-sink-volume 0 50%	# set volume
 
 
@@ -49,7 +49,7 @@ image_path="$(xfconf-query -c xfce4-desktop -lv | awk '/monitor.*last/{ print $1
 xfconf-query -c xfce4-desktop \
 	     -p "${image_path}" \
 	     -t string \
-	     --set $HOME/.wallpapers/archlinux-wallpaper.jpg
+	     --set $HOME/.wallpapers/arch-wallpaper.jpg
 
 ## Sound
 # activate sound
@@ -90,7 +90,8 @@ xfconf-query -c xfce4-desktop -v --create -p /desktop-icons/style \
 # sh /usr/bin/shortcuts-xfce.sh
 
 
-## setup xfce complete: remove autostart file
+## setup xfce complete: remove script and autostart file
+rm -rf $HOME/script7.sh
 rm -rf $HOME/.config/autostart/script7.desktop
 
 
