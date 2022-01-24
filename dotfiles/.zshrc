@@ -1,17 +1,16 @@
-#------------------------------------------------------------------#
-# File:     .zshrc   ZSH resource file                             #
-# Version:  0.1.16                                                 #
-# Author:   Øyvind "Mr.Elendig" Heggstad <mrelendig@har-ikkje.net> #
 # Source:   https://raw.githubusercontent.com/MrElendig/dotfiles-alice/master/.zshrc #
-#------------------------------------------------------------------#
 
 #-----------------------------
 # Source some stuff
 #-----------------------------
+
 # zsh color
-if [[ -f /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]]; then
-  . /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+syntax_path=/usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+if [[ -f "${syntax_path}" ]]; then
+  . "${syntax_path}"
 fi
+unset syntax_path
+
 
 # shell aliases and functions
 for file in ~/.{aliases,functions}; do
@@ -120,6 +119,9 @@ zstyle ':vcs_info:git:*' actionformats ' (%b|%a%u%c)'
 # end
 
 
+## set command-line keybindings
+set -o emacs
+# set -o vi
 
 # emacs:
 # Local Variables:
