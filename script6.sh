@@ -136,6 +136,9 @@ wget "${url}" --output-document=$HOME/.bash_prompt
 # ~/.functions
 url="https://raw.githubusercontent.com/raom2004/archlinux/master/dotfiles/.functions"
 wget "${url}" --output-document=$HOME/.functions
+# ~/.inputrc
+url="https://raw.githubusercontent.com/raom2004/archlinux/master/dotfiles/.inputrc"
+wget "${url}" --output-document=$HOME/.inputrc
 # ~/.vimrc
 url="https://raw.githubusercontent.com/raom2004/archlinux/master/dotfiles/.vimrc"
 wget "${url}" --output-document=$HOME/.vimrc
@@ -155,7 +158,7 @@ Type=Application
 Name=script3
 Comment[C]=Script to config a new Desktop on first boot
 Terminal=true
-Exec=xfce4-terminal -- bash -c "sudo bash /usr/bin/script7.sh; exec bash"
+Exec=xfce4-terminal -e "bash -c \"sudo bash /usr/bin/script7.sh; exec bash\""
 X-GNOME-Autostart-enabled=true
 NoDisplay=false
 ' > $HOME/.config/autostart/script7.desktop
@@ -167,7 +170,7 @@ ls -la $HOME/.config/autostart/script7.desktop
 
 # start xfce with file ~.xinitrc
 head -n50 /etc/X11/xinit/xinitrc > $HOME/.xinitrc
-# set keymap for xorg
+# set keymap for xorg (es = spanish)
 echo "setxkbmap es" >> $HOME/.xinitrc
 # start xfce but let place to add other desktops in the future 
 echo '

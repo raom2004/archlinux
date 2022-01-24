@@ -15,13 +15,6 @@ set -o pipefail    # CATCH failed piped commands
 set -o xtrace      # trace & expand what gets executed (useful for debug)
 
 
-## set environment variables
-PWD=/home/"${user_name}"
-LOGNAME="${user_name}"
-HOME=/home/"${user_name}"
-USER="${user_name}"
-
-
 ## Audio
 pactl set-sink-mute 0 0		# turn on audio
 pactl -- set-sink-volume 0 50%	# set volume
@@ -47,14 +40,14 @@ xfconf-query --channel xsettings \
 
 # download image
 image="https://wallpaperforu.com/wp-content/uploads/2020/07/space-wallpaper-200707153544191600x1200.jpg"
-wget --output-document=$HOME/.wallpapers/space-wallpaper.jpg "$image"
+wget --output-document=$HOME/.wallpapers/space-wallpaper.jpg "${image}"
 image="https://www.setaswall.com/wp-content/uploads/2017/11/Arch-Linux-Wallpaper-28-1920x1080.jpg"
-wget --output-document=$HOME/.wallpapers/archlinux-wallpaper.jpg "$image"
+wget --output-document=$HOME/.wallpapers/arch-wallpaper.jpg "${image}"
 # find path for xfce wallpaper 
 image_path="$(xfconf-query -c xfce4-desktop -lv | awk '/monitor.*last/{ print $1 }' | head -n1)"
 # set wallpaper in xfce by xfconf-query
 xfconf-query -c xfce4-desktop \
-	     -p "$image_path" \
+	     -p "${image_path}" \
 	     -t string \
 	     --set $HOME/.wallpapers/archlinux-wallpaper.jpg
 
