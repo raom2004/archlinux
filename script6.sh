@@ -144,8 +144,8 @@ wget "${url}" --output-document=$HOME/.vimrc
 ## create folder ~/.vim and vim plugin support
 url=https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 wget "${url}" -P $HOME/.vim/autoload
-## vim config
-vim -E -s -u $HOME/.vimrc +PlugInstall +qall | echo
+## install plugins without open vim
+vim -E -s -u $HOME/.vimrc +PlugInstall +visual +qall
 
 
 # config desktop on first startup
