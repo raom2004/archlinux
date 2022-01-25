@@ -8,14 +8,14 @@
 
 
 # Colorcoding
-Black='\[\e[0;30m\]'   
-Red='\[\e[0;31m\]'
-Green='\[\e[0;32m\]'
-Yellow='\[\e[0;33m\]'
-Blue='\[\e[0;34m\]'
-Purple='\[\e[0;35m\]'
-Cyan='\[\e[0;36m\]'
-White='\[\e[0;37m\]'
+NBlack='\[\e[0;30m\]'   
+NRed='\[\e[0;31m\]'
+NGreen='\[\e[0;32m\]'
+NYellow='\[\e[0;33m\]'
+NBlue='\[\e[0;34m\]'
+NPurple='\[\e[0;35m\]'
+NCyan='\[\e[0;36m\]'
+NWhite='\[\e[0;37m\]'
 
 # Bold
 BBlack='\[\e[1;30m\]'

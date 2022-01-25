@@ -26,7 +26,7 @@ PROMPT_COMMAND=prompt_command
 
 ## testing
 # PS1="${Cyan}\u${NC}@\h: ${Cyan}\w${NC}${BWhite}\$GIT_STATUS${NC}\\$ "
-PS1="${Cyan}\u${NC}@\h: \w ${Cyan}\$GIT_STATUS${NC}\\$ "
+PS1="${NCyan}\u${NC}@\h: \w ${NCyan}\$GIT_STATUS${NC}\\$ "
 
 ## simple version
 # PS1="\$GIT_STATUS \u@\h:\w\$ "
@@ -49,6 +49,20 @@ PS1="${Cyan}\u${NC}@\h: \w ${Cyan}\$GIT_STATUS${NC}\\$ "
 
 # Throw it all together 
 # PS1="${RESET}${YELLOW}\h${NORMAL} \`${SELECT}\` ${YELLOW}>${NORMAL} "
+
+
+## git prompt
+if [[ ! -f "$HOME/.bash-git-prompt/gitprompt.sh" ]]; then
+  git clone https://github.com/magicmonty/bash-git-prompt.git ~/.bash-git-prompt --depth=1
+fi
+
+if [[ -f "$HOME/.bash-git-prompt/gitprompt.sh" ]]; then
+    GIT_PROMPT_ONLY_IN_REPO=1
+    GIT_PROMPT_THEME="Custom"
+    GIT_PROMPT_START="${Cyan}\u${ResetColor}@\h \w"
+    GIT_PROMPT_END=" $ "
+    source $HOME/.bash-git-prompt/gitprompt.sh
+fi
 
 
 # emacs:
