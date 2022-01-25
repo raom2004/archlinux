@@ -38,9 +38,9 @@ set menu-complete-display-prefix On
 # customize vi in shell interative mode
 # https://stackoverflow.com/questions/7888387/the-way-to-distinguish-command-mode-and-insert-mode-in-bashs-vi-command-line-ed
 set show-mode-in-prompt on
-set emacs-mode-string ""	# the standard option is "@"
-set vi-ins-mode-string "\1\e[1;32m\2[ins]\1\e[0m\2"
-set vi-cmd-mode-string "\1\e[1;36m\2[ins]\1\e[0m\2"
+set emacs-mode-string "(Emacs) "	# the standard option is "@"
+set vi-ins-mode-string "\1\e[1;32m\2[vi+i]\1\e[0m\2 "
+set vi-cmd-mode-string "\1\e[1;36m\2[vi:c]\1\e[0m\2 "
 
 # inputrc script, bash is startdard option but
 # you can activate vi permanently with this:
