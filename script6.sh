@@ -34,7 +34,7 @@ sed -i 's/#es_ES.UTF-8/es_ES.UTF-8/' /etc/locale.gen
 sed -i 's/#de_DE.UTF-8/de_DE.UTF-8/' /etc/locale.gen
 locale-gen
 echo 'LANG=en_US.UTF-8'              >  /etc/locale.conf
-echo 'LANGUAGE=en_US:en_GB:en:'      >> /etc/locale.conf
+echo 'LANGUAGE=en_US:en_GB:en'       >> /etc/locale.conf
 echo 'LC_COLLATE=C'                  >> /etc/locale.conf
 echo 'LC_MESSAGES=en_US.UTF-8'       >> /etc/locale.conf
 echo 'LC_TIME=en_DK.UTF-8'           >> /etc/locale.conf
@@ -119,7 +119,7 @@ USER="${user_name}"
 
 # set user locale 
 mkdir -p $HOME/.config
-echo 'LANGUAGE=en_GB.UTF-8' > $HOME/.config/locale.conf
+echo 'LANGUAGE=es_ES:en_GB:en_US:en' > $HOME/.config/locale.conf
 
 
 ## create $USER standard dotfiles
