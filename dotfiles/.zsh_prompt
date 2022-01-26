@@ -1,0 +1,21 @@
+## zsh PS1 prompt customization
+PROMPT='%F{cyan}%n%f@%M: %~%F{cyan}${vcs_info_msg_0_}%f %# '
+
+## add "git prompt" to PS1 prompt
+if [[ ! -f "$HOME/.zsh-git-prompt/zshrc.sh" ]]; then
+    git clone https://github.com/olivierverdier/zsh-git-prompt.git ~/.zsh-git-prompt --depth=1
+fi
+
+if [[ -f "$HOME/.zsh-git-prompt/zshrc.sh" ]]; then
+    source ~/.zsh-git-prompt/zshrc.sh
+    # an example prompt
+    PROMPT='%B%m%~%b$(git_super_status) %# '
+fi
+
+
+# emacs:
+# Local Variables:
+# sh-basic-offset: 2
+# End:
+
+# vim: set ts=2 sw=2 et:
