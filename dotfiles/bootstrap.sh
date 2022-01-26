@@ -17,7 +17,7 @@ fi
 cd "$(dirname "${BASH_SOURCE}")"
 
 # update changes in repository
-git pull origin main
+git pull # origin main
 
 # perform synchonization of dotfiles
 # from this working directory to $HOME directory
@@ -29,17 +29,15 @@ function doIt
 	--exclude "LICENSE" \
 	-avh --no-perms . ~
 
-  source "$HOME"/.bashrc
+  # source "$HOME"/.bashrc	# source .bashrc in script do not works
 }
 
-if [ "$1" == "--force" -o "$1" == "-f" ]; then
-  git pull
+if [[ "$1" == "--force" -o "$1" == "-f" ]]; then
   doIt
 else
   read -p "This may overwrite existing files in your home directory. Are you sure? (y/n) " -n 1
   echo ""
   if [[ "$REPLY" =~ ^[Yy]$ ]]; then
-    git pull
     doIt
   fi
 fi
