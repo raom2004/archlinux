@@ -46,11 +46,11 @@ precmd () {
 function set-prompt () {
     case ${KEYMAP} in
       (vicmd)      VI_MODE="$(command-mode)" ;;
-      (viins)      VI_MODE="$(insert-mode)" ;;
+      (main|viins) VI_MODE="$(insert-mode)" ;;
       (emacs)      VI_MODE="$(emacs-mode)" ;;
     esac
     # PS1="%n@%m%{$terminfo_down_sc$VI_MODE$terminfo[rc]%}%~ $ "
-    PS1="${VI_MODE}${cyan}%n${reset_color}@%m % "
+    PS1="${VI_MODE}${cyan}%n${reset_color}@%m%{$terminfo_down_sc%}%~ $ "
 }
 
 function zle-line-init zle-keymap-select {
