@@ -108,6 +108,11 @@ setopt prompt_subst
 add-zsh-hook precmd vcs_info
 # add ${vcs_info_msg_0} to the prompt
 # e.g. here we add the Git information in red  
+
+## set command-line keybindings
+set -o emacs
+# set -o vi
+
 # PROMPT='%F{cyan}%n%f@%M: %~%F{cyan}${vcs_info_msg_0_}%f %# '
 source ~/.zsh_prompt
 
@@ -121,9 +126,6 @@ zstyle ':vcs_info:git:*' formats       ' (%b%u%c)'
 zstyle ':vcs_info:git:*' actionformats ' (%b|%a%u%c)'
 # end
 
-## set command-line keybindings
-set -o emacs
-# set -o vi
 
 # emacs:
 # Local Variables:

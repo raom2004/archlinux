@@ -46,7 +46,7 @@ precmd () {
 function set-prompt () {
     case ${KEYMAP} in
       (vicmd)      VI_MODE="$(command-mode)" ;;
-      (main|viins) VI_MODE="$(insert-mode)" ;;
+      (viins)      VI_MODE="$(insert-mode)" ;;
       (emacs)      VI_MODE="$(emacs-mode)" ;;
     esac
     # PS1="%n@%m%{$terminfo_down_sc$VI_MODE$terminfo[rc]%}%~ $ "
