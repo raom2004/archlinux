@@ -24,7 +24,7 @@
 
 ## Set bash PS1 prompt
 
-if [[ echo $0 == "bash" ]]; then 
+if [[ "$(echo $0)" == "bash" ]];then
   # simple version
   #PS1="\$GIT_STATUS \u@\h:\w\$ "
   # colored version 
@@ -64,7 +64,7 @@ fi # end bash PS1 prompt
 
 ## Set zsh PS1 prompt
 
-if [[ echo $0 == "zsh" ]];then
+if [[ "$(echo $0)" == "zsh" ]];then
   #------------------------------
   # Prompt
   #------------------------------
