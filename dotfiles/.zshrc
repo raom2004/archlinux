@@ -12,12 +12,6 @@ fi
 unset syntax_path
 
 
-# shell aliases and functions
-for file in ~/.{aliases,functions}; do
-  [[ -r "${file}" ]] && [[ -f "${file}" ]] && source "${file}"
-done
-unset file
-
 BASE16_SHELL="$HOME/.config/base16-shell/base16-default.dark.sh"
 [[ -s $BASE16_SHELL ]] && source $BASE16_SHELL
 
@@ -90,33 +84,12 @@ zstyle ':completion:*:kill:*'   force-list always
 zstyle ':completion:*:*:killall:*' menu yes select
 zstyle ':completion:*:killall:*'   force-list always
 
-#------------------------------
-# Prompt
-#------------------------------
-autoload -U colors zsh/terminfo
-colors
 
-# experimental:
-# source: https://salferrarello.com/zsh-git-status-prompt/
-# Autoload zsh add-zsh-hook and vcs_info functions (-U autoload w/o substition, -z use zsh style)
-autoload -Uz add-zsh-hook vcs_info
-# Enable substitution in the prompt.
-setopt prompt_subst
-# Run vcs_info just before a prompt is displayed (precmd)
-add-zsh-hook precmd vcs_info
-# add ${vcs_info_msg_0} to the prompt
-# e.g. here we add the Git information in red  
-PROMPT='%F{cyan}%n%f@%M: %~%F{cyan}${vcs_info_msg_0_}%f %# '
-
-# Enable checking for (un)staged changes, enabling use of %u and %c
-zstyle ':vcs_info:*' check-for-changes true
-# Set custom strings for an unstaged vcs repo changes (*) and staged changes (+)
-zstyle ':vcs_info:*' unstagedstr ' *'
-zstyle ':vcs_info:*' stagedstr ' +'
-# Set the format of the Git information for vcs_info
-zstyle ':vcs_info:git:*' formats       ' (%b%u%c)'
-zstyle ':vcs_info:git:*' actionformats ' (%b|%a%u%c)'
-# end
+# shell aliases and functions
+for file in ~/.{aliases,functions,prompt}; do
+  [[ -r "${file}" ]] && [[ -f "${file}" ]] && source "${file}"
+done
+unset file
 
 
 ## set command-line keybindings

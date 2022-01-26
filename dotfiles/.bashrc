@@ -48,7 +48,7 @@ ALERT="${BWhite}${On_Red}"
 # https://github.com/mathiasbynens/dotfiles/blob/main/.bash_profile
 
 ## PROMPT, aliases and functions
-for file in ~/.{bash_prompt,aliases,functions,inputrc}; do
+for file in ~/.{prompt,aliases,functions,inputrc}; do
   [[ -r "${file}" ]] && [[ -f "${file}" ]] && source "${file}"
 done
 unset file

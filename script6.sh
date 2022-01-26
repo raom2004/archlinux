@@ -117,9 +117,10 @@ HOME=/home/"${user_name}"
 USER="${user_name}"
 
 
-# set user locale 
+# set user locale (e.g. set system language but keep messages in english)
 mkdir -p $HOME/.config
-echo 'LANGUAGE=es_ES:en_GB:en_US:en' > $HOME/.config/locale.conf
+echo 'LANG=es_ES.UTF-8'         > $HOME/.config/locale.conf
+echo 'LANGUAGE=en_GB:en_US:en' >> $HOME/.config/locale.conf
 
 
 ## create $USER standard dotfiles
