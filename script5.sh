@@ -64,6 +64,9 @@ case "${1:-*}" in
 	root_password="rootpassword"
 	user_name="myuser"
 	user_password="userpassword"
+	git_global_user_email="mygituser"
+	git_global_user_email="mygit@email.com"
+	git_global_core_editor="vim"
 	;;
     --help|-h)
 	display_usage
@@ -74,6 +77,9 @@ case "${1:-*}" in
 	read -sp "Enter ROOT password: " root_password
 	read -p "Enter NEW user: " user_name
 	read -sp "Enter NEW user PASSWORD: " user_password
+        read -p "Enter git global user NAME: " git_global_user_name
+        read -p "Enter git global user EMAIL: " git_global_user_email
+        read -p "Enter git global core editor (e.g.: vim, emacs): " git_global_core_editor
 	;;
 esac
 
@@ -82,6 +88,9 @@ export host_name
 export root_password
 export user_name
 export user_password
+export git_global_user_name
+export git_global_user_email
+export git_global_core_editor
 
 set -o xtrace      # trace & expand what gets executed
 

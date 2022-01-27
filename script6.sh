@@ -119,7 +119,7 @@ USER="${user_name}"
 
 # set user locale (e.g. set system language but keep messages in english)
 mkdir -p $HOME/.config
-echo 'LANG=es_ES.UTF-8'         > $HOME/.config/locale.conf
+echo 'LANG=es_ES.UTF-8'        >  $HOME/.config/locale.conf
 echo 'LANGUAGE=en_GB:en_US:en' >> $HOME/.config/locale.conf
 
 
@@ -130,6 +130,11 @@ wget "${url}" --output-document=$HOME/.bashrc
 # ~/.zshrc
 url="https://raw.githubusercontent.com/raom2004/archlinux/master/dotfiles/.zshrc"
 wget "${url}" --output-document=$HOME/.zshrc
+#~/.gitconfig
+git config --global user.name "${git_global_user_name}"
+git config --global user.email "${git_global_user_email}"
+git config --global core.editor "${git_global_core_editor}"
+git config --global init.DefaultBranch master # avoid git config warning
 
 
 ## create $USER CUSTOMIZED DOTFILES
