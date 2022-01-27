@@ -14,9 +14,9 @@ GIT_PROMPT_SUFFIX="%{$fg[white]%}]%{$reset_color%}"
 GIT_PROMPT_AHEAD="%{$fg[red]%}ANUM%{$reset_color%}"
 GIT_PROMPT_BEHIND="%{$fg[cyan]%}BNUM%{$reset_color%}"
 GIT_PROMPT_MERGING="%{$fg[magenta]%}⚡︎%{$reset_color%}"
-GIT_PROMPT_UNTRACKED=" %{$fg[cyan]%}…%{$reset_color%}"
-GIT_PROMPT_MODIFIED=" %{$fg[yellow]%}✚.%{$reset_color%}"
-GIT_PROMPT_STAGED=" %{$fg[green]%}●%{$reset_color%}"
+GIT_PROMPT_UNTRACKED=" %{$fg[cyan]%}…NUM%{$reset_color%}"
+GIT_PROMPT_MODIFIED=" %{$fg[yellow]%}✚.NUM%{$reset_color%}"
+GIT_PROMPT_STAGED=" %{$fg[green]%}●NUM%{$reset_color%}"
 
 # Show Git branch/tag, or name-rev if on detached head
 parse_git_branch() {
@@ -31,6 +31,7 @@ parse_git_state() {
 
   local NUM_AHEAD="$(git log --oneline @{u}.. 2> /dev/null | wc -l | tr -d ' ')"
   if [ "$NUM_AHEAD" -gt 0 ]; then
+    # in $GIT_PROMPT_AHEAD replace NUM for $NUM_AHEAD
     GIT_STATE=$GIT_STATE${GIT_PROMPT_AHEAD//NUM/$NUM_AHEAD}
   fi
 
@@ -48,8 +49,13 @@ parse_git_state() {
     GIT_STATE=$GIT_STATE$GIT_PROMPT_MODIFIED
   fi
 
-  if [[ -n $(git ls-files --other --exclude-standard 2> /dev/null) ]]; then
-    GIT_STATE=$GIT_STATE$GIT_PROMPT_UNTRACKED
+  # if [[ -n $(git ls-files --other --exclude-standard 2> /dev/null) ]]; then
+  #   GIT_STATE=$GIT_STATE$GIT_PROMPT_UNTRACKED
+  # fi
+
+  local NUM_UNTRACKED="$(git ls-files --other --exclude-standard | wc -l)"
+  if [[ $NUM_UNTRACKED -gt 0 ]]; then
+    GIT_STATE=$GIT_STATE${GIT_PROMPT_UNTRACKED/NUM/$NUM_UNTRACKED}
   fi
 
   if ! git diff --cached --quiet 2> /dev/null; then
