@@ -32,7 +32,7 @@ function doIt
   # source "$HOME"/.bashrc	# source .bashrc in script do not works
 }
 
-if [[ "$1" == "--force" -o "$1" == "-f" ]]; then
+if [ "$1" == "--force" -o "$1" == "-f" ]; then
   doIt
 else
   read -p "This may overwrite existing files in your home directory. Are you sure? (y/n) " -n 1
