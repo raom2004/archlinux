@@ -101,7 +101,7 @@ git_prompt_string() {
 # Set the right-hand prompt
 # RPS1='$(git_prompt_string)'
 # PS1='%F{cyan}%n%f@%M: %~%F{cyan}$(git_prompt_string)%f %# '
-PS1='%F{cyan}%n%f@%M %$(git_prompt_string) %# '
+PS1='%F{cyan}%n%f@%M $(git_prompt_string) %# '
 
 
 ## zsh PS1 prompt customization
