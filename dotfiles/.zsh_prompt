@@ -71,9 +71,9 @@ parse_git_state() {
 
 git_prompt_string() {
     local git_where="$(parse_git_branch)"
-    if [ -n "$git_where" ]; then
+    if [[ -n "$git_where" ]]; then
 	local branch="${git_where#(refs/heads/|tags/)}"	
-	if [ $branch == "master" ]; then
+	if [[ $branch == "master" ]]; then
 	    branch="${GIT_PROMPT_MASTER_BRANCH}${branch}%{$reset_color%}"
 	else
 	    branch=$GIT_PROMPT_BRANCH${branch}%{$reset_color%}
