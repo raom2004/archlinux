@@ -100,18 +100,45 @@ git_prompt_string() {
   fi
 }
 
-function zle-line-init zle-keymap-select {
-    VIM_PROMPT="%{$fg_bold[yellow]%} [% NORMAL]% %{$reset_color%}"
-    RPS1="${${KEYMAP/vicmd/$VIM_PROMPT}/(main|viins)/} $(git_custom_status) $EPS1"
-    zle reset-prompt
-}
-zle -N zle-line-init
-zle -N zle-keymap-select
+# show keymap (emacs and vi insert or vi command)
+# function zle-line-init zle-keymap-select {
+#   VIM_PROMPT="%{$fg_bold[yellow]%} [% NORMAL]% %{$reset_color%}"
+#   RPS1="${${KEYMAP/vicmd/$VIM_PROMPT}/(main|viins)/} $(git_custom_status) $EPS1"
+#   zle reset-prompt
+# }
+# zle -N zle-line-init
+# zle -N zle-keymap-select
 
 # Set the right-hand prompt
 # RPS1='$(git_prompt_string)'
 # PS1='%F{cyan}%n%f@%M: %~%F{cyan}$(git_prompt_string)%f %# '
+# PS1='%F{cyan}%n%f@%M $(git_prompt_string) %# '
+
+# bash can differenciate keymaps between emacs vi insert and vi command
+# zsh identify vi command (vicmd)
+# but in zsh emacs and vi insert share the same tag (main)
+# I make my own hack to overcome such difficulty
+# my_keymap (){ (bindkey -lL main | awk '{ print $3 }') }
+# show keymap (emacs and vi insert or vi command)
+# PS1='$(my_keymap) %F{cyan}%n%f@%M $(git_prompt_string) %# '
+function zle-line-init zle-keymap-select {
+    if [ $KEYMAP == vicmd ]; then
+	echo "%{$fg_bold[blue]%}[vi:cmd]%{$reset_color%}"
+	# VIM_PROMPT="%{$fg_bold[yellow]%} [% NORMAL]% %{$reset_color%}"
+	# RPS1="${${KEYMAP/vicmd/$VIM_PROMPT}/(main|viins)/} $(git_custom_status) $EPS1"
+    else
+	local keymap="$(bindkey -lL main | awk '{ print $3 }')"
+    case ${keymap} in
+	emacs) echo "%{$fg_bold[white]%}(Emacs)%{$reset_color%}";;
+	viins) echo "%{$fg_bold[green]%}[vi:ins]%{$reset_color%}";;
+    esac
+    fi
+  zle reset-prompt
+}
+zle -N zle-line-init
+zle -N zle-keymap-select
 PS1='%F{cyan}%n%f@%M $(git_prompt_string) %# '
+
 
 
 ## zsh PS1 prompt customization
