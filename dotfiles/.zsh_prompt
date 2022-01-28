@@ -96,8 +96,9 @@ git_prompt_string() {
     local git_directory="${git_containing_folder_color}${directory_without_color}%{$reset_color%}"
 
     echo "${git_directory}${GIT_PROMPT_PREFIX}${branch}${GIT_PROMPT_SEPARATOR}$(parse_git_state)${GIT_PROMPT_SUFFIX}"
+  else
+    echo "%~" # show pwd no color
   fi
-  echo "%~" # show pwd no color
 }
 
 # Set the right-hand prompt
