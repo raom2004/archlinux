@@ -53,11 +53,11 @@ override_git_prompt_colors() {
   GIT_PROMPT_CLEAN=" ${Green}❯❯"      # a colored flag indicating a "clean" repo
   GIT_PROMPT_SYMBOLS_NO_REMOTE_TRACKING="${Red}✭"
 
-  GIT_PROMPT_COMMAND_OK="${Green}❯❯"    # indicator if the last command returned with an exit code of 0
-  GIT_PROMPT_COMMAND_FAIL="${Red}❮❮ _LAST_COMMAND_STATE_"    # indicator if the last command returned with an exit code of other than 0
+  GIT_PROMPT_COMMAND_OK="${Green}❯"    # indicator if the last command returned with an exit code of 0
+  GIT_PROMPT_COMMAND_FAIL="${Red}❮ _LAST_COMMAND_STATE_"    # indicator if the last command returned with an exit code of other than 0
   
   local gp_start="_LAST_COMMAND_INDICATOR_"
-  local gp_end="\n${White}${Time12a}${ResetColor} ❯❯"
+  local gp_end="\n${White}${Time12a}${ResetColor} ❯"
 
   GIT_PROMPT_START_USER="\n${gp_start} "
   GIT_PROMPT_END_USER="${gp_end} "

@@ -13,12 +13,13 @@ GIT_PROMPT_MASTER_BRANCH="%{$fg_bold[yellow]%}"
 GIT_PROMPT_SEPARATOR=" %{$fg[white]%}|%{$reset_color%}"
 GIT_PROMPT_PREFIX=" %{$fg[white]%}[%{$reset_color%}"
 GIT_PROMPT_SUFFIX="%{$fg[white]%}]%{$reset_color%}"
-GIT_PROMPT_AHEAD="%{$fg[red]%}ANUM%{$reset_color%}"
-GIT_PROMPT_BEHIND="%{$fg[cyan]%}BNUM%{$reset_color%}"
+GIT_PROMPT_AHEAD="%{$fg[red]%}⬆.NUM%{$reset_color%}"
+GIT_PROMPT_BEHIND="%{$fg[cyan]%}⬇.NUM%{$reset_color%}"
 GIT_PROMPT_MERGING="%{$fg[magenta]%}⚡︎%{$reset_color%}"
 GIT_PROMPT_UNTRACKED=" %{$fg[cyan]%}…NUM%{$reset_color%}"
 GIT_PROMPT_MODIFIED=" %{$fg[yellow]%}✚.NUM%{$reset_color%}"
 GIT_PROMPT_STAGED=" %{$fg[green]%}●NUM%{$reset_color%}"
+GIT_CONTAINING_FOLDER_COLOR="%{$fg_bold[yellow]%}"
 
 # Show Git branch/tag, or name-rev if on detached head
 parse_git_branch() {
@@ -33,58 +34,74 @@ parse_git_state() {
 
   local NUM_AHEAD="$(git log --oneline @{u}.. 2> /dev/null | wc -l | tr -d ' ')"
   if [ "$NUM_AHEAD" -gt 0 ]; then
-    # in $GIT_PROMPT_AHEAD replace NUM for $NUM_AHEAD
-    GIT_STATE=$GIT_STATE${GIT_PROMPT_AHEAD//NUM/$NUM_AHEAD}
+    # replace NUM for $NUM_AHEAD
+    GIT_STATE="$GIT_STATE${GIT_PROMPT_AHEAD//NUM/$NUM_AHEAD}"
   fi
 
   local NUM_BEHIND="$(git log --oneline ..@{u} 2> /dev/null | wc -l | tr -d ' ')"
   if [ "$NUM_BEHIND" -gt 0 ]; then
-    GIT_STATE=$GIT_STATE${GIT_PROMPT_BEHIND//NUM/$NUM_BEHIND}
+    # replace NUM for $NUM_BEHIND
+    GIT_STATE="$GIT_STATE${GIT_PROMPT_BEHIND//NUM/$NUM_BEHIND}"
   fi
 
   local GIT_DIR="$(git rev-parse --git-dir 2> /dev/null)"
   if [ -n $GIT_DIR ] && test -r $GIT_DIR/MERGE_HEAD; then
-    GIT_STATE=$GIT_STATE$GIT_PROMPT_MERGING
+    GIT_STATE="$GIT_STATE$GIT_PROMPT_MERGING"
   fi
 
   local NUM_MODIFIED="$(git diff --name-status 2> /dev/null | wc -l)"
-  if [[ $NUM_MODIFIED -gt 0 ]]; then
-    GIT_STATE=$GIT_STATE${GIT_PROMPT_MODIFIED//NUM/$NUM_MODIFIED}
+  if [[ "$NUM_MODIFIED" -gt 0 ]]; then
+    GIT_STATE="$GIT_STATE${GIT_PROMPT_MODIFIED//NUM/$NUM_MODIFIED}"
   fi
 
   local NUM_UNTRACKED="$(git ls-files --other --exclude-standard 2> /dev/null | wc -l)"
-  if [[ $NUM_UNTRACKED -gt 0 ]]; then
-    GIT_STATE=$GIT_STATE${GIT_PROMPT_UNTRACKED//NUM/$NUM_UNTRACKED}
+  if [[ "$NUM_UNTRACKED" -gt 0 ]]; then
+    GIT_STATE="$GIT_STATE${GIT_PROMPT_UNTRACKED//NUM/$NUM_UNTRACKED}"
   fi
 
   local NUM_STAGED="$(git diff --cached --quiet | wc -l)"
-  if [[ $NUM_STAGED -gt 0 ]]; then
-    GIT_STATE=$GIT_STATE${GIT_PROMPT_STAGED//NUM/$NUM_STAGED}
+  if [[ "$NUM_STAGED" -gt 0 ]]; then
+    GIT_STATE="$GIT_STATE${GIT_PROMPT_STAGED//NUM/$NUM_STAGED}"
   fi
 
 
-  if [[ -n $GIT_STATE ]]; then
+  if [[ -n "$GIT_STATE" ]]; then
     echo "$GIT_STATE"
   fi
 
 }
 
 git_prompt_string() {
-    local git_where="$(parse_git_branch)"
-    if [[ -n "$git_where" ]]; then
-	local branch="${git_where#(refs/heads/|tags/)}"	
-	if [[ "$branch " == "master" ]]; then
-	    branch="${GIT_PROMPT_MASTER_BRANCH}${branch}%{$reset_color%}"
-	else
-	    branch="${GIT_PROMPT_BRANCH}${branch}%{$reset_color%}"
-	fi
-	echo "$GIT_PROMPT_PREFIX${branch}$GIT_PROMPT_SEPARATOR$(parse_git_state)$GIT_PROMPT_SUFFIX"
-    fi
+  local git_where="$(parse_git_branch)"
+  if [[ -n "${git_where}" ]]; then
+    # this like converts git_where="refs/heads/master" to "master"
+    local branch="${git_where#(refs/heads/|tags/)}"
+    # obtain fullpath /<rooth>/<GIT_CONTAINER_FOLDER>
+    local GIT_CONTAINER_FOLDER_FULLPATH="$(git rev-parse --show-toplevel 2>/dev/null)"
+    # obtain /<GIT_CONTAINER_FOLDER>
+    local GIT_CONTAINER_FOLDER=$(basename $GIT_CONTAINER_FOLDER_FULLPATH 2> /dev/null)
+    # obtain full path /<root>/<GIT_CONTAINER_FOLDER>/<git-subfolder>/
+    local CURRENT_FULLPATH=$(pwd)
+    # please show only the git directory tree, colored, before git prompt
+    local directory_without_color=$GIT_CONTAINER_FOLDER${CURRENT_FULLPATH#$GIT_CONTAINER_FOLDER_FULLPATH}
+    local directory="${GIT_CONTAINING_FOLDER_COLOR}${directory}%{$reset_color%}"
+    case "${branch}" in
+      master)
+	branch="${GIT_PROMPT_MASTER_BRANCH}${branch}%{$reset_color%}"
+	;;
+      *)
+	branch="${GIT_PROMPT_BRANCH}${branch}%{$reset_color%}"
+	;;
+    esac
+    echo "${directory}${GIT_PROMPT_PREFIX}${branch}${GIT_PROMPT_SEPARATOR}$(parse_git_state)${GIT_PROMPT_SUFFIX}"
+  fi
+  echo "%~" # show pwd no color
 }
 
 # Set the right-hand prompt
 # RPS1='$(git_prompt_string)'
-PS1='%F{cyan}%n%f@%M: %~%F{cyan}$(git_prompt_string)%f %# '
+# PS1='%F{cyan}%n%f@%M: %~%F{cyan}$(git_prompt_string)%f %# '
+PS1='%F{cyan}%n%f@%M %~%$(git_prompt_string) %# '
 
 
 ## zsh PS1 prompt customization
