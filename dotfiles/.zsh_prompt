@@ -75,7 +75,7 @@ git_prompt_string() {
   local git_where="$(parse_git_branch)"
   if [[ -n "${git_where}" ]]; then
     # this like converts git_where="refs/heads/master" to "master"
-    local branch="${git_where#(refs/heads/|tags/)}"
+    local BRANCH="${git_where#(refs/heads/|tags/)}"
     # obtain fullpath /<rooth>/<GIT_CONTAINER_FOLDER>
     local GIT_CONTAINER_FOLDER_FULLPATH="$(git rev-parse --show-toplevel 2>/dev/null)"
     # obtain /<GIT_CONTAINER_FOLDER>
@@ -83,17 +83,17 @@ git_prompt_string() {
     # obtain full path /<root>/<GIT_CONTAINER_FOLDER>/<git-subfolder>/
     local CURRENT_FULLPATH=$(pwd)
     # please show only the git directory tree, colored, before git prompt
-    local directory_without_color=$GIT_CONTAINER_FOLDER${CURRENT_FULLPATH#$GIT_CONTAINER_FOLDER_FULLPATH}
-    local directory="${GIT_CONTAINING_FOLDER_COLOR}${directory}%{$reset_color%}"
+    local DIRECTORY_WITHOUT_COLOR=$GIT_CONTAINER_FOLDER${CURRENT_FULLPATH#$GIT_CONTAINER_FOLDER_FULLPATH}
+    local DIRECTORY="${GIT_CONTAINING_FOLDER_COLOR}${DIRECTORY_WITHOUT_COLOR}%{$reset_color%}"
     case "${branch}" in
       master)
-	branch="${GIT_PROMPT_MASTER_BRANCH}${branch}%{$reset_color%}"
+	branch="${GIT_PROMPT_MASTER_BRANCH}${BRANCH}%{$reset_color%}"
 	;;
       *)
-	branch="${GIT_PROMPT_BRANCH}${branch}%{$reset_color%}"
+	branch="${GIT_PROMPT_BRANCH}${BRANCH}%{$reset_color%}"
 	;;
     esac
-    echo "${directory}${GIT_PROMPT_PREFIX}${branch}${GIT_PROMPT_SEPARATOR}$(parse_git_state)${GIT_PROMPT_SUFFIX}"
+    echo "${DIRECTORY}${GIT_PROMPT_PREFIX}${BRANCH}${GIT_PROMPT_SEPARATOR}$(parse_git_state)${GIT_PROMPT_SUFFIX}"
   fi
   echo "%~" # show pwd no color
 }
