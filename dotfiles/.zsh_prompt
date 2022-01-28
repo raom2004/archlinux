@@ -8,8 +8,8 @@ autoload -U colors && colors # Enable colors in prompt
 
 ## GLOBA VARIABLES
 # Modify the colors and symbols in these variables as desired.
-GIT_PROMPT_BRANCH="{$fg[white]%}"
-GIT_PROMPT_MASTER_BRANCH="%{$fg[yellow]%}"
+GIT_PROMPT_BRANCH="%{$fg_bold[magenta]%}"
+GIT_PROMPT_MASTER_BRANCH="%{$fg_bold[yellow]%}"
 GIT_PROMPT_SEPARATOR=" %{$fg[white]%}|%{$reset_color%}"
 GIT_PROMPT_PREFIX=" %{$fg[white]%}[%{$reset_color%}"
 GIT_PROMPT_SUFFIX="%{$fg[white]%}]%{$reset_color%}"
@@ -76,9 +76,9 @@ git_prompt_string() {
 	if [[ $branch == "master" ]]; then
 	    branch="${GIT_PROMPT_MASTER_BRANCH}${branch}%{$reset_color%}"
 	else
-	    branch=$GIT_PROMPT_BRANCH${branch}%{$reset_color%}
+	    branch="${GIT_PROMPT_BRANCH}${branch}%{$reset_color%}"
 	fi
-	echo "$GIT_PROMPT_PREFIX%{$fg_bold[magenta]%}${branch}%{$reset_color%}$GIT_PROMPT_SEPARATOR$(parse_git_state)$GIT_PROMPT_SUFFIX"
+	echo "$GIT_PROMPT_PREFIX${branch}$GIT_PROMPT_SEPARATOR$(parse_git_state)$GIT_PROMPT_SUFFIX"
     fi
 }
 
