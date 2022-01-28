@@ -84,7 +84,6 @@ git_prompt_string() {
 	branch="${GIT_PROMPT_BRANCH_COLOR}${branch}%{$reset_color%}"
 	;;
     esac
-
     # obtain fullpath /<rooth>/<GIT_CONTAINER_FOLDER>
     local git_container_folder_fullpath="$(git rev-parse --show-toplevel 2>/dev/null)"
     # obtain /<GIT_CONTAINER_FOLDER>
@@ -93,7 +92,7 @@ git_prompt_string() {
     local current_fullpath=$(pwd)
     # please show only the git directory tree, colored, before git prompt
     local git_directory_without_color=$git_container_folder${current_fullpath#$git_container_folder_fullpath}
-    local git_directory="${GIT_CONTAINING_FOLDER_COLOR}${directory_without_color}%{$reset_color%}"
+    local git_directory="${GIT_CONTAINING_FOLDER_COLOR}${git_directory_without_color}%{$reset_color%}"
 
     echo "${git_directory}${GIT_PROMPT_PREFIX}${branch}${GIT_PROMPT_SEPARATOR}$(parse_git_state)${GIT_PROMPT_SUFFIX}"
   else
