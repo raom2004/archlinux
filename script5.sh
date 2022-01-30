@@ -64,7 +64,7 @@ case "${1:-*}" in
 	root_password="rootpassword"
 	user_name="myuser"
 	user_password="userpassword"
-	git_global_user_email="mygituser"
+	git_global_user_name="mygituser"
 	git_global_user_email="mygit@email.com"
 	git_global_core_editor="vim"
 	;;
