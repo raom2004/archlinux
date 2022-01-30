@@ -1,13 +1,27 @@
 #!/bin/zsh
 #
 # ~/.zsh_prompt
-# a ZSH prompt that shows (emacs/vi) keymaps and git status 
-# inspired in: https://gist.github.com/joshdick/4415470
+# a ZSH prompt with keymap and git information
+#  code inspired in: https://gist.github.com/joshdick/4415470
+# Dependencies: None
+#
+# example code:
+# PS1='$keymap%F{cyan}%n%f@%M $(git_prompt_string) %# '
+#
+# example of results:
+# (Emacs) user@hostname [master | +.1 …1] %
+# [vi:ins] user@hostname [master | +.1 …1] %
+# [vi:cmd] user@hostname [master | +.1 …1] %
+#
+### CODE:
+
 
 setopt prompt_subst
 autoload -U colors && colors # Enable colors in prompt
 
-##GLOBAL VARIABLES
+
+## GLOBAL VARIABLES
+
 # GIT PROMPT
 GIT_PROMPT_BRANCH_COLOR="%{$fg_bold[magenta]%}"
 GIT_PROMPT_MASTER_BRANCH_COLOR="%{$fg_bold[yellow]%}"
@@ -21,11 +35,13 @@ GIT_PROMPT_UNTRACKED=" %{$fg[cyan]%}…NUM%{$reset_color%}"
 GIT_PROMPT_MODIFIED=" %{$fg[yellow]%}✚.NUM%{$reset_color%}"
 GIT_PROMPT_STAGED=" %{$fg[green]%}●NUM%{$reset_color%}"
 GIT_CONTAINING_FOLDER_COLOR="%{$fg_bold[yellow]%}"
-
 # KEYMAP PROMPT
 KEYMAP_EMACS="(Emacs) "
 KEYMAP_VIINSERT="%{$fg_bold[green]%}[vi:ins]%{$reset_color%} "
 KEYMAP_VICOMMAND="%{$fg_bold[blue]%}[vi:cmd]%{$reset_color%} "
+
+
+## GIT PROMPT
 
 # Show Git branch/tag, or name-rev if on detached head
 parse_git_branch() {
@@ -106,12 +122,13 @@ git_prompt_string() {
   fi
 }
 
-## SHOW KEYMAP IN PROMPT: "(Emacs)", "[vi:ins]" or "[vi:cmd]" 
-# this has a problem: zsh emacs and vi insert share the same tag (main)
-# but I made my own hack to overcome such difficulty
+# Show active keymap in prompt: "(Emacs)", "[vi:ins]" or "[vi:cmd]" 
+# zsh probide shortcuts for the keymaps: emacs and vi 
+# but the "emacs" and "vi insert" modes share the same tag (main)
+# In order to differentiate each mode, I had to make my own hack:
 function zle-line-init zle-keymap-select {
   local keymap
-  if [ $KEYMAP == vicmd ]; then
+  if [[ "$KEYMAP" == vicmd ]]; then
     keymap="$KEYMAP_VICOMMAND"
   else
     local main_keymap="$(bindkey -lL main | awk '{ print $3 }')"
