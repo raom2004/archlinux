@@ -28,7 +28,8 @@
 # simple version
 #PS1="\$GIT_STATUS \u@\h:\w\$ "
 # colored version 
-PS1="${NCyan}\u${NC}@\h: \w ${NCyan}\$GIT_STATUS${NC}\\$ "
+# PS1="${NCyan}\u${NC}@\h: \w ${NCyan}\$GIT_STATUS${NC}\\$ "
+PS1="${NCyan}\u${NC}@\h: \w \\$ "
 
 ## add "git prompt" to PS1 prompt
 

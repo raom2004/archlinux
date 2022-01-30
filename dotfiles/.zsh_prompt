@@ -25,7 +25,7 @@ autoload -U colors && colors # Enable colors in prompt
 # GIT PROMPT
 GIT_PROMPT_BRANCH_COLOR="%{$fg_bold[magenta]%}"
 GIT_PROMPT_MASTER_BRANCH_COLOR="%{$fg_bold[yellow]%}"
-GIT_PROMPT_SEPARATOR=" %{$fg[white]%}|%{$reset_color%}"
+GIT_PROMPT_SEPARATOR="%{$fg[white]%}|%{$reset_color%}"
 GIT_PROMPT_PREFIX=" %{$fg[white]%}[%{$reset_color%}"
 GIT_PROMPT_SUFFIX="%{$fg[white]%}]%{$reset_color%}"
 GIT_PROMPT_AHEAD="%{$fg[red]%}⬆.NUM%{$reset_color%}"
