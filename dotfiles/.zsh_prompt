@@ -1,13 +1,14 @@
 #!/bin/zsh
 #
 # ~/.zsh_prompt
-# source: https://gist.github.com/joshdick/4415470
+# a ZSH prompt that shows (emacs/vi) keymaps and git status 
+# inspired in: https://gist.github.com/joshdick/4415470
 
 setopt prompt_subst
 autoload -U colors && colors # Enable colors in prompt
 
-## GLOBA VARIABLES
-# Modify the colors and symbols in these variables as desired.
+##GLOBAL VARIABLES
+# GIT PROMPT
 GIT_PROMPT_BRANCH_COLOR="%{$fg_bold[magenta]%}"
 GIT_PROMPT_MASTER_BRANCH_COLOR="%{$fg_bold[yellow]%}"
 GIT_PROMPT_SEPARATOR=" %{$fg[white]%}|%{$reset_color%}"
@@ -20,6 +21,11 @@ GIT_PROMPT_UNTRACKED=" %{$fg[cyan]%}…NUM%{$reset_color%}"
 GIT_PROMPT_MODIFIED=" %{$fg[yellow]%}✚.NUM%{$reset_color%}"
 GIT_PROMPT_STAGED=" %{$fg[green]%}●NUM%{$reset_color%}"
 GIT_CONTAINING_FOLDER_COLOR="%{$fg_bold[yellow]%}"
+
+# KEYMAP PROMPT
+KEYMAP_EMACS="(Emacs) "
+KEYMAP_VIINSERT="%{$fg_bold[green]%}[vi:ins]%{$reset_color%} "
+KEYMAP_VICOMMAND="%{$fg_bold[blue]%}[vi:cmd]%{$reset_color%} "
 
 # Show Git branch/tag, or name-rev if on detached head
 parse_git_branch() {
@@ -100,129 +106,25 @@ git_prompt_string() {
   fi
 }
 
-# show keymap (emacs and vi insert or vi command)
-# function zle-line-init zle-keymap-select {
-#   VIM_PROMPT="%{$fg_bold[yellow]%} [% NORMAL]% %{$reset_color%}"
-#   RPS1="${${KEYMAP/vicmd/$VIM_PROMPT}/(main|viins)/} $(git_custom_status) $EPS1"
-#   zle reset-prompt
-# }
-# zle -N zle-line-init
-# zle -N zle-keymap-select
-
-# Set the right-hand prompt
-# RPS1='$(git_prompt_string)'
-# PS1='%F{cyan}%n%f@%M: %~%F{cyan}$(git_prompt_string)%f %# '
-# PS1='%F{cyan}%n%f@%M $(git_prompt_string) %# '
-
-# bash can differenciate keymaps between emacs vi insert and vi command
-# zsh identify vi command (vicmd)
-# but in zsh emacs and vi insert share the same tag (main)
-# I make my own hack to overcome such difficulty
-# my_keymap (){ (bindkey -lL main | awk '{ print $3 }') }
-# show keymap (emacs and vi insert or vi command)
-# PS1='$(my_keymap) %F{cyan}%n%f@%M $(git_prompt_string) %# '
+## SHOW KEYMAP IN PROMPT: "(Emacs)", "[vi:ins]" or "[vi:cmd]" 
+# this has a problem: zsh emacs and vi insert share the same tag (main)
+# but I made my own hack to overcome such difficulty
 function zle-line-init zle-keymap-select {
-    local mykeymap
-    if [ $KEYMAP == vicmd ]; then
-	mykeymap="%{$fg_bold[blue]%}[vi:cmd]%{$reset_color%}"
-    else
-	local keymap="$(bindkey -lL main | awk '{ print $3 }')"
-	case ${keymap} in
-	    emacs) mykeymap="%{$fg_bold[white]%}(Emacs)%{$reset_color%}"
-		   ;;
-	    viins) mykeymap="%{$fg_bold[green]%}[vi:ins]%{$reset_color%}"
-		   ;;
-	esac
-    fi
-    PS1="$keymap $EPS1"
-    # zle reset-prompt
+  local keymap
+  if [ $KEYMAP == vicmd ]; then
+    keymap="$KEYMAP_VICOMMAND"
+  else
+    local main_keymap="$(bindkey -lL main | awk '{ print $3 }')"
+    case ${main_keymap} in
+      emacs) keymap="$KEYMAP_EMACS";;
+      viins) keymap="$KEYMAP_VIINSERT";;
+    esac
+  fi
+  PS1='$keymap%F{cyan}%n%f@%M $(git_prompt_string) %# '
+  zle reset-prompt
 }
 zle -N zle-line-init
 zle -N zle-keymap-select
-
-
-# function zle-line-init zle-keymap-select {
-#     if [ $KEYMAP == vicmd ]; then
-# 	echo "%{$fg_bold[blue]%}[vi:cmd]%{$reset_color%}"
-# 	# VIM_PROMPT="%{$fg_bold[yellow]%} [% NORMAL]% %{$reset_color%}"
-# 	# RPS1="${${KEYMAP/vicmd/$VIM_PROMPT}/(main|viins)/} $(git_custom_status) $EPS1"
-#     else
-# 	local keymap="$(bindkey -lL main | awk '{ print $3 }')"
-#     case ${keymap} in
-# 	emacs) echo "%{$fg_bold[white]%}(Emacs)%{$reset_color%}";;
-# 	viins) echo "%{$fg_bold[green]%}[vi:ins]%{$reset_color%}";;
-#     esac
-#     fi
-#   zle reset-prompt
-# }
-# zle -N zle-line-init
-# zle -N zle-keymap-select
-# PS1='%F{cyan}%n%f@%M $(git_prompt_string) %# '
-
-
-
-## zsh PS1 prompt customization
-# PROMPT='%F{cyan}%n%f@%M: %~%F{cyan}${vcs_info_msg_0_}%f %# '
-
-# ## add "git prompt" to PS1 prompt
-# if [[ ! -f "$HOME/.zsh-git-prompt/zshrc.sh" ]]; then
-#     git clone https://github.com/olivierverdier/zsh-git-prompt.git ~/.zsh-git-prompt --depth=1
-# fi
-
-# if [[ -f "$HOME/.zsh-git-prompt/zshrc.sh" ]]; then
-#     source ~/.zsh-git-prompt/zshrc.sh
-#     # an example prompt
-#     PROMPT='%B%m%~%b$(git_super_status) %# '
-# fi
-
-
-# # function zle-line-init zle-keymap-select {
-# #     RPS1="${${KEYMAP/vicmd/-- NORMAL --}/(main|viins)/-- INSERT --}"
-# #     RPS2=$RPS1
-# #     zle reset-prompt
-# # }
-# # zle -N zle-line-init
-# # zle -N zle-keymap-select
-
-
-# # TODO multiline zsh PS1 prompt
-# #https://unix.stackexchange.com/questions/547/make-my-zsh-prompt-show-mode-in-vi-mode
-# terminfo_down_sc=$terminfo[cud1]$terminfo[cuu1]$terminfo[sc]$terminfo[cud1]
-
-# function insert-mode () { printf "[vi:ins] " }
-# function command-mode () { printf "[vi:cmd] " }
-# function emacs-mode () { printf "(Emacs) " }
-
-# precmd () {
-#     # yes, I actually like to have a new line, then some stuff and then 
-#     # the input line
-# #     print -rP "
-# # [%D{%a, %d %b %Y, %H:%M:%S}] %n %{$fg[blue]%}%m%{$reset_color%}"
-
-#     # this is required for initial prompt and a problem I had with Ctrl+C or
-#     # Enter when in normal mode (a new line would come up in insert mode,
-#     # but normal mode would be indicated)
-#     PS1="%{$terminfo_down_sc$(insert-mode)$terminfo[rc]%}%~ $ "
-# }
-
-# function set-prompt () {
-#     case ${KEYMAP} in
-#       (vicmd)      VI_MODE="$(command-mode)" ;;
-#       (main|viins) VI_MODE="$(insert-mode)" ;;
-#       (emacs)      VI_MODE="$(emacs-mode)" ;;
-#     esac
-#     # PS1="%n@%m%{$terminfo_down_sc$VI_MODE$terminfo[rc]%}%~ $ "
-#     PS1="${VI_MODE}${cyan}%n${reset_color}@%m%{$terminfo_down_sc%}%~ $ "
-# }
-
-# function zle-line-init zle-keymap-select {
-#     set-prompt
-#     zle reset-prompt
-# }
-# preexec () { print -rn -- $terminfo[el]; }
-
-# zle -N zle-line-init
-# zle -N zle-keymap-select
 
 
 # emacs:
