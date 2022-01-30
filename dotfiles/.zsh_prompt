@@ -34,8 +34,8 @@ GIT_PROMPT_MASTER_BRANCH_COLOR="%{$fg_bold[yellow]%}"
 GIT_PROMPT_SEPARATOR="%{$fg[white]%}|%{$reset_color%}"
 GIT_PROMPT_PREFIX=" %{$fg[white]%}[%{$reset_color%}"
 GIT_PROMPT_SUFFIX="%{$fg[white]%}]%{$reset_color%}"
-GIT_PROMPT_AHEAD="%{$fg[red]%}⬆.NUM%{$reset_color%}"
-GIT_PROMPT_BEHIND="%{$fg[cyan]%}⬇.NUM%{$reset_color%}"
+GIT_PROMPT_AHEAD=" %{$fg[red]%}⬆.NUM%{$reset_color%}"
+GIT_PROMPT_BEHIND=" %{$fg[cyan]%}⬇.NUM%{$reset_color%}"
 GIT_PROMPT_MERGING="%{$fg[magenta]%}⚡︎%{$reset_color%}"
 GIT_PROMPT_UNTRACKED=" %{$fg[cyan]%}…NUM%{$reset_color%}"
 GIT_PROMPT_MODIFIED=" %{$fg[yellow]%}✚.NUM%{$reset_color%}"
@@ -51,23 +51,23 @@ parse_git_branch() {
 parse_git_state() {
 
   # Compose this value via multiple conditional appends.
-  local GIT_STATE=""
+  local GIT_STATE="$GIT_PROMPT_SEPARATOR"
 
   local NUM_AHEAD="$(git log --oneline @{u}.. 2> /dev/null | wc -l | tr -d ' ')"
   if [ "$NUM_AHEAD" -gt 0 ]; then
     # replace NUM for $NUM_AHEAD
-    GIT_STATE="$GIT_STATE${GIT_PROMPT_AHEAD//NUM/$NUM_AHEAD}${GIT_PROMPT_SEPARATOR}"
+    GIT_STATE="${GIT_PROMPT_AHEAD//NUM/$NUM_AHEAD}$GIT_STATE"
   fi
 
   local NUM_BEHIND="$(git log --oneline ..@{u} 2> /dev/null | wc -l | tr -d ' ')"
   if [ "$NUM_BEHIND" -gt 0 ]; then
     # replace NUM for $NUM_BEHIND
-    GIT_STATE="$GIT_STATE${GIT_PROMPT_BEHIND//NUM/$NUM_BEHIND}${GIT_PROMPT_SEPARATOR}"
+    GIT_STATE="${GIT_PROMPT_BEHIND//NUM/$NUM_BEHIND}$GIT_STATE"
   fi
 
   local GIT_DIR="$(git rev-parse --git-dir 2> /dev/null)"
   if [ -n $GIT_DIR ] && test -r $GIT_DIR/MERGE_HEAD; then
-    GIT_STATE="$GIT_STATE$GIT_PROMPT_MERGING"
+    GIT_STATE="$GIT_PROMPT_MERGING"
   fi
 
   local NUM_MODIFIED="$(git diff --name-status 2> /dev/null | wc -l)"
