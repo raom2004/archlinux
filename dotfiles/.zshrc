@@ -35,15 +35,16 @@ set -o emacs # or bindkey -e
 # set -o vi # or bindkey -v
 ## set specific keybindings:
 # typeset -g -A key
-# bindkey '^?' backward-delete-char
-# bindkey '^[[5~' up-line-or-history
-# bindkey '^[[3~' delete-char
-# bindkey '^[[6~' down-line-or-history
+bindkey '^?' backward-delete-char
+bindkey '^[[5~' up-line-or-history
+bindkey '^[[3~' delete-char
+bindkey '^[[6~' down-line-or-history
+# bindkey '^[[A' up-line-or-search
+bindkey '^[[D' backward-char
 # bindkey '^[[B' down-line-or-search
-# bindkey '^[[C' forward-char 
-# bindkey "^[[H" beginning-of-line
-# bindkey "^[[F" end-of-lin
-
+bindkey '^[[C' forward-char 
+bindkey "^[[H" beginning-of-line
+bindkey "^[[F" end-of-line
 #------------------------------
 # zsh completion by history
 #------------------------------
@@ -51,7 +52,7 @@ autoload -U history-search-end
 zle -N history-beginning-search-backward-end history-search-end
 zle -N history-beginning-search-forward-end history-search-end
 bindkey '^[[A' history-beginning-search-backward-end
-bindkey '^[[D' history-beginning-search-forward-end
+bindkey '^[[B' history-beginning-search-forward-end
 
 # #------------------------------
 # # ShellFuncs
