@@ -36,7 +36,7 @@ GIT_PROMPT_MODIFIED=" %{$fg[yellow]%}✚.NUM%{$reset_color%}"
 GIT_PROMPT_STAGED=" %{$fg[green]%}●NUM%{$reset_color%}"
 GIT_CONTAINING_FOLDER_COLOR="%{$fg_bold[yellow]%}"
 # KEYMAP PROMPT
-KEYMAP_EMACS="(Emacs) "
+KEYMAP_EMACS="[Emacs] "
 KEYMAP_VIINSERT="%{$fg_bold[green]%}[vi:ins]%{$reset_color%} "
 KEYMAP_VICOMMAND="%{$fg_bold[blue]%}[vi:cmd]%{$reset_color%} "
 
@@ -137,7 +137,7 @@ function zle-line-init zle-keymap-select {
       viins) keymap="$KEYMAP_VIINSERT";;
     esac
   fi
-  PS1='$keymap%F{cyan}%n%f@%M $(git_prompt_string) %# '
+  PS1='$keymap$VIRTUAL_ENV_PROMPT%F{cyan}%n%f@%M $(git_prompt_string) %# '
   zle reset-prompt
 }
 zle -N zle-line-init
