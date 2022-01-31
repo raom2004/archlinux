@@ -54,8 +54,17 @@ LANGUAGE:
 
 set +o xtrace      # please do not show sensitive data
 
+
 ## restart /mnt if was previously mount
 mount | grep -q /mnt && umount -R /mnt
+
+
+## global variables
+GIT_GLOBAL_USER_NAME="ricardo"
+GIT_GLOBAL_USER_EMAIL="raom2004@gmail.com"
+GIT_GLOBAL_CORE_EDITOR="vim"
+USER_SHELL="zsh"
+
 
 ## use positional arguments or declare variables hiding passwords by -sp option.
 case "${1:-*}" in
@@ -64,9 +73,6 @@ case "${1:-*}" in
 	root_password="rootpassword"
 	user_name="myuser"
 	user_password="userpassword"
-	git_global_user_name="mygituser"
-	git_global_user_email="mygit@email.com"
-	git_global_core_editor="vim"
 	;;
     --help|-h)
 	display_usage
@@ -77,9 +83,9 @@ case "${1:-*}" in
 	read -sp "Enter ROOT password: " root_password
 	read -p "Enter NEW user: " user_name
 	read -sp "Enter NEW user PASSWORD: " user_password
-        read -p "Enter git global user NAME: " git_global_user_name
-        read -p "Enter git global user EMAIL: " git_global_user_email
-        read -p "Enter git global core editor (e.g.: vim, emacs): " git_global_core_editor
+        # read -p "Enter git global user NAME: " GIT_GLOBAL_USER_NAME
+        # read -p "Enter git global user EMAIL: " GIT_GLOBAL_USER_EMAIL
+        # read -p "Enter git global core editor (e.g.: vim, emacs): " GIT_GLOBAL_CORE_EDITOR
 	;;
 esac
 
@@ -88,11 +94,14 @@ export host_name
 export root_password
 export user_name
 export user_password
-export git_global_user_name
-export git_global_user_email
-export git_global_core_editor
+export GIT_GLOBAL_USER_NAME
+export GIT_GLOBAL_USER_EMAIL
+export GIT_GLOBAL_CORE_EDITOR
+export USER_SHELL
+
 
 set -o xtrace      # trace & expand what gets executed
+
 
 ## set time and synchronize system clock
 timedatectl set-ntp true
@@ -149,3 +158,11 @@ arch-chroot -u "${user_name}" /mnt bash /home/script6.sh
 rm /mnt/home/script6.sh
 
 echo "$0 finished succesfully"
+
+
+# emacs:
+# Local Variables:
+# sh-basic-offset: 2
+# End:
+
+# vim: set ts=2 sw=2 et:

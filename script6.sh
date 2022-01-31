@@ -78,7 +78,7 @@ sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g' /etc/sudoers
 # set root password
 echo -e "${root_password}\n${root_password}" | (passwd root)
 # create new user and set ZSH as shell
-useradd -m "$user_name" -s /bin/"${user_shell}"
+useradd -m "$user_name" -s /bin/"${USER_SHELL}"
 # set new user password
 echo -e "${user_password}\n${user_password}" | (passwd $user_name)
 # set user groups
@@ -140,9 +140,9 @@ vim -E -s -u $HOME/.vimrc +PlugInstall +visual +qall
 
 
 #~/.gitconfig
-git config --global user.name "${git_global_user_name}"
-git config --global user.email "${git_global_user_email}"
-git config --global core.editor "${git_global_core_editor}"
+git config --global user.name "${GIT_GLOBAL_USER_NAME}"
+git config --global user.email "${GIT_GLOBAL_USER_EMAIL}"
+git config --global core.editor "${GIT_GLOBAL_CORE_EDITOR}"
 git config --global init.DefaultBranch master # avoid git config warning
 
 
