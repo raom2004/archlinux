@@ -25,6 +25,18 @@ HOME=/home/"${user_name}"
 USER="${user_name}"
 
 
+# Create USER directories
+sudo pacman -S --needed --noconfirm xdg-user-dirs
+if ! LC_ALL=C xdg-user-dirs-update --force; then
+  sudo bash -c "LC_ALL=C xdg-user-dirs-update --force"
+  echo 'sudo bash -c "LC_ALL=C xdg-user-dirs-update --force"'
+fi
+
+
+## shell support for: command not found
+sudo pacman -S --noconfirm pkgfile && pkgfile -u
+
+
 # set user locale (e.g. set system language but keep messages in english)
 mkdir -p $HOME/.config
 echo 'LANG=es_ES.UTF-8'        >  $HOME/.config/locale.conf
