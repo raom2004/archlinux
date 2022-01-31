@@ -78,7 +78,7 @@ echo -e "${root_password}\n${root_password}" | (passwd root)
 # create new user and set ZSH as shell
 useradd -m "$user_name" -s /bin/zsh
 # set new user password
-echo -e "${user_password}\n${user_password}" | (passwd "${user_name}")
+echo -e "${user_password}\n${user_password}" | (passwd $user_name)
 # set user groups
 usermod -aG network,power,wheel,audio,optical,storage "${user_name}"
 
