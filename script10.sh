@@ -34,23 +34,21 @@ export user_name
 export user_password
 export user_shell
 
+
 ## set time and synchronize system clock
 timedatectl set-ntp true
 
 
 ## HDD partitioning (BIOS/MBR)
+mount | grep -q /mnt && umount -R /mnt # umount /mnt if previously mounted
 parted -s /dev/sda \
        mklabel msdos \
        mkpart primary ext2 0% 2% \
        set 1 boot on \
        mkpart primary ext4 2% 100%
-
-
 ## HDD patitions formating (-F=overwrite if necessary)
 mkfs.ext2 -F /dev/sda1
 mkfs.ext4 -F /dev/sda2
-
-
 ## HDD partitions mounting
 # root partition "/"
 mount /dev/sda2 /mnt
