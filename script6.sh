@@ -132,7 +132,7 @@ wget "${url}" --output-document=/home/"${user_name}"/.vimrc
 
 
 ## vim editor customization
-# plugin support
+# create ~/.vim folder for plugin support
 url=https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 wget "${url}" -P /home/"${user_name}"/.vim/autoload
 ## install plugins without open vim

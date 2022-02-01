@@ -82,6 +82,22 @@ source /usr/share/doc/pkgfile/command-not-found.bash
 # source: https://gist.github.com/tuxfight3r/60051ac67c5f0445efee
 
 
+## install plugins without open vim
+if [[ -f "~/.vim/plugged/jummidark.vim" ]]; then
+  # create ~/.vim folder for plugin support
+  url=https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+  wget "${url}" -P /home/"${user_name}"/.vim/autoload
+  ## install plugins without open vim
+  vim -E -s -u $HOME/.vimrc +PlugInstall +visual +qall
+fi
+
+
+## git config
+if [[ -f "/run/media/$USER/TOSHIBA_EXT/.gitrc" ]]; then
+  git config --global -f "/run/media/$USER/TOSHIBA_EXT/.gitrc"
+fi
+
+
 # emacs:
 # Local Variables:
 # sh-basic-offset: 2

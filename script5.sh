@@ -81,9 +81,11 @@ case "${1:-*}" in
     *)
 	read -p "Enter hostname: " host_name
 	read -sp "Enter ROOT password: " root_password
+	echo
 	read -p "Enter NEW user: " user_name
 	read -sp "Enter NEW user PASSWORD: " user_password
-        # read -p "Enter git global user NAME: " GIT_GLOBAL_USER_NAME
+	echo
+	# read -p "Enter git global user NAME: " GIT_GLOBAL_USER_NAME
         # read -p "Enter git global user EMAIL: " GIT_GLOBAL_USER_EMAIL
         # read -p "Enter git global core editor (e.g.: vim, emacs): " GIT_GLOBAL_CORE_EDITOR
 	;;
@@ -130,7 +132,7 @@ pacstrap /mnt base base-devel linux \
 	 zsh sudo vim git wget \
 	 dhcpcd \
 	 networkmanager \
-	 grub
+	 grub os-prober
 # install display server
 pacstrap /mnt xorg-{server,xrandr} xterm
 # install desktop packages (just xfce4)
@@ -157,7 +159,7 @@ arch-chroot -u "${user_name}" /mnt bash /home/script6.sh
 # remove script2.sh after completed
 rm /mnt/home/script6.sh
 
-echo "$0 finished succesfully"
+sleep 3 && echo "$0 finished succesfully"
 
 
 # emacs:
