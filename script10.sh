@@ -90,7 +90,7 @@ genfstab -L /mnt >> /mnt/etc/fstab
 
 # scripting inside chroot from outside: script2.sh
 # copy script2.sh to new system
-cp ./script2.sh /mnt/home
+cp ./script20.sh /mnt/home
 # run script2.sh commands inside chroot
 arch-chroot /mnt bash /home/script20.sh
 # remove script2.sh after completed
