@@ -9,8 +9,17 @@
 #   run the scrip3.sh on first boot to configure the new desktop 
 
 
-## show all the command that get executed and exit if anything fails
-set -xe
+### BASH SCRIPT FLAGS FOR SECURITY AND DEBUGGING ###################
+
+# shopt -o noclobber # avoid file overwriting (>) but can be forced (>|)
+set +o history     # disably bash history temporarilly
+set -o errtrace    # inherit any trap on ERROR
+set -o functrace   # inherit any trap on DEBUG and RETURN
+set -o errexit     # EXIT if script command fails
+set -o nounset     # EXIT if script try to use undeclared variables
+set -o pipefail    # CATCH failed piped commands
+set -o xtrace      # trace & expand what gets executed (useful for debug)
+
 
 
 ## Time Configuration 
@@ -49,7 +58,6 @@ echo "127.0.0.1	localhost
 
 
 ## Boot loader GRUB
-grub-install --target=i386-pc /dev/sda
 # detect additional kernels or operative systems available
 echo "GRUB_DISABLE_OS_PROBER=false" >> /etc/default/grub
 # hide boot loader at startup
@@ -59,6 +67,7 @@ url="https://gist.githubusercontent.com/anonymous/8eb2019db2e278ba99be/raw/257f1
 wget "${url}" -O /etc/grub.d/31_hold_shift
 chmod a+x /etc/grub.d/31_hold_shift
 # Install & Config a boot loader GRUB
+grub-install --target=i386-pc /dev/sda
 grub-mkconfig -o /boot/grub/grub.cfg
 
 
@@ -68,9 +77,9 @@ sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g' /etc/sudoers
 # set root password
 echo -e "${root_password}\n${root_password}" | (passwd root)
 # create new user and set ZSH as shell
-useradd -m "$user_name" -s "${user_shell}"
+useradd -m "${user_name}" -s /bin/zsh
 # set new user password
-echo -e "${user_password}\n${user_password}" | (passwd "${user_name}")
+echo -e "${user_password}\n${user_password}" | (passwd $user_name)
 # set user groups
 usermod -aG wheel,audio,optical,storage,power,network "${user_name}"
 
