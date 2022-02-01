@@ -66,15 +66,13 @@ pacstrap /mnt base base-devel linux \
 	 zsh sudo vim git wget \
 	 dhcpcd \
 	 networkmanager \
-	 grub os-prober
-# install display server
-pacstrap /mnt xorg-{server,xrandr} xterm
-# install desktop packages (just xfce4)
-pacstrap /mnt xfce4 \
+	 grub os-prober \
+	 xorg-{server,xrandr} xterm \
+	 xfce4 \
 	 xfce4-{pulseaudio-plugin,screenshooter} \
 	 pavucontrol pavucontrol-qt \
 	 papirus-icon-theme
-# install virtual machine support (VirtualBox) if neccesary
+
 pacman -Sy --noconfirm dmidecode
 my_system="$(sudo dmidecode -s system-manufacturer)"
 if [[ "${my_system}" == "innotek GmbH" ]]; then
