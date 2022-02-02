@@ -111,7 +111,7 @@ fi
 ### SYSTEM PACKAGES INSTALLATION
 
 ## (2/3) Essential Package List:
-Packages+=('base' 'base-devel' 'linux')
+Packages+=('base' 'linux')
 # shell	
 Packages+=('zsh')
 # tools
@@ -133,10 +133,13 @@ Packages+=('usbutils' 'dosfstools' 'ntfs-3g' 'amd-ucode' 'intel-ucode')
 # backup
 Packages+=('rsync')
 # glyphs support
-Packages+=('ttf-{hanazono,font-awesome,ubuntu-font-family}' 'noto-fonts')
+Packages+=('ttf-hanazono'
+	   'ttf-font-awesome'
+	   'ttf-ubuntu-font-family'
+	   'noto-fonts')
 # graphical user interface
 #  * xorg display server (wayland has not support nvidia CUDA yet)
-Packages+=('xorg-{server,xrandr}' 'xterm')
+Packages+=('xorg-server' 'xorg-xrandr' 'xterm')
 #  * NVIDIA display driver
 if lspci -k | grep -e "3D.*NVIDIA" &>/dev/null; then
     [[ "${Packages[*]}" =~ 'linux-lts' ]] && Packages+=('nvidia-lts')
@@ -144,7 +147,7 @@ if lspci -k | grep -e "3D.*NVIDIA" &>/dev/null; then
 fi
 #  * desktop environment
 Packages+=('xfce4')
-Packages+=('xfce4-{pulseaudio-plugin,screenshooter}')
+Packages+=('xfce4-pulseaudio-plugin' 'xfce4-screenshooter')
 Packages+=('pavucontrol' 'pavucontrol-qt')
 Packages+=('papirus-icon-theme')
 
