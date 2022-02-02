@@ -137,7 +137,7 @@ function zle-line-init zle-keymap-select {
       viins) keymap="$KEYMAP_VIINSERT";;
     esac
   fi
-  PS1='$keymap$VIRTUAL_ENV_PROMPT %F{cyan}%n%f@%M $(git_prompt_string) %# '
+  PS1='${keymap}${GIT_PROMPT_VIRTUALENV}%F{cyan}%n%f@%M $(git_prompt_string) %# '
   zle reset-prompt
 }
 zle -N zle-line-init
