@@ -55,6 +55,8 @@ override_git_prompt_colors() {
 
   GIT_PROMPT_COMMAND_OK="${Green}❯"    # indicator if the last command returned with an exit code of 0
   GIT_PROMPT_COMMAND_FAIL="${Red}❮ _LAST_COMMAND_STATE_"    # indicator if the last command returned with an exit code of other than 0
+  # GIT_PROMPT_VIRTUALENV="(${Blue}_VIRTUALENV_${ResetColor}) "
+  GIT_PROMPT_VIRTUALENV="(_VIRTUALENV_) "
   
   local gp_start="_LAST_COMMAND_INDICATOR_"
   local gp_end="\n${White}${Time12a}${ResetColor} ❯"
