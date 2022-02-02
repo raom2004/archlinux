@@ -21,12 +21,36 @@ set -o pipefail    # CATCH failed piped commands
 set -o xtrace      # trace & expand what gets executed (useful for debug)
 
 
-## Declare variables to use in script2.sh. Hide passwords by -sp option.
+### FUNCTION DECLARATION
+
+nullify() {
+  "$@" >& /dev/null
+  return 0
+}
+ignore_error() {
+  "$@" 2>/dev/null
+  return 0
+}
+
+
+### error handling
+
+out() { printf "$1 $2\n" "${@:3}"; }
+error() { out "==> ERROR:" "$@"; } >&2
+warning() { out "==> WARNING:" "$@"; } >&2
+msg() { out "==>" "$@"; }
+msg2() { out "  ->" "$@";}
+die() { error "$@"; exit 1; }
+
+
+### Declare variables to use in script2.sh. Hide passwords by -sp option.
+
 read -p "Enter hostname: " host_name
 read -sp "Enter ROOT password: " root_password
 read -p "Enter NEW user: " user_name
 read -sp "Enter NEW user PASSWORD: " user_password
 user_shell=/bin/zsh
+hdd_partitioning=/dev/sda
 # make these variables available for script2.sh
 export host_name
 export root_password
@@ -35,73 +59,124 @@ export user_password
 export user_shell
 
 
-## set time and synchronize system clock
+### SET TIME AND SYNCHRONIZE SYSTEM CLOCK
 timedatectl set-ntp true
 
 
-## HDD partitioning (BIOS/MBR)
-mount | grep -q /mnt && umount -R /mnt # umount /mnt if previously mounted
-parted -s /dev/sda \
+### HDD PARTITIONING (BIOS/MBR)
+msg "verifying if previously mounted /mnt"
+if mount | nullify grep -q '/mnt'; then
+    msg2 'umounting previously mounted /mnt' && umount -R /mnt
+fi
+msg "partitioning %s" "${hdd_partitioning}"
+parted -s "${hdd_partitioning}" \
        mklabel msdos \
        mkpart primary ext2 0% 2% \
        set 1 boot on \
-       mkpart primary ext4 2% 100%
+       mkpart primary ext4 2% 100% \
+       || die "Can not partition the drive %s" "${hdd_partitioning}"
 ## HDD patitions formating (-F=overwrite if necessary)
-mkfs.ext2 -F /dev/sda1
-mkfs.ext4 -F /dev/sda2
+mkfs.ext2 -F "${hdd_partitioning}1" || die "can not format $_"
+mkfs.ext4 -F "${hdd_partitioning}2" || die "can not format $_"
 ## HDD partitions mounting
 # root partition "/"
-mount /dev/sda2 /mnt
+mount "${hdd_partitioning}2" /mnt \
+    || die "can not mount $_ in ${hdd_partitioning}2"
 # boot partition "/boot"
-mkdir /mnt/boot
-mount /dev/sda1 /mnt/boot
+mkdir /mnt/boot || die "can not create discrete partition $_"
+mount "${hdd_partitioning}1" /mnt/boot \
+    || die "can not mount $_ in ${hdd_partitioning}1"
 
 
-## Important: update package manager keyring before install packages
-pacman -Syy --noconfirm archlinux-keyring
+### REQUIREMENTS BEFORE SYSTEM PACKAGES INSTALLATION
 
+## update keyring
+pacman -Syy --noconfirm archlinux-keyring \
+    || die 'can not install updated pacman keyring'
 
-## install system packages (with support for wifi and ethernet)
-pacstrap /mnt base base-devel linux \
-	 zsh sudo vim git wget \
-	 dhcpcd \
-	 networkmanager \
-	 grub os-prober \
-	 xorg-{server,xrandr} xterm \
-	 xfce4 \
-	 xfce4-{pulseaudio-plugin,screenshooter} \
-	 pavucontrol pavucontrol-qt \
-	 papirus-icon-theme
+## check if actual system run inside virtual (VBox) or Real Machine
+pacman -S --noconfirm dmidecode \
+    || die 'can not install dmidecode required to identify actual system'
+machine="$(dmidecode -s system-manufacturer)"
+[[ "$machine" == "innotek GmbH" ]] && MACHINE='VBox' || MACHINE='Real'
+# if arch linux install is inside VirtualBox add guest utils package
+[[ "${MACHINE}" == "VBox" ]] && Packages=('virtualbox-guest-utils')
 
-pacman -Sy --noconfirm dmidecode
-my_system="$(sudo dmidecode -s system-manufacturer)"
-if [[ "${my_system}" == "innotek GmbH" ]]; then
-  pacstrap /mnt virtualbox-guest-utils
+## Get Current Boot Mode:
+if ! ls /sys/firmware/efi/efivars 2>/dev/null; then
+  boot_mode='BIOS'
+else
+  boot_mode='UEFI'
 fi
-	 
-	 
-## generate file system table
-genfstab -L /mnt >> /mnt/etc/fstab
 
 
-# scripting inside chroot from outside: script2.sh
-# copy script2.sh to new system
-cp ./script20.sh /mnt/home
-# run script2.sh commands inside chroot
-arch-chroot /mnt bash /home/script20.sh
-# remove script2.sh after completed
-rm /mnt/home/script20.sh
+### SYSTEM PACKAGES INSTALLATION
+
+## (2/3) Essential Package List:
+Packages+=('base' 'base-devel' 'linux')
+# shell	
+Packages+=('zsh')
+# tools
+Packages+=('sudo' 'git' 'wget')
+# mounting tools (required for filemanagers)
+Packages+=('gvfs')
+# editors
+Packages+=('vim')
+# network
+Packages+=('dhcpcd')
+# wifi
+Packages+=('networkmanager')
+# boot loader
+Packages+=('grub' 'os-prober')
+# UEFI boot support
+Packages+=('efibootmgr')
+# multi-OS support
+Packages+=('usbutils' 'dosfstools' 'ntfs-3g' 'amd-ucode' 'intel-ucode')
+# backup
+Packages+=('rsync')
+# glyphs support
+Packages+=('ttf-{hanazono,font-awesome,ubuntu-font-family}' 'noto-fonts')
+# graphical user interface
+#  * xorg display server (wayland has not support nvidia CUDA yet)
+Packages+=('xorg-{server,xrandr}' 'xterm')
+#  * NVIDIA display driver
+if lspci -k | grep -e "3D.*NVIDIA" &>/dev/null; then
+    [[ "${Packages[*]}" =~ 'linux-lts' ]] && Packages+=('nvidia-lts')
+    [[ "${Packages[*]}" =~ 'linux' ]] && Packages+=('nvidia')
+fi
+#  * desktop environment
+Packages+=('xfce4')
+Packages+=('xfce4-{pulseaudio-plugin,screenshooter}')
+Packages+=('pavucontrol' 'pavucontrol-qt')
+Packages+=('papirus-icon-theme')
+
+## (3/3) INSTALLING PACKAGES
+pacstrap /mnt "$(echo "${!Packages[@]}")" \
+    || die 'Pacstrap can not install the packages'
+
+
+### generate file system table
+genfstab -L /mnt >> /mnt/etc/fstab || die 'can not generate $_'
+
+
+## scripting inside chroot by copying and running script2.sh
+cp ./script20.sh /mnt/home || die "can not copy script20.sh to $_"
+arch-chroot /mnt bash /home/script20.sh || die "can not run arch-root $_"
+rm /mnt/home/script20.sh || die "can not remove $_"
+
+
+## DESKTOP CUSTOMIZATION ON STARTUP (running script3.sh) 
+cp ./script7.sh /mnt/home/script3.sh || die "can not copy $_"
+chmod +x /mnt/home/script3.sh || die "can not set executable $_"
+
 
 ## DOTFILES
+# copy files to new system
 cp ./dotfiles/.[a-z]* /mnt/home/"${user_name}"
-# set user permissions
-arch-chroot /mnt bash -c "chown -R ${user_name}:${user_name} /home/${user_name}/.[a-z]*"
+# correct user permissions
+arch-chroot /mnt bash -c "chown -R ${user_name}:${user_name} /home/${user_name}/.[a-z]*" || die 'can correct user permissions'
 
-# ## Copy script3.sh with desktop customizations to run on first boot 
-cp ./script7.sh /mnt/home/script3.sh
-chmod +x /mnt/home/script3.sh
 
-exit
 ## In the end unmount everything and exiting
-umount -R /mnt
-shutdown now
+read -p "install successful! umount /mnt and exit?[y/N]" response
+[[ ! "${response}" =~ ^[yY]$ ]] && umount -R /mnt | shutdown now
