@@ -65,7 +65,7 @@ timedatectl set-ntp true
 
 ### HDD PARTITIONING (BIOS/MBR)
 # umount if previously mounted /mnt
-if mount | grep -q '/mnt'; then umount -R "$_"; fi
+if mount | grep -q "/mnt"; then umount -R "$_"; fi
 msg "partitioning ${hdd_partitioning}"
 parted -s "${hdd_partitioning}" \
        mklabel msdos \
