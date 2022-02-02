@@ -144,4 +144,4 @@ chown "${user_name}:${user_name}" \
     || die "can not set user permissions to $_"
 
 
-echo "$0 successful" && slepp 3 && exit
+echo "$0 successful" && sleep 3 && exit
