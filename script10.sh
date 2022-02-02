@@ -180,4 +180,4 @@ arch-chroot /mnt bash -c "chown -R ${user_name}:${user_name} /home/${user_name}/
 
 ## In the end unmount everything and exiting
 read -p "install successful! umount /mnt and exit?[y/N]" response
-[[ ! "${response}" =~ ^[yY]$ ]] && umount -R /mnt | shutdown now
+[[ "${response}" =~ ^[yY]$ ]] && umount -R /mnt | shutdown now
