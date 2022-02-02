@@ -149,7 +149,7 @@ Packages+=('pavucontrol' 'pavucontrol-qt')
 Packages+=('papirus-icon-theme')
 
 ## (3/3) INSTALLING PACKAGES
-pacstrap /mnt "$(echo "${!Packages[@]}")" \
+pacstrap /mnt "$(echo "${Packages[@]}")" \
     || die 'Pacstrap can not install the packages'
 
 
