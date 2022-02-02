@@ -64,9 +64,9 @@ timedatectl set-ntp true
 
 
 ### HDD PARTITIONING (BIOS/MBR)
-msg "verifying if previously mounted /mnt"
-if mount | nullify grep -q '/mnt'; then
-    msg2 'umounting previously mounted /mnt' && umount -R /mnt
+# umount if previously mounted /mnt
+mount | grep -q /mnt && umount -R "$_" || msg "no previous /mnt detected"
+
 fi
 msg "partitioning %s" "${hdd_partitioning}"
 parted -s "${hdd_partitioning}" \
