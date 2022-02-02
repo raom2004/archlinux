@@ -91,7 +91,7 @@ sed -i 's/# \(%wheel ALL=(ALL:ALL) ALL\)/\1/g' /etc/sudoers \
 echo -e "${root_password}\n${root_password}" | (passwd root) \
     || die "can not set root password"
 # create new user and set ZSH as shell
-useradd -m "${user_name}" -s /bin/"${user_shell}" \
+useradd -m "${user_name}" -s "${user_shell}" \
     || die "can not add user"
 # set new user password
 echo -e "${user_password}\n${user_password}" | (passwd $user_name) \
