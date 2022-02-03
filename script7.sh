@@ -95,9 +95,9 @@ rm -rf $HOME/script3.sh
 rm -rf $HOME/.config/autostart/script3.desktop
 
 
-echo "install finished succesfully. Exiting now!"
-sleep 3 && xfce4-session-logout -l
-
+# echo "install finished succesfully. Exiting now!"
+# sleep 3 && xfce4-session-logout -l
+sudo reboot now
 
 # emacs:
 # Local Variables:
