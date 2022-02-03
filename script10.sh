@@ -92,21 +92,12 @@ mount "${hdd_partitioning}1" /mnt/boot \
 pacman -Syy --noconfirm archlinux-keyring \
     || die 'can not install updated pacman keyring'
 
-## check if actual system run inside virtual (VBox) or Real Machine
-pacman -S --noconfirm dmidecode \
-    || die 'can not install dmidecode required to identify actual system'
-machine="$(dmidecode -s system-manufacturer)"
-[[ "$machine" == "innotek GmbH" ]] && MACHINE='VBox' || MACHINE='Real'
-# if arch linux install is inside VirtualBox add guest utils package
-[[ "${MACHINE}" == "VBox" ]] && Packages=('virtualbox-guest-utils')
-
 ## Get Current Boot Mode:
 if ! ls /sys/firmware/efi/efivars 2>/dev/null; then
   boot_mode='BIOS'
 else
   boot_mode='UEFI'
 fi
-
 
 ### SYSTEM PACKAGES INSTALLATION
 
@@ -150,6 +141,16 @@ Packages+=('xfce4')
 Packages+=('xfce4-pulseaudio-plugin' 'xfce4-screenshooter')
 Packages+=('pavucontrol' 'pavucontrol-qt')
 Packages+=('papirus-icon-theme')
+# add packages required for install in virtual (VBox) or Real Machine
+pacman -S --noconfirm dmidecode \
+    || die 'can not install dmidecode required to identify actual system'
+machine="$(dmidecode -s system-manufacturer)"
+[[ "$machine" == "innotek GmbH" ]] && MACHINE='VBox' || MACHINE='Real'
+# if Real Machine: install hardware support packages
+[[ "${MACHINE}" == "Real" ]] && Packages+=('linux-firmware')
+# if VirtualBox: install guest utils package
+[[ "${MACHINE}" == "VBox" ]] && Packages+=('virtualbox-guest-utils')
+
 
 ## (3/3) INSTALLING PACKAGES
 pacstrap /mnt --needed --noconfirm "${Packages[@]}" \

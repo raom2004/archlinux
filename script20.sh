@@ -173,6 +173,11 @@ case $session in
 esac
 ' >> $HOME/.xinitrc || die "can not set xfce4 desktop in ~/.xinitrc"
 
+## install plugins without open vim
+url=https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+wget "${url}" -P /home/"${user_name}"/.vim/autoload \
+    && vim -E -s -u $HOME/.vimrc +PlugInstall +visual +qall \
+	|| die 'can not install vim plugin support'
 
 ## How to customize a new desktop on first boot?
 # With a startup script that just need to steps:
