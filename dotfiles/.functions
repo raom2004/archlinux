@@ -183,6 +183,7 @@ function my_vim_install
 {
   if [[ ! -d "~/.vim/plugged/jummidark.vim" ]]; then
     ## install plugins without open vim
+    sleep 3
     vim -E -s -u $HOME/.vimrc +PlugInstall +visual +qall
   fi
 }

@@ -179,6 +179,9 @@ esac
 url=https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 wget "${url}" -P $HOME/.vim/autoload \
     || die 'can not populate vim plugin folder ~/.vim/autoload'
+## install plugins without open vim
+vim -E -s -u $HOME/.vimrc +PlugInstall +visual +qall \
+    || die 'can not install vim plugins'
 
 ## How to customize a new desktop on first boot?
 # With a startup script that just need to steps:
