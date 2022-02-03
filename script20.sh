@@ -149,8 +149,9 @@ LC_ALL=C xdg-user-dirs-update --force
 
 ## Overriding system locale per $USER session
 mkdir -p $HOME/.config || dia "can not create $_"
-echo 'LANGUAGE=en_GB.UTF-8' > $HOME/.config/locale.conf \
-echo 'LANGUAGE=en_GB.UTF-8' > $HOME/.config/locale.conf \
+echo 'LANG=es_ES.UTF-8'         > $HOME/.config/locale.conf \
+     || die "can not set user LANG in $_"
+echo 'LANGUAGE=en_GB:en_US:en' >> $HOME/.config/locale.conf \
      || die "can not set user LANGUAGE in $_"
 
 ## create dotfiles ".xinitrc" and ".serverrc"
