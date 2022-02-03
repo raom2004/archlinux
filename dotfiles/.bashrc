@@ -83,7 +83,7 @@ source /usr/share/doc/pkgfile/command-not-found.bash
 
 
 ## install plugins without open vim
-if [[ -f "~/.vim/plugged/jummidark.vim" ]]; then
+if [[ ! -f "~/.vim/plugged/jummidark.vim" ]]; then
   # create ~/.vim folder for plugin support
   url=https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
   wget "${url}" -P /home/$USER/.vim/autoload

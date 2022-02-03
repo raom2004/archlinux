@@ -126,12 +126,18 @@ source ~/.zsh_prompt
 
 
 ## install plugins without open vim
-if [[ -f "~/.vim/plugged/jummidark.vim" ]]; then
+if [[ ! -f "~/.vim/plugged/jummidark.vim" ]]; then
   # create ~/.vim folder for plugin support
   url=https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
   wget "${url}" -P /home/$USER/.vim/autoload
   ## install plugins without open vim
   vim -E -s -u $HOME/.vimrc +PlugInstall +visual +qall
+fi
+
+
+## git config
+if [[ -f "/run/media/$USER/TOSHIBA_EXT/.gitrc" ]]; then
+  git config --global -f "/run/media/$USER/TOSHIBA_EXT/.gitrc"
 fi
 
 
