@@ -182,9 +182,6 @@ function up
 function my_vim_install
 {
   if [[ ! -d "~/.vim/plugged/jummidark.vim" ]]; then
-    echo "Installing vim plugins" && sleep 2
-    check_internet
-    # create ~/.vim folder for plugin support
     ## install plugins without open vim
     vim -E -s -u $HOME/.vimrc +PlugInstall +visual +qall
   fi
