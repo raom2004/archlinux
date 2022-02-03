@@ -112,7 +112,7 @@ fi
 
 ## (2/3) Essential Package List:
 Packages+=('base' 'linux')
-# shell	
+# shell 	
 Packages+=('zsh')
 # tools
 Packages+=('sudo' 'git' 'wget')
@@ -173,7 +173,7 @@ chmod +x /mnt/home/script3.sh || die "can not set executable $_"
 
 ## DOTFILES
 # copy files to new system
-cp ./dotfiles/.[a-z]* /mnt/home/"${user_name}"
+cp ./dotfiles/.[a-z]* /mnt/home/"${user_name}" || die 'can not copy $_'
 # correct user permissions
 arch-chroot /mnt bash -c "chown -R ${user_name}:${user_name} /home/${user_name}/.[a-z]*" || die 'can correct user permissions'
 

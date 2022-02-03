@@ -91,8 +91,8 @@ xfconf-query -c xfce4-desktop -v --create -p /desktop-icons/style \
 
 
 ## setup xfce complete: remove script and autostart file
-rm -rf $HOME/script7.sh
-rm -rf $HOME/.config/autostart/script7.desktop
+rm -rf $HOME/script3.sh
+rm -rf $HOME/.config/autostart/script3.desktop
 
 
 echo "install finished succesfully. Exiting now!"

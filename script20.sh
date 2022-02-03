@@ -9,7 +9,7 @@
 #   run the scrip3.sh on first boot to configure the new desktop 
 
 
-### BASH SCRIPT FLAGS FOR SECURITY AND DEBUGGING ###################
+### BASH SCRIPT FLAGS FOR SECURITY AND DEBUGGING
 
 # shopt -o noclobber # avoid file overwriting (>) but can be forced (>|)
 set +o history     # disably bash history temporarilly
@@ -21,7 +21,8 @@ set -o pipefail    # CATCH failed piped commands
 set -o xtrace      # trace & expand what gets executed (useful for debug)
 
 
-### error handling
+### ERROR HANDLING
+
 out() { printf "$1 $2\n" "${@:3}"; }
 error() { out "==> ERROR:" "$@"; } >&2
 warning() { out "==> WARNING:" "$@"; } >&2
@@ -30,13 +31,15 @@ msg2() { out "  ->" "$@";}
 die() { error "$@"; exit 1; }
 
 
-## Time Configuration 
+### Time Configuration 
+
 ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime \
     || die "can not set $_"
 hwclock --systohc || die "can not set clock config"
 
 
-## Language Configuration (support for us, gb, dk, es, de)
+### Language Configuration (support for us, gb, dk, es, de)
+
 sed -i 's/#\(en_US.UTF-8\)/\1/' /etc/locale.gen || die "can not set $_"
 sed -i 's/#\(en_GB.UTF-8\)/\1/' /etc/locale.gen || die "can not set $_"
 sed -i 's/#\(en_DK.UTF-8\)/\1/' /etc/locale.gen || die "can not set $_"
@@ -54,7 +57,8 @@ echo 'KEYMAP=es'               > /etc/vconsole.conf \
     || die "can not set KEYMAP in $_"
 
 
-## Network Configuration
+### Network Configuration
+
 echo "${host_name}" > /etc/hostname || die "can not set $_"
 echo "127.0.0.1	localhost
 ::1		localhost
@@ -62,51 +66,59 @@ echo "127.0.0.1	localhost
 " >> /etc/hosts || die "can not set $_"
 
 
-## Init ram filsesystem: Initramfs
+### Init ram filsesystem: Initramfs
+
 # Initramfs was run for pacstrap but must be run for LVM, encryption...:
 # mkinitcpio -P 
 
 
-## Boot loader GRUB
-# detect additional kernels or operative systems available
+### Boot loader GRUB
+
+## detect additional kernels or operative systems available
 echo "GRUB_DISABLE_OS_PROBER=false" >> /etc/default/grub \
     || die "can not disable grub in $_"
-# hide boot loader at startup
+## hide boot loader at startup
 echo "GRUB_FORCE_HIDDEN_MENU=true"  >> /etc/default/grub \
     || die "can not hide grub menu in $_"
-# press shift to show boot loader menu at start up
+## press shift to show boot loader menu at start up
 url="https://gist.githubusercontent.com/anonymous/8eb2019db2e278ba99be/raw/257f15100fd46aeeb8e33a7629b209d0a14b9975/gistfile1.sh"
 wget "${url}" -O /etc/grub.d/31_hold_shift || die "can not set $_ "
 chmod a+x /etc/grub.d/31_hold_shift || die "can not set permission to $_"
-# Install & Config a boot loader GRUB
+## Install & Config a boot loader GRUB
 grub-install --target=i386-pc /dev/sda || die "can not install grub"
 grub-mkconfig -o /boot/grub/grub.cfg || die "can not config grub"
 
 
-## Accounts Config
-# sudo requires to turn on "wheel" groups
+### Accounts Config
+
+## sudo requires to turn on "wheel" groups
 sed -i 's/# \(%wheel ALL=(ALL:ALL) ALL\)/\1/g' /etc/sudoers \
     || die "can not activate whell in $_"
-# set root password
+## set root password
 echo -e "${root_password}\n${root_password}" | (passwd root) \
     || die "can not set root password"
-# create new user and set ZSH as shell
+## create new user and set ZSH as shell
 useradd -m "${user_name}" -s "${user_shell}" \
     || die "can not add user"
-# set new user password
+## set new user password
 echo -e "${user_password}\n${user_password}" | (passwd $user_name) \
     || die "can not set user password"
-# set user groups
+## set user groups
 usermod -aG wheel,audio,optical,storage,power,network "${user_name}" \
     || die "can not set user groups"
 
 
-## Pacman Package Manager Customization
+### Pacman Package Manager Customization
+
+# turn color on
 sed -i 's/#\(Color\)/\1/' /etc/pacman.conf || die "can not customize $_"
 # improve compiling time adding processors "nproc"
 sed -i 's/#MAKEFLAGS="-j2"/MAKEFLAGS="-j$(nproc)"/' /etc/makepkg.conf \
     || die "can not add processors to $_"
-## autologing tty
+
+
+### tty autologing at startup
+
 mkdir -p /etc/systemd/system/getty@tty1.service.d \
     || die "can not create dir $_"
 printf "[Service]
@@ -116,9 +128,50 @@ ExecStart=-/sbin/agetty --autologin ${user_name} --noclear %%I $TERM
     || die "can not create $_"
 
 
-## start services on reboot:
+### start services on reboot:
+
 systemctl enable dhcpcd	|| die "can not enable ethernet $_"
 systemctl enable NetworkManager || die "can not enable wifi $_"
+
+
+### CUSTOMIZE SHELL
+# support for command not found
+pacman -S --noconfirm pkgfile | pkgfile -u \
+    || die "can not update with 'pkgflie -u'"
+
+
+### USER CUSTOMIZATION
+
+## create $USER dirs (LC_ALL=C, means everything in English)
+pacman -S --needed --noconfirm xdg-user-dirs
+LC_ALL=C xdg-user-dirs-update --force
+
+## Overriding system locale per $USER session
+mkdir -p /home/"${user_name}"/.config || dia "can not create $_"
+echo 'LANGUAGE=en_GB.UTF-8' > /home/"${user_name}"/.config/locale.conf \
+     || die "can not set user LANGUAGE in $_"
+
+## create dotfiles ".xinitrc" and ".serverrc"
+# source: https://wiki.archlinux.org/title/Xinit#xinitrc
+# ~/.xinitrc: create from template
+head -n50 /etc/X11/xinit/xinitrc > $HOME/.xinitrc \
+    || die "can not create $_ from template /etc/X11/xinit/xinitrc"
+
+## set keyboard keymap
+desktop_keymap="$(localectl | awk 'tolower($0) ~ /keymap/{ printf $3 }')"
+echo "setxkbmap ${desktop_keymap}" >> $HOME/.xinitrc \
+     || die "can not set keymap by setxkbmap"
+unset desktop_keymap || die "can not unset $_"
+# start xfce but let place to add other desktops in the future 
+echo '# Here Xfce is kept as default
+session=${1:-xfce}
+
+case $session in
+    xfce|xfce4        ) exec startxfce4;;
+    # No known session, try to run it as command
+    *                 ) exec $1;;
+esac
+' >> $HOME/.xinitrc || die "can not set xfce4 desktop in ~/.xinitrc"
 
 
 ## How to customize a new desktop on first boot?
@@ -138,10 +191,6 @@ X-GNOME-Autostart-enabled=true
 NoDisplay=false
 ' > /home/"${user_name}"/.config/autostart/script3.desktop \
     || die "can not create $_"
-# set desktop entry permissions
-chown "${user_name}:${user_name}" \
-      /home/"${user_name}"/.config/autostart/script3.desktop \
-    || die "can not set user permissions to $_"
 
 
 echo "$0 successful" && sleep 3 && exit
