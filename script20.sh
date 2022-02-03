@@ -136,8 +136,8 @@ systemctl enable NetworkManager || die "can not enable wifi $_"
 
 ### CUSTOMIZE SHELL
 # support for command not found
-pacman -S --noconfirm pkgfile | pkgfile -u \
-    || die "can not update with 'pkgflie -u'"
+pacman -S --noconfirm pkgfile || die "can not install $_"
+pkgfile -u || die "can not update with 'pkgflie -u'"
 
 
 ### USER CUSTOMIZATION
