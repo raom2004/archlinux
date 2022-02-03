@@ -1,28 +1,39 @@
 #!/bin/zsh
 #
 # ~/.zsh_prompt
-# a ZSH prompt with keymap and git information
-#  code inspired in: https://gist.github.com/joshdick/4415470
+# a ZSH prompt that shows keymap, virtual environment and git information
+#  * code inspired in: https://gist.github.com/joshdick/4415470
+#
 # Dependencies: None
 #
 # example code:
-# PS1='$keymap%F{cyan}%n%f@%M $(git_prompt_string) %# '
+# PS1='$keymap$VIRTUAL_ENV_PROMPT%F{cyan}%n%f@%M $(git_prompt_string) %# '
+#  * keymap is a tag to show the active keymap shortcuts: Emacs or Vi
+#  * $VIRTUAL_ENV_PROMPT show the virtual environment (when it is active)
+#  * git_promp_string show the git active branch and status 
 #
-# example of results:
+# example results:
 # (Emacs) user@hostname [master | +.1 …1] %
-# [vi:ins] user@hostname [master | +.1 …1] %
 # [vi:cmd] user@hostname [master | +.1 …1] %
+# [vi:ins] user@hostname [master | +.1 …1] %
+#
+# example with active virtual environment:
+# (Emacs) (virtual-env) user@hostname [master | +.1 …1] %
+# [vi:cmd] (virtual-env) user@hostname [master | +.1 …1] %
+# [vi:ins] (virtual-env) user@hostname [master | +.1 …1] %
 #
 ### CODE:
 
 
-setopt prompt_subst
+## GLOBAL OPTIONS
+
+setopt prompt_subst # Enable substitution in the prompt.
 autoload -U colors && colors # Enable colors in prompt
 
 
 ## GLOBAL VARIABLES
 
-# KEYMAP PROMPT
+# KEYMAP PROMPT (in bash keymap prompt can be set in Readline)
 KEYMAP_EMACS="[Emacs] "
 KEYMAP_VIINSERT="%{$fg_bold[green]%}[vi:ins]%{$reset_color%} "
 KEYMAP_VICOMMAND="%{$fg_bold[blue]%}[vi:cmd]%{$reset_color%} "
@@ -54,13 +65,13 @@ parse_git_state() {
 
   local NUM_AHEAD="$(git log --oneline @{u}.. 2> /dev/null | wc -l | tr -d ' ')"
   if [ "$NUM_AHEAD" -gt 0 ]; then
-    # replace NUM for $NUM_AHEAD
+    # replace text 'NUM' for $NUM_AHEAD
     GIT_STATE="${GIT_PROMPT_AHEAD//NUM/$NUM_AHEAD}$GIT_STATE"
   fi
 
   local NUM_BEHIND="$(git log --oneline ..@{u} 2> /dev/null | wc -l | tr -d ' ')"
   if [ "$NUM_BEHIND" -gt 0 ]; then
-    # replace NUM for $NUM_BEHIND
+    # replace text 'NUM' for $NUM_BEHIND
     GIT_STATE="${GIT_PROMPT_BEHIND//NUM/$NUM_BEHIND}$GIT_STATE"
   fi
 
@@ -71,16 +82,19 @@ parse_git_state() {
 
   local NUM_MODIFIED="$(git diff --name-status 2> /dev/null | wc -l)"
   if [[ "$NUM_MODIFIED" -gt 0 ]]; then
+    # replace text 'NUM' for $NUM_MODIFIED
     GIT_STATE="$GIT_STATE${GIT_PROMPT_MODIFIED//NUM/$NUM_MODIFIED}"
   fi
 
   local NUM_UNTRACKED="$(git ls-files --other --exclude-standard 2> /dev/null | wc -l)"
   if [[ "$NUM_UNTRACKED" -gt 0 ]]; then
+    # replace text 'NUM' for $NUM_UNTRACKED
     GIT_STATE="$GIT_STATE${GIT_PROMPT_UNTRACKED//NUM/$NUM_UNTRACKED}"
   fi
 
   local NUM_STAGED="$(git diff --cached --quiet | wc -l)"
   if [[ "$NUM_STAGED" -gt 0 ]]; then
+    # replace text 'NUM' for $NUM_STAGED
     GIT_STATE="$GIT_STATE${GIT_PROMPT_STAGED//NUM/$NUM_STAGED}"
   fi
 
@@ -104,20 +118,20 @@ git_prompt_string() {
 	branch="${GIT_PROMPT_BRANCH_COLOR}${branch}%{$reset_color%}"
 	;;
     esac
-    # obtain fullpath /<rooth>/<GIT_CONTAINER_FOLDER>
+    # get fullpath /<ROOT>/<GIT_CONTAINER_FOLDER>
     local git_container_folder_fullpath="$(git rev-parse --show-toplevel 2>/dev/null)"
-    # obtain /<GIT_CONTAINER_FOLDER>
+    # get /<GIT_CONTAINER_FOLDER>
     local git_container_folder=$(basename $git_container_folder_fullpath 2> /dev/null)
-    # obtain full path /<root>/<GIT_CONTAINER_FOLDER>/<git-subfolder>/
+    # get full path /<ROOT>/<GIT_CONTAINER_FOLDER>/<git-subfolder>/
     local current_fullpath=$(pwd)
-    # please show only the git directory tree, colored, before git prompt
+    # show the git directory tree instead pwd, colored, before git prompt
     local git_directory_without_color=$git_container_folder${current_fullpath#$git_container_folder_fullpath}
     local git_directory="${GIT_CONTAINING_FOLDER_COLOR}${git_directory_without_color}%{$reset_color%}"
 
+    # final git prompt
     echo "${git_directory}${GIT_PROMPT_PREFIX}${branch}$(parse_git_state)${GIT_PROMPT_SUFFIX}"
-    # echo "${git_directory}${GIT_PROMPT_PREFIX}${branch}${GIT_PROMPT_SEPARATOR}$(parse_git_state)${GIT_PROMPT_SUFFIX}"
   else
-    echo "%~" # show pwd no color
+    echo "%~" # when no git prompt, show pwd without color
   fi
 }
 

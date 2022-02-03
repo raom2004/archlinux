@@ -1,66 +1,86 @@
 #!/bin/bash
 #
 # ~/.bash_prompt
+# a BASH prompt that shows keymap, virtual environment and git information
+#  * In this case keymap is: a tag to show Emacs or Vi active shortcuts
 #
 # Dependencies:
-#  Git prompt support: https://github.com/magicmonty/bash-git-prompt.git
-#  Customized theme: ~/.git-prompt-colors.sh 
-
-### FUNCTION DECLARATION
-
-# function prompt_command {
-#   # Check if we are inside a git repository
-#   if git status > /dev/null 2>&1; then
-#     # Only get the name of the branch
-#     export GIT_STATUS="($(git status | grep 'On branch' | cut -b 11-)) "
-#   else
-#     export GIT_STATUS=""
-#   fi
-# }
-
+#  A github repo: https://github.com/magicmonty/bash-git-prompt.git
+#  A customized theme file: ~/.git-prompt-colors.sh 
+#
+# example results:
+# (Emacs) user@hostname [master | +.1 …1] %
+# [vi:cmd] user@hostname [master | +.1 …1] %
+# [vi:ins] user@hostname [master | +.1 …1] %
+#
+# example with active virtual environment:
+# (Emacs) (virtual-env) user@hostname [master | +.1 …1] %
+# [vi:cmd] (virtual-env) user@hostname [master | +.1 …1] %
+# [vi:ins] (virtual-env) user@hostname [master | +.1 …1] %
+#
 ### CODE
 
-# This function gets called every time PS1 is shown
-# PROMPT_COMMAND=prompt_command
 
-## Set bash PS1 prompt
+## BASH PS1 PROMPT (no git branch or status)
+PS1="${NCyan}\u${NC}@\h \w \\$ "
+# result: (Emacs) user@hostname ~ $
+#  * the keymap Emacs or vi are Readline tags set in the .inputrc 
+#  * $NCyan and $NC are color tags defined in my .zshrc
+#  * bash tags: \u:user, \h:hostname, \$:prompt end symbol
+#     \w:actual working directory (PWD) where $HOME is displayed ~
+  
 
-# simple version
-#PS1="\$GIT_STATUS \u@\h:\w\$ "
-# colored version 
-# PS1="${NCyan}\u${NC}@\h: \w ${NCyan}\$GIT_STATUS${NC}\\$ "
-PS1="${NCyan}\u${NC}@\h: \w \\$ "
+## BASH PS1 GIT PROMPT: using the github repository 'bash-git-prompt'
+#  * Source: https://github.com/magicmonty/bash-git-prompt
+#
+# SUMMARY:
+#  * 'bash-git-prompt' allow a customized prompt of git branch and status
+#  * 'bash-git-prompt' has its own colors tags names
+#  * The git COLOR THEME can be customized in ~/.git_prompt_colors.sh
+#  * When active, the 'bash-git-prompt' can have a CUSTOM PS1 PROMPT
+#  * Here we use a CUSTOM PS1 PROMPT like above:
+#    (Emacs) user@hostname ~ $
+#    The 'user' and 'hostname' values can be customized by setting:
+#      + GIT_PROMPT_START="${NCyan}\u${NC}@\h "
+#      + GIT_PROMPT_END=" $ "
+#    The colors of the '\w' actual working directory are set in
+#      + ~/.git_prompt_colors.sh
 
-## add "git prompt" to PS1 prompt
-
-# source: https://github.com/magicmonty/bash-git-prompt
+# install bash-git-promt
 if [[ ! -f "$HOME/.bash-git-prompt/gitprompt.sh" ]]; then
   git clone https://github.com/magicmonty/bash-git-prompt.git ~/.bash-git-prompt --depth=1
 fi
 
+# Customize bash-git-prompt
 if [[ -f "$HOME/.bash-git-prompt/gitprompt.sh" ]]; then
+
+  ## Cutomize Git Prompt Status
+  
   GIT_PROMPT_ONLY_IN_REPO=1
   #GIT_PROMPT_SHOW_UPSTREAM=1
-
-  #GIT_PROMPT_FETCH_REMOTE_STATUS=0   # uncomment to avoid fetching remote status
+  #GIT_PROMPT_FETCH_REMOTE_STATUS=0 # uncomment to avoid fetching remote status
   #GIT_PROMPT_IGNORE_SUBMODULES=1 # uncomment to avoid searching for changed files in submodules
   #GIT_PROMPT_WITH_VIRTUAL_ENV=0 # uncomment to avoid setting virtual environment infos for node/python/conda environments
-
   #GIT_PROMPT_SHOW_UPSTREAM=1 # uncomment to show upstream tracking branch
-  #GIT_PROMPT_SHOW_UNTRACKED_FILES=normal # can be no, normal or all; determines counting of untracked files
-
+  #GIT_PROMPT_SHOW_UNTRACKED_FILES=normal # can be 'no', 'normal' or 'all'; determines counting of untracked files
   #GIT_PROMPT_SHOW_CHANGED_FILES_COUNT=0 # uncomment to avoid printing the number of changed files
-
   #GIT_PROMPT_STATUS_COMMAND=gitstatus_pre-1.7.10.sh # uncomment to support Git older than 1.7.10
 
-  # GIT_PROMPT_START="${Cyan}\u${ResetColor}@\h " # uncomment for custom prompt start sequence
-  GIT_PROMPT_START="${NCyan}\u${NC}@\h " # uncomment for custom prompt start sequence
-  GIT_PROMPT_END=" $ " # uncomment for custom prompt end sequence
+  ## Customized PS1 PROMPT for git prompt (optional, but very nice)
+  
+  GIT_PROMPT_START="${NCyan}\u${NC}@\h " # custom prompt start sequence
+  # * line above use .zshrc colors instead the bash-git-prompt colors:
+  #    GIT_PROMPT_START="${Cyan}\u${ResetColor}@\h " 
+  GIT_PROMPT_END=" $ " # custom prompt end sequence
 
-  GIT_PROMPT_THEME=Custom # use custom theme specified in file GIT_PROMPT_THEME_FILE (default ~/.git-prompt-colors.sh)
-  #GIT_PROMPT_THEME_FILE=~/.git-prompt-colors.sh
-  #GIT_PROMPT_THEME=Solarized # use theme optimized for solarized color scheme
-  source $HOME/.bash-git-prompt/gitprompt.sh #as last entry source the gitprompt script
+  ## Customize color theme
+  
+  GIT_PROMPT_THEME=Custom # use custom theme specified in 
+  #GIT_PROMPT_THEME_FILE=~/.git-prompt-colors.sh # custom default file
+
+  ## IMPORTANT:
+  # source gitprompt script in the end
+  source $HOME/.bash-git-prompt/gitprompt.sh
 fi
 
 
