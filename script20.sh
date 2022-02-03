@@ -141,14 +141,15 @@ pkgfile -u || die "can not update with 'pkgflie -u'"
 
 
 ### USER CUSTOMIZATION
+HOME=/home/"${user_name}"
 
 ## create $USER dirs (LC_ALL=C, means everything in English)
 pacman -S --needed --noconfirm xdg-user-dirs
 LC_ALL=C xdg-user-dirs-update --force
 
 ## Overriding system locale per $USER session
-mkdir -p /home/"${user_name}"/.config || dia "can not create $_"
-echo 'LANGUAGE=en_GB.UTF-8' > /home/"${user_name}"/.config/locale.conf \
+mkdir -p $HOME/.config || dia "can not create $_"
+echo 'LANGUAGE=en_GB.UTF-8' > $HOME/.config/locale.conf \
      || die "can not set user LANGUAGE in $_"
 
 ## create dotfiles ".xinitrc" and ".serverrc"
@@ -175,16 +176,17 @@ esac
 
 ## install plugins without open vim
 url=https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-wget "${url}" -P /home/"${user_name}"/.vim/autoload \
-    && vim -E -s -u $HOME/.vimrc +PlugInstall +visual +qall \
-	|| die 'can not install vim plugin support'
-
+wget "${url}" -P $HOME/.vim/autoload \
+    || die 'can not populate vim plugin folder ~/.vim/autoload'
+HOME=/home/"${user_name}" \
+    vim -E -s -u $HOME/.vimrc +PlugInstall +visual +qall \
+    || die 'can not install vim plugins without open vim'
 ## How to customize a new desktop on first boot?
 # With a startup script that just need to steps:
 #  * Create a script3.sh with your customizations
 #  * Create script3.desktop entry to autostart script3.sh at first boot
 # create autostart dir and desktop entry
-mkdir -p /home/"${user_name}"/.config/autostart/ \
+mkdir -p $HOME/.config/autostart/ \
     || die " can not create dir $_" 
 echo '[Desktop Entry]
 Type=Application
@@ -194,7 +196,7 @@ Terminal=true
 Exec=xfce4-terminal -e "bash -c \"sudo bash \$HOME/script3.sh; exec bash\""
 X-GNOME-Autostart-enabled=true
 NoDisplay=false
-' > /home/"${user_name}"/.config/autostart/script3.desktop \
+' > $HOME/.config/autostart/script3.desktop \
     || die "can not create $_"
 
 
