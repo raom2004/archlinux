@@ -51,13 +51,16 @@ read -p "Enter NEW user: " user_name
 read -sp "Enter NEW user PASSWORD: " user_password
 user_shell=/bin/zsh
 hdd_partitioning=/dev/sda
+terminal_keymap=es
+desktop_keymap=es
 # make these variables available for script2.sh
 export host_name
 export root_password
 export user_name
 export user_password
 export user_shell
-
+export terminal_keymap
+export desktop_keymap
 
 ### SET TIME AND SYNCHRONIZE SYSTEM CLOCK
 timedatectl set-ntp true
@@ -168,8 +171,10 @@ rm /mnt/home/script20.sh || die "can not remove $_"
 
 
 ## DESKTOP CUSTOMIZATION ON STARTUP (running script3.sh) 
-cp ./script7.sh /mnt/home/script3.sh || die "can not copy $_"
-chmod +x /mnt/home/script3.sh || die "can not set executable $_"
+cp ./script7.sh /mnt/home/"${user_name}"/script3.sh \
+    || die "can not copy $_"
+chmod +x /mnt/home/"${user_name}"/script3.sh \
+    || die "can not set executable $_"
 
 
 ## DOTFILES
@@ -181,4 +186,4 @@ arch-chroot /mnt bash -c "chown -R ${user_name}:${user_name} /home/${user_name}/
 
 ## In the end unmount everything and exiting
 read -p "install successful! umount /mnt and exit?[y/N]" response
-[[ "${response}" =~ ^[yY]$ ]] && umount -R /mnt | shutdown now
+[[ "${response}" =~ ^[yY]$ ]] && umount -R /mnt | reboot now

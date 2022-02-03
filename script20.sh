@@ -53,8 +53,8 @@ echo 'LC_MESSAGES=en_US.UTF-8' >> /etc/locale.conf || die "MESSAGES in $_"
 echo 'LC_TIME=en_DK.UTF-8'     >> /etc/locale.conf || die "LC_TIME in $_"
 # Keyboard Configuration (e.g. set spanish as keyboard layout)
 # localectl set-keymap --no-convert es # do not work under chroot
-echo 'KEYMAP=es'               > /etc/vconsole.conf \
-    || die "can not set KEYMAP in $_"
+echo "KEYMAP=${terminal_keymap}"               > /etc/vconsole.conf \
+    || die "can not set KEYMAP=${terminal_keymap} in $_"
 
 
 ### Network Configuration
@@ -150,6 +150,7 @@ LC_ALL=C xdg-user-dirs-update --force
 ## Overriding system locale per $USER session
 mkdir -p $HOME/.config || dia "can not create $_"
 echo 'LANGUAGE=en_GB.UTF-8' > $HOME/.config/locale.conf \
+echo 'LANGUAGE=en_GB.UTF-8' > $HOME/.config/locale.conf \
      || die "can not set user LANGUAGE in $_"
 
 ## create dotfiles ".xinitrc" and ".serverrc"
@@ -159,7 +160,6 @@ head -n50 /etc/X11/xinit/xinitrc > $HOME/.xinitrc \
     || die "can not create $_ from template /etc/X11/xinit/xinitrc"
 
 ## set keyboard keymap
-desktop_keymap="$(localectl | awk 'tolower($0) ~ /keymap/{ printf $3 }')"
 echo "setxkbmap ${desktop_keymap}" >> $HOME/.xinitrc \
      || die "can not set keymap by setxkbmap"
 unset desktop_keymap || die "can not unset $_"
@@ -178,10 +178,7 @@ esac
 url=https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 wget "${url}" -P $HOME/.vim/autoload \
     || die 'can not populate vim plugin folder ~/.vim/autoload'
-HOME=/home/"${user_name}" USER="${user_name}" \
-    vim -E -s -u $HOME/.vimrc +PlugInstall +visual +qall \
-    && msg2 "Installed vim plugin jummidark without open vim" \
-    || die 'can not install vim plugins without open vim'
+
 ## How to customize a new desktop on first boot?
 # With a startup script that just need to steps:
 #  * Create a script3.sh with your customizations
