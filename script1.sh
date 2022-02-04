@@ -52,6 +52,7 @@ export root_password
 export user_name
 export user_password
 export user_shell
+export hdd_partitioning
 export keyboard_keymap
 export local_time
 
