@@ -1,25 +1,18 @@
+#!/bin/zsh
 #
-# ~/.zshrc user customization file
+# ~/.zshrc
+#  user zsh shell customization
 # Source:   https://raw.githubusercontent.com/MrElendig/dotfiles-alice/master/.zshrc #
 
 #-----------------------------
 # Source some stuff
 #-----------------------------
-# zsh color
-my_syntax_path="/usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
-if [[ -f "${my_syntax_path}" ]]; then
-  . "${my_syntax_path}"
-fi
-unset my_syntax_path
-
 # shell aliases and functions
 for file in ~/.{aliases,functions}; do
   [[ -r "${file}" ]] && [[ -f "${file}" ]] && source "${file}"
 done
 unset file
 
-BASE16_SHELL="$HOME/.config/base16-shell/base16-default.dark.sh"
-[[ -s $BASE16_SHELL ]] && source $BASE16_SHELL
 
 #------------------------------
 # History stuff
@@ -37,47 +30,57 @@ export LS_COLORS
 #------------------------------
 # Keybindings
 #------------------------------
-bindkey -v
-typeset -g -A key
+## set global zsh keybindings
+set -o emacs # or bindkey -e
+# set -o vi # or bindkey -v
+## set specific keybindings:
+# typeset -g -A key
 bindkey '^?' backward-delete-char
 bindkey '^[[5~' up-line-or-history
 bindkey '^[[3~' delete-char
 bindkey '^[[6~' down-line-or-history
-bindkey '^[[A' up-line-or-search
+# bindkey '^[[A' up-line-or-search
 bindkey '^[[D' backward-char
-bindkey '^[[B' down-line-or-search
+# bindkey '^[[B' down-line-or-search
 bindkey '^[[C' forward-char 
 bindkey "^[[H" beginning-of-line
 bindkey "^[[F" end-of-line
+#------------------------------
+# zsh completion by history
+#------------------------------
+autoload -U history-search-end
+zle -N history-beginning-search-backward-end history-search-end
+zle -N history-beginning-search-forward-end history-search-end
+bindkey '^[[A' history-beginning-search-backward-end
+bindkey '^[[B' history-beginning-search-forward-end
 
-#------------------------------
-# ShellFuncs
-#------------------------------
-# -- coloured manuals
-man() {
-  env \
-    LESS_TERMCAP_mb=$(printf "\e[1;31m") \
-    LESS_TERMCAP_md=$(printf "\e[1;31m") \
-    LESS_TERMCAP_me=$(printf "\e[0m") \
-    LESS_TERMCAP_se=$(printf "\e[0m") \
-    LESS_TERMCAP_so=$(printf "\e[1;44;33m") \
-    LESS_TERMCAP_ue=$(printf "\e[0m") \
-    LESS_TERMCAP_us=$(printf "\e[1;32m") \
-    man "$@"
-}
+# #------------------------------
+# # ShellFuncs
+# #------------------------------
+# # -- coloured manuals
+# man() {
+#   env \
+#     LESS_TERMCAP_mb=$(printf "\e[1;31m") \
+#     LESS_TERMCAP_md=$(printf "\e[1;31m") \
+#     LESS_TERMCAP_me=$(printf "\e[0m") \
+#     LESS_TERMCAP_se=$(printf "\e[0m") \
+#     LESS_TERMCAP_so=$(printf "\e[1;44;33m") \
+#     LESS_TERMCAP_ue=$(printf "\e[0m") \
+#     LESS_TERMCAP_us=$(printf "\e[1;32m") \
+#     man "$@"
+# }
 
 #------------------------------
 # Comp stuff
 #------------------------------
-zmodload zsh/complist 
-autoload -Uz compinit
-compinit
+# zmodload zsh/complist 
+autoload -Uz compinit && compinit
 zstyle :compinstall filename '${HOME}/.zshrc'
 
-#- buggy
+# #- buggy
 zstyle ':completion:*:descriptions' format '%U%B%d%b%u'
 zstyle ':completion:*:warnings' format '%BSorry, no matches for: %d%b'
-#-/buggy
+# #-/buggy
 
 zstyle ':completion:*:pacman:*' force-list always
 zstyle ':completion:*:*:pacman:*' menu yes select
@@ -90,38 +93,46 @@ zstyle ':completion:*:kill:*'   force-list always
 zstyle ':completion:*:*:killall:*' menu yes select
 zstyle ':completion:*:killall:*'   force-list always
 
+
 #------------------------------
 # Prompt
 #------------------------------
-autoload -U colors zsh/terminfo
-colors
+autoload -U colors zsh/terminfo && colors
 
 # experimental:
 # source: https://salferrarello.com/zsh-git-status-prompt/
 # Autoload zsh add-zsh-hook and vcs_info functions (-U autoload w/o substition, -z use zsh style)
-autoload -Uz add-zsh-hook vcs_info
+# autoload -Uz add-zsh-hook vcs_info
+
 # Enable substitution in the prompt.
 setopt prompt_subst
 # Run vcs_info just before a prompt is displayed (precmd)
-add-zsh-hook precmd vcs_info
+# add-zsh-hook precmd vcs_info
 # add ${vcs_info_msg_0} to the prompt
 # e.g. here we add the Git information in red  
-PROMPT='%F{cyan}%n%f@%M: %~%F{cyan}${vcs_info_msg_0_}%f %# '
 
-# Enable checking for (un)staged changes, enabling use of %u and %c
-zstyle ':vcs_info:*' check-for-changes true
-# Set custom strings for an unstaged vcs repo changes (*) and staged changes (+)
-zstyle ':vcs_info:*' unstagedstr ' *'
-zstyle ':vcs_info:*' stagedstr ' +'
-# Set the format of the Git information for vcs_info
-zstyle ':vcs_info:git:*' formats       ' (%b%u%c)'
-zstyle ':vcs_info:git:*' actionformats ' (%b|%a%u%c)'
-# end
+# PROMPT='%F{cyan}%n%f@%M: %~%F{cyan}${vcs_info_msg_0_}%f %# '
+source ~/.zsh_prompt
+
+# # Enable checking for (un)staged changes, enabling use of %u and %c
+# zstyle ':vcs_info:*' check-for-changes true
+# # Set custom strings for an unstaged vcs repo changes (*) and staged changes (+)
+# zstyle ':vcs_info:*' unstagedstr ' *'
+# zstyle ':vcs_info:*' stagedstr ' +'
+# # Set the format of the Git information for vcs_info
+# zstyle ':vcs_info:git:*' formats       ' (%b%u%c)'
+# zstyle ':vcs_info:git:*' actionformats ' (%b|%a%u%c)'
+# # end
 
 
-## command-line keybindings
-set -o emacs
-# set -o vi
+## install plugins without open vim
+# use specific function
+my_vim_install
+
+
+## git config
+# use specific function
+my_git_config
 
 
 # emacs:

@@ -8,14 +8,14 @@
 
 
 # Colorcoding
-Black='\[\e[0;30m\]'   
-Red='\[\e[0;31m\]'
-Green='\[\e[0;32m\]'
-Yellow='\[\e[0;33m\]'
-Blue='\[\e[0;34m\]'
-Purple='\[\e[0;35m\]'
-Cyan='\[\e[0;36m\]'
-White='\[\e[0;37m\]'
+NBlack='\[\e[0;30m\]'   
+NRed='\[\e[0;31m\]'
+NGreen='\[\e[0;32m\]'
+NYellow='\[\e[0;33m\]'
+NBlue='\[\e[0;34m\]'
+NPurple='\[\e[0;35m\]'
+NCyan='\[\e[0;36m\]'
+NWhite='\[\e[0;37m\]'
 
 # Bold
 BBlack='\[\e[1;30m\]'
@@ -72,12 +72,24 @@ export HISTSIZE=10000
 # shell command not found
 source /usr/share/doc/pkgfile/command-not-found.bash
 # can be also activated by /etc/bash.bashrc
-    
 
-## command-line keybindings
-# set -o emacs			# startdard option activated in bash
+
+## set command-line keybindings
+# set -o emacs 			# stardand option in bash
 # set -o vi
 
+## bash key shortcuts
+# source: https://gist.github.com/tuxfight3r/60051ac67c5f0445efee
+
+
+## install plugins without open vim
+# use specific function
+my_vim_install
+
+
+## git config
+# use specific function
+my_git_config
 
 # emacs:
 # Local Variables:

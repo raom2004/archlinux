@@ -177,6 +177,28 @@ function up
 }
 
 
+## install plugins without open vim
+
+function my_vim_install
+{
+  if [[ ! -d "~/.vim/plugged/jummidark.vim" ]]; then
+    ## install plugins without open vim
+    sleep 3
+    vim -E -s -u $HOME/.vimrc +PlugInstall +visual +qall
+  fi
+}
+
+
+## git config
+
+function my_git_config
+{
+  if [[ -f "/run/media/$USER/TOSHIBA_EXT/.gitrc" ]]; then
+    git config --global -f "/run/media/$USER/TOSHIBA_EXT/.gitrc"
+  fi
+}
+
+
 ## do sudo, or sudo the last command if no argument given
 
 function repeat

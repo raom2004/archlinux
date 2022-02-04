@@ -1,0 +1,151 @@
+#!/bin/zsh
+#
+# ~/.zsh_prompt
+# a ZSH prompt with keymap and git information
+#  code inspired in: https://gist.github.com/joshdick/4415470
+# Dependencies: None
+#
+# example code:
+# PS1='$keymap%F{cyan}%n%f@%M $(git_prompt_string) %# '
+#
+# example of results:
+# (Emacs) user@hostname [master | +.1 …1] %
+# [vi:ins] user@hostname [master | +.1 …1] %
+# [vi:cmd] user@hostname [master | +.1 …1] %
+#
+### CODE:
+
+
+setopt prompt_subst
+autoload -U colors && colors # Enable colors in prompt
+
+
+## GLOBAL VARIABLES
+
+# KEYMAP PROMPT
+KEYMAP_EMACS="[Emacs] "
+KEYMAP_VIINSERT="%{$fg_bold[green]%}[vi:ins]%{$reset_color%} "
+KEYMAP_VICOMMAND="%{$fg_bold[blue]%}[vi:cmd]%{$reset_color%} "
+# GIT PROMPT
+GIT_CONTAINING_FOLDER_COLOR="%{$fg_bold[yellow]%}"
+GIT_PROMPT_BRANCH_COLOR="%{$fg_bold[magenta]%}"
+GIT_PROMPT_MASTER_BRANCH_COLOR="%{$fg_bold[yellow]%}"
+GIT_PROMPT_SEPARATOR="%{$fg[white]%}|%{$reset_color%}"
+GIT_PROMPT_PREFIX=" %{$fg[white]%}[%{$reset_color%}"
+GIT_PROMPT_SUFFIX="%{$fg[white]%}]%{$reset_color%}"
+GIT_PROMPT_AHEAD=" %{$fg[red]%}⬆.NUM%{$reset_color%}"
+GIT_PROMPT_BEHIND=" %{$fg[cyan]%}⬇.NUM%{$reset_color%}"
+GIT_PROMPT_MERGING="%{$fg[magenta]%}⚡︎%{$reset_color%}"
+GIT_PROMPT_UNTRACKED=" %{$fg[cyan]%}…NUM%{$reset_color%}"
+GIT_PROMPT_MODIFIED=" %{$fg[yellow]%}✚.NUM%{$reset_color%}"
+GIT_PROMPT_STAGED=" %{$fg[green]%}●NUM%{$reset_color%}"
+
+
+## GIT PROMPT
+# Show Git branch/tag, or name-rev if on detached head
+parse_git_branch() {
+  (git symbolic-ref -q HEAD || git name-rev --name-only --no-undefined --always HEAD) 2> /dev/null
+}
+# Show different symbols as appropriate for various Git repository states
+parse_git_state() {
+
+  # Compose this value via multiple conditional appends.
+  local GIT_STATE="$GIT_PROMPT_SEPARATOR"
+
+  local NUM_AHEAD="$(git log --oneline @{u}.. 2> /dev/null | wc -l | tr -d ' ')"
+  if [ "$NUM_AHEAD" -gt 0 ]; then
+    # replace NUM for $NUM_AHEAD
+    GIT_STATE="${GIT_PROMPT_AHEAD//NUM/$NUM_AHEAD}$GIT_STATE"
+  fi
+
+  local NUM_BEHIND="$(git log --oneline ..@{u} 2> /dev/null | wc -l | tr -d ' ')"
+  if [ "$NUM_BEHIND" -gt 0 ]; then
+    # replace NUM for $NUM_BEHIND
+    GIT_STATE="${GIT_PROMPT_BEHIND//NUM/$NUM_BEHIND}$GIT_STATE"
+  fi
+
+  local GIT_DIR="$(git rev-parse --git-dir 2> /dev/null)"
+  if [ -n $GIT_DIR ] && test -r $GIT_DIR/MERGE_HEAD; then
+    GIT_STATE="$GIT_PROMPT_MERGING"
+  fi
+
+  local NUM_MODIFIED="$(git diff --name-status 2> /dev/null | wc -l)"
+  if [[ "$NUM_MODIFIED" -gt 0 ]]; then
+    GIT_STATE="$GIT_STATE${GIT_PROMPT_MODIFIED//NUM/$NUM_MODIFIED}"
+  fi
+
+  local NUM_UNTRACKED="$(git ls-files --other --exclude-standard 2> /dev/null | wc -l)"
+  if [[ "$NUM_UNTRACKED" -gt 0 ]]; then
+    GIT_STATE="$GIT_STATE${GIT_PROMPT_UNTRACKED//NUM/$NUM_UNTRACKED}"
+  fi
+
+  local NUM_STAGED="$(git diff --cached --quiet | wc -l)"
+  if [[ "$NUM_STAGED" -gt 0 ]]; then
+    GIT_STATE="$GIT_STATE${GIT_PROMPT_STAGED//NUM/$NUM_STAGED}"
+  fi
+
+
+  if [[ -n "$GIT_STATE" ]]; then
+    echo "$GIT_STATE"
+  fi
+
+}
+
+git_prompt_string() {
+  local git_where="$(parse_git_branch)"
+  if [[ -n "${git_where}" ]]; then
+    # this like converts git_where="refs/heads/master" to "master"
+    local branch="${git_where#(refs/heads/|tags/)}"
+    case "${branch}" in
+      master)
+	branch="${GIT_PROMPT_MASTER_BRANCH_COLOR}${branch}%{$reset_color%}"
+	;;
+      *)
+	branch="${GIT_PROMPT_BRANCH_COLOR}${branch}%{$reset_color%}"
+	;;
+    esac
+    # obtain fullpath /<rooth>/<GIT_CONTAINER_FOLDER>
+    local git_container_folder_fullpath="$(git rev-parse --show-toplevel 2>/dev/null)"
+    # obtain /<GIT_CONTAINER_FOLDER>
+    local git_container_folder=$(basename $git_container_folder_fullpath 2> /dev/null)
+    # obtain full path /<root>/<GIT_CONTAINER_FOLDER>/<git-subfolder>/
+    local current_fullpath=$(pwd)
+    # please show only the git directory tree, colored, before git prompt
+    local git_directory_without_color=$git_container_folder${current_fullpath#$git_container_folder_fullpath}
+    local git_directory="${GIT_CONTAINING_FOLDER_COLOR}${git_directory_without_color}%{$reset_color%}"
+
+    echo "${git_directory}${GIT_PROMPT_PREFIX}${branch}$(parse_git_state)${GIT_PROMPT_SUFFIX}"
+    # echo "${git_directory}${GIT_PROMPT_PREFIX}${branch}${GIT_PROMPT_SEPARATOR}$(parse_git_state)${GIT_PROMPT_SUFFIX}"
+  else
+    echo "%~" # show pwd no color
+  fi
+}
+
+# Show active keymap in prompt: "(Emacs)", "[vi:ins]" or "[vi:cmd]" 
+# zsh probide shortcuts for the keymaps: emacs and vi 
+# but the "emacs" and "vi insert" modes share the same tag (main)
+# In order to differentiate each mode, I had to make my own hack:
+function zle-line-init zle-keymap-select {
+  local keymap
+  if [[ "$KEYMAP" == vicmd ]]; then
+    keymap="$KEYMAP_VICOMMAND"
+  else
+    local main_keymap="$(bindkey -lL main | awk '{ print $3 }')"
+    case ${main_keymap} in
+      emacs) keymap="$KEYMAP_EMACS";;
+      viins) keymap="$KEYMAP_VIINSERT";;
+    esac
+  fi
+  PS1='${keymap}${VIRTUAL_ENV_PROMPT}%F{cyan}%n%f@%M $(git_prompt_string) %# '
+  zle reset-prompt
+}
+zle -N zle-line-init
+zle -N zle-keymap-select
+
+
+# emacs:
+# Local Variables:
+# sh-basic-offset: 2
+# End:
+
+# vim: set ts=2 sw=2 et:
