@@ -3,10 +3,15 @@
 # ./script1.sh is a script to install Arch Linux amd configure a desktop
 #
 # Summary:
-# * This script contain all the commands required to prepare a system
+# * The script1.sh contain all the commands required to prepare a system
 #   for a new Arch Linux installation.
-# * This script also call the script2.sh to execute all the commands
-#   that must be run inside the new Arch Linux install, by arch-chroot.
+# * The script1.sh also call the script2.sh which run arch-chroot
+#   commands required to customize the new arch linux system.
+#
+# Dependencies: None
+# 
+# Verify root priviledges:
+if [[ "$EUID" -eq 0 ]]; then echo "./$0 require root priviledges"; fi 
 
 
 ### BASH SCRIPT FLAGS FOR SECURITY AND DEBUGGING ###################
@@ -21,25 +26,13 @@ set -o pipefail    # CATCH failed piped commands
 set -o xtrace      # trace & expand what gets executed (useful for debug)
 
 
-### FUNCTION DECLARATION
-
-nullify() {
-  "$@" >& /dev/null
-  return 0
-}
-ignore_error() {
-  "$@" 2>/dev/null
-  return 0
-}
-
-
 ### error handling
 
 out() { printf "$1 $2\n" "${@:3}"; }
 error() { out "==> ERROR:" "$@"; } >&2
 warning() { out "==> WARNING:" "$@"; } >&2
 msg() { out "==>" "$@"; }
-msg2() { out "  ->" "$@";}
+# msg2() { out "  ->" "$@";}
 die() { error "$@"; exit 1; }
 
 
@@ -51,34 +44,44 @@ read -p "Enter NEW user: " user_name
 read -sp "Enter NEW user PASSWORD: " user_password
 user_shell=/bin/zsh
 hdd_partitioning=/dev/sda
-terminal_keymap=es
-desktop_keymap=es
+keyboard_keymap=es
+local_time=/Europe/Berlin
 # make these variables available for script2.sh
 export host_name
 export root_password
 export user_name
 export user_password
 export user_shell
-export terminal_keymap
-export desktop_keymap
+export keyboard_keymap
+export local_time
+
 
 ### SET TIME AND SYNCHRONIZE SYSTEM CLOCK
+
 timedatectl set-ntp true
 
 
 ### HDD PARTITIONING (BIOS/MBR)
-# umount if previously mounted /mnt
-if mount | grep -q "/mnt"; then umount -R /mnt; fi
-msg "partitioning ${hdd_partitioning}"
+
+## clear start
+if mount | grep -q "/mnt"; then
+    warning " /mnt is mounted, umounting /mnt..."
+    umount -R /mnt || die "can not umount /mnt"
+    msg "done"
+fi
+
+## HDD partitioning
 parted -s "${hdd_partitioning}" \
        mklabel msdos \
        mkpart primary ext2 0% 2% \
        set 1 boot on \
        mkpart primary ext4 2% 100% \
        || die "Can not partition the drive %s" "${hdd_partitioning}"
+
 ## HDD patitions formating (-F=overwrite if necessary)
 mkfs.ext2 -F "${hdd_partitioning}1" || die "can not format $_"
 mkfs.ext4 -F "${hdd_partitioning}2" || die "can not format $_"
+
 ## HDD partitions mounting
 # root partition "/"
 mount "${hdd_partitioning}2" /mnt \
@@ -104,7 +107,7 @@ fi
 
 ### SYSTEM PACKAGES INSTALLATION
 
-## (2/3) Essential Package List:
+## Essential Package List:
 Packages+=('base' 'linux')
 # shell 	
 Packages+=('zsh')
@@ -131,15 +134,16 @@ Packages+=('ttf-hanazono'
 	   'ttf-font-awesome'
 	   'ttf-ubuntu-font-family'
 	   'noto-fonts')
-# graphical user interface
-#  * xorg display server (wayland has not support nvidia CUDA yet)
+
+## Graphical User Interface:
+# Display server - xorg (because wayland has not support nvidia CUDA yet)
 Packages+=('xorg-server' 'xorg-xrandr' 'xterm')
-#  * NVIDIA display driver
+# Display driver - Nvidia support
 if lspci -k | grep -e "3D.*NVIDIA" &>/dev/null; then
     [[ "${Packages[*]}" =~ 'linux-lts' ]] && Packages+=('nvidia-lts')
     [[ "${Packages[*]}" =~ 'linux' ]] && Packages+=('nvidia')
 fi
-#  * desktop environment
+# Desktop environment
 Packages+=('xfce4')
 Packages+=('xfce4-pulseaudio-plugin' 'xfce4-screenshooter')
 Packages+=('pavucontrol' 'pavucontrol-qt')
@@ -154,36 +158,43 @@ machine="$(dmidecode -s system-manufacturer)"
 # if VirtualBox: install guest utils package
 [[ "${MACHINE}" == "VBox" ]] && Packages+=('virtualbox-guest-utils')
 
-
-## (3/3) INSTALLING PACKAGES
+## Packages Instalation - pacstrap
 pacstrap /mnt --needed --noconfirm "${Packages[@]}" \
     || die 'Pacstrap can not install the packages'
 
 
-### generate file system table
+### GENERATE FILE SYSTEM TABLE
+
 genfstab -L /mnt >> /mnt/etc/fstab || die 'can not generate $_'
 
 
-## scripting inside chroot by copying and running script2.sh
+### SCRIPTING INSIDE CHROOT
+
+# copying and running script2.sh
 cp ./script20.sh /mnt/home || die "can not copy script20.sh to $_"
 arch-chroot /mnt bash /home/script20.sh || die "can not run arch-root $_"
+# removing script2.sh after finish
 rm /mnt/home/script20.sh || die "can not remove $_"
 
 
-## DESKTOP CUSTOMIZATION ON STARTUP (running script3.sh) 
+### DESKTOP CUSTOMIZATION ON STARTUP
+
+# run script3.sh containing user desktop customization (not root) 
 cp ./script7.sh /mnt/home/"${user_name}"/script3.sh \
     || die "can not copy $_"
 chmod +x /mnt/home/"${user_name}"/script3.sh \
     || die "can not set executable $_"
 
 
-## DOTFILES
-# copy files to new system
+### DOTFILES
+
+# copy dotfiles to new system
 cp ./dotfiles/.[a-z]* /mnt/home/"${user_name}" || die 'can not copy $_'
 # correct user permissions
 arch-chroot /mnt bash -c "chown -R ${user_name}:${user_name} /home/${user_name}/.[a-z]*" || die 'can correct user permissions'
 
 
-## In the end unmount everything and exiting
-read -p "install successful! umount /mnt and exit?[y/N]" response
+### UNMOUNT EVERYTHING AND REBOOT
+
+read -p "install successful! umount '/mnt' and reboot?[y/N]" response
 [[ "${response}" =~ ^[yY]$ ]] && umount -R /mnt | reboot now

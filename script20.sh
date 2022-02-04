@@ -25,15 +25,15 @@ set -o xtrace      # trace & expand what gets executed (useful for debug)
 
 out() { printf "$1 $2\n" "${@:3}"; }
 error() { out "==> ERROR:" "$@"; } >&2
-warning() { out "==> WARNING:" "$@"; } >&2
-msg() { out "==>" "$@"; }
-msg2() { out "  ->" "$@";}
+# warning() { out "==> WARNING:" "$@"; } >&2
+# msg() { out "==>" "$@"; }
+# msg2() { out "  ->" "$@";}
 die() { error "$@"; exit 1; }
 
 
 ### Time Configuration 
 
-ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime \
+ln -sf /usr/share/zoneinfo"${local_time}" /etc/localtime \
     || die "can not set $_"
 hwclock --systohc || die "can not set clock config"
 
@@ -53,8 +53,8 @@ echo 'LC_MESSAGES=en_US.UTF-8' >> /etc/locale.conf || die "MESSAGES in $_"
 echo 'LC_TIME=en_DK.UTF-8'     >> /etc/locale.conf || die "LC_TIME in $_"
 # Keyboard Configuration (e.g. set spanish as keyboard layout)
 # localectl set-keymap --no-convert es # do not work under chroot
-echo "KEYMAP=${terminal_keymap}"               > /etc/vconsole.conf \
-    || die "can not set KEYMAP=${terminal_keymap} in $_"
+echo "KEYMAP=${keyboard_keymap}"               > /etc/vconsole.conf \
+    || die "can not set KEYMAP=${keyboard_keymap} in $_"
 
 
 ### Network Configuration
@@ -68,7 +68,7 @@ echo "127.0.0.1	localhost
 
 ### Init ram filsesystem: Initramfs
 
-# Initramfs was run for pacstrap but must be run for LVM, encryption...:
+## Initramfs was run for pacstrap but must be run for LVM, encryption...:
 # mkinitcpio -P 
 
 
@@ -85,7 +85,8 @@ url="https://gist.githubusercontent.com/anonymous/8eb2019db2e278ba99be/raw/257f1
 wget "${url}" -O /etc/grub.d/31_hold_shift || die "can not set $_ "
 chmod a+x /etc/grub.d/31_hold_shift || die "can not set permission to $_"
 ## Install & Config a boot loader GRUB
-grub-install --target=i386-pc /dev/sda || die "can not install grub"
+grub-install --target=i386-pc "${hdd_partitioning}" \
+    || die "can not install grub on $_"
 grub-mkconfig -o /boot/grub/grub.cfg || die "can not config grub"
 
 
@@ -108,16 +109,16 @@ usermod -aG wheel,audio,optical,storage,power,network "${user_name}" \
     || die "can not set user groups"
 
 
-### Pacman Package Manager Customization
+### PACMAN PACKAGE MANAGER CUSTOMIZATION
 
-# turn color on
+## turn color on
 sed -i 's/#\(Color\)/\1/' /etc/pacman.conf || die "can not customize $_"
-# improve compiling time adding processors "nproc"
+## improve compiling time adding processors "nproc"
 sed -i 's/#MAKEFLAGS="-j2"/MAKEFLAGS="-j$(nproc)"/' /etc/makepkg.conf \
     || die "can not add processors to $_"
 
 
-### tty autologing at startup
+### TTY AUTOLOGING AT STARTUP
 
 mkdir -p /etc/systemd/system/getty@tty1.service.d \
     || die "can not create dir $_"
@@ -128,19 +129,23 @@ ExecStart=-/sbin/agetty --autologin ${user_name} --noclear %%I $TERM
     || die "can not create $_"
 
 
-### start services on reboot:
+### START SERVICES ON REBOOT
 
+## enable ethernet and wifi
 systemctl enable dhcpcd	|| die "can not enable ethernet $_"
 systemctl enable NetworkManager || die "can not enable wifi $_"
 
 
 ### CUSTOMIZE SHELL
-# support for command not found
+
+## support for command not found
 pacman -S --noconfirm pkgfile || die "can not install $_"
 pkgfile -u || die "can not update with 'pkgflie -u'"
 
 
-### USER CUSTOMIZATION
+### USER SYSTEM CUSTOMIZATION ########################################
+
+## set environment variables
 HOME=/home/"${user_name}"
 
 ## create $USER dirs (LC_ALL=C, means everything in English)
@@ -155,16 +160,15 @@ echo 'LANGUAGE=en_GB:en_US:en' >> $HOME/.config/locale.conf \
      || die "can not set user LANGUAGE in $_"
 
 ## create dotfiles ".xinitrc" and ".serverrc"
-# source: https://wiki.archlinux.org/title/Xinit#xinitrc
+#   * source: https://wiki.archlinux.org/title/Xinit#xinitrc
 # ~/.xinitrc: create from template
 head -n50 /etc/X11/xinit/xinitrc > $HOME/.xinitrc \
     || die "can not create $_ from template /etc/X11/xinit/xinitrc"
-
-## set keyboard keymap
-echo "setxkbmap ${desktop_keymap}" >> $HOME/.xinitrc \
+# set keyboard keymap in .xinitrc
+echo "setxkbmap ${keyboard_keymap}" >> $HOME/.xinitrc \
      || die "can not set keymap by setxkbmap"
-unset desktop_keymap || die "can not unset $_"
-# start xfce but let place to add other desktops in the future 
+unset keyboard_keymap || die "can not unset $_"
+# set xfce as default and let place to add other desktops in the future 
 echo '# Here Xfce is kept as default
 session=${1:-xfce}
 
@@ -175,13 +179,12 @@ case $session in
 esac
 ' >> $HOME/.xinitrc || die "can not set xfce4 desktop in ~/.xinitrc"
 
-## install plugins without open vim
+## install vim plugin manager
 url=https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 wget "${url}" -P $HOME/.vim/autoload \
     || die 'can not populate vim plugin folder ~/.vim/autoload'
-## install plugins without open vim
-vim -E -s -u $HOME/.vimrc +PlugInstall +visual +qall \
-    || die 'can not install vim plugins'
+## TODO: install vim plugins without open vim (do not run as root)
+# vim -E -s -u $HOME/.vimrc +PlugInstall +visual +qall
 
 ## How to customize a new desktop on first boot?
 # With a startup script that just need to steps:
