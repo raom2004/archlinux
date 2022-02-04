@@ -1,173 +1,112 @@
 #!/bin/bash
 #
-# ./script3.sh is a script to setup an Arch Linux desktop on first boot
+# ./script3.sh create user configuration in xfce desktop
 #
-# Summary:
-# * This script contain all the customization of a new desktop.
-# * It run on first boot thanks to a script3.dektop file in autostart
-# * In the end this script will remove the script3.desktop file so
-#   it can only be run once
+# Verify user privileges:
+if [[ "$EUID" -eq 0 ]]; then echo "./$0 can not be run as root"; exit; fi 
+# verify internet connection:
+check_internet
+
+### BASH SCRIPT FLAGS FOR SECURITY AND DEBUGGING ###################
 
 
-## show all the command that get executed and exit if anything fails
-set -xe
+## shopt -o noclobber # avoid file overwriting (>) but can be forced (>|)
+set +o history     # disably bash history temporarilly
+set -o errtrace    # inherit any trap on ERROR
+set -o functrace   # inherit any trap on DEBUG and RETURN
+set -o errexit     # EXIT if script command fails
+set -o nounset     # EXIT if script try to use undeclared variables
+set -o pipefail    # CATCH failed piped commands
+set -o xtrace      # trace & expand what gets executed (useful for debug)
 
 
-# install aur packages without confirmation
-function aur_install {
-    folder="$(basename $1 .git)"
-    if [[ ! -n "$(pacman -Qm ${folder})" ]]; then 
-	echo "installing AUR package ${folder}"
-	[[ -d /tmp/"${folder}" ]] && rm -rf /tmp/"${folder}"
-	git clone "$1 /tmp/${folder}"
-	cd "/tmp/${folder}"
-	makepkg -sri --noconfirm
-	cd $OLDPWD
-    fi
-    unset -v folder
-}
+## Audio
+pactl -- set-sink-mute 0 0	# turn on audio
+pactl -- set-sink-volume 0 50%	# set volume
 
 
-## ADD USER STANDARD DIRECTORIES
-sudo pacman -S --needed --noconfirm xdg-user-dirs
-LC_ALL=C xdg-user-dirs-update --force
+## install theme, icons and wallpaper
+# create dot directories
+mkdir -p $HOME/.{themes,icons,wallpapers}
 
 
-## ADD ADDITIONAL KEYMAP LAYOUT (e.g. Spanish)
-if [[ -z "$(setxkbmap -query  | awk '/us,|,us/{ print $0 } ')" ]]; then
-  localectl set-x11-keymap "es,us" pc105
-fi
+## install theme
+xfconf-query --channel xsettings \
+	     --property /Net/ThemeName \
+	     --set Adwaita-dark
 
 
-## ENABLE AUTOLOGIN
-if [ -n "$(grep '#autologin-guest=false' /etc/lightdm/lightdm.conf)" ];then
-    sudo bash -c "sed -i 's/\(#\)autologin-guest=false/\1/g;
-             	s/\(#\)autologin-user=/\1$USER/g;
-    	     	s/\(#\)autologin-user-timeout=0/\1/g'\
-		/etc/lightdm/lightdm.conf"
-    # add user to autologin
-    sudo groupadd -r autologin
-    sudo gpasswd -a "$USER" autologin
-fi
+## install icons
+xfconf-query --channel xsettings \
+	     --property /Net/IconThemeName \
+	     --set Papirus
+
+## set wallpaper
+
+# download image
+image="https://wallpaperforu.com/wp-content/uploads/2020/07/space-wallpaper-200707153544191600x1200.jpg"
+wget --output-document=$HOME/.wallpapers/space-wallpaper.jpg "${image}"
+image="https://www.setaswall.com/wp-content/uploads/2017/11/Arch-Linux-Wallpaper-28-1920x1080.jpg"
+wget --output-document=$HOME/.wallpapers/arch-wallpaper.jpg "${image}"
+# find path for xfce wallpaper 
+image_path="$(xfconf-query -c xfce4-desktop -lv | awk '/monitor.*last/{ print $1 }' | head -n1)"
+# set wallpaper in xfce by xfconf-query
+xfconf-query -c xfce4-desktop \
+	     -p "${image_path}" \
+	     -t string \
+	     --set $HOME/.wallpapers/arch-wallpaper.jpg
+
+## Sound
+# activate sound
+xfconf-query -c xsettings -p /Net/EnableEventSounds --set true
+
+## config xfce panel
+my_bar_position="$(xrandr | awk -F'x' '/*/{ printf $1-8 }' )"
+xfconf-query -c xfce4-panel -p /panels/panel-2/position \
+	     --set "p=1;x=${my_bar_position};y=200"
+xfconf-query -c xfce4-panel -p /panels/panel-2/position-locked \
+	     --set true
+xfconf-query -c xfce4-panel -p /panels/panel-2/mode \
+	     -n -t int \
+	     --set 1
+xfconf-query -c xfce4-panel -p /panels/panel-2/enter-opacity \
+	     -n -t int \
+	     --set 65
+xfconf-query -c xfce4-panel -p /panels/panel-2/leave-opacity \
+	     -n -t int \
+	     --set 65
+xfconf-query -c xfce4-panel -p /panels/panel-2/autohide-behavior \
+	     --set 2
 
 
-## HIDE BOOT LOADER MENU AT STARTUP (and show it pressing SHIFT key)
-if [ ! -n "$(grep GRUB_FORCE_HIDDEN_MENU /etc/default/grub)" ]; then
-    sudo bash -c "echo '
-GRUB_FORCE_HIDDEN_MENU=\"true\"
-    # GRUB menu is hiden until you press \"shift\"' > /etc/default/grub"
-    # add script required for this funtionallity
-    url="https://gist.githubusercontent.com/anonymous/8eb2019db2e278ba99be/raw/257f15100fd46aeeb8e33a7629b209d0a14b9975/gistfile1.sh"
-    sudo wget "${url}" -O /etc/grub.d/31_hold_shift
-    # asign permissions & re-generate bootloader
-    sudo chmod a+x /etc/grub.d/31_hold_shift
-    sudo grub-mkconfig -o /boot/grub/grub.cfg
-fi
+## config mouse/touchpad
+xfconf-query -c pointers -p /ETPS2_Elantech_Touchpad/Properties/libinput_Tapping_Enabled \
+	     -n -t int \
+	     --set 1
 
 
-## THEME CUSTOMIZATION
-sudo pacman -S --needed --noconfirm arc-gtk-theme papirus-icon-theme 
-# arch cursor
-aur_install https://aur.archlinux.org/xcursor-arch-cursor-complete.git
-# desktop font 
-aur_install https://aur.archlinux.org/ttf-zekton-rg.git
+## remove desktop icons (value: 0=remove, 2=reinstale)
+xfconf-query -c xfce4-desktop -v --create -p /desktop-icons/style \
+	     -t int -s 0
 
 
-## SYMBOL SUPPORT FONT
-aur_install https://aur.archlinux.org/font-symbola.git
+## set custom keyboard shortcuts
+# sh "$PWD"/shortcuts-xfce.sh
+# sh /usr/bin/shortcuts-xfce.sh
 
 
-## DESKTOP CUSTOMIZATION
-gsettings set org.cinnamon.desktop.wm.preferences num-workspaces 4
-# cinnamon desktop background
-gsettings set org.cinnamon.desktop.background picture-options 'zoom'
-gsettings set org.cinnamon.desktop.background picture-uri 'file:///usr/share/backgrounds/gnome/LightWaves.jpg'
-# disable screensaver
-gsettings set org.cinnamon.desktop.screensaver lock-enabled false
-# set window interface color and fonts
-gsettings set org.cinnamon.desktop.interface icon-theme 'ePapirus'
-gsettings set org.cinnamon.desktop.interface gtk-theme 'Arc-Dark'
-gsettings set org.cinnamon.desktop.interface font-name 'Zekton 10'
-gsettings set org.cinnamon.desktop.interface cursor-theme 'ArchCursorComplete'
-# set file manager font
-gsettings set org.nemo.desktop font 'Zekton 10'
-# set window manager settings
-gsettings set org.cinnamon.desktop.wm.preferences titlebar-font 'Zekton Bold 10'
-gsettings set org.cinnamon.desktop.wm.preferences theme 'Arc-Dark'
-gsettings set org.cinnamon.settings-daemon.peripherals.touchpad touchpad-enabled true
-gsettings set org.cinnamon.theme name 'Arc-Dark'
-gsettings set org.gnome.desktop.interface toolkit-accessibility true
-gsettings set org.gnome.desktop.interface gtk-im-module 'gtk-im-context-simple'
+## setup xfce complete: remove script and autostart file
+rm -rf $HOME/script3.sh
+rm -rf $HOME/.config/autostart/script3.desktop
 
 
-## SHELL CUSTOMIZATION
-sudo pacman -S --needed --noconfirm \
-     neofetch \
-     ttf-nerd-fonts-symbols-mono \
-     ttf-dejavu
-
-# Pacman 
-sudo sed -i 's/\(#\)Color/\1/' /etc/pacman.conf
-
-# Bash
-sudo pacman -S --needed --noconfirm bash-completion
-url="https://raw.githubusercontent.com/raom2004/archlinux/master/dotfiles/.bashrc"
-wget "$url" --output-document=/$HOME/.bashrc
-
-# Bash prompt
-url="https://raw.githubusercontent.com/raom2004/archlinux/master/dotfiles/.bash_prompt"
-wget "$url" --output-document=/$HOME/.bash_prompt
-
-# Zsh
-[[ -f "/$HOME/.zshrc" ]] && sudo mv /$HOME/.zshrc /$HOME/.zshrc_backup
-url="https://raw.githubusercontent.com/raom2004/archlinux/master/dotfiles/.zshrc"
-wget "$url" --output-document=/$HOME/.zshrc
-unset -v url
-
-## CONFIGURE SOUND
-sudo pacman -S --needed --noconfirm \
-     pulsemixer \
-     sound-theme-freedesktop \
-     deepin-sound-theme
-
-# Set Sounds (require deepin sounds package)
-if [[ -n "$(ls /usr/share/sounds/deepin)" ]]; then
-    gsettings set org.cinnamon.desktop.sound event-sounds true
-    gsettings set org.cinnamon.desktop.sound volume-sound-file '/usr/share/sounds/deepin/stereo/audio-volume-change.wav'
-    gsettings set org.cinnamon.sounds close-enabled true
-    gsettings set org.cinnamon.sounds close-file '/usr/share/sounds/deepin/stereo/desktop-login.wav'
-    gsettings set org.cinnamon.sounds login-enabled true
-    gsettings set org.cinnamon.sounds login-file '/usr/share/sounds/deepin/stereo/desktop-logout.wav'
-    gsettings set org.cinnamon.sounds logout-enabled true
-    gsettings set org.cinnamon.sounds logout-file '/usr/share/sounds/deepin/stereo/device-removed.wav'
-    gsettings set org.cinnamon.sounds map-enabled true
-    gsettings set org.cinnamon.sounds map-file '/usr/share/sounds/deepin/stereo/power-plug.wav'
-    gsettings set org.cinnamon.sounds maximize-enabled true
-    gsettings set org.cinnamon.sounds maximize-file '/usr/share/sounds/deepin/stereo/power-plug.wav'
-    gsettings set org.cinnamon.sounds minimize-enabled true
-    gsettings set org.cinnamon.sounds minimize-file '/usr/share/sounds/freedesktop/stereo/window-attention.wav'
-    gsettings set org.cinnamon.sounds notification-enabled true
-    gsettings set org.cinnamon.sounds notification-file '/usr/share/sounds/deepin/stereo/desktop-login.wav'
-    gsettings set org.cinnamon.sounds plug-enabled true
-    gsettings set org.cinnamon.sounds plug-file '/usr/share/sounds/deepin/stereo/power-plug.wav'
-    gsettings set org.cinnamon.sounds switch-enabled true
-    gsettings set org.cinnamon.sounds switch-file '/usr/share/sounds/deepin/stereo/power-plug.wav'
-    gsettings set org.cinnamon.sounds unmaximize-enabled true
-    gsettings set org.cinnamon.sounds unmaximize-file '/usr/share/sounds/deepin/stereo/device-removed.wav'
-    gsettings set org.cinnamon.sounds unplug-enabled true
-    gsettings set org.cinnamon.sounds unplug-file '/usr/share/sounds/deepin/stereo/power-unplug.wav'
-fi
-
-
-## turn on audio (because its off by default)
-pactl set-sink-mute 0 0
-pactl -- set-sink-volume 0 50%
-
-
-## systemctl disable script3.service
-# sudo rm -rf /etc/xdg/autostart/script3.desktop
-sudo rm -rf ~/.config/autostart/script3.desktop
-
-
-# restart
+# echo "install finished succesfully. Exiting now!"
+# sleep 3 && xfce4-session-logout -l
 sudo reboot now
+
+# emacs:
+# Local Variables:
+# sh-basic-offset: 2
+# End:
+
+# vim: set ts=2 sw=2 et:
