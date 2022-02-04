@@ -171,16 +171,16 @@ genfstab -L /mnt >> /mnt/etc/fstab || die 'can not generate $_'
 ### SCRIPTING INSIDE CHROOT
 
 # copying and running script2.sh
-cp ./script20.sh /mnt/home || die "can not copy script20.sh to $_"
-arch-chroot /mnt bash /home/script20.sh || die "can not run arch-root $_"
+cp ./script2.sh /mnt/home || die "can not copy script2.sh to $_"
+arch-chroot /mnt bash /home/script2.sh || die "can not run arch-root $_"
 # removing script2.sh after finish
-rm /mnt/home/script20.sh || die "can not remove $_"
+rm /mnt/home/script2.sh || die "can not remove $_"
 
 
 ### DESKTOP CUSTOMIZATION ON STARTUP
 
 # run script3.sh containing user desktop customization (not root) 
-cp ./script7.sh /mnt/home/"${user_name}"/script3.sh \
+cp ./script3.sh /mnt/home/"${user_name}"/script3.sh \
     || die "can not copy $_"
 chmod +x /mnt/home/"${user_name}"/script3.sh \
     || die "can not set executable $_"

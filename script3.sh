@@ -7,6 +7,7 @@ if [[ "$EUID" -eq 0 ]]; then echo "./$0 can not be run as root"; exit; fi
 # verify internet connection:
 check_internet
 
+
 ### BASH SCRIPT FLAGS FOR SECURITY AND DEBUGGING ###################
 
 
@@ -103,6 +104,7 @@ rm -rf $HOME/.config/autostart/script3.desktop
 # echo "install finished succesfully. Exiting now!"
 # sleep 3 && xfce4-session-logout -l
 sudo reboot now
+
 
 # emacs:
 # Local Variables:
