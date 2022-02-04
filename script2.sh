@@ -64,7 +64,7 @@ grub-mkconfig -o /boot/grub/grub.cfg
 
 ## Accounts Config
 # sudo requires to turn on "wheel" groups
-sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g' /etc/sudoers
+sed -i 's/# \(%wheel ALL=(ALL:ALL) ALL\)/\1/g' /etc/sudoers
 # set root password
 echo -e "${root_password}\n${root_password}" | (passwd root)
 # create new user and set ZSH as shell
