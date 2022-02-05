@@ -26,7 +26,7 @@ set -o pipefail    # CATCH failed piped commands
 set -o xtrace      # trace & expand what gets executed (useful for debug)
 
 
-### error handling
+### ERROR HANDLING
 
 out() { printf "$1 $2\n" "${@:3}"; }
 error() { out "==> ERROR:" "$@"; } >&2
@@ -36,8 +36,9 @@ msg() { out "==>" "$@"; }
 die() { error "$@"; exit 1; }
 
 
-### Declare variables to use in script2.sh. Hide passwords by -sp option.
+### DECLARE VARIABLES
 
+# Hide passwords by -sp option
 read -p "Enter hostname: " host_name
 read -sp "Enter ROOT password: " root_password
 read -p "Enter NEW user: " user_name
@@ -46,7 +47,9 @@ user_shell=/bin/zsh
 hdd_partitioning=/dev/sda
 keyboard_keymap=es
 local_time=/Europe/Berlin
-# make these variables available for script2.sh
+
+### EXPORT VARIABLES (required for script2.sh)
+
 export host_name
 export root_password
 export user_name
@@ -66,9 +69,9 @@ timedatectl set-ntp true
 
 ## clear start
 if mount | grep -q "/mnt"; then
-    warning " /mnt is mounted, umounting /mnt..."
-    umount -R /mnt || die "can not umount /mnt"
-    msg "done"
+  warning " /mnt is mounted, umounting /mnt..."
+  umount -R /mnt || die "can not umount /mnt"
+  msg "done"
 fi
 
 ## HDD partitioning
@@ -77,7 +80,7 @@ parted -s "${hdd_partitioning}" \
        mkpart primary ext2 0% 2% \
        set 1 boot on \
        mkpart primary ext4 2% 100% \
-       || die "Can not partition the drive %s" "${hdd_partitioning}"
+  || die "Can not partition the drive %s" "${hdd_partitioning}"
 
 ## HDD patitions formating (-F=overwrite if necessary)
 mkfs.ext2 -F "${hdd_partitioning}1" || die "can not format $_"
@@ -86,18 +89,18 @@ mkfs.ext4 -F "${hdd_partitioning}2" || die "can not format $_"
 ## HDD partitions mounting
 # root partition "/"
 mount "${hdd_partitioning}2" /mnt \
-    || die "can not mount $_ in ${hdd_partitioning}2"
+  || die "can not mount $_ in ${hdd_partitioning}2"
 # boot partition "/boot"
 mkdir /mnt/boot || die "can not create discrete partition $_"
 mount "${hdd_partitioning}1" /mnt/boot \
-    || die "can not mount $_ in ${hdd_partitioning}1"
+  || die "can not mount $_ in ${hdd_partitioning}1"
 
 
 ### REQUIREMENTS BEFORE SYSTEM PACKAGES INSTALLATION
 
 ## update keyring
 pacman -Syy --noconfirm archlinux-keyring \
-    || die 'can not install updated pacman keyring'
+  || die 'can not install updated pacman keyring'
 
 ## Get Current Boot Mode:
 if ! ls /sys/firmware/efi/efivars 2>/dev/null; then
@@ -106,9 +109,11 @@ else
   boot_mode='UEFI'
 fi
 
+
 ### SYSTEM PACKAGES INSTALLATION
 
 ## Essential Package List:
+# base
 Packages+=('base' 'linux')
 # shell 	
 Packages+=('zsh')
@@ -141,8 +146,8 @@ Packages+=('ttf-hanazono'
 Packages+=('xorg-server' 'xorg-xrandr' 'xterm')
 # Display driver - Nvidia support
 if lspci -k | grep -e "3D.*NVIDIA" &>/dev/null; then
-    [[ "${Packages[*]}" =~ 'linux-lts' ]] && Packages+=('nvidia-lts')
-    [[ "${Packages[*]}" =~ 'linux' ]] && Packages+=('nvidia')
+  [[ "${Packages[*]}" =~ 'linux-lts' ]] && Packages+=('nvidia-lts')
+  [[ "${Packages[*]}" =~ 'linux' ]] && Packages+=('nvidia')
 fi
 # Desktop environment
 Packages+=('xfce4')
@@ -151,7 +156,7 @@ Packages+=('pavucontrol' 'pavucontrol-qt')
 Packages+=('papirus-icon-theme')
 # add packages required for install in virtual (VBox) or Real Machine
 pacman -S --noconfirm dmidecode \
-    || die 'can not install dmidecode required to identify actual system'
+  || die 'can not install dmidecode required to identify actual system'
 machine="$(dmidecode -s system-manufacturer)"
 [[ "$machine" == "innotek GmbH" ]] && MACHINE='VBox' || MACHINE='Real'
 # if Real Machine: install hardware support packages
@@ -161,7 +166,7 @@ machine="$(dmidecode -s system-manufacturer)"
 
 ## Packages Instalation - pacstrap
 pacstrap /mnt --needed --noconfirm "${Packages[@]}" \
-    || die 'Pacstrap can not install the packages'
+  || die 'Pacstrap can not install the packages'
 
 
 ### GENERATE FILE SYSTEM TABLE
@@ -182,9 +187,9 @@ rm /mnt/home/script2.sh || die "can not remove $_"
 
 # run script3.sh containing user desktop customization (not root) 
 cp ./script3.sh /mnt/home/"${user_name}"/script3.sh \
-    || die "can not copy $_"
+  || die "can not copy $_"
 chmod +x /mnt/home/"${user_name}"/script3.sh \
-    || die "can not set executable $_"
+  || die "can not set executable $_"
 
 
 ### DOTFILES
@@ -192,12 +197,15 @@ chmod +x /mnt/home/"${user_name}"/script3.sh \
 # copy dotfiles to new system
 cp ./dotfiles/.[a-z]* /mnt/home/"${user_name}" || die 'can not copy $_'
 # correct user permissions
-arch-chroot /mnt bash -c "chown -R ${user_name}:${user_name} /home/${user_name}/.[a-z]*" || die 'can correct user permissions'
+arch-chroot /mnt bash -c "\
+chown -R ${user_name}:${user_name} /home/${user_name}/.[a-z]*;\
+chown -R ${user_name}:${user_name} /home/${user_name}/[A-Z]*;" \
+  || die 'can not correct user permissions in /home/user'
 
 
 ### UNMOUNT EVERYTHING AND REBOOT
 
-read -p "install successful! umount '/mnt' and reboot?[y/N]" response
+read -p "Install successful! umount '/mnt' and reboot?[y/N]" response
 [[ "${response}" =~ ^[yY]$ ]] && umount -R /mnt | reboot now
 
 
