@@ -199,7 +199,7 @@ cp ./dotfiles/.[a-z]* /mnt/home/"${user_name}" || die 'can not copy $_'
 # correct user permissions
 arch-chroot /mnt bash -c "\
 chown -R ${user_name}:${user_name} /home/${user_name}/.[a-z]*;\
-chown -R ${user_name}:${user_name} /home/${user_name}/[A-Z]*;" \
+chown -R ${user_name}:${user_name} /home/${user_name}/[a-zA-Z]*;" \
   || die 'can not correct user permissions in /home/user'
 
 
