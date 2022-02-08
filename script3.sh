@@ -161,8 +161,8 @@ source $HOME/Projects/archlinux_install_report/installation_report
 if [[ "${MACHINE}" == "VBox" ]]; then
   #https://www.techrepublic.com/article/how-to-create-a-shared-folder-in-virtualbox/
   # sudo mount -t vboxsf shared ~/shared
-  echo "shared /home/$USER/shared vboxsf uid=1000,gid=1000 0 0" \
-       >> /etc/fstab
+  sudo bash -c 'echo "shared /home/$USER/shared vboxsf uid=1000,gid=1000 0 0" \\
+       >> /etc/fstab'
 
   ## run emacs customized on startup
   echo "[Desktop Entry]
@@ -185,9 +185,7 @@ total_time=$(((script1_time + $duration) / 60)) minutes
 
 
 # sleep 3 && xfce4-session-logout -l
-echo "install finished succesfully. Exiting now!" \
-  && sleep 3 \
-  && sudo reboot now
+echo "install finished succesfully. Exiting now!" && sleep 3 && sudo reboot now
 
 
 # emacs:
