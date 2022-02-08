@@ -147,16 +147,6 @@ ExecStart=-/sbin/agetty --autologin ${user_name} --noclear %%I $TERM
   || die "can not create $_"
 
 
-### AUTOSTART X AT LOGIN
-
-echo 'if [[ -z "${DISPLAY}" ]] && [[ "${XDG_VTNR}" -eq 1 ]]; then
-  exec startx
-fi' > ~/.zprofile
-echo 'if [[ -z "${DISPLAY}" ]] && [[ "${XDG_VTNR}" -eq 1 ]]; then
-  exec startx
-fi' >> ~/.bash_profile
-
-
 ### CUSTOMIZE SHELL
 
 ## support for command not found
@@ -169,12 +159,21 @@ pkgfile -u || die "can not update with 'pkgflie -u'"
 ## set environment variables
 HOME=/home/"${user_name}"
 
+## Autostart X at login
+echo 'if [[ -z "${DISPLAY}" ]] && [[ "${XDG_VTNR}" -eq 1 ]]; then
+  exec startx
+fi' > $HOME/.zprofile || die "can not create $_" 
+echo 'if [[ -z "${DISPLAY}" ]] && [[ "${XDG_VTNR}" -eq 1 ]]; then
+  exec startx
+fi' >> $HOME/.bash_profile || die "can not create $_"
+
+
 ## create $USER dirs (LC_ALL=C, means everything in English)
-pacman -S --needed --noconfirm xdg-user-dirs
-LC_ALL=C xdg-user-dirs-update --force
+pacman -S --needed --noconfirm xdg-user-dirs || die "can not install $_"
+LC_ALL=C xdg-user-dirs-update --force || die 'can not create user dirs'
 
 ## Overriding system locale per $USER session
-mkdir -p $HOME/.config || dia "can not create $_"
+mkdir -p $HOME/.config || die "can not create $_"
 echo 'LANG=es_ES.UTF-8'         > $HOME/.config/locale.conf \
   || die "can not set user LANG in $_"
 echo 'LANGUAGE=en_GB:en_US:en' >> $HOME/.config/locale.conf \
