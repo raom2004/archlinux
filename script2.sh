@@ -127,6 +127,15 @@ sed -i 's/#MAKEFLAGS="-j2"/MAKEFLAGS="-j$(nproc)"/' /etc/makepkg.conf \
   || die "can not add processors to $_"
 
 
+### START SERVICES ON REBOOT
+
+## enable ethernet and wifi
+systemctl enable dhcpcd	|| die "can not enable ethernet $_"
+systemctl enable NetworkManager || die "can not enable wifi $_"
+[[ "${MACHINE}" == "VBox" ]] && systemctl enable vboxservice \
+    || die "can not enable virtualbox service $_"
+
+
 ### TTY AUTOLOGING AT STARTUP
 
 mkdir -p /etc/systemd/system/getty@tty1.service.d \
@@ -138,13 +147,14 @@ ExecStart=-/sbin/agetty --autologin ${user_name} --noclear %%I $TERM
   || die "can not create $_"
 
 
-### START SERVICES ON REBOOT
+### AUTOSTART X AT LOGIN
 
-## enable ethernet and wifi
-systemctl enable dhcpcd	|| die "can not enable ethernet $_"
-systemctl enable NetworkManager || die "can not enable wifi $_"
-[[ "${MACHINE}" == "VBox" ]] && systemctl enable vboxservice \
-    || die "can not enable virtualbox service $_"
+echo "if [ -z \"${DISPLAY} \" ] && [ \"${XDG_VTNR}\" -eq 1 ]; then
+  exec startx
+fi" > ~/.zprofile
+echo "if [ -z \"${DISPLAY} \" ] && [ \"${XDG_VTNR}\" -eq 1 ]; then
+  exec startx
+fi" >> ~/.bash_profile
 
 
 ### CUSTOMIZE SHELL

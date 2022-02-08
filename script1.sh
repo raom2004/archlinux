@@ -198,6 +198,14 @@ chmod +x /mnt/home/"${user_name}"/script3.sh \
 
 # copy dotfiles to new system
 cp ./dotfiles/.[a-z]* /mnt/home/"${user_name}" || die 'can not copy $_'
+# create the folder Project in $HOME
+mkdir -p /mnt/home/"${user_name}"/Projects
+# make a backup of the scripts used here to install arch linux
+my_path=/mnt/home/"${user_name}"/Projects/archlinux_install_report
+mkdir -p "${my_path}"
+cp ./script[1-3].sh "${my_path}"
+unset my_path
+
 # correct user permissions
 arch-chroot /mnt bash -c "\
 chown -R ${user_name}:${user_name} /home/${user_name}/.[a-z]*;\
