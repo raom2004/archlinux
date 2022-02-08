@@ -121,8 +121,10 @@ Packages+=('zsh')
 Packages+=('sudo' 'git' 'wget')
 # mounting tools (required for filemanagers)
 Packages+=('gvfs')
-# editors
+# text editors
 Packages+=('vim')
+# image editors
+Packages+=('imagemagick' 'gpicview')
 # network
 Packages+=('dhcpcd')
 # wifi

@@ -42,20 +42,72 @@ xfconf-query --channel xsettings \
 	     --property /Net/IconThemeName \
 	     --set Papirus
 
-## set wallpaper
 
+## set a wallpapers to each workspaces
+xfconf-query -c xfce4-desktop \
+	     -p /backdrop/single-workspace-mode \
+	     --set false
+
+## set wallpaper in workspace 0 
 # download image
 image="https://wallpaperforu.com/wp-content/uploads/2020/07/space-wallpaper-200707153544191600x1200.jpg"
-wget --output-document=$HOME/.wallpapers/space-wallpaper.jpg "${image}"
-image="https://www.setaswall.com/wp-content/uploads/2017/11/Arch-Linux-Wallpaper-28-1920x1080.jpg"
-wget --output-document=$HOME/.wallpapers/arch-wallpaper.jpg "${image}"
+my_path=$HOME/.wallpapers/arch-wallpaper.jpg
+wget --output-document="${my_path}" "${image}"
 # find path for xfce wallpaper 
-image_path="$(xfconf-query -c xfce4-desktop -lv | awk '/monitor.*last/{ print $1 }' | head -n1)"
-# set wallpaper in xfce by xfconf-query
+image_path="$(xfconf-query -c xfce4-desktop -lv \
+			   | awk '/monitor.*last/{ print $1 }' \
+			   | sed -n '1p')"
+# set wallpaper by xfconf-query
 xfconf-query -c xfce4-desktop \
 	     -p "${image_path}" \
 	     -t string \
-	     --set $HOME/.wallpapers/arch-wallpaper.jpg
+	     --set "${my_path}"
+
+
+## set wallpaper in workspace 1
+# download image
+image="https://www.setaswall.com/wp-content/uploads/2017/11/Arch-Linux-Wallpaper-28-1920x1080.jpg"
+my_path=$HOME/.wallpapers/space-wallpaper.jpg
+wget --output-document="${my_path}" "${image}"
+# set wallpaper by xfconf-query
+image_path="$(xfconf-query -c xfce4-desktop -lv \
+			   | awk '/monitor.*last/{ print $1 }' \
+			   | sed -n '2p')"
+xfconf-query -c xfce4-desktop \
+	     -p "${image_path}" \
+	     -t string \
+	     --set "${my_path}"
+
+
+## set wallpaper in workspace 2 
+# download image
+image="https://imgur.com/IwPvX8Z"
+my_path=$HOME/.wallpapers/arch-tv-wallpaper.jpg
+wget --output-document="${my_path}" "${image}"
+# set wallpaper by xfconf-query
+image_path="$(xfconf-query -c xfce4-desktop -lv \
+			   | awk '/monitor.*last/{ print $1 }' \
+			   | sed -n '3p')"
+xfconf-query -c xfce4-desktop \
+	     -p "${image_path}" \
+	     -t string \
+	     --set "${my_path}"
+
+
+## set wallpaper in workspace 3 
+# download image
+image="https://roboticoverlords.org/wallpapers/feather.png"
+my_path=$HOME/.wallpapers/feather-wallpaper.jpg
+#wget --output-document="${my_path}" "${image}"
+magick mogrify -negate "${my_path}"
+# set wallpaper by xfconf-query
+image_path="$(xfconf-query -c xfce4-desktop -lv \
+	      		   | awk '/monitor.*last/{ print $1 }' \
+			   | sed -n '4p')"
+xfconf-query -c xfce4-desktop \
+	     -p "${image_path}" \
+	     -t string \
+	     --set "${my_path}"
 
 ## Sound
 # activate sound
