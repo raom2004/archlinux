@@ -208,7 +208,8 @@ my_path=/mnt/home/"${user_name}"/Projects/archlinux_install_report
 mkdir -p "${my_path}"
 cp ./script[1-3].sh "${my_path}"
 duration=$SECONDS
-echo "MACHINE=${MACHINE}
+echo "user_name=${user_name}
+MACHINE=${MACHINE}
 script1_time=${duration}
 " > "${my_path}"/installation_report
 unset my_path
