@@ -45,6 +45,8 @@ xfconf-query --channel xsettings \
 
 ## set a wallpapers to each workspaces
 xfconf-query -c xfce4-desktop \
+	     --create \
+	     -t 'bool' \
 	     -p /backdrop/single-workspace-mode \
 	     --set false
 
@@ -98,7 +100,7 @@ xfconf-query -c xfce4-desktop \
 # download image
 image="https://roboticoverlords.org/wallpapers/feather.png"
 my_path=$HOME/.wallpapers/feather-wallpaper.jpg
-#wget --output-document="${my_path}" "${image}"
+wget --output-document="${my_path}" "${image}"
 magick mogrify -negate "${my_path}"
 # set wallpaper by xfconf-query
 image_path="$(xfconf-query -c xfce4-desktop -lv \
