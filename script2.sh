@@ -149,12 +149,12 @@ ExecStart=-/sbin/agetty --autologin ${user_name} --noclear %%I $TERM
 
 ### AUTOSTART X AT LOGIN
 
-echo "if [ -z \"${DISPLAY} \" ] && [ \"${XDG_VTNR}\" -eq 1 ]; then
+echo 'if [[ -z "${DISPLAY}" ]] && [[ "${XDG_VTNR}" -eq 1 ]]; then
   exec startx
-fi" > ~/.zprofile
-echo "if [ -z \"${DISPLAY} \" ] && [ \"${XDG_VTNR}\" -eq 1 ]; then
+fi' > ~/.zprofile
+echo 'if [[ -z "${DISPLAY}" ]] && [[ "${XDG_VTNR}" -eq 1 ]]; then
   exec startx
-fi" >> ~/.bash_profile
+fi' >> ~/.bash_profile
 
 
 ### CUSTOMIZE SHELL
