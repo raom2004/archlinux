@@ -10,7 +10,7 @@
 #
 # Dependencies: None
 # 
-# Verify root privileges:
+# Requirements: Root Privileges
 if [[ "$EUID" -eq 0 ]]; then echo "./$0 require root priviledges"; fi 
 
 

@@ -3,14 +3,13 @@
 # ./script2.sh configure a new Arch Linux system and desktop
 #
 # Summary:
-# * This script contain all the commands required to config
-#   a new arch linux install and require arch-chroot.
-# * This script also create a script3.desktop autostart app which
-#   run the scrip3.sh on first boot to configure the new desktop 
+# * This script contain the commands that runs inside chroot to custom a
+#   new Arch Linux system.
+# * This script also create a desktop autostart app to run the scrip3.sh #   on first boot to make the user desktop custmizations related. 
 #
-# Dependencies: None
+# Dependencies: ./script1.sh
 # 
-# Verify root privileges:
+# Requirements: Root Privileges
 if [[ "$EUID" -eq 0 ]]; then echo "./$0 require root priviledges"; fi
 
 
@@ -79,8 +78,13 @@ echo "127.0.0.1	localhost
 
 ### BOOT LOADER (GRUB) CONFIG
 
+## set display resolution bigger in virtual machine
+[[ "${MACHINE}" == "VBox" ]] \
+  && sed -i 's/\(GRUB_GFX_MODE=\)\(auto\)/\11024x768x32,\2/' \
+	 /etc/default/grub \
+  || die "can not set grub desired resolution 1024x768 in $_"
 ## detect additional kernels or operative systems available
-echo "GRUB_DISABLE_OS_PROBER=false" >> /etc/default/grub \
+sed -i 's/#\(GRUB_DISABLE_OS_PROBER=false\)/\1/' /etc/default/grub \
   || die "can not disable grub in $_"
 ## hide boot loader at startup
 echo "GRUB_FORCE_HIDDEN_MENU=true"  >> /etc/default/grub \
@@ -139,6 +143,8 @@ ExecStart=-/sbin/agetty --autologin ${user_name} --noclear %%I $TERM
 ## enable ethernet and wifi
 systemctl enable dhcpcd	|| die "can not enable ethernet $_"
 systemctl enable NetworkManager || die "can not enable wifi $_"
+[[ "${MACHINE}" == "VBox" ]] && systemctl enable vboxservice \
+    || die "can not enable virtualbox service $_"
 
 
 ### CUSTOMIZE SHELL
