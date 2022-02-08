@@ -161,6 +161,7 @@ pacman -S --noconfirm dmidecode \
   || die 'can not install dmidecode required to identify actual system'
 machine="$(dmidecode -s system-manufacturer)"
 [[ "$machine" == "innotek GmbH" ]] && MACHINE='VBox' || MACHINE='Real'
+export MACHINE
 # if Real Machine: install hardware support packages
 [[ "${MACHINE}" == "Real" ]] && Packages+=('linux-firmware')
 # if VirtualBox: install guest utils package
