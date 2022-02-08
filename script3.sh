@@ -6,7 +6,8 @@
 if [[ "$EUID" -eq 0 ]]; then echo "./$0 can not be run as root"; exit; fi 
 # verify internet connection:
 check_internet
-
+# measure time
+SECONDS=0
 
 ### BASH SCRIPT FLAGS FOR SECURITY AND DEBUGGING ###################
 
@@ -156,6 +157,7 @@ rm -rf $HOME/.config/autostart/script3.desktop
 
 
 ## in virtualbox: share folder and run emacs customized
+source $HOME/Projects/archlinux_install_report/installation_report
 if [[ "${MACHINE}" == "VBox" ]]; then
   #https://www.techrepublic.com/article/how-to-create-a-shared-folder-in-virtualbox/
   # sudo mount -t vboxsf shared ~/shared
@@ -173,6 +175,13 @@ X-GNOME-Autostart-enabled=true
 NoDisplay=false
 " > $HOME/.config/autostart/emacs.desktop
 fi
+
+
+## report time required to install archlinux
+duration=$SECONDS
+echo "script3_time=${duration}
+total_time=$(((script1_time + $duration) / 60)) minutes
+" >> $HOME/Projects/archlinux_install_report/installation_report
 
 
 # sleep 3 && xfce4-session-logout -l

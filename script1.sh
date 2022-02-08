@@ -47,6 +47,8 @@ user_shell=/bin/zsh
 hdd_partitioning=/dev/sda
 keyboard_keymap=es
 local_time=/Europe/Berlin
+SECONDS=0
+
 
 ### EXPORT VARIABLES (required for script2.sh)
 
@@ -205,7 +207,12 @@ mkdir -p /mnt/home/"${user_name}"/Projects
 my_path=/mnt/home/"${user_name}"/Projects/archlinux_install_report
 mkdir -p "${my_path}"
 cp ./script[1-3].sh "${my_path}"
+duration=$SECONDS
+echo "MACHINE=${MACHINE}
+script1_time=${duration}
+" > "${my_path}"/installation_report
 unset my_path
+
 
 # correct user permissions
 arch-chroot /mnt bash -c "\
