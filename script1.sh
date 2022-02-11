@@ -224,7 +224,7 @@ chmod +x /mnt/home/"${user_name}"/script3.sh \
 # copy dotfiles to new system
 cp ./dotfiles/.[a-z]* /mnt/home/"${user_name}" || die 'can not copy $_'
 # create the folder Project in $HOME
-my_path=/mnt/home/"${user_name}"/Projects/archlinux \
+my_path=/mnt/home/"${user_name}"/Projects/archlinux
 mkdir -p "${my_path}" || die "can not create $_"
 # backup archlinux repo inside ~/Projects folder
 cp -r . "${my_path}" || die "can not backup archlinux repo"
