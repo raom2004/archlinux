@@ -195,9 +195,8 @@ Exec=emacs --eval \"(progn (load-theme 'misterioso)(set-cursor-color \\\"turquoi
 X-GNOME-Autostart-enabled=true
 NoDisplay=false
 " > $HOME/.config/autostart/nemacs.desktop
-fi
 
-## run customized emacs on startup
+  ## run customized emacs on startup
   echo "[Desktop Entry]
 Type=Application
 Name=customized emacs
