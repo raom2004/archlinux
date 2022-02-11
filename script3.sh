@@ -151,6 +151,29 @@ xfconf-query -c xfce4-desktop -v --create -p /desktop-icons/style \
 # sh /usr/bin/shortcuts-xfce.sh
 
 
+## install emacs dependencies
+cd $HOME/Downloads
+url=https://languagetool.org/download/LanguageTool-5.1.zip
+wget "${url}" && extract "$(basename "$_")"
+[[ -d "$(basename "${url}" .zip)" ]] && rm "$(basename "${url}")"
+# ## hunspell english text corrector
+# # deprecated: archlinux has a native hunspell-1.7 package, newer
+# # hunspell manual installation, version 1.3.2
+# # * this zip contain multiple folders, requiring this specific staff
+# url=https://sourceforge.net/projects/ezwinports/files/hunspell-1.3.2-3-w32-bin.zip
+# wget "${url}" -P $HOME/Downloads/"$(basename "${url}" .zip)" && cd "$_"
+# unzip "$(basename "$_")" && rm "$(basename "${url}")"
+## add hunspell dictionaty of english medical terms: en_med_glut.dic 
+#  source: https://github.com/Glutanimate/hunspell-en-med-glut
+url=https://raw.githubusercontent.com/glutanimate/hunspell-en-med-glut/master/en_med_glut.dic
+# wget "${url}" -P $HOME/Downloads/hunspell-1.3.2-3-w32-bin/share/hunspell
+wget "${url}" -P /usr/share/hunspell
+
+## emacs org, support for ditaa graphs
+url=https://github.com/stathissideris/ditaa/blob/master/service/web/lib/ditaa0_10.jar
+wget "${url}" -P $HOME/Downloads
+
+
 ## setup xfce complete: remove script and autostart file
 rm -rf $HOME/script3.sh
 rm -rf $HOME/.config/autostart/script3.desktop
@@ -161,25 +184,49 @@ source $HOME/Projects/archlinux_install_report/installation_report
 if [[ "${MACHINE}" == "VBox" ]]; then
   #https://www.techrepublic.com/article/how-to-create-a-shared-folder-in-virtualbox/
   # sudo mount -t vboxsf shared ~/shared
-  sudo bash -c 'echo "shared /home/${user_name}/shared vboxsf uid=1000,gid=1000 0 0" >> /etc/fstab'
+  sudo bash -c "echo \"shared $HOME/shared vboxsf uid=1000,gid=1000 0 0\" >> /etc/fstab"
 
-  ## run emacs customized on startup
+  ## run native emacs on startup
   echo "[Desktop Entry]
 Type=Application
-Name=emacs customized
-Comment[C]=run emacs on start up
+Name=native emacs
+Comment[C]=run emacs on start up with dark theme
 Terminal=false
-Exec=remacs -q -l $HOME/shared/init.el
+Exec=emacs --eval \"(progn (load-theme 'misterioso)(set-cursor-color \\\"turquoise1\\\"))\"
 X-GNOME-Autostart-enabled=true
 NoDisplay=false
-" > $HOME/.config/autostart/emacs.desktop
+" > $HOME/.config/autostart/nemacs.desktop
 fi
 
+## run customized emacs on startup
+  echo "[Desktop Entry]
+Type=Application
+Name=customized emacs
+Comment[C]=run emacs  on start up with user customizations
+Terminal=false
+Exec=emacs -q -l $HOME/shared/init.el
+X-GNOME-Autostart-enabled=true
+NoDisplay=false
+" > $HOME/.config/autostart/cemacs.desktop
+fi
+
+echo '[Desktop Entry]
+Encoding=UTF-8
+Version=0.9.4
+Type=Application
+Name=thunar startup
+Comment=startup filemanager in specific folder
+Exec=thunar $HOME/shared
+OnlyShowIn=XFCE;
+RunHook=0
+StartupNotify=false
+Terminal=false
+Hidden=false' > $HOME/.config/autostart/thunar.desktop
 
 ## report time required to install archlinux
 duration=$SECONDS
-echo "script3_time=${duration}
-total_time=$(((script1_time + $duration) / 60)) minutes
+echo "script3_time_seconds=${duration}
+total_time_minutes=\"$(((script1_time_seconds + $duration) / 60))\"
 " >> $HOME/Projects/archlinux_install_report/installation_report
 
 

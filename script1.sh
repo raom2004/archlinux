@@ -116,16 +116,16 @@ fi
 
 ## Essential Package List:
 # base
-Packages+=('base' 'linux')
+Packages=('base' 'linux')
 # shell 	
 Packages+=('zsh')
 # tools
 Packages+=('sudo' 'git' 'wget')
 # mounting tools (required for filemanagers)
 Packages+=('gvfs')
-# text editors
+# lightweight text editors
 Packages+=('vim')
-# image editors
+# lightweight image editors
 Packages+=('imagemagick' 'gpicview')
 # network
 Packages+=('dhcpcd')
@@ -134,16 +134,31 @@ Packages+=('networkmanager')
 # boot loader
 Packages+=('grub' 'os-prober')
 # UEFI boot support
-Packages+=('efibootmgr')
+[[ "${boot_mode}" == 'UEFI' ]] && Packages+=('efibootmgr')
 # multi-OS support
 Packages+=('usbutils' 'dosfstools' 'ntfs-3g' 'amd-ucode' 'intel-ucode')
 # backup
 Packages+=('rsync')
+# uncompress
+Packages+=('unzip' 'unrar')
+# manual pages
+Packages+=('man-db')
 # glyphs support
-Packages+=('ttf-hanazono'
+Packages+=('ttf-dejavu'
+           'ttf-hanazono'
 	   'ttf-font-awesome'
 	   'ttf-ubuntu-font-family'
 	   'noto-fonts')
+# heavy text editors
+Packages+=('emacs')
+# format conversion
+Packages+=('pandoc')
+# grammar corrector (for: Firefox, Thunderbird, Chromium and LibreOffice)
+Packages+=('hunspell'
+	   'hunspell-en_gb'
+	   'hunspell-en_us'
+	   'hunspell-de'
+	   'hunspell-es_es')
 
 ## Graphical User Interface:
 # Display server - xorg (because wayland has not support nvidia CUDA yet)
@@ -158,14 +173,21 @@ Packages+=('xfce4')
 Packages+=('xfce4-pulseaudio-plugin' 'xfce4-screenshooter')
 Packages+=('pavucontrol' 'pavucontrol-qt')
 Packages+=('papirus-icon-theme')
-# add packages required for install in virtual (VBox) or Real Machine
+# add packages required for install in Real Machine or virtual (VBox)
 pacman -S --noconfirm dmidecode \
   || die 'can not install dmidecode required to identify actual system'
 machine="$(dmidecode -s system-manufacturer)"
 [[ "$machine" == "innotek GmbH" ]] && MACHINE='VBox' || MACHINE='Real'
 export MACHINE
-# if Real Machine: install hardware support packages
-[[ "${MACHINE}" == "Real" ]] && Packages+=('linux-firmware')
+## if Real Machine, install:
+if [[ "${MACHINE}" == "Real" ]]; then
+  # hardware support packages
+  Packages+=('linux-firmware')
+  # text edition - latex support
+  read -p "LATEX download take time. Install it anyway?[y/N]" response
+  [[ "${response}" =~ ^[yY]$ ]] \
+    && Packages+=('texlive-core' 'texlive-latexextra')
+fi
 # if VirtualBox: install guest utils package
 [[ "${MACHINE}" == "VBox" ]] && Packages+=('virtualbox-guest-utils')
 
@@ -202,17 +224,22 @@ chmod +x /mnt/home/"${user_name}"/script3.sh \
 # copy dotfiles to new system
 cp ./dotfiles/.[a-z]* /mnt/home/"${user_name}" || die 'can not copy $_'
 # create the folder Project in $HOME
-mkdir -p /mnt/home/"${user_name}"/Projects
+mkdir -p /mnt/home/"${user_name}"/Projects || die "can not create $_"
+# backup archlinux repo inside ~/Projects folder
+cp . /mnt/home/"${user_name}"/Projects \
+  || die "can not backup archlinux repo"
 # make a backup of the scripts used here to install arch linux
 my_path=/mnt/home/"${user_name}"/Projects/archlinux_install_report
-mkdir -p "${my_path}"
-cp ./script[1-3].sh "${my_path}"
-duration=$SECONDS
+mkdir -p "${my_path}"  || die "can not create $_"
+cp ./script[1-3].sh "${my_path}"  || die "can not copy $_"
+duration=$SECONDS || die 'can not set variable $duration'
 echo "user_name=${user_name}
 MACHINE=${MACHINE}
-script1_time=${duration}
-" > "${my_path}"/installation_report
-unset my_path
+script1_time_secodns=${duration}
+" > "${my_path}"/installation_report || die "can not create $_"
+chmod +x "{my_path}"/installation_report \
+  || die "can not set executable $_"
+unset my_path || die "can not unset $_"
 
 
 # correct user permissions
