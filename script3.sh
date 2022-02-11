@@ -4,7 +4,9 @@
 #
 # Verify user privileges:
 if [[ "$EUID" -eq 0 ]]; then echo "./$0 can not be run as root"; exit; fi 
-# verify internet connection:
+# source dependencies
+source ~/.functions
+# verify internet connection
 check_internet
 # measure time
 SECONDS=0
