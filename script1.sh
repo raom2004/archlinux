@@ -235,7 +235,7 @@ cp ./script[1-3].sh "${my_path}"  || die "can not copy $_"
 duration=$SECONDS || die 'can not set variable $duration'
 echo "user_name=${user_name}
 MACHINE=${MACHINE}
-script1_time_secodns=${duration}
+script1_time_seconds=${duration}
 " > "${my_path}"/installation_report || die "can not create $_"
 chmod +x "${my_path}"/installation_report \
   || die "can not set executable $_"

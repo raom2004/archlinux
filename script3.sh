@@ -224,7 +224,7 @@ Hidden=false' > $HOME/.config/autostart/thunar.desktop
 ## report time required to install archlinux
 duration=$SECONDS
 echo "script3_time_seconds=${duration}
-total_time_minutes=\"$((($script1_time_seconds + $duration) / 60))\"
+total_time_minutes=\"$(((script1_time_seconds + $duration) / 60))\"
 " >> $HOME/Projects/archlinux_install_report/installation_report
 
 
