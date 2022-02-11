@@ -151,7 +151,9 @@ xfconf-query -c xfce4-desktop -v --create -p /desktop-icons/style \
 # sh /usr/bin/shortcuts-xfce.sh
 
 
-## install emacs dependencies
+### INSTALL EMACS DEPENDENCIES
+
+## language tools
 cd $HOME/Downloads
 url=https://languagetool.org/download/LanguageTool-5.1.zip
 wget "${url}" && extract "$(basename "$_")"
@@ -163,6 +165,7 @@ wget "${url}" && extract "$(basename "$_")"
 # url=https://sourceforge.net/projects/ezwinports/files/hunspell-1.3.2-3-w32-bin.zip
 # wget "${url}" -P $HOME/Downloads/"$(basename "${url}" .zip)" && cd "$_"
 # unzip "$(basename "$_")" && rm "$(basename "${url}")"
+
 ## add hunspell dictionaty of english medical terms: en_med_glut.dic 
 #  source: https://github.com/Glutanimate/hunspell-en-med-glut
 url=https://raw.githubusercontent.com/glutanimate/hunspell-en-med-glut/master/en_med_glut.dic
