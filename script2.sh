@@ -206,6 +206,14 @@ wget "${url}" -P $HOME/.vim/autoload \
 ## TODO: install vim plugins without open vim (do not run as root)
 # vim -E -s -u $HOME/.vimrc +PlugInstall +visual +qall
 
+
+## add hunspell dictionaty of english medical terms: en_med_glut.dic 
+#  source: https://github.com/Glutanimate/hunspell-en-med-glut
+url=https://raw.githubusercontent.com/glutanimate/hunspell-en-med-glut/master/en_med_glut.dic
+# wget "${url}" -P $HOME/Downloads/hunspell-1.3.2-3-w32-bin/share/hunspell
+wget "${url}" -P /usr/share/hunspell
+unset url
+
 ## How to customize a new desktop on first boot?
 # With a startup script that just need to steps:
 #  * Create a script3.sh with your customizations

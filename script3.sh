@@ -168,12 +168,6 @@ wget "${url}" && extract "$(basename "$_")"
 # wget "${url}" -P $HOME/Downloads/"$(basename "${url}" .zip)" && cd "$_"
 # unzip "$(basename "$_")" && rm "$(basename "${url}")"
 
-## add hunspell dictionaty of english medical terms: en_med_glut.dic 
-#  source: https://github.com/Glutanimate/hunspell-en-med-glut
-url=https://raw.githubusercontent.com/glutanimate/hunspell-en-med-glut/master/en_med_glut.dic
-# wget "${url}" -P $HOME/Downloads/hunspell-1.3.2-3-w32-bin/share/hunspell
-wget "${url}" -P /usr/share/hunspell
-
 ## emacs org, support for ditaa graphs
 url=https://github.com/stathissideris/ditaa/blob/master/service/web/lib/ditaa0_10.jar
 wget "${url}" -P $HOME/Downloads
