@@ -237,7 +237,7 @@ echo "user_name=${user_name}
 MACHINE=${MACHINE}
 script1_time_secodns=${duration}
 " > "${my_path}"/installation_report || die "can not create $_"
-chmod +x "{my_path}"/installation_report \
+chmod +x "${my_path}"/installation_report \
   || die "can not set executable $_"
 unset my_path || die "can not unset $_"
 
