@@ -24,7 +24,7 @@ set -o pipefail    # CATCH failed piped commands
 set -o xtrace      # trace & expand what gets executed (useful for debug)
 
 
-# ask for sudo password (required for last commands)
+## require sudo password for last commands (but do not show it, option -s)
 read -sp "[sudo] password for $USER:" user_password
 
 
@@ -184,9 +184,10 @@ rm -rf $HOME/.config/autostart/script3.desktop  # remove autostart file
 ## in virtualbox: share folder and run emacs customized
 source $HOME/Projects/archlinux_install_report/installation_report
 if [[ "${MACHINE}" == "VBox" ]]; then
-  #https://www.techrepublic.com/article/how-to-create-a-shared-folder-in-virtualbox/
+  xrandr -s 1920x1080		# set screen size to 2k
+    #https://www.techrepublic.com/article/how-to-create-a-shared-folder-in-virtualbox/
   # sudo mount -t vboxsf shared ~/shared
-  echo -e "${user_password}" | sudo -S bash -c "echo \"shared shared vboxsf uid=1000,gid=1000 0 0\" >> /etc/fstab"
+  echo -e "${user_password}" | sudo -S bash -c "echo \"shared $HOME/shared vboxsf uid=1000,gid=1000 0 0\" >> /etc/fstab"
 
   ## run native emacs on startup
   echo "[Desktop Entry]
@@ -203,9 +204,11 @@ NoDisplay=false
   echo "[Desktop Entry]
 Type=Application
 Name=customized emacs
-Comment[C]=run emacs  on start up with user customizations
+Comment[C]=run emacs on start up with user customizations
 Terminal=false
-Exec=emacs -q -l $HOME/shared/init.el
+Exec=[[ -d \"$HOME/.emacs.d/themes\" ]] \
+  && cp -r $HOME/shared/dot-emacs/* $HOME/.emacs.d \
+  || emacs -q -l $HOME/shared/init.el
 X-GNOME-Autostart-enabled=true
 NoDisplay=false
 " > $HOME/.config/autostart/cemacs.desktop
@@ -217,7 +220,7 @@ Version=0.9.4
 Type=Application
 Name=thunar startup
 Comment=startup filemanager in specific folder
-Exec=thunar $HOME/shared
+Exec=thunar shared
 OnlyShowIn=XFCE;
 RunHook=0
 StartupNotify=false
@@ -232,7 +235,7 @@ total_time_minutes=\"$(((script1_time_seconds + $duration) / 60))\"
 
 
 # sleep 3 && xfce4-session-logout -l
-echo "install finished succesfully. Exiting now!"
+printf "\n\nInstall xfce desktop finished succesfully. Rebooting now!"
 sleep 3 && sudo reboot now
 
 

@@ -123,6 +123,13 @@ sh /usr/bin/shortcuts-xfce.sh
 rm -rf $HOME/.config/autostart/setup-xfce.desktop
 
 
+## if virtual machine, set xrandr
+source $HOME/Projects/archlinux_install_report/installation_report
+if [[ "${MACHINE}" == "VBox" ]]; then
+  xrandr -s 1920x1080
+  cp -r $HOME/shared/dot-emacs/* $HOME/.emacs.d
+fi
+
 echo "install finished succesfully. Exiting now!"
 sleep 3 && xfce4-session-logout -l
 
