@@ -230,8 +230,6 @@ my_path=/mnt/home/"${user_name}"/Projects/archlinux
 mkdir -p "${my_path}" || die "can not create $_"
 # backup archlinux repo inside ~/Projects folder
 cp -r . "${my_path}" || die "can not backup archlinux repo"
-# set executable permissions to script3.sh (for desktop customization)
-chmod +x "${my_path}"/script3.sh || die "can not set executable $_"
 # make a backup of the scripts used during this arch linux install
 my_path=/mnt/home/"${user_name}"/Projects/archlinux_install_report
 mkdir -p "${my_path}"  || die "can not create $_"
