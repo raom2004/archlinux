@@ -25,7 +25,7 @@ set -o xtrace      # trace & expand what gets executed (useful for debug)
 
 
 # ask for sudo password (required for last commands)
-read -p "[sudo] password for $USER:" user_password
+read -sp "[sudo] password for $USER:" user_password
 
 
 ## Audio
@@ -186,7 +186,7 @@ source $HOME/Projects/archlinux_install_report/installation_report
 if [[ "${MACHINE}" == "VBox" ]]; then
   #https://www.techrepublic.com/article/how-to-create-a-shared-folder-in-virtualbox/
   # sudo mount -t vboxsf shared ~/shared
-  echo -e "${user_password}" | sudo -S bash -c "echo \"shared $HOME/shared vboxsf uid=1000,gid=1000 0 0\" >> /etc/fstab"
+  echo -e "${user_password}" | sudo -S bash -c "echo \"shared shared vboxsf uid=1000,gid=1000 0 0\" >> /etc/fstab"
 
   ## run native emacs on startup
   echo "[Desktop Entry]
