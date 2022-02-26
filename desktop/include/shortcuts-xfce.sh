@@ -32,6 +32,65 @@ xfconf-query -c xfce4-keyboard-shortcuts \
 	     -p '/commands/custom/<Primary>' \
 	     --set xfce4-popup-applicationsmenu
 
+# /xfwm4/custom/<Super>KP_Down               tile_up_key
+xfconf-query -c xfce4-keyboard-shortcuts \
+	     -n -t 'string' \
+	     -p '/xfwm4/custom/<Super>KP_Up' \
+	     --set tile_up_key
+
+xfconf-query -c xfce4-keyboard-shortcuts \
+	     -n -t 'string' \
+	     -p '/xfwm4/custom/<Super>Up' \
+	     --set tile_up_key
+
+# /xfwm4/custom/<Super>KP_End                tile_down_left_key
+xfconf-query -c xfce4-keyboard-shortcuts \
+	     -n -t 'string' \
+	     -p '/xfwm4/custom/<Super>KP_End' \
+	     --set tile_down_left_key
+
+# /xfwm4/custom/<Super>KP_Home               tile_up_left_key
+xfconf-query -c xfce4-keyboard-shortcuts \
+	     -n -t 'string' \
+	     -p '/xfwm4/custom/<Super>KP_Home' \
+	     --set tile_up_left_key
+
+# /xfwm4/custom/<Super>KP_Left               tile_left_key
+xfconf-query -c xfce4-keyboard-shortcuts \
+	     -n -t 'string' \
+	     -p '/xfwm4/custom/<Super>Left' \
+	     --set tile_left_key
+
+# /xfwm4/custom/<Super>KP_Next               tile_down_right_key
+xfconf-query -c xfce4-keyboard-shortcuts \
+	     -n -t 'string' \
+	     -p '/xfwm4/custom/<Super>KP_Next' \
+	     --set tile_down_right_key
+
+# /xfwm4/custom/<Super>KP_Page_Up            tile_up_right_key
+xfconf-query -c xfce4-keyboard-shortcuts \
+	     -n -t 'string' \
+	     -p '/xfwm4/custom/<Super>KP_Page_Up' \
+	     --set tile_up_right_key
+
+# /xfwm4/custom/<Super>KP_Right              tile_right_key
+xfconf-query -c xfce4-keyboard-shortcuts \
+	     -n -t 'string' \
+	     -p '/xfwm4/custom/<Super>Right' \
+	     --set tile_right_key
+
+# /xfwm4/custom/<Super>KP_Up                 tile_down_key
+xfconf-query -c xfce4-keyboard-shortcuts \
+	     -n -t 'string' \
+	     -p '/xfwm4/custom/<Super>KP_Down' \
+	     --set tile_down_key
+
+# /xfwm4/custom/<Super>KP_Up                 tile_down_key
+xfconf-query -c xfce4-keyboard-shortcuts \
+	     -n -t 'string' \
+	     -p '/xfwm4/custom/<Super>Down' \
+	     --set tile_down_key
+
 
 # /commands/custom/<Alt>F1                   xfce4-popup-applicationsmenu
 # /commands/custom/<Alt>F2                   xfce4-appfinder --collapsed
