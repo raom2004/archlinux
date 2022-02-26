@@ -24,6 +24,10 @@ set -o pipefail    # CATCH failed piped commands
 set -o xtrace      # trace & expand what gets executed (useful for debug)
 
 
+# ask for sudo password (required for last commands)
+read -p "[sudo] password for $USER:" user_password
+
+
 ## Audio
 pactl -- set-sink-mute 0 0	# turn on audio
 pactl -- set-sink-volume 0 50%	# set volume
@@ -149,8 +153,7 @@ xfconf-query -c xfce4-desktop -v --create -p /desktop-icons/style \
 
 
 ## set custom keyboard shortcuts
-# sh "$PWD"/shortcuts-xfce.sh
-# sh /usr/bin/shortcuts-xfce.sh
+sh $HOME/Projects/archlinux/desktop/include/shortcuts-xfce.sh
 
 
 ### INSTALL EMACS DEPENDENCIES
@@ -173,9 +176,9 @@ url=https://github.com/stathissideris/ditaa/blob/master/service/web/lib/ditaa0_1
 wget "${url}" -P $HOME/Downloads
 
 
-## setup xfce complete: remove script and autostart file
-rm -rf $HOME/script3.sh
-rm -rf $HOME/.config/autostart/script3.desktop
+## delete script after complete xfce desktop setup
+# rm -rf $HOME/script3.sh # remove script
+rm -rf $HOME/.config/autostart/script3.desktop  # remove autostart file
 
 
 ## in virtualbox: share folder and run emacs customized
@@ -183,7 +186,7 @@ source $HOME/Projects/archlinux_install_report/installation_report
 if [[ "${MACHINE}" == "VBox" ]]; then
   #https://www.techrepublic.com/article/how-to-create-a-shared-folder-in-virtualbox/
   # sudo mount -t vboxsf shared ~/shared
-  sudo bash -c "echo \"shared $HOME/shared vboxsf uid=1000,gid=1000 0 0\" >> /etc/fstab"
+  echo -e "${user_password}" | sudo -S bash -c "echo \"shared $HOME/shared vboxsf uid=1000,gid=1000 0 0\" >> /etc/fstab"
 
   ## run native emacs on startup
   echo "[Desktop Entry]
@@ -229,7 +232,8 @@ total_time_minutes=\"$(((script1_time_seconds + $duration) / 60))\"
 
 
 # sleep 3 && xfce4-session-logout -l
-echo "install finished succesfully. Exiting now!" && sleep 3 && sudo reboot now
+echo "install finished succesfully. Exiting now!"
+sleep 3 && sudo reboot now
 
 
 # emacs:

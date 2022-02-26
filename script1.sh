@@ -212,11 +212,13 @@ rm /mnt/home/script2.sh || die "can not remove $_"
 
 ### DESKTOP CUSTOMIZATION ON STARTUP
 
-# run script3.sh containing user desktop customization (not root) 
-cp ./script3.sh /mnt/home/"${user_name}"/script3.sh \
-  || die "can not copy $_"
-chmod +x /mnt/home/"${user_name}"/script3.sh \
-  || die "can not set executable $_"
+# run script3.sh containing user desktop customization (not root)
+# option 1: /home/user/Projects/archlinux/script3.sh
+# option 2 (deprecated): /home/user/script3.sh
+# cp ./script3.sh /mnt/home/"${user_name}"/script3.sh \
+#   || die "can not copy $_"
+# chmod +x /mnt/home/"${user_name}"/script3.sh \
+#   || die "can not set executable $_"
 
 
 ### DOTFILES
@@ -228,7 +230,9 @@ my_path=/mnt/home/"${user_name}"/Projects/archlinux
 mkdir -p "${my_path}" || die "can not create $_"
 # backup archlinux repo inside ~/Projects folder
 cp -r . "${my_path}" || die "can not backup archlinux repo"
-# make a backup of the scripts used here to install arch linux
+# set executable permissions to script3.sh (for desktop customization)
+chmod +x "${my_path}"/script3.sh || die "can not set executable $_"
+# make a backup of the scripts used during this arch linux install
 my_path=/mnt/home/"${user_name}"/Projects/archlinux_install_report
 mkdir -p "${my_path}"  || die "can not create $_"
 cp ./script[1-3].sh "${my_path}"  || die "can not copy $_"

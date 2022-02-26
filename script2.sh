@@ -226,7 +226,7 @@ Type=Application
 Name=setup-desktop-on-first-startup
 Comment[C]=Script to config a new Desktop on first boot
 Terminal=true
-Exec=xfce4-terminal -e "bash -c \"bash \$HOME/script3.sh; exec bash\""
+Exec=xfce4-terminal -e "bash -c \"bash \$HOME/Projects/archlinux/script3.sh; exec bash\""
 X-GNOME-Autostart-enabled=true
 NoDisplay=false
 ' > $HOME/.config/autostart/script3.desktop \
