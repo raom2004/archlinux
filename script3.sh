@@ -208,6 +208,7 @@ Comment[C]=run emacs on start up with user customizations
 Terminal=false
 Exec=[[ ! -d \"$HOME/.emacs.d/themes\" ]] \
   && cp -r $HOME/shared/dot-emacs/* $HOME/.emacs.d \
+    | sudo xfce4-session-logout -l \
   || emacs -q -l $HOME/shared/init.el
 X-GNOME-Autostart-enabled=true
 NoDisplay=false
