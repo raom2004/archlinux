@@ -8,8 +8,11 @@
 # * This script also create a desktop autostart app to run the scrip3.sh #   on first boot to make the user desktop custmizations related. 
 #
 # Dependencies: ./script1.sh
-# 
-# Requirements: Root Privileges
+#
+### CODE:
+
+### Requirements: Root Privileges
+
 if [[ "$EUID" -eq 0 ]]; then echo "./$0 require root priviledges"; fi
 
 
@@ -229,10 +232,10 @@ Terminal=true
 Exec=xfce4-terminal -e "bash -c \"bash \$HOME/Projects/archlinux/script3.sh; exec bash\""
 X-GNOME-Autostart-enabled=true
 NoDisplay=false
-' > $HOME/.config/autostart/script3.desktop \
-  || die "can not create $_"
+' > $HOME/.config/autostart/script3.desktop || die "can not create $_"
 
 
+## show final message and exit
 echo "$0 successful" && sleep 3 && exit
 
 

@@ -201,18 +201,15 @@ NoDisplay=false
 " > $HOME/.config/autostart/nemacs.desktop
 
   ## run customized emacs on startup
-  echo "[Desktop Entry]
+  echo '[Desktop Entry]
 Type=Application
 Name=customized emacs
 Comment[C]=run emacs on start up with user customizations
 Terminal=false
-Exec=[[ ! -d \"$HOME/.emacs.d/themes\" ]] \
-  && cp -r $HOME/shared/dot-emacs/* $HOME/.emacs.d \
-    | sudo xfce4-session-logout -l \
-  || emacs -q -l $HOME/shared/init.el
+Exec=xfce4-terminal -e "bash -c \"bash \$HOME/shared/emacs-installer.sh; exec bash\""
 X-GNOME-Autostart-enabled=true
 NoDisplay=false
-" > $HOME/.config/autostart/cemacs.desktop
+' > $HOME/.config/autostart/cemacs.desktop
 fi
 
 echo '[Desktop Entry]
