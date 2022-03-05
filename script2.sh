@@ -75,8 +75,14 @@ echo "127.0.0.1	localhost
 
 ### INIT RAM FILSESYSTEM: initramfs
 
-## Initramfs was run for pacstrap but must be run for LVM, encryption...:
-# mkinitcpio -P 
+## Initramfs was run for pacstrap but must be run for LVM, encryp or USB
+# TODO: support to boot in removable media (USB stick)
+drive_info="$(find /dev/disk/by-id/ -lname *${mountpoint##*/})"
+check_drive_removable="$(echo $drive_info | grep -i 'usb\|mmcblk')"
+if [[ -n "$check_drive_removable" ]]; then
+  sed -i 's/HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)/HOOKS=(base udev block keyboard autodetect modconf filesystems fsck)/' /etc/mkinitcpio.conf      
+  mkinitcpio -P
+fi
 
 
 ### BOOT LOADER (GRUB) CONFIG
