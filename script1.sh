@@ -37,28 +37,56 @@ set -o xtrace      # trace & expand what gets executed (useful for debug)
 # Arguments: $1
 # Return: the argument $1 will store a valid block device (e.g. /dev/sdX)
 ########################################
-function dialog_to_input_a_target_device
+function dialog_get_target_device
 {
+  ## function declaration
+  function dialog_to_input_a_target_device
+  {
+    # Help the user showing the block devices available
+    local array_of_block_devices=($(lsblk | awk '/disk/{ print $1 }'))
+    printf "::List of block devices (lsblk):\n%s\n\n" "$(lsblk)"
+    printf "::Choose a device to install archlinux on:\n"
+    # The function help the user to choose and return a block device.
+    local __resultvar="$1"
+    local answer=" "
+    until [[ "${answer}" =~ ^([yY])$ ]]; do
+      select option in "${array_of_block_devices[@]}";do
+	case "${option}" in
+	  "")
+	    printf "\nInvalid option: ${option}. Canceling install!\n\n"
+	    exit 0
+	    ;;
+	  *)
+	    eval "${__resultvar}"="/dev/${option}" \
+	      || die "can not set value $_"
+	    break
+	    ;;
+	esac
+      done
+      read -p "\n::Confirm install iso in ${__result}?[y/N]" answer
+    done
+    # choose installation target device
+    if mount | grep -q "${__result}"; then
+      limit="$(($(mount | grep "${__result}" | wc -l )+1))"
+      for ((i = 1 ; i < "${limit}" ; i++)); do
+	warning "${__result}${i} is mounted, umounting..."
+	umount "${__result}${i}" \
+	  || die "can not umount ${__result}"
+      done
+      printf "::List of block devices updated:\n%s\n\n" "$(lsblk)"
+    fi
+  }
   # The functions result will be stored in the variable "__resultvar".
+  # Thus, the "target_device" will have the value of "__resultvar".
   local __resultvar="$1"
-  # Help the user showing the block devices available
-  local array_of_block_devices=($(lsblk | awk '/disk/{ print $1 }'))
-  printf "::List of block devices (lsblk):\n%s\n\n" "$(lsblk)"
-  printf "::Choose a device to install archlinux on:\n"
-  # The function help the user to choose and return a block device.
-  select option in "${array_of_block_devices[@]}";do
-    case "${option}" in
-      "")
-	printf "\nInvalid option. Canceling install!\n\n"
-	exit 0
-	;;
-      *)
-	# The function can't set a variable directly, but EVAL can:
-	eval "${__resultvar}"="/dev/${option}"
-	break
-	;;
-    esac
-  done
+  local __result=" "
+  ## main code
+  if [[ ! "${MACHINE}" == 'Real' ]]; then
+    eval "${__resultvar}"=/dev/sda || die 'can not set var $target_device'
+  else
+    dialog_to_input_a_target_device __result
+    eval "${__resultvar}"="${__result}"
+  fi
 }
 ########################################
 # Purpose: ERROR HANDLING
@@ -74,41 +102,21 @@ die() { error "$@"; exit 1; }
 
 ### DECLARE VARIABLES
 
-# Hide passwords by -sp option
+# variables that user must provide (hide passwords by -sp option)
 read -p "Enter hostname: " host_name
 read -sp "Enter ROOT password: " root_password
 read -p "Enter NEW user: " user_name
 read -sp "Enter NEW user PASSWORD: " user_password
-user_shell=/bin/zsh
-keyboard_keymap=es
+# variables fixed for archlinux install
+user_shell=/bin/zsh		# examples: /bin/zsh; /bin/bash
+keyboard_keymap=es		# examples: es; en; de; fr; it; 
 local_time=/Europe/Berlin
 SECONDS=0
-
+# variables automatically recognized
 machine="$(dmidecode -s system-manufacturer)"
 [[ "${machine}" == "innotek GmbH" ]] && MACHINE='VBox' || MACHINE='Real'
-export MACHINE
-if [[ ! "${MACHINE}" == 'Real' ]]; then
-  hdd_partitioning=/dev/sda
-else
-  # choose installation target device
-  printf "Installing archlinux iso in ${target_device}\n"
-  response=" "
-  until [[ "${answer}" =~ ^([yY])$ ]]; do
-    dialog_to_input_a_target_device hdd_partitioning
-    read -p "Confirm install iso in ${hdd_partitioning}?[y/N]" answer
-  done
-  # umount target device, if mounted previously
-  if mount | grep -q "${hdd_partitioning}"; then
-    limit="$(($(mount | grep "${hdd_partitioning}" | wc -l )+1))"
-    for ((i = 1 ; i < "${limit}" ; i++)); do
-      warning " ${hdd_partitioning}${limit} is mounted, umounting..."
-      sudo umount "${hdd_partitioning}${i}" \
-	|| die "can not umount ${target_device}"
-    done
-    printf "::List of block devices available:\n%s\n\n" "$(lsblk)"
-  fi
-fi
-
+# variables choosed by dialog
+target_device=" "; dialog_get_target_device target_device
 
 ### EXPORT VARIABLES (required for script2.sh)
 
@@ -117,9 +125,10 @@ export root_password
 export user_name
 export user_password
 export user_shell
-export hdd_partitioning
+export target_device
 export keyboard_keymap
 export local_time
+export MACHINE
 
 
 ### SET TIME AND SYNCHRONIZE SYSTEM CLOCK
@@ -137,25 +146,25 @@ if mount | grep -q "/mnt"; then
 fi
 
 ## HDD partitioning
-parted -s "${hdd_partitioning}" \
+parted -s "${target_device}" \
        mklabel msdos \
        mkpart primary ext2 0% 2% \
        set 1 boot on \
        mkpart primary ext4 2% 100% \
-  || die "Can not partition the drive %s" "${hdd_partitioning}"
+  || die "Can not partition the drive %s" "${target_device}"
 
 ## HDD patitions formating (-F=overwrite if necessary)
-mkfs.ext2 -F "${hdd_partitioning}1" || die "can not format $_"
-mkfs.ext4 -F "${hdd_partitioning}2" || die "can not format $_"
+mkfs.ext2 -F "${target_device}1" || die "can not format $_"
+mkfs.ext4 -F "${target_device}2" || die "can not format $_"
 
 ## HDD partitions mounting
 # root partition "/"
-mount "${hdd_partitioning}2" /mnt \
-  || die "can not mount $_ in ${hdd_partitioning}2"
+mount "${target_device}2" /mnt \
+  || die "can not mount $_ in ${target_device}2"
 # boot partition "/boot"
 mkdir /mnt/boot || die "can not create discrete partition $_"
-mount "${hdd_partitioning}1" /mnt/boot \
-  || die "can not mount $_ in ${hdd_partitioning}1"
+mount "${target_device}1" /mnt/boot \
+  || die "can not mount $_ in ${target_device}1"
 
 
 ### REQUIREMENTS BEFORE SYSTEM PACKAGES INSTALLATION
