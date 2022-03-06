@@ -10,8 +10,12 @@
 #
 # Dependencies: None
 # 
-# Requirements: Root Privileges
+### Requirements:
+
+## Root Privileges
 if [[ "$EUID" -eq 0 ]]; then echo "./$0 require root priviledges"; fi 
+pacman -S --noconfirm dmidecode \
+  || die 'can not install dmidecode required to identify actual system'
 
 
 ### BASH SCRIPT FLAGS FOR SECURITY AND DEBUGGING ###################
@@ -26,8 +30,40 @@ set -o pipefail    # CATCH failed piped commands
 set -o xtrace      # trace & expand what gets executed (useful for debug)
 
 
-### ERROR HANDLING
+### DECLARE FUNCTIONS
 
+########################################
+# Purpose: dialog to select a target block device for archlinux install
+# Arguments: $1
+# Return: the argument $1 will store a valid block device (e.g. /dev/sdX)
+########################################
+function dialog_to_input_a_target_device
+{
+  # The functions result will be stored in the variable "__resultvar".
+  local __resultvar="$1"
+  # Help the user showing the block devices available
+  local array_of_block_devices=($(lsblk | awk '/disk/{ print $1 }'))
+  printf "::List of block devices (lsblk):\n%s\n\n" "$(lsblk)"
+  printf "::Choose a device to install archlinux on:\n"
+  # The function help the user to choose and return a block device.
+  select option in "${array_of_block_devices[@]}";do
+    case "${option}" in
+      "")
+	printf "\nInvalid option. Canceling install!\n\n"
+	exit 0
+	;;
+      *)
+	# The function can't set a variable directly, but EVAL can:
+	eval "${__resultvar}"="/dev/${option}"
+	break
+	;;
+    esac
+  done
+}
+########################################
+# Purpose: ERROR HANDLING
+# Requirements: None
+########################################
 out() { printf "$1 $2\n" "${@:3}"; }
 error() { out "==> ERROR:" "$@"; } >&2
 warning() { out "==> WARNING:" "$@"; } >&2
@@ -44,10 +80,34 @@ read -sp "Enter ROOT password: " root_password
 read -p "Enter NEW user: " user_name
 read -sp "Enter NEW user PASSWORD: " user_password
 user_shell=/bin/zsh
-hdd_partitioning=/dev/sda
 keyboard_keymap=es
 local_time=/Europe/Berlin
 SECONDS=0
+
+machine="$(dmidecode -s system-manufacturer)"
+[[ "${machine}" == "innotek GmbH" ]] && MACHINE='VBox' || MACHINE='Real'
+export MACHINE
+if [[ ! "${MACHINE}" == 'Real' ]]; then
+  hdd_partitioning=/dev/sda
+else
+  # choose installation target device
+  printf "Installing archlinux iso in ${target_device}\n"
+  response=" "
+  until [[ "${answer}" =~ ^([yY])$ ]]; do
+    dialog_to_input_a_target_device hdd_partitioning
+    read -p "Confirm install iso in ${hdd_partitioning}?[y/N]" answer
+  done
+  # umount target device, if mounted previously
+  if mount | grep -q "${hdd_partitioning}"; then
+    limit="$(($(mount | grep "${hdd_partitioning}" | wc -l )+1))"
+    for ((i = 1 ; i < "${limit}" ; i++)); do
+      warning " ${hdd_partitioning}${limit} is mounted, umounting..."
+      sudo umount "${hdd_partitioning}${i}" \
+	|| die "can not umount ${target_device}"
+    done
+    printf "::List of block devices available:\n%s\n\n" "$(lsblk)"
+  fi
+fi
 
 
 ### EXPORT VARIABLES (required for script2.sh)
@@ -174,11 +234,6 @@ Packages+=('xfce4-pulseaudio-plugin' 'xfce4-screenshooter')
 Packages+=('pavucontrol' 'pavucontrol-qt')
 Packages+=('papirus-icon-theme')
 # add packages required for install in Real Machine or virtual (VBox)
-pacman -S --noconfirm dmidecode \
-  || die 'can not install dmidecode required to identify actual system'
-machine="$(dmidecode -s system-manufacturer)"
-[[ "$machine" == "innotek GmbH" ]] && MACHINE='VBox' || MACHINE='Real'
-export MACHINE
 ## if Real Machine, install:
 if [[ "${MACHINE}" == "Real" ]]; then
   # hardware support packages
