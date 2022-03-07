@@ -21,13 +21,13 @@ pacman -S --noconfirm dmidecode \
 ### BASH SCRIPT FLAGS FOR SECURITY AND DEBUGGING ###################
 
 # shopt -o noclobber # avoid file overwriting (>) but can be forced (>|)
-set +o history     # disably bash history temporarilly
-set -o errtrace    # inherit any trap on ERROR
-set -o functrace   # inherit any trap on DEBUG and RETURN
-set -o errexit     # EXIT if script command fails
-set -o nounset     # EXIT if script try to use undeclared variables
-set -o pipefail    # CATCH failed piped commands
-set -o xtrace      # trace & expand what gets executed (useful for debug)
+# set +o history     # disably bash history temporarilly
+# set -o errtrace    # inherit any trap on ERROR
+# set -o functrace   # inherit any trap on DEBUG and RETURN
+# set -o errexit     # EXIT if script command fails
+# set -o nounset     # EXIT if script try to use undeclared variables
+# set -o pipefail    # CATCH failed piped commands
+# set -o xtrace      # trace & expand what gets executed (useful for debug)
 
 
 ### DECLARE FUNCTIONS
@@ -68,7 +68,7 @@ function dialog_get_target_device
     # choose installation target device
     if mount | grep -q "${__result}"; then
       limit="$(($(mount | grep "${__result}" | wc -l )+1))"
-      for ((i = 1 ; i < "${limit}" ; i++)); do
+      for ((i = "${limit}" ; i > 0  ; i--)); do
 	warning "${__result}${i} is mounted, umounting..."
 	umount "${__result}${i}" \
 	  || die "can not umount ${__result}"
