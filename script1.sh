@@ -162,8 +162,16 @@ parted -s "${target_device}" \
   || die "Can not partition the drive %s" "${target_device}"
 
 ## HDD patitions formating (-F=overwrite if necessary)
-mkfs.ext2 -F "${target_device}1" || die "can not format $_"
-mkfs.ext4 -F "${target_device}2" || die "can not format $_"
+if [[ "${drive_removable}" == 'no' ]]; then
+  mkfs.ext2 -F "${target_device}1" || die "can not format $_"
+  mkfs.ext4 -F "${target_device}2" || die "can not format $_"
+else
+  mkfs.ext2 -F -O "^has_journal" "${target_device}1" \
+    || die "can not format $_"
+  mkfs.ext4 -F -O "^has_journal" "${target_device}2" \
+    || die "can not format $_"
+fi
+
 
 ## HDD partitions mounting
 # root partition "/"
