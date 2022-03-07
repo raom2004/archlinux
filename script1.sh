@@ -117,6 +117,14 @@ machine="$(dmidecode -s system-manufacturer)"
 [[ "${machine}" == 'innotek GmbH' ]] && MACHINE='VBox' || MACHINE='Real'
 # variables choosed by dialog
 target_device=" "; dialog_get_target_device target_device
+drive_info="$(find /dev/disk/by-id/ -lname *${target_device##*/})" \
+  || die 'can not set ${drive_info}'
+if echo "${drive_info}" | grep -i -q 'usb\|mmcblk'; then
+  drive_removable='yes'
+else
+  drive_removable='no'
+fi
+
 
 ### EXPORT VARIABLES (required for script2.sh)
 
@@ -129,6 +137,7 @@ export target_device
 export keyboard_keymap
 export local_time
 export MACHINE
+export drive_removable
 
 
 ### SET TIME AND SYNCHRONIZE SYSTEM CLOCK

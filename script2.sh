@@ -77,9 +77,7 @@ echo "127.0.0.1	localhost
 
 ## Initramfs was run for pacstrap but must be run for LVM, encryp or USB
 # support to boot in removable media (USB stick)
-drive_info="$(find /dev/disk/by-id/ -lname *${target_device##*/})" \
-    || die 'can not set ${drive_info}'
-if echo "${drive_info}" | grep -i -q 'usb\|mmcblk'; then
+if [[ "${drive_removable}" == 'yes' ]]; then
   sed -i 's/HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)/HOOKS=(base udev block keyboard autodetect modconf filesystems fsck)/' /etc/mkinitcpio.conf      
   mkinitcpio -P
 fi
@@ -103,8 +101,18 @@ url="https://gist.githubusercontent.com/anonymous/8eb2019db2e278ba99be/raw/257f1
 wget "${url}" -O /etc/grub.d/31_hold_shift || die "can not set $_ "
 chmod a+x /etc/grub.d/31_hold_shift || die "can not set permission to $_"
 ## Install & Config a boot loader GRUB
-grub-install --target=i386-pc "${target_device}" \
-  || die "can not install grub on $_"
+if [[ "${drive_removable}" == 'no' ]]; then
+  grub-install --target=i386-pc "${target_device}" \
+    || die "can not install grub on $_"
+else
+  grub-install --target=i386-pc --removable "${target_device}" \
+    || die "can not install grub on $_"
+  echo '[Journal]
+Storage=volatile
+SystemMaxUse=16M
+RuntimeMaxUse=32M' > /etc/systemd/journald.conf.d/10-volatille.conf \
+       || die "can not create journal file $_"
+fi
 grub-mkconfig -o /boot/grub/grub.cfg || die "can not config grub"
 
 
@@ -141,8 +149,9 @@ sed -i 's/#MAKEFLAGS="-j2"/MAKEFLAGS="-j$(nproc)"/' /etc/makepkg.conf \
 ## enable ethernet and wifi
 systemctl enable dhcpcd	|| die "can not enable ethernet $_"
 systemctl enable NetworkManager || die "can not enable wifi $_"
-[[ "${MACHINE}" == 'VBox' ]] && systemctl enable vboxservice \
-    || die "can not enable virtualbox service $_"
+if [[ "${MACHINE}" == 'VBox' ]]; then
+   systemctl enable vboxservice || die "can not enable virtualbox service $_"
+fi
 
 
 ### TTY AUTOLOGING AT STARTUP
