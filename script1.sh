@@ -96,7 +96,7 @@ out() { printf "$1 $2\n" "${@:3}"; }
 error() { out "==> ERROR:" "$@"; } >&2
 warning() { out "==> WARNING:" "$@"; } >&2
 msg() { out "==>" "$@"; }
-# msg2() { out "  ->" "$@";}
+msg2() { out "  ->" "$@";}
 die() { error "$@"; exit 1; }
 
 
@@ -114,7 +114,7 @@ local_time=/Europe/Berlin
 SECONDS=0
 # variables automatically recognized
 machine="$(dmidecode -s system-manufacturer)"
-[[ "${machine}" == "innotek GmbH" ]] && MACHINE='VBox' || MACHINE='Real'
+[[ "${machine}" == 'innotek GmbH' ]] && MACHINE='VBox' || MACHINE='Real'
 # variables choosed by dialog
 target_device=" "; dialog_get_target_device target_device
 
@@ -140,9 +140,9 @@ timedatectl set-ntp true
 
 ## clear start
 if mount | grep -q "/mnt"; then
-  warning " /mnt is mounted, umounting /mnt..."
-  umount -R /mnt || die "can not umount /mnt"
-  msg "done"
+  warning '/mnt is mounted, umounting /mnt...'
+  umount -R /mnt || die 'can not umount /mnt'
+  msg2 "done"
 fi
 
 ## HDD partitioning

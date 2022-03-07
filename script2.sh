@@ -76,10 +76,10 @@ echo "127.0.0.1	localhost
 ### INIT RAM FILSESYSTEM: initramfs
 
 ## Initramfs was run for pacstrap but must be run for LVM, encryp or USB
-# TODO: support to boot in removable media (USB stick)
-drive_info="$(find /dev/disk/by-id/ -lname *${target_device##*/})"
-check_drive_removable="$(echo $drive_info | grep -i 'usb\|mmcblk')"
-if [[ -n "$check_drive_removable" ]]; then
+# support to boot in removable media (USB stick)
+drive_info="$(find /dev/disk/by-id/ -lname *${target_device##*/})" \
+    || die 'can not set ${drive_info}'
+if echo "${drive_info}" | grep -i -q 'usb\|mmcblk'; then
   sed -i 's/HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)/HOOKS=(base udev block keyboard autodetect modconf filesystems fsck)/' /etc/mkinitcpio.conf      
   mkinitcpio -P
 fi
@@ -88,10 +88,10 @@ fi
 ### BOOT LOADER (GRUB) CONFIG
 
 ## set display resolution bigger in virtual machine
-# if [[ ! "${MACHINE}" == 'Real' ]]; then
-#   sed -i 's/\(GRUB_GFX_MODE=\)\(auto\)/\11024x768x32,\2/' \
-#       /etc/default/grub || die "can not set grub custom resolution $_"
-# fi
+if [[ "${MACHINE}" == 'VBox' ]]; then
+   sed -i 's/\(GRUB_GFX_MODE=\)\(auto\)/\11024x768x32,\2/' \
+      /etc/default/grub || die "can not set grub custom resolution $_"
+fi
 ## detect additional kernels or operative systems available
 sed -i 's/#\(GRUB_DISABLE_OS_PROBER=false\)/\1/' /etc/default/grub \
   || die "can not disable grub in $_"
