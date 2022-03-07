@@ -148,9 +148,9 @@ fi
 ## HDD partitioning
 parted -s "${target_device}" \
        mklabel msdos \
-       mkpart primary ext2 0% 2% \
+       mkpart primary ext2 0% 800MB \
        set 1 boot on \
-       mkpart primary ext4 2% 100% \
+       mkpart primary ext4 800MB 100% \
   || die "Can not partition the drive %s" "${target_device}"
 
 ## HDD patitions formating (-F=overwrite if necessary)

@@ -88,10 +88,10 @@ fi
 ### BOOT LOADER (GRUB) CONFIG
 
 ## set display resolution bigger in virtual machine
-if [[ ! "${MACHINE}" == 'Real' ]]; then
-  sed -i 's/\(GRUB_GFX_MODE=\)\(auto\)/\11024x768x32,\2/' \
-      /etc/default/grub || die "can not set grub custom resolution $_"
-fi
+# if [[ ! "${MACHINE}" == 'Real' ]]; then
+#   sed -i 's/\(GRUB_GFX_MODE=\)\(auto\)/\11024x768x32,\2/' \
+#       /etc/default/grub || die "can not set grub custom resolution $_"
+# fi
 ## detect additional kernels or operative systems available
 sed -i 's/#\(GRUB_DISABLE_OS_PROBER=false\)/\1/' /etc/default/grub \
   || die "can not disable grub in $_"
