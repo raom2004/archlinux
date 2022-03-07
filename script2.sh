@@ -141,7 +141,7 @@ sed -i 's/#MAKEFLAGS="-j2"/MAKEFLAGS="-j$(nproc)"/' /etc/makepkg.conf \
 ## enable ethernet and wifi
 systemctl enable dhcpcd	|| die "can not enable ethernet $_"
 systemctl enable NetworkManager || die "can not enable wifi $_"
-[[ "${MACHINE}" == "VBox" ]] && systemctl enable vboxservice \
+[[ "${MACHINE}" == 'VBox' ]] && systemctl enable vboxservice \
     || die "can not enable virtualbox service $_"
 
 

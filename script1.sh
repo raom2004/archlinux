@@ -244,16 +244,16 @@ Packages+=('pavucontrol' 'pavucontrol-qt')
 Packages+=('papirus-icon-theme')
 # add packages required for install in Real Machine or virtual (VBox)
 ## if Real Machine, install:
-if [[ "${MACHINE}" == "Real" ]]; then
+if [[ "${MACHINE}" == 'Real' ]]; then
   # hardware support packages
   Packages+=('linux-firmware')
   # text edition - latex support
-  read -p "LATEX download take time. Install it anyway?[y/N]" response
-  [[ "${response}" =~ ^[yY]$ ]] \
-    && Packages+=('texlive-core' 'texlive-latexextra')
+  # read -p "LATEX download take time. Install it anyway?[y/N]" response
+  # [[ "${response}" =~ ^[yY]$ ]] \
+  #   && Packages+=('texlive-core' 'texlive-latexextra')
 fi
 # if VirtualBox: install guest utils package
-[[ "${MACHINE}" == "VBox" ]] && Packages+=('virtualbox-guest-utils')
+[[ "${MACHINE}" == 'VBox' ]] && Packages+=('virtualbox-guest-utils')
 
 ## Packages Instalation - pacstrap
 pacstrap /mnt --needed --noconfirm "${Packages[@]}" \
