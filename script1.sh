@@ -141,8 +141,7 @@ timedatectl set-ntp true
 ## clear start
 if mount | grep -q "/mnt"; then
   warning '/mnt is mounted, umounting /mnt...'
-  umount -R /mnt || die 'can not umount /mnt'
-  msg2 "done"
+  umount -R /mnt && msg2 "done" || die 'can not umount /mnt'
 fi
 
 ## HDD partitioning
