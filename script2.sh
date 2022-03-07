@@ -103,7 +103,7 @@ url="https://gist.githubusercontent.com/anonymous/8eb2019db2e278ba99be/raw/257f1
 wget "${url}" -O /etc/grub.d/31_hold_shift || die "can not set $_ "
 chmod a+x /etc/grub.d/31_hold_shift || die "can not set permission to $_"
 ## Install & Config a boot loader GRUB
-grub-install --target=i386-pc "${hdd_partitioning}" \
+grub-install --target=i386-pc "${target_device}" \
   || die "can not install grub on $_"
 grub-mkconfig -o /boot/grub/grub.cfg || die "can not config grub"
 
