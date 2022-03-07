@@ -107,6 +107,7 @@ if [[ "${drive_removable}" == 'no' ]]; then
 else
   grub-install --target=i386-pc --removable "${target_device}" \
     || die "can not install grub on $_"
+  mkdir -p /etc/systemd/journald.conf.d/ || die "can not create $_"
   echo '[Journal]
 Storage=volatile
 SystemMaxUse=16M
