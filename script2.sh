@@ -85,6 +85,20 @@ fi
 
 ### BOOT LOADER (GRUB) CONFIG
 
+## Install boot loader GRUB
+if [[ "${drive_removable}" == 'no' ]]; then
+  grub-install --target=i386-pc "${target_device}" \
+    || die "can not install grub on $_"
+else
+  grub-install --target=i386-pc --removable "${target_device}" \
+    || die "can not install grub on $_"
+  mkdir -p /etc/systemd/journald.conf.d/ || die "can not create $_"
+  echo '[Journal]
+Storage=volatile
+SystemMaxUse=16M
+RuntimeMaxUse=32M' > /etc/systemd/journald.conf.d/10-volatille.conf \
+       || die "can not create journal file $_"
+fi
 ## set display resolution bigger in virtual machine
 if [[ "${MACHINE}" == 'VBox' ]]; then
    sed -i 's/\(GRUB_GFX_MODE=\)\(auto\)/\11024x768x32,\2/' \
@@ -100,20 +114,7 @@ echo "GRUB_FORCE_HIDDEN_MENU=true"  >> /etc/default/grub \
 url="https://gist.githubusercontent.com/anonymous/8eb2019db2e278ba99be/raw/257f15100fd46aeeb8e33a7629b209d0a14b9975/gistfile1.sh"
 wget "${url}" -O /etc/grub.d/31_hold_shift || die "can not set $_ "
 chmod a+x /etc/grub.d/31_hold_shift || die "can not set permission to $_"
-## Install & Config a boot loader GRUB
-if [[ "${drive_removable}" == 'no' ]]; then
-  grub-install --target=i386-pc "${target_device}" \
-    || die "can not install grub on $_"
-else
-  grub-install --target=i386-pc --removable "${target_device}" \
-    || die "can not install grub on $_"
-  mkdir -p /etc/systemd/journald.conf.d/ || die "can not create $_"
-  echo '[Journal]
-Storage=volatile
-SystemMaxUse=16M
-RuntimeMaxUse=32M' > /etc/systemd/journald.conf.d/10-volatille.conf \
-       || die "can not create journal file $_"
-fi
+## Config a boot loader GRUB
 grub-mkconfig -o /boot/grub/grub.cfg || die "can not config grub"
 
 
