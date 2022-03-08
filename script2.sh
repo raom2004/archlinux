@@ -78,8 +78,10 @@ echo "127.0.0.1	localhost
 ## Initramfs was run for pacstrap but must be run for LVM, encryp or USB
 # support to boot in removable media (USB stick)
 if [[ "${drive_removable}" == 'yes' ]]; then
-  sed -i 's/HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)/HOOKS=(base udev block keyboard autodetect modconf filesystems fsck)/' /etc/mkinitcpio.conf      
-  mkinitcpio -P
+  sed -i 's/HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)/HOOKS=(base udev block keyboard autodetect modconf filesystems fsck)/' /etc/mkinitcpio.conf \
+    && msg2 "setting HOOKS for removable drive ${drive_removable}" \
+      || die "can not set KOOKS for removable drive ${drive_removable}"
+  mkinitcpio -P && msg2 "success mkinitcpio" || die "can not run mkinitcpio"
 fi
 
 
@@ -87,11 +89,11 @@ fi
 
 ## Install boot loader GRUB
 if [[ "${drive_removable}" == 'no' ]]; then
-  grub-install --target=i386-pc "${target_device}" \
-    || die "can not install grub on $_"
+  grub-install "${target_device}" \
+    && msg2 "Installing grub on $_" || die "can not install grub on $_"
 else
-  grub-install --target=i386-pc --removable "${target_device}" \
-    || die "can not install grub on $_"
+  grub-install --removable "${target_device}" \
+    && msg2 "Installing grub on $_" || die "can not install grub on $_"
   mkdir -p /etc/systemd/journald.conf.d/ || die "can not create $_"
   echo '[Journal]
 Storage=volatile
