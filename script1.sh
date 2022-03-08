@@ -13,7 +13,9 @@
 ### Requirements:
 
 ## Root Privileges
-if [[ "$EUID" -eq 0 ]]; then echo "./$0 require root priviledges"; fi 
+if [[ "$EUID" -eq 0 ]]; then
+  echo "./$0 require root priviledges"
+fi 
 pacman -S --noconfirm dmidecode \
   || die 'can not install dmidecode required to identify actual system'
 
@@ -21,13 +23,13 @@ pacman -S --noconfirm dmidecode \
 ### BASH SCRIPT FLAGS FOR SECURITY AND DEBUGGING ###################
 
 # shopt -o noclobber # avoid file overwriting (>) but can be forced (>|)
-# set +o history     # disably bash history temporarilly
-# set -o errtrace    # inherit any trap on ERROR
-# set -o functrace   # inherit any trap on DEBUG and RETURN
-# set -o errexit     # EXIT if script command fails
-# set -o nounset     # EXIT if script try to use undeclared variables
-# set -o pipefail    # CATCH failed piped commands
-# set -o xtrace      # trace & expand what gets executed (useful for debug)
+set +o history     # disably bash history temporarilly
+set -o errtrace    # inherit any trap on ERROR
+set -o functrace   # inherit any trap on DEBUG and RETURN
+set -o errexit     # EXIT if script command fails
+set -o nounset     # EXIT if script try to use undeclared variables
+set -o pipefail    # CATCH failed piped commands
+set -o xtrace      # trace & expand what gets executed (useful for debug)
 
 
 ### DECLARE FUNCTIONS
@@ -102,27 +104,45 @@ die() { error "$@"; exit 1; }
 
 ### DECLARE VARIABLES
 
-# variables that user must provide (hide passwords by -sp option)
-read -p "Enter hostname: " host_name
-read -sp "Enter ROOT password: " root_password
-read -p "Enter NEW user: " user_name
-read -sp "Enter NEW user PASSWORD: " user_password
+
 # variables fixed for archlinux install
 user_shell=/bin/zsh		# examples: /bin/zsh; /bin/bash
 keyboard_keymap=es		# examples: es; en; de; fr; it; 
 local_time=/Europe/Berlin
 SECONDS=0
 # variables automatically recognized
-machine="$(dmidecode -s system-manufacturer)"
-[[ "${machine}" == 'innotek GmbH' ]] && MACHINE='VBox' || MACHINE='Real'
-# variables choosed by dialog
+machine="$(dmidecode -s system-manufacturer)" \
+  || die "can not set variable ${machine}"
+if [[ "${machine}" == 'innotek GmbH' ]]; then
+  MACHINE='VBox' || die "can not set variable ${MACHINE}"
+else
+  MACHINE='Real' || die "can not set variable ${MACHINE}"
+fi
+# BIOS and UEFI support
+if ! ls /sys/firmware/efi/efivars >& /dev/null; then
+  boot_mode='BIOS' || die "can not set variable ${boor_mode}"
+else
+  boot_mode='UEFI' || die "can not set variable ${boor_mode}"
+fi
+# variables that user must provide (hide passwords by -sp option)
+read -p "Enter hostname: " host_name \
+  || die 'can not set variable ${host_name}'
+read -sp "Enter ROOT password: " root_password \
+  || die 'can not set variable ${root_password}'
+read -p "Enter NEW user: " user_name \
+  || die 'can not set variable ${user_name}'
+read -sp "Enter NEW user PASSWORD: " user_password \
+  || die 'can not set variable ${user_password}'
+# variables that user must provide by dialog
 target_device=" "; dialog_get_target_device target_device
 drive_info="$(find /dev/disk/by-id/ -lname *${target_device##*/})" \
   || die 'can not set ${drive_info}'
 if echo "${drive_info}" | grep -i -q 'usb\|mmcblk'; then
-  drive_removable='yes'
+  drive_removable='yes' \
+    || die 'can not set variable ${drive_removable}'
 else
-  drive_removable='no'
+  drive_removable='no' \
+    || die 'can not set variable ${drive_removable}'
 fi
 
 
@@ -142,59 +162,103 @@ export drive_removable
 
 ### SET TIME AND SYNCHRONIZE SYSTEM CLOCK
 
-timedatectl set-ntp true
+timedatectl set-ntp true \
+  || die "can not set time/date"
 
 
 ### HDD PARTITIONING (BIOS/MBR)
 
 ## clear start
-if mount | grep -q "/mnt"; then
+if mount | grep -q '/mnt'; then
   warning '/mnt is mounted, umounting /mnt...'
   umount -R /mnt && msg2 "done" || die 'can not umount /mnt'
 fi
 
-## HDD partitioning
-parted -s "${target_device}" \
-       mklabel msdos \
-       mkpart primary ext2 0% 800MB \
-       set 1 boot on \
-       mkpart primary ext4 800MB 100% \
-  || die "Can not partition the drive %s" "${target_device}"
 
-## HDD patitions formating (-F=overwrite if necessary)
-if [[ "${drive_removable}" == 'no' ]]; then
-  mkfs.ext2 -F "${target_device}1" || die "can not format $_"
-  mkfs.ext4 -F "${target_device}2" || die "can not format $_"
-else
-  mkfs.ext2 -F -O "^has_journal" "${target_device}1" \
-    || die "can not format $_"
-  mkfs.ext4 -F -O "^has_journal" "${target_device}2" \
-    || die "can not format $_"
+if [[ "${boot_mode}" == 'BIOS' ]]; then
+  printf "BIOS detected! Choose GPT or MBR partition table:\n"
+  select OPTION in MBR GPT; do
+    case "${OPTION}" in
+      MBR)
+	## HDD partitioning (BIOS/MBR)
+	parted -s "${target_device}" \
+	       mklabel msdos \
+	       mkpart primary ext4 0% 100% \
+	       set 1 boot on \
+	  && msg2 "%s successful MBR partitioned" "${target_device}" \
+	    || die "Can not partition MBR %s" "${target_device}"
+	## HDD formating (-F: overwrite if necessary)
+	if [[ "${drive_removable}" == 'no' ]]; then
+	  mkfs.ext4 -F "${target_device}1" \
+	    || die "can not format $_"
+	else
+	  mkfs.ext4 -F -O "^has_journal" "${target_device}1" \
+	    || die "can not format $_"
+	fi
+	## HDD mounting
+	mount "${target_device}1" /mnt \
+	  || die "can not mount ${target_device}1"
+	break
+	;;
+      GPT)
+	## HDD partitioning (BIOS/GPT)
+	parted -s "${target_device}" \
+	       mklabel gpt \
+	       mkpart primary ext2 0% 2MiB \
+	       set 1 bios_grub on \
+	       mkpart primary ext4 2MiB 100% \
+	  && msg2 "%s successful GPT partitioned" "${target_device}" \
+	    || die "Can not partition GPT %s" "${target_device}"
+	
+	## HDD formating (-F: overwrite if necessary)
+	if [[ "${drive_removable}" == 'no' ]]; then
+	  mkfs.ext4 -F "${target_device}2" \
+	    || die "can not format $_"
+	else
+	  mkfs.ext4 -F -O "^has_journal" "${target_device}2" \
+	    || die "can not format $_"
+	fi
+	## HDD mounting
+	mount "${target_device}2" /mnt \
+	  || die "can not mount ${target_device}2"
+	break
+	;;
+    esac
+  done
 fi
 
 
-## HDD partitions mounting
-# root partition "/"
-mount "${target_device}2" /mnt \
-  || die "can not mount $_ in ${target_device}2"
-# boot partition "/boot"
-mkdir /mnt/boot || die "can not create discrete partition $_"
-mount "${target_device}1" /mnt/boot \
-  || die "can not mount $_ in ${target_device}1"
+if [[ "${boot_mode}" == 'UEFI' ]]; then
+  ## HDD partitioning (UEFI/GPT)
+  parted -s "${target_device}" \
+	 mklabel gpt \
+	 mkpart primary 0% 512MiB \
+	 set 1 esp on \
+	 mkpart primary 512MiB 100% \
+    && msg2 "%s successful GPT partitioned" "${target_device}" \
+      || die "Can not partition GPT %s" "${target_device}"
+
+  ## HDD formating (-F: overwrite if necessary)
+  mkfs.fat -F32 "${target_device}1" \
+    || die "can not format $_"
+  mkfs.ext4 -F "${target_device}2" \
+    || die "can not format $_"
+
+  ## HDD mounting
+  mount "${target_device}2" /mnt \
+    || die "can not mount $_ in ${target_device}2"
+  mkdir -p /mnt/boot/efi \
+    || die "can not create discrete partition $_"
+  mount "${target_device}1" /mnt/boot/efi \
+    || die "can not mount $_ in ${target_device}1"
+fi
 
 
 ### REQUIREMENTS BEFORE SYSTEM PACKAGES INSTALLATION
 
 ## update keyring
 pacman -Syy --noconfirm archlinux-keyring \
-  || die 'can not install updated pacman keyring'
-
-## Get Current Boot Mode:
-if ! ls /sys/firmware/efi/efivars 2>/dev/null; then
-  boot_mode='BIOS'
-else
-  boot_mode='UEFI'
-fi
+  || die 'can not updated keyring'
 
 
 ### SYSTEM PACKAGES INSTALLATION
@@ -219,7 +283,7 @@ Packages+=('networkmanager')
 # boot loader
 Packages+=('grub' 'os-prober')
 # UEFI boot support
-[[ "${boot_mode}" == 'UEFI' ]] && Packages+=('efibootmgr')
+if [[ "${boot_mode}" == 'UEFI' ]]; then Packages+=('efibootmgr'); fi
 # multi-OS support
 Packages+=('usbutils' 'dosfstools' 'ntfs-3g' 'amd-ucode' 'intel-ucode')
 # backup
@@ -266,10 +330,10 @@ if [[ "${MACHINE}" == 'Real' ]]; then
   # text edition - latex support
   # read -p "LATEX download take time. Install it anyway?[y/N]" response
   # [[ "${response}" =~ ^[yY]$ ]] \
-  #   && Packages+=('texlive-core' 'texlive-latexextra')
+    #   && Packages+=('texlive-core' 'texlive-latexextra')
 fi
 # if VirtualBox: install guest utils package
-[[ "${MACHINE}" == 'VBox' ]] && Packages+=('virtualbox-guest-utils')
+if [[ "${MACHINE}" == 'VBox' ]]; then Packages+=('virtualbox-guest-utils'); fi
 
 ## Packages Instalation - pacstrap
 pacstrap /mnt --needed --noconfirm "${Packages[@]}" \
@@ -296,9 +360,9 @@ rm /mnt/home/script2.sh || die "can not remove $_"
 # option 1: /home/user/Projects/archlinux/script3.sh
 # option 2 (deprecated): /home/user/script3.sh
 # cp ./script3.sh /mnt/home/"${user_name}"/script3.sh \
-#   || die "can not copy $_"
+  #   || die "can not copy $_"
 # chmod +x /mnt/home/"${user_name}"/script3.sh \
-#   || die "can not set executable $_"
+  #   || die "can not set executable $_"
 
 
 ### DOTFILES
