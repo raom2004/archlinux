@@ -314,8 +314,11 @@ Packages+=('hunspell'
 Packages+=('xorg-server' 'xorg-xrandr' 'xterm')
 # Display driver - Nvidia support
 if lspci -k | grep -e "3D.*NVIDIA" &>/dev/null; then
-  [[ "${Packages[*]}" =~ 'linux-lts' ]] && Packages+=('nvidia-lts')
-  [[ "${Packages[*]}" =~ 'linux' ]] && Packages+=('nvidia')
+      read -p "\n::Install Nvidia drivers?[y/N] " answer
+      if [[ "${answer}" =~ ^([yY])$ ]]; then
+	[[ "${Packages[*]}" =~ 'linux-lts' ]] && Packages+=('nvidia-lts')
+	[[ "${Packages[*]}" =~ 'linux' ]] && Packages+=('nvidia')
+      fi
 fi
 # Desktop environment
 Packages+=('xfce4')
