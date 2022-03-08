@@ -89,10 +89,10 @@ fi
 
 ## Install boot loader GRUB
 if [[ "${drive_removable}" == 'no' ]]; then
-  grub-install "${target_device}" \
+  grub-install --target=i386-pc "${target_device}" \
     && msg2 "Installing grub on $_" || die "can not install grub on $_"
 else
-  grub-install --removable "${target_device}" \
+  grub-install --target=i386-pc --debug --removable "${target_device}" \
     && msg2 "Installing grub on $_" || die "can not install grub on $_"
   mkdir -p /etc/systemd/journald.conf.d/ || die "can not create $_"
   echo '[Journal]
