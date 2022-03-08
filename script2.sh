@@ -32,9 +32,9 @@ set -o xtrace      # trace & expand what gets executed (useful for debug)
 
 out() { printf "$1 $2\n" "${@:3}"; }
 error() { out "==> ERROR:" "$@"; } >&2
-# warning() { out "==> WARNING:" "$@"; } >&2
-# msg() { out "==>" "$@"; }
-# msg2() { out "  ->" "$@";}
+warning() { out "==> WARNING:" "$@"; } >&2
+msg() { out "==>" "$@"; }
+msg2() { out "  ->" "$@";}
 die() { error "$@"; exit 1; }
 
 
