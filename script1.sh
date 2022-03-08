@@ -68,15 +68,15 @@ function dialog_get_target_device
       read -p "\n::Confirm install iso in ${__result}?[y/N]" answer
     done
     # choose installation target device
-    if mount | grep -q "${__result}"; then
-      limit="$(($(mount | grep "${__result}" | wc -l )+1))"
-      for ((i = "${limit}" ; i > 0  ; i--)); do
-	warning "${__result}${i} is mounted, umounting..."
-	umount "${__result}${i}" \
-	  || die "can not umount ${__result}"
-      done
-      printf "::List of block devices updated:\n%s\n\n" "$(lsblk)"
-    fi
+    # if mount | grep -q "${__result}"; then
+    #   limit="$(($(mount | grep "${__result}" | wc -l )+1))"
+    #   for ((i = "${limit}" ; i > 0  ; i--)); do
+    # 	warning "${__result}${i} is mounted, umounting..."
+    # 	umount "${__result}${i}" \
+    # 	  || die "can not umount ${__result}"
+    #   done
+    #   printf "::List of block devices updated:\n%s\n\n" "$(lsblk)"
+    # fi
   }
   # The functions result will be stored in the variable "__resultvar".
   # Thus, the "target_device" will have the value of "__resultvar".
