@@ -330,6 +330,8 @@ if [[ "${MACHINE}" == 'Real' ]]; then
   Packages+=('linux-firmware')
   # video players
   Packages+=('mpv' 'vlc')
+  # Audio players
+  Packages+=('audacious' 'audacity')
   # pdf viewer
   Packages+=('okular')
   # text edition - latex support
