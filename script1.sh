@@ -327,6 +327,10 @@ Packages+=('papirus-icon-theme')
 if [[ "${MACHINE}" == 'Real' ]]; then
   # hardware support packages
   Packages+=('linux-firmware')
+  # video players
+  Packages+=('mpv' 'vlc')
+  # pdf viewer
+  Packages+=('okular')
   # text edition - latex support
   # read -p "LATEX download take time. Install it anyway?[y/N]" response
   # [[ "${response}" =~ ^[yY]$ ]] \
@@ -348,7 +352,8 @@ genfstab -L /mnt >> /mnt/etc/fstab || die 'can not generate $_'
 if [[ "${MACHINE}" == 'Real' ]]; then
   # desired result:
   #  LABEL=xxx /dir ext4 rw,nosuid,nodev,user_id=0,group_id=0,allow_other,blksize=4096 0 0
-  # code example: mount --types ext4 /dev/sda1 /dir -o noatime,nodev,nosuid
+  # code example:
+  #  mount --types ext4 /dev/sdxY /dir -o noatime,nodev,nosuid
   mount_drive="$(lsblk -f | awk '/lack/{ print $0 }')" \
     || die 'can not set ${mount_drive}'
   if [[ -n "${mount_drive}" ]]; then
