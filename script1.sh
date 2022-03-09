@@ -321,6 +321,7 @@ fi
 Packages+=('xfce4')
 Packages+=('xfce4-pulseaudio-plugin' 'xfce4-screenshooter')
 Packages+=('pavucontrol' 'pavucontrol-qt')
+Packages+=('network-manager-applet')
 Packages+=('papirus-icon-theme')
 # add packages required for install in Real Machine or virtual (VBox)
 ## if Real Machine, install:
