@@ -334,6 +334,8 @@ if [[ "${MACHINE}" == 'Real' ]]; then
   Packages+=('audacious' 'audacity')
   # pdf viewer
   Packages+=('okular')
+  # browser
+  Packages+=('firefox')
   # text edition - latex support
   # read -p "LATEX download take time. Install it anyway?[y/N]" response
   # [[ "${response}" =~ ^[yY]$ ]] \
