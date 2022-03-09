@@ -73,7 +73,7 @@ function dialog_get_target_device
     #   for ((i = "${limit}" ; i > 0  ; i--)); do
     # 	warning "${__result}${i} is mounted, umounting..."
     # 	umount "${__result}${i}" \
-    # 	  || die "can not umount ${__result}"
+      # 	  || die "can not umount ${__result}"
     #   done
     #   printf "::List of block devices updated:\n%s\n\n" "$(lsblk)"
     # fi
@@ -343,6 +343,29 @@ pacstrap /mnt --needed --noconfirm "${Packages[@]}" \
 ### GENERATE FILE SYSTEM TABLE
 
 genfstab -L /mnt >> /mnt/etc/fstab || die 'can not generate $_'
+
+# if present, add aditional hardware to fstab 
+if [[ "${MACHINE}" == 'Real' ]]; then
+  # desired result:
+  #  LABEL=xxx /dir ext4 rw,nosuid,nodev,user_id=0,group_id=0,allow_other,blksize=4096 0 0
+  # code example: mount --types ext4 /dev/sda1 /dir -o noatime,nodev,nosuid
+  mount_drive="$(lsblk -f | awk '/lack/{ print $0 }')" \
+    || die 'can not set ${mount_drive}'
+  if [[ -n "${mount_drive}" ]]; then
+    tmp_array=( $mount_drive )
+    my_drive="${tmp_array[0]:2}" || die 'can not set my_drive'
+    my_fs="${tmp_array[1]}" || die 'can not set my_fs'
+    my_label="${tmp_array[2]}" || die 'can not set my_label'
+    my_UUID="${tmp_array[3]}" || die 'can not set my_UUID'
+    my_path=/run/media/"${user_name}"/"${my_label}" \
+	|| die 'can not set ${my_path} in ${my_drive}'
+      echo "# ${my_UUID}
+/dev/${my_drive:2} 									${my_path} 		${my_fs} 	uid=1000,gid=1000,umask=0022,fmask=133 	0 0
+" >> /etc/fstab || die "can not add ${my_drive} to $_"
+      unset my_path || die "can not unset $_"
+      unset mount_drive || die "can not unset $_"
+    fi
+fi
 
 
 ### SCRIPTING INSIDE CHROOT
