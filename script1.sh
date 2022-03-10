@@ -316,6 +316,8 @@ Packages+=('xorg-server' 'xorg-xrandr' 'xterm')
 if lspci -k | grep -e "3D.*NVIDIA" &>/dev/null; then
   [[ "${Packages[*]}" =~ 'linux-lts' ]] && Packages+=('nvidia-lts')
   [[ "${Packages[*]}" =~ 'linux' ]] && Packages+=('nvidia')
+  # nvidia monitoring tool
+  Packages+=('nvtop')
 fi
 # Desktop environment
 Packages+=('xfce4')
@@ -328,6 +330,8 @@ Packages+=('papirus-icon-theme')
 if [[ "${MACHINE}" == 'Real' ]]; then
   # hardware support packages
   Packages+=('linux-firmware')
+  # video recorder
+  Packages+=('obs-studio')
   # video players
   Packages+=('mpv' 'vlc')
   # Audio players
