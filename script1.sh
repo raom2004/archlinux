@@ -271,7 +271,7 @@ Packages+=('zsh')
 # tools
 Packages+=('sudo' 'git' 'wget')
 # mounting tools (required for filemanagers)
-Packages+=('gvfs')
+Packages+=('gvfs' 'udiskie')
 # lightweight text editors
 Packages+=('vim')
 # lightweight image editors

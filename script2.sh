@@ -208,7 +208,9 @@ head -n50 /etc/X11/xinit/xinitrc > $HOME/.xinitrc \
   || die "can not create $_ from template /etc/X11/xinit/xinitrc"
 # set keyboard keymap in .xinitrc
 echo "setxkbmap ${keyboard_keymap}" >> $HOME/.xinitrc \
-  || die "can not set keymap by setxkbmap"
+  || die "can not add keymap in $_"
+echo "udiskie &" >> $HOME/.xinitrc \
+  || die "can not add udiskie in $_ (required for drive automount)"
 unset keyboard_keymap || die "can not unset $_"
 # set xfce as default and let place to add other desktops in the future 
 echo '# Here Xfce is kept as default
