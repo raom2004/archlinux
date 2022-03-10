@@ -222,6 +222,15 @@ case $session in
     *                 ) exec $1;;
 esac
 ' >> $HOME/.xinitrc || die "can not set xfce4 desktop in ~/.xinitrc"
+# ~/.serverrc
+# In order to maintain an authenticated session with logind and to
+# prevent bypassing the screen locker by switching terminals,
+# it is recommended to specify vt$XDG_VTNR in the ~/.xserverrc file: 
+echo '#!/bin/sh
+
+exec /usr/bin/Xorg -nolisten tcp -nolisten local "$@" vt$XDG_VTNR
+' > $HOME/.xserverrc
+
 
 ## install vim plugin manager
 url=https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim

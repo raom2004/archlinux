@@ -33,6 +33,10 @@ pactl -- set-sink-mute 0 0	# turn on audio
 pactl -- set-sink-volume 0 50%	# set volume
 
 
+## Disable saved sessions
+xfconf-query -c xfce4-session -p /general/SaveOnExit -s false
+
+
 ## install theme, icons and wallpaper
 # create dot directories
 mkdir -p $HOME/.{themes,icons,wallpapers}
@@ -123,14 +127,15 @@ xfconf-query -c xfce4-desktop \
 xfconf-query -c xsettings -p /Net/EnableEventSounds --set true
 
 ## config xfce panel
-my_bar_position="$(xrandr | awk -F'x' '/*/{ printf $1-8 }' )"
-xfconf-query -c xfce4-panel -p /panels/panel-2/position \
-	     --set "p=1;x=${my_bar_position};y=200"
-xfconf-query -c xfce4-panel -p /panels/panel-2/position-locked \
-	     --set true
-xfconf-query -c xfce4-panel -p /panels/panel-2/mode \
-	     -n -t int \
-	     --set 1
+# my_bar_position="$(xrandr | awk -F'x' '/*/{ printf $1-8 }' )"
+# xfconf-query -c xfce4-panel -p /panels/panel-2/position \
+# 	     --set "p=1;x=${my_bar_position};y=200"
+# # bar positioning: --set p=(0:left,1:right);x=#;y=#
+# xfconf-query -c xfce4-panel -p /panels/panel-2/position-locked \
+# 	     --set true
+# xfconf-query -c xfce4-panel -p /panels/panel-2/mode \
+# 	     -n -t int \
+# 	     --set 1 		# --set 0:horizontal; 1:vertical
 xfconf-query -c xfce4-panel -p /panels/panel-2/enter-opacity \
 	     -n -t int \
 	     --set 65
