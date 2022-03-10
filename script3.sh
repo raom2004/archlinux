@@ -188,22 +188,11 @@ rm -rf $HOME/.config/autostart/script3.desktop  # remove autostart file
 
 ## in virtualbox: share folder and run emacs customized
 source $HOME/Projects/archlinux_install_report/installation_report
-if [[ "${MACHINE}" == "VBox" ]]; then
+if [[ "${MACHINE}" == 'VBox' ]]; then
   xrandr -s 1920x1080		# set screen size to 2k
     #https://www.techrepublic.com/article/how-to-create-a-shared-folder-in-virtualbox/
   # sudo mount -t vboxsf shared ~/shared
   echo -e "${user_password}" | sudo -S bash -c "echo \"shared $HOME/shared vboxsf uid=1000,gid=1000 0 0\" >> /etc/fstab"
-
-  ## run native emacs on startup
-  echo "[Desktop Entry]
-Type=Application
-Name=native emacs
-Comment[C]=run emacs on start up with dark theme
-Terminal=false
-Exec=emacs --eval \"(progn (load-theme 'misterioso)(set-cursor-color \\\"turquoise1\\\"))\"
-X-GNOME-Autostart-enabled=true
-NoDisplay=false
-" > $HOME/.config/autostart/nemacs.desktop
 
   ## run customized emacs on startup
   echo '[Desktop Entry]
@@ -215,20 +204,40 @@ Exec=xfce4-terminal -e "bash -c \"bash \$HOME/shared/emacs-installer.sh; exec ba
 X-GNOME-Autostart-enabled=true
 NoDisplay=false
 ' > $HOME/.config/autostart/cemacs.desktop
-fi
 
+## run native emacs on startup
+echo "[Desktop Entry]
+Type=Application
+Name=native emacs
+Comment[C]=run emacs on start up with dark theme
+Terminal=false
+Exec=emacs --eval \"(progn (load-theme 'misterioso)(set-cursor-color \\\"turquoise1\\\"))\"
+X-GNOME-Autostart-enabled=true
+NoDisplay=false
+" > $HOME/.config/autostart/nemacs.desktop
+
+## run thunar in specific folder
 echo '[Desktop Entry]
 Encoding=UTF-8
 Version=0.9.4
 Type=Application
 Name=thunar startup
 Comment=startup filemanager in specific folder
-Exec=thunar shared
+Exec=thunar 
 OnlyShowIn=XFCE;
 RunHook=0
 StartupNotify=false
 Terminal=false
 Hidden=false' > $HOME/.config/autostart/thunar.desktop
+else
+  my_emacs_path="$(lsblk -f | awk '/run.*_EXT/{ print $7 }')" \
+    || die 'can not set ${my_emacs_path}'
+  if [[ -n "${my_emacs_path}" ]]; then
+    ## install emacs customized
+    bash "${my_emacs_path}"/emacs-installer.sh
+  fi
+fi
+
 
 ## report time required to install archlinux
 duration=$SECONDS
