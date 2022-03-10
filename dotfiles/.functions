@@ -193,8 +193,28 @@ function my_vim_install
 
 function my_git_config
 {
-  if [[ -f "/run/media/$USER/TOSHIBA_EXT/.gitrc" ]]; then
-    git config --global -f "/run/media/$USER/TOSHIBA_EXT/.gitrc"
+  if [[ ! -f "$HOME/.gitconfig" ]]; then
+    if mount | grep -q _EXT; then
+      # automatic configuration
+      bash "/run/media/$USER/TOSHIBA_EXT/.gitrc" \
+        || echo "ERROR: can not run script $_"
+    else
+      # manual configuration
+      read -p "::Insert git global user NAME: " git_username \
+	   || echo "ERROR: can not set $_"
+      git config user.name "${git_username}" \
+	   || echo "ERROR: can not set git config user.name $_"
+      read -p "::Insert git global user MAIL: " git_usermail \
+	   || echo "ERROR: can not set $_"
+      git config user.mail "${git_usermail}" \
+	   || echo "ERROR: can not set git config user.mail $_"
+      read -p "::Insert git global editor (vim,emacs): " git_editor \
+	   || echo "ERROR: can not set $_"
+      git config core.editor "${git_editor}" \
+	   || echo "ERROR: can not set git config core.editor $_"
+      git config credential.helper "cache" \
+	   || echo "ERROR: can not set git config credential.helper $_"
+    fi
   fi
 }
 
