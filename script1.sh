@@ -340,6 +340,9 @@ if [[ "${MACHINE}" == 'Real' ]]; then
   Packages+=('okular')
   # browser
   Packages+=('firefox')
+  # text editor
+  Packages+=('libreoffice-fresh' 'libreoffice-fresh-de')
+  Packages+=('libreoffice-fresh-en-gb' 'libreoffice-fresh-es')
   # text edition - latex support
   # read -p "LATEX download take time. Install it anyway?[y/N]" response
   # [[ "${response}" =~ ^[yY]$ ]] \
