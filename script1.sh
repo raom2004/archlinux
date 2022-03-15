@@ -269,8 +269,10 @@ Packages=('base' 'linux')
 # shell 	
 Packages+=('zsh')
 # tools
-Packages+=('sudo' 'git' 'wget')
-# mounting tools (required for filemanagers)
+Packages+=('sudo' 'git' 'wget' 'make')
+# file manager
+Packages+=('nemo')
+# mounting tools for filemanagers
 Packages+=('gvfs' 'udiskie')
 # lightweight text editors
 Packages+=('vim')
