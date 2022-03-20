@@ -313,7 +313,7 @@ Packages+=('hunspell'
 
 ## Graphical User Interface:
 # Display server - xorg (because wayland has not support nvidia CUDA yet)
-Packages+=('xorg-server' 'xorg-xrandr' 'xterm')
+Packages+=('xorg-server' 'xorg-xrandr' 'xterm' 'xorg-xwininfo')
 # Display driver - Nvidia support
 if lspci -k | grep -e "3D.*NVIDIA" &>/dev/null; then
   [[ "${Packages[*]}" =~ 'linux-lts' ]] && Packages+=('nvidia-lts')
