@@ -129,13 +129,13 @@ xfconf-query -c xsettings -p /Net/EnableEventSounds --set true
 ## config xfce panel
 # my_bar_position="$(xrandr | awk -F'x' '/*/{ printf $1-8 }' )"
 # xfconf-query -c xfce4-panel -p /panels/panel-2/position \
-# 	     --set "p=1;x=${my_bar_position};y=200"
+  # 	     --set "p=1;x=${my_bar_position};y=200"
 # # bar positioning: --set p=(0:left,1:right);x=#;y=#
 # xfconf-query -c xfce4-panel -p /panels/panel-2/position-locked \
-# 	     --set true
+  # 	     --set true
 # xfconf-query -c xfce4-panel -p /panels/panel-2/mode \
-# 	     -n -t int \
-# 	     --set 1 		# --set 0:horizontal; 1:vertical
+  # 	     -n -t int \
+  # 	     --set 1 		# --set 0:horizontal; 1:vertical
 xfconf-query -c xfce4-panel -p /panels/panel-2/enter-opacity \
 	     -n -t int \
 	     --set 65
@@ -190,7 +190,7 @@ rm -rf $HOME/.config/autostart/script3.desktop  # remove autostart file
 source $HOME/Projects/archlinux_install_report/installation_report
 if [[ "${MACHINE}" == 'VBox' ]]; then
   xrandr -s 1920x1080		# set screen size to 2k
-    #https://www.techrepublic.com/article/how-to-create-a-shared-folder-in-virtualbox/
+  #https://www.techrepublic.com/article/how-to-create-a-shared-folder-in-virtualbox/
   # sudo mount -t vboxsf shared ~/shared
   echo -e "${user_password}" | sudo -S bash -c "echo \"shared $HOME/shared vboxsf uid=1000,gid=1000 0 0\" >> /etc/fstab"
 
@@ -205,8 +205,8 @@ X-GNOME-Autostart-enabled=true
 NoDisplay=false
 ' > $HOME/.config/autostart/cemacs.desktop
 
-## run native emacs on startup
-echo "[Desktop Entry]
+  ## run native emacs on startup
+  echo "[Desktop Entry]
 Type=Application
 Name=native emacs
 Comment[C]=run emacs on start up with dark theme
@@ -216,8 +216,8 @@ X-GNOME-Autostart-enabled=true
 NoDisplay=false
 " > $HOME/.config/autostart/nemacs.desktop
 
-## run thunar in specific folder
-echo '[Desktop Entry]
+  ## run thunar in specific folder
+  echo '[Desktop Entry]
 Encoding=UTF-8
 Version=0.9.4
 Type=Application
