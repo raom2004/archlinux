@@ -9,6 +9,55 @@
 
 ########################################
 # Purpose:
+#  ERROR HANDLING
+# Usage:  
+#  die
+########################################
+
+out() { printf "$1 $2\n" "${@:3}"; }
+error() { out "==> ERROR:" "$@"; } >&2
+warning() { out "==> WARNING:" "$@"; } >&2
+msg() { out "==>" "$@"; }
+msg2() { out "  ->" "$@";}
+die() { error "$@"; exit 1; }
+
+########################################
+# Purpose:
+#  function to test bash commands and
+#  generate a file log when command files
+# Dependencies: positional arguments = $@
+# Usage:  
+#  try <<command>>
+########################################
+
+# function try 
+# {
+#   set -o errtrace    # inherit any trap on ERROR
+#   "$@"
+#   set +o errtrace    # turn off the flag
+# }
+
+function try
+{
+    # set -o pipefail -e
+    # set -o errexit
+    set -o xtrace
+    "$@"
+    status=$?
+    if [ $status -eq 1 ]; then
+	# echo "ERROR in command: $@"
+      (echo "ERROR in command: $@") 2>&1 | tee -a "$0".log
+      die "please verify errors reported in ls $(${0}.log)"
+    elif [ $status -eq 0 ]; then
+	echo "..$@ ..command succeded"
+    fi
+    set +o xtrace
+    # set +o errexit
+    # set +o pipefail +e
+}
+
+########################################
+# Purpose:
 #  A function to redirect the stdout (1) stderror (2)
 #  of a command to /dev/null
 # Usage:  
@@ -32,25 +81,11 @@ function amiroot
 # Usage:  
 #  nullify program arg1 arg2
 ########################################
-
 function nullify 
 {
   "$@" >/dev/null 2>&1
   # you can also use:
   # "$@" >& /dev/null
-}
-
-
-########################################
-# Purpose: function to test bash commands
-# Dependencies: positional arguments = $@
-########################################
-
-function try 
-{
-  set -o errtrace    # inherit any trap on ERROR
-  "$@"
-  set +o errtrace    # turn off the flag
 }
 
 
@@ -64,6 +99,7 @@ function check_internet
   # if internet offline, please exit
   if ! wget -q --spider http://google.com; then
     printf "ERROR in internet conection!, exiting %s\n" "${0}"
+    sleep 3
     exit 0
   fi
 } 
@@ -83,23 +119,24 @@ function aur
   ## check positional argument
   if (( "$#" -eq 0 )); then
     echo "$0 requires an argument, can be an aur package NAME or URL"
+    sleep 3
     exit 0
   fi
   
   ##  FLASH FLAGS FOR SECURITY AND DEBUGGING
-  set -o errexit		# EXIT if script command fails
-  set -o xtrace			# trace & expand what gets executed
+  # set -o errexit		# EXIT if script command fails
+  # set -o xtrace			# trace & expand what gets executed
 
   ## complete the AUR URL if user provided only the package name
   if [[ ! "$1" == *"https://"* ]];then
     # set the value of $1
-    set -- "$(printf "https://aur.archlinux.org/%s.git" "$1")"
+    try set -- "$(printf "https://aur.archlinux.org/%s.git" "$1")"
   fi
 
   ## check if user provided a valid git repo
   verify_if_git_repo_exists="$(git ls-remote $1 HEAD)"
   if (( "${#check_if_git_repo_exists}" -eq 0 )); then
-    printf "Git repository not found or incorrect:\n%s\n" "$1"
+    warning "Git repository not found or incorrect: \n%s\n" "$1"
     sleep 3
     exit 0
   fi
@@ -108,7 +145,7 @@ function aur
   package_name="$(basename $1 .git)"
   search_package_in_system="$(pacman -Qm ${package_name})"
   if [[ -n "${search_package_in_system}" ]]; then
-    printf "AUR package %s is already on system\n" "${package_name}"
+    warning "AUR package %s is already on system\n" "${package_name}"
     sleep 3
     exit 0
   fi
@@ -117,11 +154,11 @@ function aur
   [[ -d /tmp/"${package_name}" ]] && rm -rf /tmp/"${package_name}"
 
   ## install aur package after check it was not previously installed
-  printf "installing AUR package %s\n" "${package_name}"
-  git clone "$1" /tmp/"${package_name}"
-  cd /tmp/"${package_name}"
-  makepkg -Ccsri --noconfirm --needed
-  cd "${OLDPWD}"
+  msg "installing AUR package %s\n" "${package_name}"
+  try git clone "$1" /tmp/"${package_name}"
+  try cd /tmp/"${package_name}"
+  try makepkg -Ccsri --noconfirm --needed
+  try cd "${OLDPWD}"
 }
 
 
