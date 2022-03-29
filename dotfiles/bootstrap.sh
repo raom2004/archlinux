@@ -3,13 +3,16 @@
 # ./bootstrap.sh
 #  synchronize dotfile from working directory to $HOME/
 # Requirements: rsync
+#
+### CODE:
+
+printf "::Initializing... \n\n"
 if ! pacman -Qs rsync; then 
-  echo "rsync: Command not found but required."
-  read -p "Do you want to install rsync? (Y/n) " -n 1
+  echo "WARNING: 'rsync' not found but required."
+  read -p "Do you want to install rsync? [Y/n] " -n 1
   echo ""
   if [[ ! "$REPLY" =~ ^([nN][oO]|[nN])$ ]]; then
-    sudo pacman -Syu --needed --noconfirm \
-	 rsync 
+    sudo pacman -Syu --needed --noconfirm rsync 
   fi
 fi
 
