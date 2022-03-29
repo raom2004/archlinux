@@ -8,7 +8,7 @@
 # Source some stuff
 #-----------------------------
 # shell aliases and functions
-for file in ~/.{aliases,functions}; do
+for file in ~/.{aliases,private_aliases,functions}; do
   [[ -r "${file}" ]] && [[ -f "${file}" ]] && source "${file}"
 done
 unset file
