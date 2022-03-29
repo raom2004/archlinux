@@ -265,7 +265,11 @@ pacman -Syy --noconfirm archlinux-keyring \
 
 ## Essential Package List:
 # base
-Packages=('base' 'base-devel' 'linux' 'linux-headers')
+Packages=('base' 'linux')
+# development
+Packages=('base-devel')
+# virtualization
+Packages=('linux-headers')
 # shell 	
 Packages+=('zsh')
 # tools
