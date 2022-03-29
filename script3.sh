@@ -39,19 +39,22 @@ xfconf-query -c xfce4-session -p /general/SaveOnExit -s false
 
 ## install theme, icons and wallpaper
 # create dot directories
-mkdir -p $HOME/.{themes,icons,wallpapers}
+mkdir -p $HOME/.{themes,icons,wallpapers} \
+      || die "can not create $_"
 
 
 ## install theme
 xfconf-query --channel xsettings \
 	     --property /Net/ThemeName \
-	     --set Adwaita-dark
+	     --set Adwaita-dark \
+  || die "can not set theme $_"
 
 
 ## install icons
 xfconf-query --channel xsettings \
 	     --property /Net/IconThemeName \
-	     --set Papirus
+	     --set Papirus \
+  || die "can not ser icon theme $_"
 
 
 ## set a wallpapers to each workspaces
@@ -59,83 +62,105 @@ xfconf-query -c xfce4-desktop \
 	     --create \
 	     -t 'bool' \
 	     -p /backdrop/single-workspace-mode \
-	     --set false
+	     --set false \
+  || die "can not set single workspace mode $_"
 
 ## set wallpaper in workspace 0 
 # download image
-image="https://wallpaperforu.com/wp-content/uploads/2020/07/space-wallpaper-200707153544191600x1200.jpg"
-my_path=$HOME/.wallpapers/arch-wallpaper.jpg
-wget --output-document="${my_path}" "${image}"
+image="https://wallpaperforu.com/wp-content/uploads/2020/07/space-wallpaper-200707153544191600x1200.jpg" \
+  || die "can not set image $_"
+my_path=$HOME/.wallpapers/arch-wallpaper.jpg \
+  || die "can not set \$my_path $_" 
+wget --output-document="${my_path}" "${image}" \
+  || die "can not donwload image $_"
 # find path for xfce wallpaper 
 image_path="$(xfconf-query -c xfce4-desktop -lv \
 			   | awk '/monitor.*last/{ print $1 }' \
-			   | sed -n '1p')"
+			   | sed -n '1p')" \
+  || die "can not set \$image_path $_"
 # set wallpaper by xfconf-query
 xfconf-query -c xfce4-desktop \
 	     -p "${image_path}" \
 	     -t string \
-	     --set "${my_path}"
+	     --set "${my_path}" \
+  || die "can not set \$image_path \$my_path $_"
 
 
 ## set wallpaper in workspace 1
 # download image
-image="https://www.setaswall.com/wp-content/uploads/2017/11/Arch-Linux-Wallpaper-28-1920x1080.jpg"
-my_path=$HOME/.wallpapers/space-wallpaper.jpg
-wget --output-document="${my_path}" "${image}"
+image="https://www.setaswall.com/wp-content/uploads/2017/11/Arch-Linux-Wallpaper-28-1920x1080.jpg" \
+  || die "can not set image $_"
+my_path=$HOME/.wallpapers/space-wallpaper.jpg \
+  || die "can not set \$my_path $_"
+wget --output-document="${my_path}" "${image}" \
+  || die "can not download $_"
 # set wallpaper by xfconf-query
 image_path="$(xfconf-query -c xfce4-desktop -lv \
 			   | awk '/monitor.*last/{ print $1 }' \
-			   | sed -n '2p')"
+			   | sed -n '2p')" \
+  || die "can not sel \$image_path $_"
 xfconf-query -c xfce4-desktop \
 	     -p "${image_path}" \
 	     -t string \
-	     --set "${my_path}"
+	     --set "${my_path}" \
+  || die "can not set image $_"
 
 
 ## set wallpaper in workspace 2 
 # download image
-image="https://imgur.com/IwPvX8Z"
-my_path=$HOME/.wallpapers/arch-tv-wallpaper.jpg
-wget --output-document="${my_path}" "${image}"
+image="https://imgur.com/IwPvX8Z" \
+  || die "can not set \$image $_"
+my_path=$HOME/.wallpapers/arch-tv-wallpaper.jpg \
+  || die "can not set \$my_path $_"
+wget --output-document="${my_path}" "${image}" \
+  || die "can not download $_"
 # set wallpaper by xfconf-query
 image_path="$(xfconf-query -c xfce4-desktop -lv \
 			   | awk '/monitor.*last/{ print $1 }' \
-			   | sed -n '3p')"
+			   | sed -n '3p')" \
+  || die "can not set \$image_path $_"
 xfconf-query -c xfce4-desktop \
 	     -p "${image_path}" \
 	     -t string \
-	     --set "${my_path}"
+	     --set "${my_path}" \
+  || die "can not set image $_"
 
 
 ## set wallpaper in workspace 3 
 # download image
 image="https://roboticoverlords.org/wallpapers/feather.png"
-my_path=$HOME/.wallpapers/feather-wallpaper.jpg
-wget --output-document="${my_path}" "${image}"
-magick mogrify -negate "${my_path}"
+my_path=$HOME/.wallpapers/feather-wallpaper.jpg \
+  || die "can not set \$my_path $_"
+wget --output-document="${my_path}" "${image}" \
+  || die "can not download $_"
+magick mogrify -negate "${my_path}" \
+  || die "can not convert image $_"
 # set wallpaper by xfconf-query
 image_path="$(xfconf-query -c xfce4-desktop -lv \
 	      		   | awk '/monitor.*last/{ print $1 }' \
-			   | sed -n '4p')"
+			   | sed -n '4p')" \
+  || die "can not set \$image_path $_"
 xfconf-query -c xfce4-desktop \
 	     -p "${image_path}" \
 	     -t string \
-	     --set "${my_path}"
+	     --set "${my_path}" \
+  || die "can not set $_"
 
 ## Sound
 # activate sound
-xfconf-query -c xsettings -p /Net/EnableEventSounds --set true
+xfconf-query -c xsettings -p /Net/EnableEventSounds --set true  \
+  || die "can not enable sounds $_"
 
 ## config xfce panel
 # my_bar_position="$(xrandr | awk -F'x' '/*/{ printf $1-8 }' )"
 # xfconf-query -c xfce4-panel -p /panels/panel-2/position \
   # 	     --set "p=1;x=${my_bar_position};y=200"
 # # bar positioning: --set p=(0:left,1:right);x=#;y=#
-# xfconf-query -c xfce4-panel -p /panels/panel-2/position-locked \
-  # 	     --set true
-# xfconf-query -c xfce4-panel -p /panels/panel-2/mode \
-  # 	     -n -t int \
-  # 	     --set 1 		# --set 0:horizontal; 1:vertical
+xfconf-query -c xfce4-panel -p /panels/panel-2/position-locked \
+	     --set true
+xfconf-query -c xfce4-panel -p /panels/panel-2/mode \
+	     -n -t int \
+	     --set 0 		# --set 0:horizontal; 1:vertical
 xfconf-query -c xfce4-panel -p /panels/panel-2/enter-opacity \
 	     -n -t int \
 	     --set 65
@@ -149,25 +174,31 @@ xfconf-query -c xfce4-panel -p /panels/panel-2/autohide-behavior \
 ## config mouse/touchpad
 xfconf-query -c pointers -p /ETPS2_Elantech_Touchpad/Properties/libinput_Tapping_Enabled \
 	     -n -t int \
-	     --set 1
+	     --set 1 \
+  || die "can not set touch mouse pad $_"
 
 
 ## remove desktop icons (value: 0=remove, 2=reinstale)
 xfconf-query -c xfce4-desktop -v --create -p /desktop-icons/style \
-	     -t int -s 0
+	     -t int -s 0 \
+  || die "can not set desktop icons $_"
 
 
 ## set custom keyboard shortcuts
-sh $HOME/Projects/archlinux/desktop/include/shortcuts-xfce.sh
+sh $HOME/Projects/archlinux/desktop/include/shortcuts-xfce.sh \
+  || die "can not install $_"
 
 
 ### INSTALL EMACS DEPENDENCIES
 
 ## language tools
-cd $HOME/Downloads
-url=https://languagetool.org/download/LanguageTool-5.1.zip
-wget "${url}" && extract "$(basename "$_")"
-[[ -d "$(basename "${url}" .zip)" ]] && rm "$(basename "${url}")"
+cd $HOME/Downloads || die "can not cd $_"
+url=https://languagetool.org/download/LanguageTool-5.1.zip \
+  || die "can not set url $_"
+wget "${url}" && extract "$(basename "$_")" \
+  || die "can not extract $_"
+[[ -d "$(basename "${url}" .zip)" ]] && rm "$(basename "${url}")" \
+  || die "can not remove $_"
 # ## hunspell english text corrector
 # # deprecated: archlinux has a native hunspell-1.7 package, newer
 # # hunspell manual installation, version 1.3.2
@@ -177,13 +208,15 @@ wget "${url}" && extract "$(basename "$_")"
 # unzip "$(basename "$_")" && rm "$(basename "${url}")"
 
 ## emacs org, support for ditaa graphs
-url=https://github.com/stathissideris/ditaa/blob/master/service/web/lib/ditaa0_10.jar
+url=https://github.com/stathissideris/ditaa/blob/master/service/web/lib/ditaa0_10.jar \
+  || die "can not set url $_"
 wget "${url}" -P $HOME/Downloads
 
 
 ## delete script after complete xfce desktop setup
 # rm -rf $HOME/script3.sh # remove script
-rm -rf $HOME/.config/autostart/script3.desktop  # remove autostart file
+rm -rf $HOME/.config/autostart/script3.desktop \ \
+  || die "can not remove autostart file $_"
 
 
 ## in virtualbox: share folder and run emacs customized
