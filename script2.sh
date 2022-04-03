@@ -81,7 +81,7 @@ systemctl enable dhcpcd
 # enable wifi
 systemctl enable NetworkManager
 # run xfce desktop environment in next boot
-# systemctl enable lightdm
+systemctl enable lightdm
 
 ## How to customize a new desktop on first boot?
 # With a startup script that just need to steps:
@@ -89,15 +89,16 @@ systemctl enable NetworkManager
 #  * Create script3.desktop entry to autostart script3.sh at first boot
 # create autostart dir and desktop entry
 mkdir -p /home/"${user_name}"/.config/autostart/
-echo '[Desktop Entry]
+echo "[Desktop Entry]
 Type=Application
 Name=script3
 Comment[C]=Script to config a new Desktop on first boot
-Terminal=true
-Exec=gnome-terminal -- bash -c "sudo bash /usr/bin/script3.sh; exec bash"
+Exec=gnome-terminal -- bash -c \"bash /home/${user_name}/script3.sh; exec bash\"
 X-GNOME-Autostart-enabled=true
+X-GNOME-Autostart-Delay=0
 NoDisplay=false
-' > /home/"${user_name}"/.config/autostart/script3.desktop
+Hidden=false
+" > /home/"${user_name}"/.config/autostart/script3.desktop
 # set desktop entry permissions
 chown "${user_name}:${user_name}" \
       /home/"${user_name}"/.config/autostart/script3.desktop

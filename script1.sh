@@ -56,14 +56,15 @@ pacman -Syy --noconfirm archlinux-keyring
 
 ## install system packages (with support for wifi and ethernet)
 pacstrap /mnt base base-devel linux \
-	 zsh sudo vim git wget \
+	 zsh pkgfile \
+	 sudo vim git wget \
 	 dhcpcd \
 	 networkmanager \
-	 grub # os-prober \
-	 # xorg-server lightdm lightdm-gtk-greeter \
-	 # gnome-terminal terminator cinnamon livecd-sounds \
-	 # firefox \
-	 # virtualbox-guest-utils
+	 grub os-prober \
+	 xorg-server lightdm lightdm-gtk-greeter \
+	 gnome-terminal terminator cinnamon livecd-sounds \
+	 firefox \
+	 virtualbox-guest-utils
 	 
 	 
 ## generate file system table
@@ -77,17 +78,17 @@ cp ./script2.sh /mnt/home
 arch-chroot /mnt bash /home/script2.sh
 # remove script2.sh after completed
 rm /mnt/home/script2.sh
+# Copy script3.sh with desktop customizations to run on first boot 
+cp ./script3.sh /mnt/home/"${user_name}"/script3.sh
+chmod +x /mnt/home/"${user_name}"/script3.sh
 
 ## DOTFILES
 cp ./dotfiles/.[a-z]* /mnt/home/"${user_name}"
 # set user permissions
 arch-chroot /mnt bash -c "chown -R ${user_name}:${user_name} /home/${user_name}/.[a-z]*"
 
-# ## Copy script3.sh with desktop customizations to run on first boot 
-cp ./script3.sh /mnt/usr/bin/script3.sh
-chmod +x /mnt/usr/bin/script3.sh
 
-exit
 ## In the end unmount everything and exiting
-umount -R /mnt
-shutdown now
+echo "$0 finished successful"
+read -p "Install successful! umount '/mnt' and reboot?[y/N] "
+[[ $REPLY =~ ^[yY]$ ]] && umount -R /mnt | reboot now
