@@ -328,7 +328,7 @@ fi
 # Desktop environment
 Packages+=('xfce4')
 Packages+=('xfce4-pulseaudio-plugin' 'xfce4-screenshooter')
-Packages+=('pavucontrol' 'pavucontrol-qt')
+Packages+=('pavucontrol' 'pavucontrol-qt' 'alsa-utils')
 Packages+=('network-manager-applet')
 Packages+=('papirus-icon-theme')
 # add packages required for install in Real Machine or virtual (VBox)
