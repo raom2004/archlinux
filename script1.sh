@@ -226,7 +226,8 @@ if [[ "${boot_mode}" == 'BIOS' ]]; then
 	## HDD mounting
 	mount "${target_device}2" /mnt \
 	  || die "can not mount ${target_device}2"
-	mount --mkdir "${target_device}3" /mnt/home \
+	mkdir -p /mnt/home || die "can not create $_"
+	mount "${target_device}3" /mnt/home \
 	  || die "can not mount ${target_device}3"
 	break
 	;;
