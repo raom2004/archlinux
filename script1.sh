@@ -206,8 +206,8 @@ if [[ "${boot_mode}" == 'BIOS' ]]; then
 	       mklabel gpt \
 	       mkpart primary ext2 0% 2MiB \
 	       set 1 bios_grub on \
-	       mkpart primary ext4 2MiB 6GiB \
-	       mkpart primary ext4 6GiB 100% \
+	       mkpart primary ext4 2MiB 12GiB \
+	       mkpart primary ext4 12GiB 100% \
 	  && msg2 "%s successful GPT partitioned" "${target_device}" \
 	    || die "Can not partition GPT %s" "${target_device}"
 	
