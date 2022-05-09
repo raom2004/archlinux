@@ -203,10 +203,10 @@ if [[ "${boot_mode}" == 'BIOS' ]]; then
       GPT)
 	## HDD partitioning (BIOS/GPT)
 	parted -s "${target_device}" mklabel gpt
-	parted -s "${target_device}" mkpart primary ext3 64s 8MiB
+	parted -s "${target_device}" mkpart primary ext3 0% 8MiB
 	parted -s "${target_device}" set 1 bios_grub on
 	parted -s "${target_device}" mkpart primary ext4 8MiB 6GiB
-	parted -s "${target_device}" -- mkpart primary ext4 6GiB -1s
+	parted -s "${target_device}" mkpart primary ext4 6GiB 100%
 	parted -s "${target_device}" -a optimal \
 	  && msg2 "%s : optimal aligned" "${target_device}" \
 	    || die "%s : WRONG alignment" "${target_device}"
