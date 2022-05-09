@@ -206,7 +206,8 @@ if [[ "${boot_mode}" == 'BIOS' ]]; then
 	       mklabel gpt \
 	       mkpart primary ext2 0% 2MiB \
 	       set 1 bios_grub on \
-	       mkpart primary ext4 2MiB 100% \
+	       mkpart primary ext4 2MiB 6GiB \
+	       mkpart primary ext4 6GiB 100% \
 	  && msg2 "%s successful GPT partitioned" "${target_device}" \
 	    || die "Can not partition GPT %s" "${target_device}"
 	
@@ -214,43 +215,23 @@ if [[ "${boot_mode}" == 'BIOS' ]]; then
 	if [[ "${drive_removable}" == 'no' ]]; then
 	  mkfs.ext4 -F "${target_device}2" \
 	    || die "can not format $_"
+	  mkfs.ext4 -F "${target_device}3" \
+	    || die "can not format $_"
 	else
 	  mkfs.ext4 -F -O "^has_journal" "${target_device}2" \
+	    || die "can not format $_"
+	  mkfs.ext4 -F -O "^has_journal" "${target_device}3" \
 	    || die "can not format $_"
 	fi
 	## HDD mounting
 	mount "${target_device}2" /mnt \
 	  || die "can not mount ${target_device}2"
+	mount -mkdir "${target_device}2" /mnt/home \
+	  || die "can not mount ${target_device}3"
 	break
 	;;
     esac
   done
-fi
-
-
-if [[ "${boot_mode}" == 'UEFI' ]]; then
-  ## HDD partitioning (UEFI/GPT)
-  parted -s "${target_device}" \
-	 mklabel gpt \
-	 mkpart primary 0% 512MiB \
-	 set 1 esp on \
-	 mkpart primary 512MiB 100% \
-    && msg2 "%s successful GPT partitioned" "${target_device}" \
-      || die "Can not partition GPT %s" "${target_device}"
-
-  ## HDD formating (-F: overwrite if necessary)
-  mkfs.fat -F32 "${target_device}1" \
-    || die "can not format $_"
-  mkfs.ext4 -F "${target_device}2" \
-    || die "can not format $_"
-
-  ## HDD mounting
-  mount "${target_device}2" /mnt \
-    || die "can not mount $_ in ${target_device}2"
-  mkdir -p /mnt/boot/efi \
-    || die "can not create discrete partition $_"
-  mount "${target_device}1" /mnt/boot/efi \
-    || die "can not mount $_ in ${target_device}1"
 fi
 
 
@@ -367,28 +348,28 @@ pacstrap /mnt --needed --noconfirm "${Packages[@]}" \
 genfstab -L /mnt >> /mnt/etc/fstab || die 'can not generate $_'
 
 # if present, add aditional hardware to fstab 
-if [[ "${MACHINE}" == 'Real' ]]; then
-  # desired result:
-  #  LABEL=xxx /dir ext4 rw,nosuid,nodev,user_id=0,group_id=0,allow_other,blksize=4096 0 0
-  # code example:
-  #  mount --types ext4 /dev/sdxY /dir -o noatime,nodev,nosuid
-  mount_drive="$(lsblk -f | awk '/lack/{ print $0 }')" \
-    || die 'can not set ${mount_drive}'
-  if [[ -n "${mount_drive}" ]]; then
-    tmp_array=( $mount_drive )
-    my_drive="${tmp_array[0]:2}" || die 'can not set my_drive'
-    my_fs="${tmp_array[1]}" || die 'can not set my_fs'
-    my_label="${tmp_array[2]}" || die 'can not set my_label'
-    my_UUID="${tmp_array[3]}" || die 'can not set my_UUID'
-    my_path=/run/media/"${user_name}"/"${my_label}" \
-	|| die 'can not set ${my_path} in ${my_drive}'
-      echo "# ${my_UUID}
-/dev/${my_drive:2} 									${my_path} 		${my_fs} 	uid=1000,gid=1000,umask=0022,fmask=133 	0 0
-" >> /etc/fstab || die "can not add ${my_drive} to $_"
-      unset my_path || die "can not unset $_"
-      unset mount_drive || die "can not unset $_"
-    fi
-fi
+# if [[ "${MACHINE}" == 'Real' ]]; then
+#   # desired result:
+#   #  LABEL=xxx /dir ext4 rw,nosuid,nodev,user_id=0,group_id=0,allow_other,blksize=4096 0 0
+#   # code example:
+#   #  mount --types ext4 /dev/sdxY /dir -o noatime,nodev,nosuid
+#   mount_drive="$(lsblk -f | awk '/lack/{ print $0 }')" \
+#     || die 'can not set ${mount_drive}'
+#   if [[ -n "${mount_drive}" ]]; then
+#     tmp_array=( $mount_drive )
+#     my_drive="${tmp_array[0]:2}" || die 'can not set my_drive'
+#     my_fs="${tmp_array[1]}" || die 'can not set my_fs'
+#     my_label="${tmp_array[2]}" || die 'can not set my_label'
+#     my_UUID="${tmp_array[3]}" || die 'can not set my_UUID'
+#     my_path=/run/media/"${user_name}"/"${my_label}" \
+# 	|| die 'can not set ${my_path} in ${my_drive}'
+#       echo "# ${my_UUID}
+# /dev/${my_drive:2} 									${my_path} 		${my_fs} 	uid=1000,gid=1000,umask=0022,fmask=133 	0 0
+# " >> /etc/fstab || die "can not add ${my_drive} to $_"
+#       unset my_path || die "can not unset $_"
+#       unset mount_drive || die "can not unset $_"
+#     fi
+# fi
 
 
 ### SCRIPTING INSIDE CHROOT
