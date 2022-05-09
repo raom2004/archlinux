@@ -202,20 +202,20 @@ if [[ "${boot_mode}" == 'BIOS' ]]; then
 	;;
       GPT)
 	## HDD partitioning (BIOS/GPT)
-	parted -s "${target_device}" \
-	       mklabel gpt \
-	       mkpart primary ext2 0% 2MiB \
-	       set 1 bios_grub on \
-	       mkpart primary ext4 2MiB 12GB \
-	       mkpart primary ext4 12GB 100% \
-	  && msg2 "%s successful GPT partitioned" "${target_device}" \
-	    || die "Can not partition GPT %s" "${target_device}"
+	parted -s "${target_device}" mklabel gpt
+	parted -s "${target_device}" mkpart primary ext3 64s 8MiB
+	parted -s "${target_device}" set 1 bios_grub on
+	parted -s "${target_device}" mkpart primary ext4 8MiB 12GiB
+	parted -s "${target_device}" -- mkpart primary ext4 12GiB -1s
+	parted -s "${target_device}" -a optimal \
+	  && msg2 "%s : optimal aligned" "${target_device}" \
+	    || die "%s : WRONG alignment" "${target_device}"
 	
 	## HDD formating (-F: overwrite if necessary)
 	if [[ "${drive_removable}" == 'no' ]]; then
-	  mkfs.ext4 "${target_device}2" \
+	  mkfs.ext4 -F "${target_device}2" \
 	    || die "can not format $_"
-	  mkfs.ext4 "${target_device}3" \
+	  mkfs.ext4 -F "${target_device}3" \
 	    || die "can not format $_"
 	else
 	  mkfs.ext4 -F -O "^has_journal" "${target_device}2" \
