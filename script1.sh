@@ -213,9 +213,9 @@ if [[ "${boot_mode}" == 'BIOS' ]]; then
 	
 	## HDD formating (-F: overwrite if necessary)
 	if [[ "${drive_removable}" == 'no' ]]; then
-	  mkfs.ext4 -F "${target_device}2" \
+	  mkfs.ext4 "${target_device}2" \
 	    || die "can not format $_"
-	  mkfs.ext4 -F "${target_device}3" \
+	  mkfs.ext4 "${target_device}3" \
 	    || die "can not format $_"
 	else
 	  mkfs.ext4 -F -O "^has_journal" "${target_device}2" \
