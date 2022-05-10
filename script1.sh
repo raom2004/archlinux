@@ -191,8 +191,6 @@ parted -s -a optimal "${target_device}" mkpart "HOME" ext4 6GiB 100% \
   || die "can not created creating home partition"
 parted -s "${target_device}" print
 
-exit
-
 ## HDD formating (-F: overwrite if necessary)
 if [[ "${drive_removable}" == 'no' ]]; then
   mkfs.ext4 -F "${target_device}2" \
@@ -205,6 +203,7 @@ else
   mkfs.ext4 -F -O "^has_journal" "${target_device}3" \
     || die "can not format $_"
 fi
+parted -s "${target_device}" print
 
 ## HDD mounting
 mount "${target_device}2" /mnt \
@@ -212,7 +211,7 @@ mount "${target_device}2" /mnt \
 mkdir -p /mnt/home || die "can not create $_"
 mount "${target_device}3" /mnt/home \
   || die "can not mount ${target_device}3"
-
+lsblk
 
 ### REQUIREMENTS BEFORE SYSTEM PACKAGES INSTALLATION
 
