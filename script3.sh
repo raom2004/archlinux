@@ -34,13 +34,17 @@ pactl -- set-sink-volume 0 50%	# set volume
 
 
 ## Disable saved sessions
-xfconf-query -c xfce4-session -p /general/SaveOnExit -s false
+xfconf-query --channel xfce4-desktop \
+	     --create -p /general/SaveOnExit \
+	     --type 'bool' \
+	     --set false \
+  || die "can not set /general/SaveOnExit $_"
 
 
 ## install theme, icons and wallpaper
 # create dot directories
 mkdir -p $HOME/.{themes,icons,wallpapers} \
-      || die "can not create $_"
+  || die "can not create $_"
 
 
 ## install theme
@@ -225,7 +229,9 @@ if [[ "${MACHINE}" == 'VBox' ]]; then
   xrandr -s 1920x1080		# set screen size to 2k
   #https://www.techrepublic.com/article/how-to-create-a-shared-folder-in-virtualbox/
   # sudo mount -t vboxsf shared ~/shared
-  echo -e "${user_password}" | sudo -S bash -c "echo \"shared $HOME/shared vboxsf uid=1000,gid=1000 0 0\" >> /etc/fstab"
+  if mount | grep -q shared; then
+    echo -e "${user_password}" | sudo -S bash -c "echo \"shared $HOME/shared vboxsf uid=1000,gid=1000 0 0\" >> /etc/fstab"
+  fi
 
   ## run customized emacs on startup
   echo '[Desktop Entry]
