@@ -17,8 +17,7 @@ if [[ "$EUID" -ne 0 ]]; then
   echo "./$0 require root priviledges"
   exit
 fi 
-pacman -S --noconfirm dmidecode \
-  || echo 'can not install dmidecode, exiting' && exit
+pacman -S --needed --noconfirm dmidecode
 
 
 ### BASH SCRIPT FLAGS FOR SECURITY AND DEBUGGING ###################
