@@ -125,9 +125,6 @@ else
   boot_mode='UEFI' || die "can not set variable ${boor_mode}"
 fi
 # variables that user must provide (hide passwords by -sp option)
-if [[ "${MACHINE}" == 'VBox' ]]; then
-  
-else
 read -p "Enter hostname: " host_name \
   || die 'can not set variable ${host_name}'
 read -sp "Enter ROOT password: " root_password \
@@ -136,7 +133,6 @@ read -p "Enter NEW user: " user_name \
   || die 'can not set variable ${user_name}'
 read -sp "Enter NEW user PASSWORD: " user_password \
   || die 'can not set variable ${user_password}'
-fi
 # variables that user must provide by dialog
 target_device=" "; dialog_get_target_device target_device
 drive_info="$(find /dev/disk/by-id/ -lname *${target_device##*/})" \
