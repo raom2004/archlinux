@@ -200,9 +200,9 @@ cd $HOME/Downloads || die "can not cd $_"
 url=https://languagetool.org/download/LanguageTool-5.1.zip \
   || die "can not set url $_"
 wget "${url}" && extract "$(basename "$_")" \
-  || die "can not extract $_"
+    || die "can not extract $_"
 [[ -d "$(basename "${url}" .zip)" ]] && rm "$(basename "${url}")" \
-  || die "can not remove $_"
+    || die "can not remove $_"
 # ## hunspell english text corrector
 # # deprecated: archlinux has a native hunspell-1.7 package, newer
 # # hunspell manual installation, version 1.3.2
@@ -229,12 +229,12 @@ if [[ "${MACHINE}" == 'VBox' ]]; then
   xrandr -s 1920x1080		# set screen size to 2k
   #https://www.techrepublic.com/article/how-to-create-a-shared-folder-in-virtualbox/
   # sudo mount -t vboxsf shared ~/shared
+
+  # if shared mounted: added to fstab & create an emacs desktop shorcut
   if mount | grep -q shared; then
     echo -e "${user_password}" | sudo -S bash -c "echo \"shared $HOME/shared vboxsf uid=1000,gid=1000 0 0\" >> /etc/fstab"
-  fi
-
-  ## run customized emacs on startup
-  echo '[Desktop Entry]
+    ## run customized emacs on startup
+    echo '[Desktop Entry]
 Type=Application
 Name=customized emacs
 Comment[C]=run emacs on start up with user customizations
@@ -243,6 +243,8 @@ Exec=xfce4-terminal -e "bash -c \"bash \$HOME/shared/emacs-installer.sh; exec ba
 X-GNOME-Autostart-enabled=true
 NoDisplay=false
 ' > $HOME/.config/autostart/cemacs.desktop
+
+  fi
 
   ## run native emacs on startup
   echo "[Desktop Entry]
