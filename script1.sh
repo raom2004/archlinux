@@ -178,9 +178,16 @@ fi
 ## HDD partitioning (BIOS/GPT)
 #ToDO: https://wiki.archlinux.org/title/Parted
 parted -s -a optimal -- "${target_device}" mklabel gpt \
-       mkpart primary ext2 1MiB 2MiB set 1 bios_grub on \
-       mkpart primary ext4 2MiB 6GiB set 2 root on \
-       mkpart primary ext4 6GiB 100%
+       && msg2 "created label $_"
+parted -s -a optimal -- "s{target_device}" \
+       mkpart BIOS ext2 1MiB 2MiB set 1 bios_grub on \
+       && msg2 "created setting/creating bios_grub partition"
+parted -s -a optimal -- "s{target_device}" \
+       mkpart ROOT ext4 2MiB 6GiB set 2 root on \
+       && msg2 "created setting/creating root partition"
+parted -s -a optimal -- "s{target_device}" \
+       mkpart HOME ext4 6GiB 100% \
+       && msg2 "created creating home partition "
 
 ## HDD formating (-F: overwrite if necessary)
 if [[ "${drive_removable}" == 'no' ]]; then
