@@ -247,8 +247,8 @@ wget "${url}" -P $HOME/.vim/autoload \
 #  source: https://github.com/Glutanimate/hunspell-en-med-glut
 url=https://raw.githubusercontent.com/glutanimate/hunspell-en-med-glut/master/en_med_glut.dic
 # wget "${url}" -P $HOME/Downloads/hunspell-1.3.2-3-w32-bin/share/hunspell
-wget "${url}" -P /usr/share/hunspell
-unset url
+wget "${url}" -P /usr/share/hunspell || die "can not get ${url}"
+unset url || die "can not unset $_"
 
 ## How to customize a new desktop on first boot?
 # With a startup script that just need to steps:
