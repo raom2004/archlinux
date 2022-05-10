@@ -185,8 +185,8 @@ parted -s "${target_device}" set 1 bios_grub on \
   || die "can not set bios_grub label"
 parted -s -a optimal "${target_device}" mkpart "ROOT" ext4 4MiB 6GiB \
   || die "can not create root partition"
-parted -s "${target_device}" set 2 boot on \
-  || die "can not set boot label"
+# parted -s "${target_device}" set 2 boot on \
+#   || die "can not set boot label"
 parted -s -a optimal "${target_device}" mkpart "HOME" ext4 6GiB 100% \
   || die "can not created creating home partition"
 parted -s "${target_device}" print
@@ -222,98 +222,98 @@ pacman -Syy --noconfirm archlinux-keyring \
 
 
 ### SYSTEM PACKAGES INSTALLATION
-
+Packages=()
 ## Essential Package List:
 # base
-Packages=('base' 'linux')
+Packages+=('base' 'linux')
 # development
-# Packages=('base-devel')
+Packages+=('base-devel')
 # virtualization
-Packages=('linux-headers')
+Packages+=('linux-headers')
 # shell 	
 Packages+=('zsh')
 # tools
 Packages+=('sudo' 'git' 'wget' 'make')
 # file manager
-# Packages+=('nemo')
+Packages+=('nemo')
 # mounting tools for filemanagers
-# Packages+=('gvfs' 'udiskie')
+Packages+=('gvfs' 'udiskie')
 # lightweight text editors
 Packages+=('vim')
 # lightweight image editors
-# Packages+=('imagemagick' 'gpicview')
-# # network
-# Packages+=('dhcpcd')
-# # wifi
-# Packages+=('networkmanager')
-# # boot loader
-# Packages+=('grub' 'os-prober')
-# # UEFI boot support
-# if [[ "${boot_mode}" == 'UEFI' ]]; then Packages+=('efibootmgr'); fi
-# # multi-OS support
-# Packages+=('usbutils' 'dosfstools' 'ntfs-3g' 'amd-ucode' 'intel-ucode')
-# # backup
-# Packages+=('rsync')
-# # uncompress
-# Packages+=('unzip' 'unrar')
-# # manual pages
-# Packages+=('man-db')
-# # glyphs support
-# Packages+=('ttf-dejavu'
-#            'ttf-hanazono'
-# 	   'ttf-font-awesome'
-# 	   'ttf-ubuntu-font-family'
-# 	   'noto-fonts')
-# # heavy text editors
-# Packages+=('emacs')
-# # format conversion
-# Packages+=('pandoc')
-# # grammar corrector (for: Firefox, Thunderbird, Chromium and LibreOffice)
-# Packages+=('hunspell'
-# 	   'hunspell-en_gb'
-# 	   'hunspell-en_us'
-# 	   'hunspell-de'
-# 	   'hunspell-es_es')
+Packages+=('imagemagick' 'gpicview')
+# network
+Packages+=('dhcpcd')
+# wifi
+Packages+=('networkmanager')
+# boot loader
+Packages+=('grub' 'os-prober')
+# UEFI boot support
+if [[ "${boot_mode}" == 'UEFI' ]]; then Packages+=('efibootmgr'); fi
+# multi-OS support
+Packages+=('usbutils' 'dosfstools' 'ntfs-3g' 'amd-ucode' 'intel-ucode')
+# backup
+Packages+=('rsync')
+# uncompress
+Packages+=('unzip' 'unrar')
+# manual pages
+Packages+=('man-db')
+# glyphs support
+Packages+=('ttf-dejavu'
+           'ttf-hanazono'
+	   'ttf-font-awesome'
+	   'ttf-ubuntu-font-family'
+	   'noto-fonts')
+# heavy text editors
+Packages+=('emacs')
+# format conversion
+Packages+=('pandoc')
+# grammar corrector (for: Firefox, Thunderbird, Chromium and LibreOffice)
+Packages+=('hunspell'
+	   'hunspell-en_gb'
+	   'hunspell-en_us'
+	   'hunspell-de'
+	   'hunspell-es_es')
 
-# ## Graphical User Interface:
-# # Display server - xorg (because wayland has not support nvidia CUDA yet)
-# Packages+=('xorg-server' 'xorg-xrandr' 'xterm' 'xorg-xwininfo')
-# # Display driver - Nvidia support
-# if lspci -k | grep -e "3D.*NVIDIA" &>/dev/null; then
-#   [[ "${Packages[*]}" =~ 'linux-lts' ]] && Packages+=('nvidia-lts')
-#   [[ "${Packages[*]}" =~ 'linux' ]] && Packages+=('nvidia')
-#   # nvidia monitoring tool
-#   Packages+=('nvtop')
-# fi
-# # Desktop environment
-# Packages+=('xfce4')
-# Packages+=('xfce4-pulseaudio-plugin' 'xfce4-screenshooter')
-# Packages+=('pavucontrol' 'pavucontrol-qt' 'alsa-utils')
-# Packages+=('network-manager-applet')
-# Packages+=('papirus-icon-theme')
-# # add packages required for install in Real Machine or virtual (VBox)
-# ## if Real Machine, install:
-# if [[ "${MACHINE}" == 'Real' ]]; then
-#   # hardware support packages
-#   Packages+=('linux-firmware')
-#   # video recorder
-#   Packages+=('obs-studio')
-#   # video players
-#   Packages+=('mpv' 'vlc')
-#   # Audio players
-#   Packages+=('audacious' 'audacity')
-#   # pdf viewer
-#   Packages+=('okular')
-#   # browser
-#   Packages+=('firefox')
-#   # text editor
-#   Packages+=('libreoffice-fresh' 'libreoffice-fresh-de')
-#   Packages+=('libreoffice-fresh-en-gb' 'libreoffice-fresh-es')
-#   # text edition - latex support
-#   # read -p "LATEX download take time. Install it anyway?[y/N]" response
-#   # [[ "${response}" =~ ^[yY]$ ]] \
-#     #   && Packages+=('texlive-core' 'texlive-latexextra')
-# fi
+## Graphical User Interface:
+# Display server - xorg (because wayland has not support nvidia CUDA yet)
+Packages+=('xorg-server' 'xorg-xrandr' 'xterm' 'xorg-xwininfo')
+# Display driver - Nvidia support
+if lspci -k | grep -e "3D.*NVIDIA" &>/dev/null; then
+  [[ "${Packages[*]}" =~ 'linux-lts' ]] && Packages+=('nvidia-lts')
+  [[ "${Packages[*]}" =~ 'linux' ]] && Packages+=('nvidia')
+  # nvidia monitoring tool
+  Packages+=('nvtop')
+fi
+# Desktop environment
+Packages+=('xfce4')
+Packages+=('xfce4-pulseaudio-plugin' 'xfce4-screenshooter')
+Packages+=('pavucontrol' 'pavucontrol-qt' 'alsa-utils')
+Packages+=('network-manager-applet')
+Packages+=('papirus-icon-theme')
+# add packages required for install in Real Machine or virtual (VBox)
+## if Real Machine, install:
+if [[ "${MACHINE}" == 'Real' ]]; then
+  # hardware support packages
+  Packages+=('linux-firmware')
+  # video recorder
+  Packages+=('obs-studio')
+  # video players
+  Packages+=('mpv' 'vlc')
+  # Audio players
+  Packages+=('audacious' 'audacity')
+  # pdf viewer
+  Packages+=('okular')
+  # browser
+  Packages+=('firefox')
+  # text editor
+  Packages+=('libreoffice-fresh' 'libreoffice-fresh-de')
+  Packages+=('libreoffice-fresh-en-gb' 'libreoffice-fresh-es')
+  # text edition - latex support
+  # read -p "LATEX download take time. Install it anyway?[y/N]" response
+  # [[ "${response}" =~ ^[yY]$ ]] \
+    #   && Packages+=('texlive-core' 'texlive-latexextra')
+fi
 # if VirtualBox: install guest utils package
 if [[ "${MACHINE}" == 'VBox' ]]; then Packages+=('virtualbox-guest-utils'); fi
 
