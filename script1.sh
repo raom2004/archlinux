@@ -15,9 +15,10 @@
 ## Root Privileges
 if [[ "$EUID" -eq 0 ]]; then
   echo "./$0 require root priviledges"
+  exit
 fi 
 pacman -S --noconfirm dmidecode \
-  || die 'can not install dmidecode required to identify actual system'
+  || echo 'can not install dmidecode, exiting' && exit
 
 
 ### BASH SCRIPT FLAGS FOR SECURITY AND DEBUGGING ###################
@@ -175,65 +176,32 @@ if mount | grep -q '/mnt'; then
 fi
 
 
-if [[ "${boot_mode}" == 'BIOS' ]]; then
-  printf "BIOS detected! Choose GPT or MBR partition table:\n"
-  select OPTION in MBR GPT; do
-    case "${OPTION}" in
-      MBR)
-	## HDD partitioning (BIOS/MBR)
-	parted -s "${target_device}" \
-	       mklabel msdos \
-	       mkpart primary ext4 0% 100% \
-	       set 1 boot on \
-	  && msg2 "%s successful MBR partitioned" "${target_device}" \
-	    || die "Can not partition MBR %s" "${target_device}"
-	## HDD formating (-F: overwrite if necessary)
-	if [[ "${drive_removable}" == 'no' ]]; then
-	  mkfs.ext4 -F "${target_device}1" \
-	    || die "can not format $_"
-	else
-	  mkfs.ext4 -F -O "^has_journal" "${target_device}1" \
-	    || die "can not format $_"
-	fi
-	## HDD mounting
-	mount "${target_device}1" /mnt \
-	  || die "can not mount ${target_device}1"
-	break
-	;;
-      GPT)
-	## HDD partitioning (BIOS/GPT)
-	parted -s "${target_device}" mklabel gpt
-	parted -s "${target_device}" mkpart primary ext3 0% 8MiB
-	parted -s "${target_device}" set 1 bios_grub on
-	parted -s "${target_device}" mkpart primary ext4 8MiB 6GiB
-	parted -s "${target_device}" mkpart primary ext4 6GiB 100%
-	parted -s "${target_device}" -a optimal \
-	  && msg2 "%s : optimal aligned" "${target_device}" \
-	    || die "%s : WRONG alignment" "${target_device}"
-	
-	## HDD formating (-F: overwrite if necessary)
-	if [[ "${drive_removable}" == 'no' ]]; then
-	  mkfs.ext4 -F "${target_device}2" \
-	    || die "can not format $_"
-	  mkfs.ext4 -F "${target_device}3" \
-	    || die "can not format $_"
-	else
-	  mkfs.ext4 -F -O "^has_journal" "${target_device}2" \
-	    || die "can not format $_"
-	  mkfs.ext4 -F -O "^has_journal" "${target_device}3" \
-	    || die "can not format $_"
-	fi
-	## HDD mounting
-	mount "${target_device}2" /mnt \
-	  || die "can not mount ${target_device}2"
-	mkdir -p /mnt/home || die "can not create $_"
-	mount "${target_device}3" /mnt/home \
-	  || die "can not mount ${target_device}3"
-	break
-	;;
-    esac
-  done
+## HDD partitioning (BIOS/GPT)
+#ToDO: https://wiki.archlinux.org/title/Parted
+parted -s -a optimal -- "${target_device}" mklabel gpt \
+       mkpart primary ext2 1MiB 2MiB set 1 bios_grub on \
+       mkpart primary ext4 2MiB 6GiB set 2 root on \
+       mkpart primary ext4 6GiB 100%
+
+## HDD formating (-F: overwrite if necessary)
+if [[ "${drive_removable}" == 'no' ]]; then
+  mkfs.ext4 -F "${target_device}2" \
+    || die "can not format $_"
+  mkfs.ext4 -F "${target_device}3" \
+    || die "can not format $_"
+else
+  mkfs.ext4 -F -O "^has_journal" "${target_device}2" \
+    || die "can not format $_"
+  mkfs.ext4 -F -O "^has_journal" "${target_device}3" \
+    || die "can not format $_"
 fi
+
+## HDD mounting
+mount "${target_device}2" /mnt \
+  || die "can not mount ${target_device}2"
+mkdir -p /mnt/home || die "can not create $_"
+mount "${target_device}3" /mnt/home \
+  || die "can not mount ${target_device}3"
 
 
 ### REQUIREMENTS BEFORE SYSTEM PACKAGES INSTALLATION
@@ -263,79 +231,79 @@ Packages+=('gvfs' 'udiskie')
 # lightweight text editors
 Packages+=('vim')
 # lightweight image editors
-Packages+=('imagemagick' 'gpicview')
-# network
-Packages+=('dhcpcd')
-# wifi
-Packages+=('networkmanager')
-# boot loader
-Packages+=('grub' 'os-prober')
-# UEFI boot support
-if [[ "${boot_mode}" == 'UEFI' ]]; then Packages+=('efibootmgr'); fi
-# multi-OS support
-Packages+=('usbutils' 'dosfstools' 'ntfs-3g' 'amd-ucode' 'intel-ucode')
-# backup
-Packages+=('rsync')
-# uncompress
-Packages+=('unzip' 'unrar')
-# manual pages
-Packages+=('man-db')
-# glyphs support
-Packages+=('ttf-dejavu'
-           'ttf-hanazono'
-	   'ttf-font-awesome'
-	   'ttf-ubuntu-font-family'
-	   'noto-fonts')
-# heavy text editors
-Packages+=('emacs')
-# format conversion
-Packages+=('pandoc')
-# grammar corrector (for: Firefox, Thunderbird, Chromium and LibreOffice)
-Packages+=('hunspell'
-	   'hunspell-en_gb'
-	   'hunspell-en_us'
-	   'hunspell-de'
-	   'hunspell-es_es')
+# Packages+=('imagemagick' 'gpicview')
+# # network
+# Packages+=('dhcpcd')
+# # wifi
+# Packages+=('networkmanager')
+# # boot loader
+# Packages+=('grub' 'os-prober')
+# # UEFI boot support
+# if [[ "${boot_mode}" == 'UEFI' ]]; then Packages+=('efibootmgr'); fi
+# # multi-OS support
+# Packages+=('usbutils' 'dosfstools' 'ntfs-3g' 'amd-ucode' 'intel-ucode')
+# # backup
+# Packages+=('rsync')
+# # uncompress
+# Packages+=('unzip' 'unrar')
+# # manual pages
+# Packages+=('man-db')
+# # glyphs support
+# Packages+=('ttf-dejavu'
+#            'ttf-hanazono'
+# 	   'ttf-font-awesome'
+# 	   'ttf-ubuntu-font-family'
+# 	   'noto-fonts')
+# # heavy text editors
+# Packages+=('emacs')
+# # format conversion
+# Packages+=('pandoc')
+# # grammar corrector (for: Firefox, Thunderbird, Chromium and LibreOffice)
+# Packages+=('hunspell'
+# 	   'hunspell-en_gb'
+# 	   'hunspell-en_us'
+# 	   'hunspell-de'
+# 	   'hunspell-es_es')
 
-## Graphical User Interface:
-# Display server - xorg (because wayland has not support nvidia CUDA yet)
-Packages+=('xorg-server' 'xorg-xrandr' 'xterm' 'xorg-xwininfo')
-# Display driver - Nvidia support
-if lspci -k | grep -e "3D.*NVIDIA" &>/dev/null; then
-  [[ "${Packages[*]}" =~ 'linux-lts' ]] && Packages+=('nvidia-lts')
-  [[ "${Packages[*]}" =~ 'linux' ]] && Packages+=('nvidia')
-  # nvidia monitoring tool
-  Packages+=('nvtop')
-fi
-# Desktop environment
-Packages+=('xfce4')
-Packages+=('xfce4-pulseaudio-plugin' 'xfce4-screenshooter')
-Packages+=('pavucontrol' 'pavucontrol-qt' 'alsa-utils')
-Packages+=('network-manager-applet')
-Packages+=('papirus-icon-theme')
-# add packages required for install in Real Machine or virtual (VBox)
-## if Real Machine, install:
-if [[ "${MACHINE}" == 'Real' ]]; then
-  # hardware support packages
-  Packages+=('linux-firmware')
-  # video recorder
-  Packages+=('obs-studio')
-  # video players
-  Packages+=('mpv' 'vlc')
-  # Audio players
-  Packages+=('audacious' 'audacity')
-  # pdf viewer
-  Packages+=('okular')
-  # browser
-  Packages+=('firefox')
-  # text editor
-  Packages+=('libreoffice-fresh' 'libreoffice-fresh-de')
-  Packages+=('libreoffice-fresh-en-gb' 'libreoffice-fresh-es')
-  # text edition - latex support
-  # read -p "LATEX download take time. Install it anyway?[y/N]" response
-  # [[ "${response}" =~ ^[yY]$ ]] \
-    #   && Packages+=('texlive-core' 'texlive-latexextra')
-fi
+# ## Graphical User Interface:
+# # Display server - xorg (because wayland has not support nvidia CUDA yet)
+# Packages+=('xorg-server' 'xorg-xrandr' 'xterm' 'xorg-xwininfo')
+# # Display driver - Nvidia support
+# if lspci -k | grep -e "3D.*NVIDIA" &>/dev/null; then
+#   [[ "${Packages[*]}" =~ 'linux-lts' ]] && Packages+=('nvidia-lts')
+#   [[ "${Packages[*]}" =~ 'linux' ]] && Packages+=('nvidia')
+#   # nvidia monitoring tool
+#   Packages+=('nvtop')
+# fi
+# # Desktop environment
+# Packages+=('xfce4')
+# Packages+=('xfce4-pulseaudio-plugin' 'xfce4-screenshooter')
+# Packages+=('pavucontrol' 'pavucontrol-qt' 'alsa-utils')
+# Packages+=('network-manager-applet')
+# Packages+=('papirus-icon-theme')
+# # add packages required for install in Real Machine or virtual (VBox)
+# ## if Real Machine, install:
+# if [[ "${MACHINE}" == 'Real' ]]; then
+#   # hardware support packages
+#   Packages+=('linux-firmware')
+#   # video recorder
+#   Packages+=('obs-studio')
+#   # video players
+#   Packages+=('mpv' 'vlc')
+#   # Audio players
+#   Packages+=('audacious' 'audacity')
+#   # pdf viewer
+#   Packages+=('okular')
+#   # browser
+#   Packages+=('firefox')
+#   # text editor
+#   Packages+=('libreoffice-fresh' 'libreoffice-fresh-de')
+#   Packages+=('libreoffice-fresh-en-gb' 'libreoffice-fresh-es')
+#   # text edition - latex support
+#   # read -p "LATEX download take time. Install it anyway?[y/N]" response
+#   # [[ "${response}" =~ ^[yY]$ ]] \
+#     #   && Packages+=('texlive-core' 'texlive-latexextra')
+# fi
 # if VirtualBox: install guest utils package
 if [[ "${MACHINE}" == 'VBox' ]]; then Packages+=('virtualbox-guest-utils'); fi
 
