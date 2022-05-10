@@ -13,7 +13,10 @@
 
 ### Requirements: Root Privileges
 
-if [[ "$EUID" -eq 0 ]]; then echo "./$0 require root priviledges"; fi
+if [[ "$EUID" -ne 0 ]]; then
+  echo "error: run ./$0 require root priviledges"
+  exit
+fi
 
 
 ### BASH SCRIPT FLAGS FOR SECURITY AND DEBUGGING

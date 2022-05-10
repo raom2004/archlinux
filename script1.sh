@@ -14,10 +14,10 @@
 
 ## Root Privileges
 if [[ "$EUID" -ne 0 ]]; then
-  echo "./$0 require root priviledges"
+  echo "error: run ./$0 require root priviledges"
   exit
 fi 
-pacman -S --needed --noconfirm dmidecode
+pacman -S --needed --noconfirm dmidecode || exit
 
 
 ### BASH SCRIPT FLAGS FOR SECURITY AND DEBUGGING ###################
@@ -125,6 +125,9 @@ else
   boot_mode='UEFI' || die "can not set variable ${boor_mode}"
 fi
 # variables that user must provide (hide passwords by -sp option)
+if [[ "${MACHINE}" == 'VBox' ]]; then
+  
+else
 read -p "Enter hostname: " host_name \
   || die 'can not set variable ${host_name}'
 read -sp "Enter ROOT password: " root_password \
@@ -133,6 +136,7 @@ read -p "Enter NEW user: " user_name \
   || die 'can not set variable ${user_name}'
 read -sp "Enter NEW user PASSWORD: " user_password \
   || die 'can not set variable ${user_password}'
+fi
 # variables that user must provide by dialog
 target_device=" "; dialog_get_target_device target_device
 drive_info="$(find /dev/disk/by-id/ -lname *${target_device##*/})" \
@@ -177,17 +181,21 @@ fi
 
 ## HDD partitioning (BIOS/GPT)
 #ToDO: https://wiki.archlinux.org/title/Parted
-parted -s -a optimal -- "${target_device}" mklabel gpt \
-       && msg2 "created label $_"
-parted -s -a optimal -- "${target_device}" \
-       mkpart BIOS ext2 1MiB 2MiB set 1 bios_grub on \
-       && msg2 "created setting/creating bios_grub partition"
-parted -s -a optimal -- "${target_device}" \
-       mkpart ROOT ext4 2MiB 6GiB set 2 root on \
-       && msg2 "created setting/creating root partition"
-parted -s -a optimal -- "${target_device}" \
-       mkpart HOME ext4 6GiB 100% \
-       && msg2 "created creating home partition "
+parted -s "${target_device}" mklabel gpt \
+  || die "can not created label $_"
+parted -s -a optimal "${target_device}" mkpart "BIOS" ext2 2MiB 4MiB \
+  || die "can not create bios_grub partition"
+parted -s "${target_device}" set 1 bios_grub on \
+  || die "can not set bios_grub label"
+parted -s -a optimal "${target_device}" mkpart "ROOT" ext4 4MiB 6GiB \
+  || die "can not create root partition"
+parted -s "${target_device}" set 2 root on \
+  || die "can not set root label"
+parted -s -a optimal "${target_device}" mkpart "HOME" ext4 6GiB 100% \
+  || die "can not created creating home partition"
+parted -s "${target_device}" print
+
+exit
 
 ## HDD formating (-F: overwrite if necessary)
 if [[ "${drive_removable}" == 'no' ]]; then
@@ -223,7 +231,7 @@ pacman -Syy --noconfirm archlinux-keyring \
 # base
 Packages=('base' 'linux')
 # development
-Packages=('base-devel')
+# Packages=('base-devel')
 # virtualization
 Packages=('linux-headers')
 # shell 	
@@ -231,9 +239,9 @@ Packages+=('zsh')
 # tools
 Packages+=('sudo' 'git' 'wget' 'make')
 # file manager
-Packages+=('nemo')
+# Packages+=('nemo')
 # mounting tools for filemanagers
-Packages+=('gvfs' 'udiskie')
+# Packages+=('gvfs' 'udiskie')
 # lightweight text editors
 Packages+=('vim')
 # lightweight image editors
