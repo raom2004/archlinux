@@ -13,7 +13,7 @@
 ### Requirements:
 
 ## Root Privileges
-if [[ "$EUID" -eq 0 ]]; then
+if [[ "$EUID" -ne 0 ]]; then
   echo "./$0 require root priviledges"
   exit
 fi 
