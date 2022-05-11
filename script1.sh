@@ -183,11 +183,11 @@ parted -s -a optimal "${target_device}" mkpart "BIOS" ext2 2MiB 4MiB \
   || die "can not create bios_grub partition"
 parted -s "${target_device}" set 1 bios_grub on \
   || die "can not set bios_grub label"
-parted -s -a optimal "${target_device}" mkpart "ROOT" ext4 4MiB 6GiB \
+parted -s -a optimal "${target_device}" mkpart "ROOT" ext4 4MiB 10GiB \
   || die "can not create root partition"
 # parted -s "${target_device}" set 2 boot on \
 #   || die "can not set boot label"
-parted -s -a optimal "${target_device}" mkpart "HOME" ext4 6GiB 100% \
+parted -s -a optimal "${target_device}" mkpart "HOME" ext4 10GiB 100% \
   || die "can not created creating home partition"
 parted -s "${target_device}" print
 
