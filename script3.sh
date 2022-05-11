@@ -24,6 +24,16 @@ set -o pipefail    # CATCH failed piped commands
 set -o xtrace      # trace & expand what gets executed (useful for debug)
 
 
+### ERROR HANDLING
+
+out() { printf "$1 $2\n" "${@:3}"; }
+error() { out "==> ERROR:" "$@"; } >&2
+warning() { out "==> WARNING:" "$@"; } >&2
+msg() { out "==>" "$@"; }
+msg2() { out "  ->" "$@";}
+die() { error "$@"; exit 1; }
+
+
 ## require sudo password for last commands (but do not show it, option -s)
 read -sp "[sudo] password for $USER:" user_password
 
@@ -112,7 +122,7 @@ xfconf-query -c xfce4-desktop \
 
 ## set wallpaper in workspace 2 
 # download image
-image="https://imgur.com/IwPvX8Z" \
+image="https://i.imgur.com/IwPvX8Z.jpg" \
   || die "can not set \$image $_"
 my_path=$HOME/.wallpapers/arch-tv-wallpaper.jpg \
   || die "can not set \$my_path $_"
@@ -160,19 +170,42 @@ xfconf-query -c xsettings -p /Net/EnableEventSounds --set true  \
 # xfconf-query -c xfce4-panel -p /panels/panel-2/position \
   # 	     --set "p=1;x=${my_bar_position};y=200"
 # # bar positioning: --set p=(0:left,1:right);x=#;y=#
-xfconf-query -c xfce4-panel -p /panels/panel-2/position-locked \
-	     --set true
-xfconf-query -c xfce4-panel -p /panels/panel-2/mode \
-	     -n -t int \
-	     --set 0 		# --set 0:horizontal; 1:vertical
-xfconf-query -c xfce4-panel -p /panels/panel-2/enter-opacity \
-	     -n -t int \
-	     --set 65
-xfconf-query -c xfce4-panel -p /panels/panel-2/leave-opacity \
-	     -n -t int \
-	     --set 65
-xfconf-query -c xfce4-panel -p /panels/panel-2/autohide-behavior \
-	     --set 2
+
+
+# ;;; PANEL 1
+# ;; info
+# xfconf-query -c xfce4-panel -p /panels -lv
+# ;; automated way
+function set_xfce4_panel {
+xfconf-query --channel xfce4-panel \
+	     --create -p "$1" \
+	     --type "$2" \
+	     --set "$3" \
+  || die "can not set $1 $2 $3"
+}
+# xfconf-query -c xfce4-panel -p /panels/panel-1/plugin-ids
+set_xfce4_panel '/panels/panel-1/lenght' 'bool' true
+set_xfce4_panel '/panels/panel-1/mode' int 0
+set_xfce4_panel '/panels/panel-1/position-locked' 'bool' true
+set_xfce4_panel '/panels/panel-1/size' int 29
+# set_xfce4_panel '/panels/panel-1/position' 
+xfconf-query -c xfce4-panel -p /panels/panel-1/position \
+	     --set "p=11;x=933;y=25"
+#TODO: check if the last function really works
+# PANEL 2
+# xfconf-query -c xfce4-panel -p /panels/panel-2/position-locked \
+# 	     --set true
+# xfconf-query -c xfce4-panel -p /panels/panel-2/mode \
+# 	     -n -t int \
+# 	     --set 0 		# --set 0:horizontal; 1:vertical
+# xfconf-query -c xfce4-panel -p /panels/panel-2/enter-opacity \
+# 	     -n -t int \
+# 	     --set 65
+# xfconf-query -c xfce4-panel -p /panels/panel-2/leave-opacity \
+# 	     -n -t int \
+# 	     --set 65
+# xfconf-query -c xfce4-panel -p /panels/panel-2/autohide-behavior \
+# 	     --set 2
 
 
 ## config mouse/touchpad
@@ -289,7 +322,8 @@ total_time_minutes=\"$(((script1_time_seconds + $duration) / 60))\"
 
 # sleep 3 && xfce4-session-logout -l
 printf "\n\nInstall xfce desktop finished succesfully. Rebooting now!"
-sleep 3 && sudo reboot now
+sleep 3
+echo -e "${user_password}" | sudo -S reboot now
 
 
 # emacs:
