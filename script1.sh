@@ -222,8 +222,8 @@ pacman -Syy --noconfirm archlinux-keyring \
 
 
 ### SYSTEM PACKAGES INSTALLATION
-Packages=()
 ## Essential Package List:
+Packages=()
 # base
 Packages+=('base' 'linux')
 # development
@@ -256,7 +256,7 @@ Packages+=('usbutils' 'dosfstools' 'ntfs-3g' 'amd-ucode' 'intel-ucode')
 Packages+=('rsync')
 # uncompress
 Packages+=('unzip' 'unrar')
-# manual pages
+# linux man pages
 Packages+=('man-db')
 # glyphs support
 Packages+=('ttf-dejavu'

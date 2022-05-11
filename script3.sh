@@ -3,7 +3,7 @@
 # ./script3.sh create user configuration in xfce desktop
 #
 # Verify user privileges:
-if [[ "$EUID" -eq 0 ]]; then echo "./$0 can not be run as root"; exit; fi 
+if [[ "$EUID" -eq 0 ]]; then echo "./$0 requires root!"; exit; fi 
 # source dependencies
 source ~/.functions
 # verify internet connection
