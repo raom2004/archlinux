@@ -14,10 +14,12 @@
 
 ## Root Privileges
 if [[ "$EUID" -ne 0 ]]; then
-  echo "error: run ./$0 require root priviledges"
+  echo "ERROR: run ./$0 require root priviledges"
   exit
-fi 
-pacman -S --needed --noconfirm dmidecode || exit
+elif ! pacman -S --needed --noconfirm dmidecode; then
+  echo "ERROR: can not install required package dmidecode"
+  exit
+fi
 
 
 ### BASH SCRIPT FLAGS FOR SECURITY AND DEBUGGING ###################
@@ -176,18 +178,20 @@ fi
 
 
 ## HDD partitioning (BIOS/GPT)
-#ToDO: https://wiki.archlinux.org/title/Parted
+#souce: https://wiki.archlinux.org/title/Parted
+#define maximum size of root partition = Root_Max
+[[ "${MACHINE}" == 'Real' ]] && Root_Max=40GiB || Root_Max=15GiB
 parted -s "${target_device}" mklabel gpt \
   || die "can not created label $_"
 parted -s -a optimal "${target_device}" mkpart "BIOS" ext2 2MiB 4MiB \
   || die "can not create bios_grub partition"
 parted -s "${target_device}" set 1 bios_grub on \
   || die "can not set bios_grub label"
-parted -s -a optimal "${target_device}" mkpart "ROOT" ext4 4MiB 10GiB \
+parted -s -a optimal "${target_device}" mkpart "ROOT" ext4 4MiB "$Root_Max" \
   || die "can not create root partition"
 # parted -s "${target_device}" set 2 boot on \
 #   || die "can not set boot label"
-parted -s -a optimal "${target_device}" mkpart "HOME" ext4 10GiB 100% \
+parted -s -a optimal "${target_device}" mkpart "HOME" ext4 "$Root_Max" 100% \
   || die "can not created creating home partition"
 parted -s "${target_device}" print
 
@@ -250,6 +254,8 @@ Packages+=('networkmanager')
 Packages+=('grub' 'os-prober')
 # UEFI boot support
 if [[ "${boot_mode}" == 'UEFI' ]]; then Packages+=('efibootmgr'); fi
+# system info
+Packages+=('dmidecode')
 # multi-OS support
 Packages+=('usbutils' 'dosfstools' 'ntfs-3g' 'amd-ucode' 'intel-ucode')
 # backup
