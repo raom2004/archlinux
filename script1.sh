@@ -152,9 +152,9 @@ if ! ls /sys/firmware/efi/efivars >& /dev/null; then
   partition_table_default=MBR
   printf "BIOS detected! you can select a GPT or MBR partition table [${partition_table_default}]:"
   read partition_table || die "can not read $_"
-  unset partition_table_default || die "can not unset $_"
   partition_table=${partition_table:-$partition_table_default} \
      || die "can not set partition_table"
+  unset partition_table_default || die "can not unset $_"
 else
   boot_mode='UEFI' || die "can not set variable ${boor_mode}"
   partition_table=GPT
