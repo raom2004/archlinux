@@ -47,9 +47,14 @@ msg2() { out "  ->" "$@";}
 die() { error "$@"; exit 1; }
 
 
-## require sudo password for last commands (but do not show it, option -s)
+## run commands with sudo password (but do not show it, option -s)
 read -sp "[sudo] password for $USER:" user_password \
      || die "can not read sudo password"
+
+
+## backup desktop configuration files before changes  
+mkdir -p $HOME/.config_bk
+cp -r $HOME/.config/* $HOME/.config_bk || die "can not backup $_"
 
 
 ## Audio
@@ -219,7 +224,7 @@ xfconf-query -c xfce4-desktop -v --create -p /desktop-icons/style \
   || die "can not set desktop icons $_"
 
 ## set custom keyboard shortcuts
-sh ./shortcuts-xfce.sh \
+bash $HOME/Projects/archlinux/desktop/xfce/shortcuts-xfce.sh \
   || die "can not install $_"
 
 ## delete script after complete xfce desktop setup
@@ -238,7 +243,7 @@ case "${MACHINE}" in
     # sudo mount -t vboxsf shared ~/shared
 
     # if shared mounted: added to fstab & create an emacs desktop shorcut
-    if mount | grep -q shared; then
+    if ! mount | grep -q shared; then
       echo -e "${user_password}" | sudo -S bash -c "echo \"shared $HOME/shared vboxsf uid=1000,gid=1000 0 0\" >> /etc/fstab"
       ## run customized emacs on startup
       echo '[Desktop Entry]
