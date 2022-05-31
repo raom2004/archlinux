@@ -98,6 +98,50 @@ function dialog_get_target_device
 }
 
 ########################################
+# Purpose: dialog to ask if user want to install a desktop
+# Arguments: $1
+# Return: the argument $1 will store the user answer (e.g. 'y')
+########################################
+function dialog_ask_install_desktop
+{
+  local __resultvar="$1"
+  
+  read -p "Do you want to install a desktop? [y/N]" install_desktop
+  if [[ "${install_desktop}" =~ ^([yY])$ ]]; then
+    cd desktop/
+    system_desktop=" "
+    printf "please select a desktop:\n"
+    local array_desktops=($(find . -mindepth 1 -maxdepth 1 -type d \
+				 ! -iname "scripts-shared" \
+			      | sed 's%./%%g'))
+    until [[ "${answer:-N}" =~ ^([yY])$ ]]; do
+      select option in "${array_desktops[@]}"; do
+	case "${option}" in
+	  "")
+	    die "Invalid option ${option}. Canceling...\n"
+	    ;;
+	  *)
+	    system_desktop="${option}"
+	    startcommand_xinitrc="$(cat \
+				     ./"${option}"/xinitrc-command.sh)"
+	    break
+	    ;;
+	esac
+      done
+      read -p "::Confirm install ${system_desktop}? [y/N]" answer
+    done
+    # unset array_desktops || die "can not unset $_"
+    export system_desktop || die "can not export $_"
+    export xinitrc_command || die "can not export $_"
+    msg "${system_desktop} Confirmed!"
+    cd $OLDPWD
+    eval "${__resultvar}"="${__answer}"
+  else
+    eval "${__resultvar}"='N'
+  fi
+}
+
+########################################
 # Purpose: extract compressed files
 # Requirements: None
 ########################################
@@ -137,6 +181,15 @@ die() { error "$@"; exit 1; }
 
 ### DECLARE VARIABLES
 
+## variables that user must provide (hide passwords by -sp option)
+read -p "==> Enter hostname: " host_name \
+  || die 'can not set variable ${host_name}'
+read -sp "==> Enter ROOT password: " root_password \
+  || die 'can not set variable ${root_password}'
+read -p "==> Enter NEW user: " user_name \
+  || die 'can not set variable ${user_name}'
+read -sp "==> Enter NEW user PASSWORD: " user_password \
+  || die 'can not set variable ${user_password}'
 
 ## variables automatically recognized
 machine="$(dmidecode -s system-manufacturer)" \
@@ -146,6 +199,7 @@ if [[ "${machine}" == 'innotek GmbH' ]]; then
 else
   MACHINE='Real' || die "can not set variable ${MACHINE}"
 fi
+
 ## BIOS and UEFI support
 if ! ls /sys/firmware/efi/efivars >& /dev/null; then
   boot_mode='BIOS' || die "can not set variable ${boor_mode}"
@@ -159,6 +213,7 @@ else
   boot_mode='UEFI' || die "can not set variable ${boor_mode}"
   partition_table=GPT
 fi
+
 ## variables that user must confirm or edit
 # shell
 user_shell_default=/bin/bash	# examples: /bin/zsh; /bin/bash
@@ -180,15 +235,6 @@ read -p "==> Enter user shell [${local_time_default}]: " local_time
 local_time=${local_time:-$local_time_default} \
      || die "can not set local_time"
 unset local_time_default || die "can not unset $_"
-# variables that user must provide (hide passwords by -sp option)
-read -p "==> Enter hostname: " host_name \
-  || die 'can not set variable ${host_name}'
-read -sp "==> Enter ROOT password: " root_password \
-  || die 'can not set variable ${root_password}'
-read -p "==> Enter NEW user: " user_name \
-  || die 'can not set variable ${user_name}'
-read -sp "==> Enter NEW user PASSWORD: " user_password \
-  || die 'can not set variable ${user_password}'
 # variables that user must provide by dialog
 target_device=" "; dialog_get_target_device target_device
 drive_info="$(find /dev/disk/by-id/ -lname *${target_device##*/})" \
@@ -201,35 +247,7 @@ else
     || die 'can not set variable ${drive_removable}'
 fi
 # select and install arch linux desktop (required for script3.sh)
-read -p "Do you want to install a desktop?[y/N]" install_desktop
-if [[ "${install_desktop}" =~ ^([yY])$ ]]; then
-  cd desktop/
-  system_desktop=" "
-  printf "please select a desktop:\n"
-  array_desktops_available=($(find . -mindepth 1 -maxdepth 1 -type d \
-				   ! -iname "scripts-shared" \
-				| sed 's%./%%g'))
-  until [[ "${answer:-N}" =~ ^([yY])$ ]]; do
-    select option in "${array_desktops_available[@]}"; do
-      case "${option}" in
-	"")
-	  die "Invalid option ${option}. Canceling...\n"
-	  ;;
-	*)
-	  system_desktop="${option}"
-	  xinitrc_command=$(cat ./"${option}"/xinitrc-command.sh)
-	  break
-	  ;;
-      esac
-    done
-    read -p "::Confirm install desktop: ${system_desktop}?[y/N]" answer
-  done
-  unset array_desktops_available || die "can not unset $_"
-  export system_desktop || die "can not export $_"
-  export xinitrc_command || die "can not export $_"
-  msg "${system_desktop} Confirmed!"
-  cd $OLDPWD
-fi
+install_desktop=" "; dialog_ask_install_desktop install_desktop
 
 
 ### EXPORT VARIABLES (required for script2.sh)

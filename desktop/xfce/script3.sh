@@ -219,7 +219,7 @@ xfconf-query -c xfce4-desktop -v --create -p /desktop-icons/style \
   || die "can not set desktop icons $_"
 
 ## set custom keyboard shortcuts
-sh $HOME/Projects/archlinux/desktop/xfce/shortcuts-xfce.sh \
+sh ./shortcuts-xfce.sh \
   || die "can not install $_"
 
 ## delete script after complete xfce desktop setup
@@ -253,29 +253,28 @@ NoDisplay=false
     fi
 
     ## run native emacs on startup
-    #   echo "[Desktop Entry]
-    # Type=Application
-    # Name=native emacs
-    # Comment[C]=run emacs on start up with dark theme
-    # Terminal=false
-    # Exec=emacs --eval \"(progn (load-theme 'misterioso)(set-cursor-color \\\"turquoise1\\\"))\"
-    # X-GNOME-Autostart-enabled=true
-    # NoDisplay=false
-    # " > $HOME/.config/autostart/nemacs.desktop
+      echo "[Desktop Entry]
+    Type=Application
+    Name=native emacs
+    Comment[C]=run emacs on start up with dark theme
+    Terminal=false
+    Exec=emacs --eval \"(progn (load-theme 'misterioso)(set-cursor-color \\\"turquoise1\\\"))\"
+    X-GNOME-Autostart-enabled=true
+    NoDisplay=false
+    " > $HOME/.config/autostart/nemacs.desktop
 
-    ## run thunar in specific folder
-    #   echo '[Desktop Entry]
-    # Encoding=UTF-8
-    # Version=0.9.4
-    # Type=Application
-    # Name=thunar startup
-    # Comment=startup filemanager in specific folder
-    # Exec=thunar 
-    # OnlyShowIn=XFCE;
-    # RunHook=0
-    # StartupNotify=false
-    # Terminal=false
-    # Hidden=false' > $HOME/.config/autostart/thunar.desktop
+    ## run filemanager
+      echo '[Desktop Entry]
+    Encoding=UTF-8
+    Type=Application
+    Name=nemo_startup
+    Comment=startup filemanager in specific folder
+    Exec=nemo /var/vache/pacman/pkg/ --geometry 630x321+640+702 
+    OnlyShowIn=XFCE;
+    RunHook=0
+    StartupNotify=false
+    Terminal=false
+    Hidden=false' > $HOME/.config/autostart/nemo.desktop
     break
     ;;
   Real)

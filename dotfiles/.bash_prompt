@@ -35,6 +35,17 @@ PS1="${NCyan}\u${NC}@\h: \w \\$ "
 
 # source: https://github.com/magicmonty/bash-git-prompt
 if [[ ! -f "$HOME/.bash-git-prompt/gitprompt.sh" ]]; then
+  echo "Download bash-git-prompt requires internet connection."
+  until [[ "${internet_available:-N}" =~ ^(y)$ ]]; do
+    sleep 3
+    if ! wget -q --spider http://google.com; then
+      echo "Internet not available. Try to connect again.."
+    else
+      echo "Internet connection detected."
+      internet_available='y'
+    fi
+  done
+  unset internet_available
   git clone https://github.com/magicmonty/bash-git-prompt.git ~/.bash-git-prompt --depth=1
 fi
 

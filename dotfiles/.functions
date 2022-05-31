@@ -240,17 +240,20 @@ function my_git_config
       bash "$(mount | awk '/_EXT/ {printf $3}')/.gitrc" \
         || echo "ERROR: can not run script $_"
     else
-      # manual configuration
-      read -p "::Insert git global user NAME: " git_username
-      git config user.name "${git_username}" \
-	   || echo "ERROR: can not set git config user.name $_"
-      read -p "::Insert git global user MAIL: " git_usermail
-      git config user.mail "${git_usermail}" \
+      # semiautomatic configuration
+      printf "==> Set git GLOBAL configuration\n"
+      read -p "--> Set git user name [$USER]: " git_username
+      git config --global user.name "${git_username:-$USER}" \
+	|| echo "ERROR: can not set git config user.name $_"
+      usermail="raom2004@gmail.com"
+      read -p "--> Set git user MAIL [$usermail]: " git_usermail
+      git config --global user.mail "${git_usermail:-$usermail}" \
 	   || echo "ERROR: can not set git config user.mail $_"
-      read -p "::Insert git global editor (vim,emacs): " git_editor
-      git config core.editor "${git_editor}" \
-	   || echo "ERROR: can not set git config core.editor $_"
-      git config credential.helper "cache" \
+      read -p "--> Set git editor vim or emacs [vim]: " git_editor
+      git config --global core.editor "${git_editor:-vim}" \
+	|| echo "ERROR: can not set git config core.editor $_"
+      read -p "--> Set git credential.helper [cache]: " git_cred
+      git config --global credential.helper "${git_cred:-cache}" \
 	   || echo "ERROR: can not set git config credential.helper $_"
     fi
     cd "$OLDPWD"

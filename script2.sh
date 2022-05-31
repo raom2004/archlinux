@@ -260,7 +260,7 @@ if [[ "${install_desktop}" =~ ^([yY])$ ]]; then
 session=\${1:-${system_desktop}}
 
 case \$session in
-    ${system_desktop}         ) exec ${xinitrc_command};;
+    ${system_desktop}         ) exec ${startcommand_xinitrc};;
     # No known session, try to run it as command
     *                 ) exec \$1;;
 esac
