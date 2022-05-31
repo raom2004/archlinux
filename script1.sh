@@ -96,6 +96,33 @@ function dialog_get_target_device
     eval "${__resultvar}"="${__result}"
   fi
 }
+
+########################################
+# Purpose: extract compressed files
+# Requirements: None
+########################################
+function extract
+{
+  if [[ -f "$1" ]]; then
+    case "$1" in
+      *.tar.bz2)   tar xvjf "$1"    ;;
+      *.tar.gz)    tar xvzf "$1"    ;;
+      *.bz2)       bunzip2 "$1"     ;;
+      *.rar)       unrar x "$1"     ;;
+      *.gz)        gunzip "$1"      ;;
+      *.tar)       tar xvf "$1"     ;;
+      *.tbz2)      tar xvjf "$1"    ;;
+      *.tgz)       tar xvzf "$1"    ;;
+      *.zip)       unzip "$1"       ;;
+      *.Z)         uncompress "$1"  ;;
+      *.7z)        7z x "$1"        ;;
+      *)           echo "don't know how to extract '$1'..." ;;
+    esac
+  else
+    echo "'$1' is not a valid file!"
+  fi
+}
+
 ########################################
 # Purpose: ERROR HANDLING
 # Requirements: None
@@ -134,11 +161,9 @@ user_shell=${user_shell:-$user_shell_default} \
      || die "can not set user_shell"
 unset user_shell_default || die "can not unset $_"
 # keyboard
-keyboard_keymap_default="setxkbmap -model pc105 -layout es,us,at -option grp:win_space_toggle" \
-     || die "can not set keyboard_keymap_default"
-printf "==> Keyboard will be set by command:
-${keyboard_keymap_default}
-==> You can edit the command or press 'Enter' to continue:\n" 
+keyboard_keymap_default='es' \
+  || die "can not set keyboard_keymap_default"
+echo "==> Enter system Keyboard keymap [${keyboard_keymap_default}]:" 
 read keyboard_keymap || die "can not unset $_"
 keyboard_keymap=${keyboard_keymap:-$keyboard_keymap_default}
 unset keyboard_keymap_default || die "can not unset $_"
