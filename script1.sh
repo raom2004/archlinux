@@ -122,7 +122,8 @@ function dialog_ask_install_desktop
 	    ;;
 	  *)
 	    system_desktop="${option}"
-	    startcommand_xinitrc=$(cat ./"${option}"/startcommand-xinitrc.sh)
+	    startcommand_xinitrc="$(cat \
+				     ./"${option}"/startcommand-xinitrc.sh)"
 	    break
 	    ;;
 	esac
