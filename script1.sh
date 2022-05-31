@@ -132,7 +132,7 @@ function dialog_ask_install_desktop
     done
     # unset array_desktops || die "can not unset $_"
     export system_desktop || die "can not export $_"
-    export xinitrc_command || die "can not export $_"
+    export startcommand_xinitrc || die "can not export $_"
     msg "${system_desktop} Confirmed!"
     cd $OLDPWD
     eval "${__resultvar}"="${__answer}"
