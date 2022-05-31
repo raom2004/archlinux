@@ -425,8 +425,11 @@ pacstrap /mnt --needed --noconfirm "${Packages[@]}" \
 
 ## Desktop Packages installation
 if [[ "${install_desktop}" =~ ^([yY])$ ]]; then
-  pacstrap /mnt --needed --noconfirm - < \
-	   ./desktop/"${system_desktop}"/pkglist.txt \
+  readarray -t Packages < ./desktop/"${system_desktop}"/pkglist.txt
+  pacstrap /mnt --needed --noconfirm "${Packages[@]}" \
+    || die "Pacstrap can not install the packages $_"
+  # pacstrap /mnt --needed --noconfirm - < \
+  # 	   ./desktop/"${system_desktop}"/pkglist.txt \
     || die "Pacstrap can not install the packages $_"
 fi
 
