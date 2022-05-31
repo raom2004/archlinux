@@ -177,7 +177,7 @@ if [[ "${install_desktop}" =~ ^([yY])$ ]]; then
   array_desktops_available=($(find . -mindepth 1 -maxdepth 1 -type d \
 				   ! -iname "scripts-shared" \
 				| sed 's%./%%g'))
-  until [[ "${answer}" =~ ^([yY])$ ]]; do
+  until [[ "${answer:-N}" =~ ^([yY])$ ]]; do
     select option in "${array_desktops_available[@]}"; do
       case "${option}" in
 	"")
