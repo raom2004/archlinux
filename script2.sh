@@ -1,18 +1,19 @@
 #!/bin/bash
 #
-# ./script2.sh configure a new Arch Linux system and desktop
+# ./script2.sh configure a new Arch Linux system
 #
 # Summary:
-# * This script contain the commands that runs inside chroot to custom a
-#   new Arch Linux system.
-# * This script also create a desktop autostart app to run the scrip3.sh #   on first boot to make the user desktop custmizations related. 
+# * Customize a new Arch Linux system, inside arch-chroot.
+# * Create a desktop autostart app to run the scrip3.sh on first boot
+#   to make the user desktop custmizations related. 
 #
 # Dependencies: ./script1.sh
 #
 ### CODE:
 
-### Requirements: Root Privileges
+### Requirements:
 
+# check priviledges
 if [[ "$EUID" -ne 0 ]]; then
   echo "error: run ./$0 require root priviledges"
   exit
@@ -176,7 +177,7 @@ ExecStart=-/sbin/agetty --autologin ${user_name} --noclear %%I $TERM
 
 ## support for command not found
 pacman -S --noconfirm pkgfile || die "can not install $_"
-pkgfile -u || die "can not update with 'pkgflie -u'"
+pkgfile -u || die "can not update with 'pkgfile -u'"
 
 
 ### USER SYSTEM CUSTOMIZATION ########################################
@@ -210,62 +211,90 @@ echo 'LANGUAGE=en_GB:en_US:en' >> $HOME/.config/locale.conf \
 head -n50 /etc/X11/xinit/xinitrc > $HOME/.xinitrc \
   || die "can not create $_ from template /etc/X11/xinit/xinitrc"
 # set keyboard keymap in .xinitrc
-echo "setxkbmap ${keyboard_keymap}" >> $HOME/.xinitrc \
+echo "setxkbmap -model pc105 -layout ${keyboard_keymap} -option grp:win_space_toggle" >> $HOME/.xinitrc \
   || die "can not add keymap in $_"
 echo "udiskie &" >> $HOME/.xinitrc \
   || die "can not add udiskie in $_ (required for drive automount)"
 unset keyboard_keymap || die "can not unset $_"
-# set xfce as default and let place to add other desktops in the future 
-echo '# Here Xfce is kept as default
-session=${1:-xfce}
+## if user asked to install a desktop
+# configure .xinitrc to start desktop session on startup
+if [[ "${install_desktop}" =~ ^([yY])$ ]]; then
+  if ! grep "-${system_desktop}" $HOME/.xinitrc; then
+    echo "# Here ${system_desktop} is the default
+session=\${1:-${system_desktop}}
 
-case $session in
-    xfce|xfce4        ) exec startxfce4;;
+case \$session in
+    ${system_desktop}         ) exec ${xinitrc_command};;
     # No known session, try to run it as command
-    *                 ) exec $1;;
+    *                 ) exec \$1;;
 esac
-' >> $HOME/.xinitrc || die "can not set xfce4 desktop in ~/.xinitrc"
+" >> $HOME/.xinitrc \
+      || die "can not set ${system_desktop} desktop in ~/.xinitrc"
+  fi
+  ## How to customize a new desktop on first boot?
+  # With a startup script that just need to steps:
+  #  * Create a script3.sh with your customizations
+  #  * Create script3.desktop entry to autostart script3.sh at first boot
+  # create autostart dir and desktop entry
+  mkdir -p $HOME/.config/autostart/ \
+    || die " can not create dir $_" 
+  echo "[Desktop Entry]
+Type=Application
+Name=setup-desktop-on-first-startup
+Comment[C]=Script to config a new Desktop on first boot
+Terminal=true
+Exec=xfce4-terminal -e \"bash -c \\\"bash \$HOME/Projects/archlinux/desktop/${system_desktop}/script3.sh; exec bash\\\"\"
+X-GNOME-Autostart-enabled=true
+NoDisplay=false
+" > $HOME/.config/autostart/script3.desktop || die "can not create $_"
+fi
 # ~/.serverrc
 # In order to maintain an authenticated session with logind and to
 # prevent bypassing the screen locker by switching terminals,
 # it is recommended to specify vt$XDG_VTNR in the ~/.xserverrc file: 
 echo '#!/bin/sh
-
 exec /usr/bin/Xorg -nolisten tcp -nolisten local "$@" vt$XDG_VTNR
 ' > $HOME/.xserverrc
 
 
-## install vim plugin manager
+### INSTALL DEPENDECIES
+
+## Vim Plugin Manager
 url=https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 wget "${url}" -P $HOME/.vim/autoload \
   || die 'can not populate vim plugin folder ~/.vim/autoload'
-## TODO: install vim plugins without open vim (do not run as root)
+## TODO: install vim plugins without open vim (must not be run as root)
 # vim -E -s -u $HOME/.vimrc +PlugInstall +visual +qall
+unset url || die "can not unset $_"
 
-
-## add hunspell dictionaty of english medical terms: en_med_glut.dic 
-#  source: https://github.com/Glutanimate/hunspell-en-med-glut
+## add dictionaty of english medical terms for hunspell
+# source: https://github.com/Glutanimate/hunspell-en-med-glut
 url=https://raw.githubusercontent.com/glutanimate/hunspell-en-med-glut/master/en_med_glut.dic
-# wget "${url}" -P $HOME/Downloads/hunspell-1.3.2-3-w32-bin/share/hunspell
 wget "${url}" -P /usr/share/hunspell || die "can not get ${url}"
 unset url || die "can not unset $_"
 
-## How to customize a new desktop on first boot?
-# With a startup script that just need to steps:
-#  * Create a script3.sh with your customizations
-#  * Create script3.desktop entry to autostart script3.sh at first boot
-# create autostart dir and desktop entry
-mkdir -p $HOME/.config/autostart/ \
-  || die " can not create dir $_" 
-echo '[Desktop Entry]
-Type=Application
-Name=setup-desktop-on-first-startup
-Comment[C]=Script to config a new Desktop on first boot
-Terminal=true
-Exec=xfce4-terminal -e "bash -c \"bash \$HOME/Projects/archlinux/script3.sh; exec bash\""
-X-GNOME-Autostart-enabled=true
-NoDisplay=false
-' > $HOME/.config/autostart/script3.desktop || die "can not create $_"
+
+### INSTALL EMACS DEPENDENCIES
+
+## support for ditaa graphs - emacs org
+url=https://github.com/stathissideris/ditaa/blob/master/service/web/lib/ditaa0_10.jar \
+  || die "can not set url $_"
+wget "${url}" -P $HOME/Downloads || die "can not download ${url}"
+## support for language tools
+url=https://languagetool.org/download/
+latest_version=$(wget -O - "${url}" \
+			       | awk -F'"' '/[0-9]\.zip/{ print $2 }' \
+			       | sort -r \
+			       | head -n1 \
+			       | tr -d '\n')
+url=https://languagetool.org/download/"${latest_version}"
+unset latest_version
+wget "${url}" -P $HOME/Downloads || die "can not download ${url}"
+cd $HOME/Downloads || die "can not cd $_"
+extract "$(basename "${url}")" || die "can not extract $_"
+[[ -d "$(basename "${url}" .zip)" ]] && rm "$(basename "${url}")" \
+    || die "can not remove $_"
+cd $PWD || die "can not restore previous dir $_"
 
 
 ## show final message and exit

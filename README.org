@@ -83,11 +83,11 @@ The installation of Arch Linux in real machines usually address some advanced as
 
 ** Disk partitioning BIOS/MBR, BIOS/GPT, UEFI/GPT and their encryption
 
-This chapter covers the most standard disk partitioning using =parted=, according to the requirements of the boot loader =GRUB=. 
+This chapter explain how to create a disk partitioning table using: =parted=, a partitioning program easy to use in a script, and =GRUB=, a highly powerful and flexible boot loader.
 
-The disk partitioning tables described here are the most easy examples and works quite well. You are free to add other partitions if you want, taking extra care to avoid an Arch Linux install unable to boot.
+The disk partitioning tables described here, BIOS and MBR, are the most easy examples and works quite well. You are free to add other partitions if you want, taking extra care to avoid an Arch Linux installation unable to boot.
 
-The examples were made with the boot loader =GRUB= because it supports [[https://wiki.archlinux.org/title/Arch_boot_process#Boot_loader][almost everything]], like different firmwares, partitioning tables, multi-boot, file systems, RAID and LVM and their encryption, in addition to the documentation and forums available.
+The requirement for disk partitioning vary depending on the boot loader used. Here we will use the boot loader =GRUB= because it supports [[https://wiki.archlinux.org/title/Arch_boot_process#Boot_loader][almost everything]], like: different firmwares, partitioning tables, multi-boot, file systems, RAID and LVM encryption, in addition to the documentation and forums available.
 
 *** BIOS/MBR
 

@@ -1,0 +1,7 @@
+xfce4
+xfce4-pulseaudio-plugin
+xfce4-screenshooter
+pavucontrol
+pavucontrol-qt
+alsa-utils
+network-manager-applet

@@ -1,15 +1,28 @@
 #!/bin/bash
 #
-# ./script3.sh create user configuration in xfce desktop
+# ./customizations.sh user customizations for xfce desktop
 #
+# Dependencies: none
+#
+### CODE:
+
+### REQUIREMENTS:
+
 # Verify user privileges:
-if [[ "$EUID" -eq 0 ]]; then echo "./$0 requires root!"; exit; fi 
+if [[ "$EUID" -eq 0 ]]; then echo "Do not run ./$0 as root!"; exit; fi 
 # source dependencies
-source ~/.functions
+if ! source ~/.functions; then
+    echo "can not source ~/.functions" && sleep 3
+    exit
+fi
 # verify internet connection
-check_internet
+if ! check_internet; then
+    echo "can not run function: check_internet" && sleep 3
+    exit
+fi    
 # measure time
 SECONDS=0
+
 
 ### BASH SCRIPT FLAGS FOR SECURITY AND DEBUGGING ###################
 
@@ -35,12 +48,13 @@ die() { error "$@"; exit 1; }
 
 
 ## require sudo password for last commands (but do not show it, option -s)
-read -sp "[sudo] password for $USER:" user_password
+read -sp "[sudo] password for $USER:" user_password \
+     || die "can not read sudo password"
 
 
 ## Audio
-pactl -- set-sink-mute 0 0	# turn on audio
-pactl -- set-sink-volume 0 50%	# set volume
+pactl -- set-sink-mute 0 0 || die "can not turn on audio"
+pactl -- set-sink-volume 0 50% || die "can not set audio volume $_"
 
 
 ## Disable saved sessions
@@ -55,31 +69,24 @@ xfconf-query --channel xfce4-desktop \
 # create dot directories
 mkdir -p $HOME/.{themes,icons,wallpapers} \
   || die "can not create $_"
-
-
-## install theme
+# install theme
 xfconf-query --channel xsettings \
 	     --property /Net/ThemeName \
 	     --set Adwaita-dark \
   || die "can not set theme $_"
-
-
-## install icons
+# install icons
 xfconf-query --channel xsettings \
 	     --property /Net/IconThemeName \
 	     --set Papirus \
   || die "can not ser icon theme $_"
-
-
-## set a wallpapers to each workspaces
+# set a wallpapers to each workspaces
 xfconf-query -c xfce4-desktop \
 	     --create \
 	     -t 'bool' \
 	     -p /backdrop/single-workspace-mode \
 	     --set false \
   || die "can not set single workspace mode $_"
-
-## set wallpaper in workspace 0 
+# set wallpaper in workspace 0 
 # download image
 image="https://wallpaperforu.com/wp-content/uploads/2020/07/space-wallpaper-200707153544191600x1200.jpg" \
   || die "can not set image $_"
@@ -98,9 +105,7 @@ xfconf-query -c xfce4-desktop \
 	     -t string \
 	     --set "${my_path}" \
   || die "can not set \$image_path \$my_path $_"
-
-
-## set wallpaper in workspace 1
+# set wallpaper in workspace 1
 # download image
 image="https://www.setaswall.com/wp-content/uploads/2017/11/Arch-Linux-Wallpaper-28-1920x1080.jpg" \
   || die "can not set image $_"
@@ -118,9 +123,7 @@ xfconf-query -c xfce4-desktop \
 	     -t string \
 	     --set "${my_path}" \
   || die "can not set image $_"
-
-
-## set wallpaper in workspace 2 
+# set wallpaper in workspace 2 
 # download image
 image="https://i.imgur.com/IwPvX8Z.jpg" \
   || die "can not set \$image $_"
@@ -138,9 +141,7 @@ xfconf-query -c xfce4-desktop \
 	     -t string \
 	     --set "${my_path}" \
   || die "can not set image $_"
-
-
-## set wallpaper in workspace 3 
+# set wallpaper in workspace 3 
 # download image
 image="https://roboticoverlords.org/wallpapers/feather.png"
 my_path=$HOME/.wallpapers/feather-wallpaper.jpg \
@@ -171,26 +172,25 @@ xfconf-query -c xsettings -p /Net/EnableEventSounds --set true  \
   # 	     --set "p=1;x=${my_bar_position};y=200"
 # # bar positioning: --set p=(0:left,1:right);x=#;y=#
 
-
 # ;;; PANEL 1
 # ;; info
 # xfconf-query -c xfce4-panel -p /panels -lv
 # ;; automated way
-function set_xfce4_panel {
-xfconf-query --channel xfce4-panel \
-	     --create -p "$1" \
-	     --type "$2" \
-	     --set "$3" \
-  || die "can not set $1 $2 $3"
-}
+# function set_xfce4_panel {
+# xfconf-query --channel xfce4-panel \
+# 	     --create -p "$1" \
+# 	     --type "$2" \
+# 	     --set "$3" \
+#   || die "can not set $1 $2 $3"
+# }
 # xfconf-query -c xfce4-panel -p /panels/panel-1/plugin-ids
-set_xfce4_panel '/panels/panel-1/lenght' 'bool' true
-set_xfce4_panel '/panels/panel-1/mode' int 0
-set_xfce4_panel '/panels/panel-1/position-locked' 'bool' true
-set_xfce4_panel '/panels/panel-1/size' int 29
+# set_xfce4_panel '/panels/panel-1/lenght' 'bool' true
+# set_xfce4_panel '/panels/panel-1/mode' int 0
+# set_xfce4_panel '/panels/panel-1/position-locked' 'bool' true
+# set_xfce4_panel '/panels/panel-1/size' int 29
 # set_xfce4_panel '/panels/panel-1/position' 
-xfconf-query -c xfce4-panel -p /panels/panel-1/position \
-	     --set "p=11;x=933;y=25"
+# xfconf-query -c xfce4-panel -p /panels/panel-1/position \
+# 	     --set "p=10;x=0;y=0"
 #TODO: check if the last function really works
 # PANEL 2
 # xfconf-query -c xfce4-panel -p /panels/panel-2/position-locked \
@@ -207,67 +207,41 @@ xfconf-query -c xfce4-panel -p /panels/panel-1/position \
 # xfconf-query -c xfce4-panel -p /panels/panel-2/autohide-behavior \
 # 	     --set 2
 
-
 ## config mouse/touchpad
 xfconf-query -c pointers -p /ETPS2_Elantech_Touchpad/Properties/libinput_Tapping_Enabled \
 	     -n -t int \
 	     --set 1 \
   || die "can not set touch mouse pad $_"
 
-
 ## remove desktop icons (value: 0=remove, 2=reinstale)
 xfconf-query -c xfce4-desktop -v --create -p /desktop-icons/style \
 	     -t int -s 0 \
   || die "can not set desktop icons $_"
 
-
 ## set custom keyboard shortcuts
-sh $HOME/Projects/archlinux/desktop/include/shortcuts-xfce.sh \
+sh $HOME/Projects/archlinux/desktop/xfce/shortcuts-xfce.sh \
   || die "can not install $_"
-
-
-### INSTALL EMACS DEPENDENCIES
-
-## language tools
-cd $HOME/Downloads || die "can not cd $_"
-url=https://languagetool.org/download/LanguageTool-5.1.zip \
-  || die "can not set url $_"
-wget "${url}" && extract "$(basename "$_")" \
-    || die "can not extract $_"
-[[ -d "$(basename "${url}" .zip)" ]] && rm "$(basename "${url}")" \
-    || die "can not remove $_"
-# ## hunspell english text corrector
-# # deprecated: archlinux has a native hunspell-1.7 package, newer
-# # hunspell manual installation, version 1.3.2
-# # * this zip contain multiple folders, requiring this specific staff
-# url=https://sourceforge.net/projects/ezwinports/files/hunspell-1.3.2-3-w32-bin.zip
-# wget "${url}" -P $HOME/Downloads/"$(basename "${url}" .zip)" && cd "$_"
-# unzip "$(basename "$_")" && rm "$(basename "${url}")"
-
-## emacs org, support for ditaa graphs
-url=https://github.com/stathissideris/ditaa/blob/master/service/web/lib/ditaa0_10.jar \
-  || die "can not set url $_"
-wget "${url}" -P $HOME/Downloads
-
 
 ## delete script after complete xfce desktop setup
 # rm -rf $HOME/script3.sh # remove script
 rm -rf $HOME/.config/autostart/script3.desktop \ \
   || die "can not remove autostart file $_"
 
-
-## in virtualbox: share folder and run emacs customized
+## script running in virtual machine?
+# share folder and run emacs customized
 source $HOME/Projects/archlinux_install_report/installation_report
-if [[ "${MACHINE}" == 'VBox' ]]; then
-  xrandr -s 1920x1080		# set screen size to 2k
-  #https://www.techrepublic.com/article/how-to-create-a-shared-folder-in-virtualbox/
-  # sudo mount -t vboxsf shared ~/shared
+case "${MACHINE}" in
+  VBox)
+    xrandr -s 1920x1080
+    msg "screen size set to 2k"
+    #https://www.techrepublic.com/article/how-to-create-a-shared-folder-in-virtualbox/
+    # sudo mount -t vboxsf shared ~/shared
 
-  # if shared mounted: added to fstab & create an emacs desktop shorcut
-  if mount | grep -q shared; then
-    echo -e "${user_password}" | sudo -S bash -c "echo \"shared $HOME/shared vboxsf uid=1000,gid=1000 0 0\" >> /etc/fstab"
-    ## run customized emacs on startup
-    echo '[Desktop Entry]
+    # if shared mounted: added to fstab & create an emacs desktop shorcut
+    if mount | grep -q shared; then
+      echo -e "${user_password}" | sudo -S bash -c "echo \"shared $HOME/shared vboxsf uid=1000,gid=1000 0 0\" >> /etc/fstab"
+      ## run customized emacs on startup
+      echo '[Desktop Entry]
 Type=Application
 Name=customized emacs
 Comment[C]=run emacs on start up with user customizations
@@ -276,41 +250,45 @@ Exec=xfce4-terminal -e "bash -c \"bash \$HOME/shared/emacs-installer.sh; exec ba
 X-GNOME-Autostart-enabled=true
 NoDisplay=false
 ' > $HOME/.config/autostart/cemacs.desktop
+    fi
 
-  fi
+    ## run native emacs on startup
+    #   echo "[Desktop Entry]
+    # Type=Application
+    # Name=native emacs
+    # Comment[C]=run emacs on start up with dark theme
+    # Terminal=false
+    # Exec=emacs --eval \"(progn (load-theme 'misterioso)(set-cursor-color \\\"turquoise1\\\"))\"
+    # X-GNOME-Autostart-enabled=true
+    # NoDisplay=false
+    # " > $HOME/.config/autostart/nemacs.desktop
 
-  ## run native emacs on startup
-  echo "[Desktop Entry]
-Type=Application
-Name=native emacs
-Comment[C]=run emacs on start up with dark theme
-Terminal=false
-Exec=emacs --eval \"(progn (load-theme 'misterioso)(set-cursor-color \\\"turquoise1\\\"))\"
-X-GNOME-Autostart-enabled=true
-NoDisplay=false
-" > $HOME/.config/autostart/nemacs.desktop
-
-  ## run thunar in specific folder
-  echo '[Desktop Entry]
-Encoding=UTF-8
-Version=0.9.4
-Type=Application
-Name=thunar startup
-Comment=startup filemanager in specific folder
-Exec=thunar 
-OnlyShowIn=XFCE;
-RunHook=0
-StartupNotify=false
-Terminal=false
-Hidden=false' > $HOME/.config/autostart/thunar.desktop
-else
-  my_emacs_path="$(lsblk -f | awk '/run.*_EXT/{ print $7 }')" \
-    || die 'can not set ${my_emacs_path}'
-  if [[ -n "${my_emacs_path}" ]]; then
-    ## install emacs customized
-    bash "${my_emacs_path}"/emacs-installer.sh
-  fi
-fi
+    ## run thunar in specific folder
+    #   echo '[Desktop Entry]
+    # Encoding=UTF-8
+    # Version=0.9.4
+    # Type=Application
+    # Name=thunar startup
+    # Comment=startup filemanager in specific folder
+    # Exec=thunar 
+    # OnlyShowIn=XFCE;
+    # RunHook=0
+    # StartupNotify=false
+    # Terminal=false
+    # Hidden=false' > $HOME/.config/autostart/thunar.desktop
+    break
+    ;;
+  Real)
+    my_emacs_path="$(lsblk -f | awk '/run.*_EXT/{ print $7 }')" \
+      || die 'can not set ${my_emacs_path}'
+    if [[ -n "${my_emacs_path}" ]]; then
+      ## install emacs customized
+      bash "${my_emacs_path}"/emacs-installer.sh
+      unset my_emacs_path
+    fi
+    break
+    ;;
+esac
 
 
 ## report time required to install archlinux
