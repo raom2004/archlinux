@@ -114,7 +114,7 @@ function dialog_ask_install_desktop
     local array_desktops=($(find . -mindepth 1 -maxdepth 1 -type d \
 				 ! -iname "scripts-shared" \
 			      | sed 's%./%%g'))
-    until [[ "${answer:-N}" =~ ^([yY])$ ]]; do
+    until [[ "${__answer:-N}" =~ ^([yY])$ ]]; do
       select option in "${array_desktops[@]}"; do
 	case "${option}" in
 	  "")
@@ -128,7 +128,7 @@ function dialog_ask_install_desktop
 	    ;;
 	esac
       done
-      read -p "::Confirm install ${system_desktop}? [y/N]" answer
+      read -p "::Confirm install ${system_desktop}? [y/N]" __answer
     done
     # unset array_desktops || die "can not unset $_"
     export system_desktop || die "can not export $_"
