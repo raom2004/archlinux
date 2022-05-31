@@ -211,7 +211,7 @@ echo 'LANGUAGE=en_GB:en_US:en' >> $HOME/.config/locale.conf \
 head -n50 /etc/X11/xinit/xinitrc > $HOME/.xinitrc \
   || die "can not create $_ from template /etc/X11/xinit/xinitrc"
 # set keyboard keymap in .xinitrc
-echo "setxkbmap -model pc105 -layout ${keyboard_keymap} -option grp:win_space_toggle" >> $HOME/.xinitrc \
+echo "${keyboard_keymap}" >> $HOME/.xinitrc \
   || die "can not add keymap in $_"
 echo "udiskie &" >> $HOME/.xinitrc \
   || die "can not add udiskie in $_ (required for drive automount)"

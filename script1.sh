@@ -138,10 +138,9 @@ keyboard_keymap_default="setxkbmap -model pc105 -layout es,us,at -option grp:win
      || die "can not set keyboard_keymap_default"
 printf "==> Keyboard will be set by command:
 ${keyboard_keymap_default}
-==> You can edit the command or press 'Enter' to continue:" 
+==> You can edit the command or press 'Enter' to continue:\n" 
 read keyboard_keymap || die "can not unset $_"
 keyboard_keymap=${keyboard_keymap:-$keyboard_keymap_default}
-eval "${keyboard_keymap}" || die "can not eval $_"
 unset keyboard_keymap_default || die "can not unset $_"
 # local time
 local_time=/Europe/Berlin
