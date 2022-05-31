@@ -196,7 +196,7 @@ if [[ "${install_desktop}" =~ ^([yY])$ ]]; then
   export system_desktop || die "can not export $_"
   export xinitrc_command || die "can not export $_"
   msg "${system_desktop} Confirmed!"
-  cd $PWD
+  cd $OLDPWD
 fi
 
 
@@ -421,8 +421,9 @@ fi
 
 ## Desktop Packages installation
 if [[ "${install_desktop}" =~ ^([yY])$ ]]; then
-  data_dir="$(dirname $(realpath $0))/${system_desktop}"
-  readarray -t DesktopPkg < "${data_dir}"/pkglist.txt
+  # data_dir="$(dirname $(realpath $0))/${system_desktop}"
+  # readarray -t DesktopPkg < "${data_dir}"/pkglist.txt
+  readarray -t DesktopPkg < ./desktop/"${system_desktop}"/pkglist.txt
   Packages+=(${DesktopPkg[@]})
 fi
 
