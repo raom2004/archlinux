@@ -301,7 +301,7 @@ if [[ ${boot_mode} == 'BIOS' ]]; then
     sleep 3
   fi
 
-  if [[ ${partition_table} == 'MBR' ]]; then
+  if [[ ${partition_table} == 'GPT' ]]; then
     ## HDD partitioning (BIOS/GPT)
     parted -s -a optimal "${target_device}" mklabel gpt \
 	   mkpart "BIOS" ext2 2MiB 4MiB \
