@@ -266,80 +266,74 @@ fi
 #souce: https://wiki.archlinux.org/title/Parted
 #define maximum size of root partition = Root_Max
 [[ "${MACHINE}" == 'Real' ]] && Root_Max=70GiB || Root_Max=15GiB
-if [[ ${boot_mode} == "BIOS" ]]; then
-  printf "BIOS detected! you can select a GPT or MBR partition table:\n"
-  select OPTION in MBR GPT; do
-    case ${OPTION} in
-      MBR)
-	### HDD PARTITIONING (BIOS/MBR)
-	parted -s -a optimal "${target_device}" \
-	       mklabel msdos \
-	       mkpart primary ext4 0% "${Root_Max}" \
-	       set 1 boot on \
-	       mkpart primary ext4 "${Root_Max}" 100% \
-	  || die "can not create BIOS/MBR partition"
-	parted -s "${target_device}" print
+## BIOS
+if [[ ${boot_mode} == 'BIOS' ]]; then
+  if [[ ${partition_table} == 'MBR' ]]; then
+    ### HDD PARTITIONING (BIOS/MBR)
+    parted -s -a optimal "${target_device}" \
+	   mklabel msdos \
+	   mkpart primary ext4 0% "${Root_Max}" \
+	   set 1 boot on \
+	   mkpart primary ext4 "${Root_Max}" 100% \
+      || die "can not create BIOS/MBR partition"
+    parted -s "${target_device}" print
 
-	## HDD formating (-F: overwrite if necessary)
-	if [[ "${drive_removable}" == 'no' ]]; then
-	  mkfs.ext4 -F "${target_device}1" \
-	    || die "can not format $_"
-	  mkfs.ext4 -F "${target_device}2" \
-	    || die "can not format $_"
-	else
-	  mkfs.ext4 -F -O "^has_journal" "${target_device}1" \
-	    || die "can not format $_"
-	  mkfs.ext4 -F -O "^has_journal" "${target_device}2" \
-	    || die "can not format $_"
-	fi
+    ## HDD formating (-F: overwrite if necessary)
+    if [[ "${drive_removable}" == 'no' ]]; then
+      mkfs.ext4 -F "${target_device}1" \
+	|| die "can not format $_"
+      mkfs.ext4 -F "${target_device}2" \
+	|| die "can not format $_"
+    else
+      mkfs.ext4 -F -O "^has_journal" "${target_device}1" \
+	|| die "can not format $_"
+      mkfs.ext4 -F -O "^has_journal" "${target_device}2" \
+	|| die "can not format $_"
+    fi
 
-	## HDD mounting
-	mount "${target_device}1" /mnt \
-	  || die "can not mount ${target_device}1"
-	mkdir -p /mnt/home || die "can not create $_"
-	mount "${target_device}2" /mnt/home \
-	  || die "can not mount ${target_device}2"
-	lsblk
-	sleep 3
+    ## HDD mounting
+    mount "${target_device}1" /mnt \
+      || die "can not mount ${target_device}1"
+    mkdir -p /mnt/home || die "can not create $_"
+    mount "${target_device}2" /mnt/home \
+      || die "can not mount ${target_device}2"
+    lsblk
+    sleep 3
+  fi
 
-	break
-	;;
-      GPT)
-	## HDD partitioning (BIOS/GPT)
-	parted -s -a optimal "${target_device}" mklabel gpt \
-	       mkpart "BIOS" ext2 2MiB 4MiB \
-	       set 1 bios_grub on \
-	       mkpart "ROOT" ext4 4MiB "${Root_Max}" \
-	       mkpart "HOME" ext4 "${Root_Max}" 100% \
-	  || die "can not create BIOS/GPT partition"
-	parted -s "${target_device}" print
+  if [[ ${partition_table} == 'MBR' ]]; then
+    ## HDD partitioning (BIOS/GPT)
+    parted -s -a optimal "${target_device}" mklabel gpt \
+	   mkpart "BIOS" ext2 2MiB 4MiB \
+	   set 1 bios_grub on \
+	   mkpart "ROOT" ext4 4MiB "${Root_Max}" \
+	   mkpart "HOME" ext4 "${Root_Max}" 100% \
+      || die "can not create BIOS/GPT partition"
+    parted -s "${target_device}" print
 
-	## HDD formating (-F: overwrite if necessary)
-	if [[ "${drive_removable}" == 'no' ]]; then
-	  mkfs.ext4 -F "${target_device}2" \
-	    || die "can not format $_"
-	  mkfs.ext4 -F "${target_device}3" \
-	    || die "can not format $_"
-	else
-	  mkfs.ext4 -F -O "^has_journal" "${target_device}2" \
-	    || die "can not format $_"
-	  mkfs.ext4 -F -O "^has_journal" "${target_device}3" \
-	    || die "can not format $_"
-	fi
-	parted -s "${target_device}" print
+    ## HDD formating (-F: overwrite if necessary)
+    if [[ "${drive_removable}" == 'no' ]]; then
+      mkfs.ext4 -F "${target_device}2" \
+	|| die "can not format $_"
+      mkfs.ext4 -F "${target_device}3" \
+	|| die "can not format $_"
+    else
+      mkfs.ext4 -F -O "^has_journal" "${target_device}2" \
+	|| die "can not format $_"
+      mkfs.ext4 -F -O "^has_journal" "${target_device}3" \
+	|| die "can not format $_"
+    fi
+    parted -s "${target_device}" print
 
-	## HDD mounting
-	mount "${target_device}2" /mnt \
-	  || die "can not mount ${target_device}2"
-	mkdir -p /mnt/home || die "can not create $_"
-	mount "${target_device}3" /mnt/home \
-	  || die "can not mount ${target_device}3"
-	lsblk
-	sleep 3
-	break
-	;;
-    esac
-  done
+    ## HDD mounting
+    mount "${target_device}2" /mnt \
+      || die "can not mount ${target_device}2"
+    mkdir -p /mnt/home || die "can not create $_"
+    mount "${target_device}3" /mnt/home \
+      || die "can not mount ${target_device}3"
+    lsblk
+    sleep 3
+  fi
 fi
 
 
