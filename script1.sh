@@ -419,19 +419,16 @@ if [[ "${MACHINE}" == 'VBox' ]]; then
   Packages+=('virtualbox-guest-utils')
 fi
 
+## Desktop Packages installation
+if [[ "${install_desktop}" =~ ^([yY])$ ]]; then
+  readarray -t DesktopPkg < ./desktop/"${system_desktop}"/pkglist.txt
+  Packages+=(${DesktopPkg[@]})
+fi
+
 ## System Packages Installation
 pacstrap /mnt --needed --noconfirm "${Packages[@]}" \
   || die "Pacstrap can not install the packages $_"
 
-## Desktop Packages installation
-if [[ "${install_desktop}" =~ ^([yY])$ ]]; then
-  readarray -t Packages < ./desktop/"${system_desktop}"/pkglist.txt
-  pacstrap /mnt --needed --noconfirm "${Packages[@]}" \
-    || die "Pacstrap can not install the packages $_"
-  # pacstrap /mnt --needed --noconfirm - < \
-  # 	   ./desktop/"${system_desktop}"/pkglist.txt \
-    || die "Pacstrap can not install the packages $_"
-fi
 
 ### GENERATE FILE SYSTEM TABLE
 
