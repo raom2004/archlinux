@@ -421,7 +421,8 @@ fi
 
 ## Desktop Packages installation
 if [[ "${install_desktop}" =~ ^([yY])$ ]]; then
-  readarray -t DesktopPkg < ./desktop/"${system_desktop}"/pkglist.txt
+  data_dir="$(dirname $(realpath $0))/desktop/${system_desktop}"
+  readarray -t DesktopPkg < "${data_dir}"/pkglist.txt
   Packages+=(${DesktopPkg[@]})
 fi
 
