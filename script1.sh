@@ -149,8 +149,15 @@ fi
 ## BIOS and UEFI support
 if ! ls /sys/firmware/efi/efivars >& /dev/null; then
   boot_mode='BIOS' || die "can not set variable ${boor_mode}"
+  partition_table_default=MBR
+  printf "BIOS detected! you can select a GPT or MBR partition table [${partition_table_default}]:"
+  read partition_table || die "can not read $_"
+  unset partition_table_default || die "can not unset $_"
+  partition_table=${partition_table:-$partition_table_default} \
+     || die "can not set partition_table"
 else
   boot_mode='UEFI' || die "can not set variable ${boor_mode}"
+  partition_table=GPT
 fi
 ## variables that user must confirm or edit
 # shell
@@ -163,8 +170,8 @@ unset user_shell_default || die "can not unset $_"
 # keyboard
 keyboard_keymap_default='es' \
   || die "can not set keyboard_keymap_default"
-echo "==> Enter system Keyboard keymap [${keyboard_keymap_default}]:" 
-read keyboard_keymap || die "can not unset $_"
+read -p "==> Enter system Keyboard keymap [${keyboard_keymap_default}]:" keyboard_keymap \
+  || die "can not unset $_"
 keyboard_keymap=${keyboard_keymap:-$keyboard_keymap_default}
 unset keyboard_keymap_default || die "can not unset $_"
 # local time

@@ -32,8 +32,39 @@ set -o pipefail    # CATCH failed piped commands
 set -o xtrace      # trace & expand what gets executed (useful for debug)
 
 
-### ERROR HANDLING
+### DECLARE FUNCTIONS
 
+
+########################################
+# Purpose: extract compressed files
+# Requirements: None
+########################################
+function extract
+{
+  if [[ -f "$1" ]]; then
+    case "$1" in
+      *.tar.bz2)   tar xvjf "$1"    ;;
+      *.tar.gz)    tar xvzf "$1"    ;;
+      *.bz2)       bunzip2 "$1"     ;;
+      *.rar)       unrar x "$1"     ;;
+      *.gz)        gunzip "$1"      ;;
+      *.tar)       tar xvf "$1"     ;;
+      *.tbz2)      tar xvjf "$1"    ;;
+      *.tgz)       tar xvzf "$1"    ;;
+      *.zip)       unzip "$1"       ;;
+      *.Z)         uncompress "$1"  ;;
+      *.7z)        7z x "$1"        ;;
+      *)           echo "don't know how to extract '$1'..." ;;
+    esac
+  else
+    echo "'$1' is not a valid file!"
+  fi
+}
+
+########################################
+# Purpose: ERROR HANDLING
+# Requirements: None
+########################################
 out() { printf "$1 $2\n" "${@:3}"; }
 error() { out "==> ERROR:" "$@"; } >&2
 warning() { out "==> WARNING:" "$@"; } >&2
@@ -211,11 +242,16 @@ echo 'LANGUAGE=en_GB:en_US:en' >> $HOME/.config/locale.conf \
 head -n50 /etc/X11/xinit/xinitrc > $HOME/.xinitrc \
   || die "can not create $_ from template /etc/X11/xinit/xinitrc"
 # set keyboard keymap in .xinitrc
-echo "${keyboard_keymap}" >> $HOME/.xinitrc \
+available_layouts=(${keyboard_keymap})
+[[ ! "${available_layouts[*]}" =~ es ]] && available_layouts+=('es')
+[[ ! "${available_layouts[*]}" =~ at ]] && available_layouts+=('at')
+[[ ! "${available_layouts[*]}" =~ us ]] && available_layouts+=('us')
+echo "setxkbmap -model pc105 -layout ${available_layouts},us,at -option grp:win_space_toggle" >> $HOME/.xinitrc \
   || die "can not add keymap in $_"
+unset available_layouts || die "can not unset $_"
+# add filemanager dependency to xinitrc
 echo "udiskie &" >> $HOME/.xinitrc \
   || die "can not add udiskie in $_ (required for drive automount)"
-unset keyboard_keymap || die "can not unset $_"
 ## if user asked to install a desktop
 # configure .xinitrc to start desktop session on startup
 if [[ "${install_desktop}" =~ ^([yY])$ ]]; then
