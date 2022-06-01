@@ -231,7 +231,7 @@ keyboard_keymap=${keyboard_keymap:-$keyboard_keymap_default}
 unset keyboard_keymap_default || die "can not unset $_"
 # local time
 local_time_default=/Europe/Berlin
-read -p "==> Enter user shell [${local_time_default}]: " local_time
+read -p "==> Enter local time [${local_time_default}]: " local_time
 local_time=${local_time:-$local_time_default} \
      || die "can not set local_time"
 unset local_time_default || die "can not unset $_"
