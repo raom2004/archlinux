@@ -304,8 +304,9 @@ total_time_minutes=\"$(((script1_time_seconds + $duration) / 60))\"
 
 
 printf "\n\nInstall xfce desktop finished succesfully. Rebooting now!"
-sleep 3 && xfce4-session-logout -l
-# echo -e "${user_password}" | sudo -S reboot now
+# mount shared in fstab require reboot
+echo -e "${user_password}" | sudo -S reboot now
+# sleep 3 && xfce4-session-logout -l
 
 
 # emacs:
