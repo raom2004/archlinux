@@ -276,17 +276,18 @@ esac
   # create autostart dir and desktop entry
   mkdir -p $HOME/.config/autostart/ \
     || die " can not create dir $_"
-  [[ "${system_desktop}" == 'xfce' ]] && cmd_option='-e'
-  [[ "${system_desktop}" == 'cinnamon' ]] && cmd_option='--'
+  [[ "${system_desktop}" == 'xfce' ]] && cmd='xfce4-terminal -e'
+  [[ "${system_desktop}" == 'cinnamon' ]] && cmd='gnome-terminal --'
   echo "[Desktop Entry]
 Type=Application
 Name=setup-desktop-on-first-startup
 Comment[C]=Script to config a new Desktop on first boot
 Terminal=true
-Exec=exo-open --launch TerminalEmulator ${cmd_option} \"bash -c \\\"bash \$HOME/Projects/archlinux/desktop/${system_desktop}/script3.sh; exec bash\\\"\"
+Exec=${cmd} \"bash -c \\\"bash \$HOME/Projects/archlinux/desktop/${system_desktop}/script3.sh; exec bash\\\"\"
 X-GNOME-Autostart-enabled=true
 NoDisplay=false
 " > $HOME/.config/autostart/script3.desktop || die "can not create $_"
+  unset cmd
 fi
 # ~/.serverrc
 # In order to maintain an authenticated session with logind and to
