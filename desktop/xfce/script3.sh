@@ -53,7 +53,7 @@ read -sp "[sudo] password for $USER:" user_password \
 
 
 ## backup desktop configuration files before changes  
-mkdir -p $HOME/.config_bk
+mkdir -p $HOME/.config_bk || die "can not create $_"
 cp -r $HOME/.config/* $HOME/.config_bk || die "can not backup $_"
 
 
@@ -234,10 +234,11 @@ rm -rf $HOME/.config/autostart/script3.desktop \ \
 
 ## script running in virtual machine?
 # share folder and run emacs customized
-source $HOME/Projects/archlinux_install_report/installation_report
+source $HOME/Projects/archlinux_install_report/installation_report \
+  || die "can not source $_"
 case "${MACHINE}" in
   VBox)
-    xrandr -s 1920x1080
+    xrandr -s 1920x1080 || die "can not set xrandr $_"
     msg "screen size set to 2k"
     #https://www.techrepublic.com/article/how-to-create-a-shared-folder-in-virtualbox/
     # sudo mount -t vboxsf shared ~/shared
@@ -274,7 +275,7 @@ NoDisplay=false
     Type=Application
     Name=nemo_startup
     Comment=startup filemanager in specific folder
-    Exec=nemo /var/vache/pacman/pkg/ --geometry 630x321+640+702 
+    Exec=nemo /var/cache/pacman/pkg/ --geometry 630x321+640+702 
     OnlyShowIn=XFCE;
     RunHook=0
     StartupNotify=false

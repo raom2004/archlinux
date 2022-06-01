@@ -226,8 +226,10 @@ fi' >> $HOME/.bash_profile || die "can not create $_"
 
 
 ## create $USER dirs (LC_ALL=C, means everything in English)
-pacman -S --needed --noconfirm xdg-user-dirs || die "can not install $_"
-LC_ALL=C xdg-user-dirs-update --force || die 'can not create user dirs'
+pacman -S --needed --noconfirm xdg-user-dirs \
+  || die "can not install $_"
+LC_ALL=C xdg-user-dirs-update --force \
+  || die 'can not create user dirs'
 
 ## Overriding system locale per $USER session
 mkdir -p $HOME/.config || die "can not create $_"
@@ -273,13 +275,15 @@ esac
   #  * Create script3.desktop entry to autostart script3.sh at first boot
   # create autostart dir and desktop entry
   mkdir -p $HOME/.config/autostart/ \
-    || die " can not create dir $_" 
+    || die " can not create dir $_"
+  [[ "${system_desktop}" == 'xfce' ]] && cmd_option='-e'
+  [[ "${system_desktop}" == 'cinnamon' ]] && cmd_option='--'
   echo "[Desktop Entry]
 Type=Application
 Name=setup-desktop-on-first-startup
 Comment[C]=Script to config a new Desktop on first boot
 Terminal=true
-Exec=xfce4-terminal -e \"bash -c \\\"bash \$HOME/Projects/archlinux/desktop/${system_desktop}/script3.sh; exec bash\\\"\"
+Exec=exo-open --launch FileManager ${cmd_option} \"bash -c \\\"bash \$HOME/Projects/archlinux/desktop/${system_desktop}/script3.sh; exec bash\\\"\"
 X-GNOME-Autostart-enabled=true
 NoDisplay=false
 " > $HOME/.config/autostart/script3.desktop || die "can not create $_"
@@ -324,11 +328,13 @@ latest_version=$(wget -O - "${url}" \
 			       | head -n1 \
 			       | tr -d '\n')
 url=https://languagetool.org/download/"${latest_version}"
-unset latest_version
 wget "${url}" -P $HOME/Downloads || die "can not download ${url}"
+unset latest_version
+# decompressing language tools
 cd $HOME/Downloads || die "can not cd $_"
 extract "$(basename "${url}")" || die "can not extract $_"
-[[ -d "$(basename "${url}" .zip)" ]] && rm "$(basename "${url}")" \
+[[ -d "$(basename "${url}" .zip)" ]] \
+  && rm "$(basename "${url}")" \
     || die "can not remove $_"
 cd $PWD || die "can not restore previous dir $_"
 

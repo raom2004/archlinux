@@ -527,6 +527,8 @@ cp -r . "${my_path}" || die "can not backup archlinux repo"
 my_path=/mnt/home/"${user_name}"/Projects/archlinux_install_report
 mkdir -p "${my_path}" || die "can not create $_"
 cp ./script[1-2].sh "${my_path}" || die "can not copy $_"
+cp ./desktop/"${system_desktop}"/script3.sh "${my_path}" \
+  || die "can not copy $_"
 duration=$SECONDS || die 'can not set variable $duration'
 echo "user_name=${user_name}
 MACHINE=${MACHINE}
