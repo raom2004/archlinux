@@ -283,7 +283,7 @@ Type=Application
 Name=setup-desktop-on-first-startup
 Comment[C]=Script to config a new Desktop on first boot
 Terminal=true
-Exec=exo-open --launch FileManager ${cmd_option} \"bash -c \\\"bash \$HOME/Projects/archlinux/desktop/${system_desktop}/script3.sh; exec bash\\\"\"
+Exec=exo-open --launch TerminalEmulator ${cmd_option} \"bash -c \\\"bash \$HOME/Projects/archlinux/desktop/${system_desktop}/script3.sh; exec bash\\\"\"
 X-GNOME-Autostart-enabled=true
 NoDisplay=false
 " > $HOME/.config/autostart/script3.desktop || die "can not create $_"
