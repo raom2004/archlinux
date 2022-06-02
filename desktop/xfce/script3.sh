@@ -248,11 +248,12 @@ xfconf-query --channel xfce4-session \
 	     --type 'bool' \
 	     --set 'false' \
   || die "can not set /general/SaveOnExit $_"
-rm -rf ~/.cache/sessions/*	# clear saved xfce session
+# clear saved xfce session
+rm -rf ~/.cache/sessions/*
 
 # mount shared in fstab require reboot
 read -p "$0 succeeded. Reboot required to update fstab. Rebooting now?[Y/n]" response
-[[ ! "${response}" =~ ^[nN]$ ]] && sudo reboot now
+[[ ! "${response}" =~ ^([nN])$ ]] && sudo reboot now
 
 
 # emacs:
