@@ -63,7 +63,7 @@ pactl -- set-sink-volume 0 50% || die "can not set audio volume $_"
 
 
 ## Disable saved sessions
-xfconf-query --channel xfce4-desktop \
+xfconf-query --channel xfce4-session \
 	     --create -p /general/SaveOnExit \
 	     --type 'bool' \
 	     --set false \
@@ -172,12 +172,13 @@ xfconf-query -c xsettings -p /Net/EnableEventSounds --set true  \
   || die "can not enable sounds $_"
 
 ## config xfce panel
+# hide secondary panel (1)
+xfconf-query -c xfce4-panel -p /panels -t int -s 0 -a
 # my_bar_position="$(xrandr | awk -F'x' '/*/{ printf $1-8 }' )"
 # xfconf-query -c xfce4-panel -p /panels/panel-2/position \
   # 	     --set "p=1;x=${my_bar_position};y=200"
 # # bar positioning: --set p=(0:left,1:right);x=#;y=#
-
-# ;;; PANEL 1
+# ;;; PANEL 0
 # ;; info
 # xfconf-query -c xfce4-panel -p /panels -lv
 # ;; automated way
@@ -197,7 +198,7 @@ xfconf-query -c xsettings -p /Net/EnableEventSounds --set true  \
 # xfconf-query -c xfce4-panel -p /panels/panel-1/position \
 # 	     --set "p=10;x=0;y=0"
 #TODO: check if the last function really works
-# PANEL 2
+# PANEL 1
 # xfconf-query -c xfce4-panel -p /panels/panel-2/position-locked \
 # 	     --set true
 # xfconf-query -c xfce4-panel -p /panels/panel-2/mode \
@@ -232,55 +233,33 @@ bash $HOME/Projects/archlinux/desktop/xfce/shortcuts-xfce.sh \
 rm -rf $HOME/.config/autostart/script3.desktop \ \
   || die "can not remove autostart file $_"
 
-## script running in virtual machine?
-# share folder and run emacs customized
+# source variables of the actual linux installation
 source $HOME/Projects/archlinux_install_report/installation_report \
   || die "can not source $_"
+## script running in virtual machine?:
+#   * check if share folder is available
+#   * make an autostart shortcut to run a desktop-customization script
 case "${MACHINE}" in
   VBox)
     xrandr -s 1920x1080 || die "can not set xrandr $_"
     msg "screen size set to 2k"
-    #https://www.techrepublic.com/article/how-to-create-a-shared-folder-in-virtualbox/
+    # https://www.techrepublic.com/article/how-to-create-a-shared-folder-in-virtualbox/
     # sudo mount -t vboxsf shared ~/shared
-
-    # if shared mounted: added to fstab & create an emacs desktop shorcut
+    
+    # if mounted, add shared to fstab & use it in desktop shorcuts
     if ! mount | grep -q shared; then
       echo -e "${user_password}" | sudo -S bash -c "echo \"shared $HOME/shared vboxsf uid=1000,gid=1000 0 0\" >> /etc/fstab"
       ## run customized emacs on startup
       echo '[Desktop Entry]
 Type=Application
-Name=customized emacs
-Comment[C]=run emacs on start up with user customizations
+Name=script for desktop customization
+Comment[C]=desktop customizations
 Terminal=false
 Exec=xfce4-terminal -e "bash -c \"bash \$HOME/shared/emacs-installer.sh; exec bash\""
 X-GNOME-Autostart-enabled=true
 NoDisplay=false
-' > $HOME/.config/autostart/cemacs.desktop
+' > $HOME/.config/autostart/desktop-customization.desktop
     fi
-
-    ## run native emacs on startup
-      echo "[Desktop Entry]
-    Type=Application
-    Name=native emacs
-    Comment[C]=run emacs on start up with dark theme
-    Terminal=false
-    Exec=emacs --eval \"(progn (load-theme 'misterioso)(set-cursor-color \\\"turquoise1\\\"))\"
-    X-GNOME-Autostart-enabled=true
-    NoDisplay=false
-    " > $HOME/.config/autostart/nemacs.desktop
-
-    ## run filemanager
-      echo '[Desktop Entry]
-    Encoding=UTF-8
-    Type=Application
-    Name=nemo_startup
-    Comment=startup filemanager in specific folder
-    Exec=nemo /var/cache/pacman/pkg/ --geometry 630x321+640+702 
-    OnlyShowIn=XFCE;
-    RunHook=0
-    StartupNotify=false
-    Terminal=false
-    Hidden=false' > $HOME/.config/autostart/nemo.desktop
     break
     ;;
   Real)
