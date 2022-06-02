@@ -120,6 +120,7 @@ function dialog_ask_install_desktop
 	  "")
 	    system_desktop="${array_desktops[0]}"
 	    startcommand_xinitrc="$(cat. "${array_desktops[0]}"/startcommand-xinitrc.sh)"
+	    break
 	    ;;
 	  *)
 	    system_desktop="${option}"
