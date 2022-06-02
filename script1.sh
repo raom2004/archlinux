@@ -100,46 +100,54 @@ function dialog_get_target_device
 ########################################
 # Purpose: dialog to ask if user want to install a desktop
 # Arguments: $1
-# Return: the argument $1 will store the user answer (e.g. 'y')
+# Return: the argument $1 will store the variable $install_desktop (e.g. 'y')
 ########################################
 function dialog_ask_install_desktop
 {
+  cd desktop/
+  system_desktop=" "
   local __resultvar="$1"
-  
-  read -p "Do you want to install a desktop? [Y/n]" install_desktop
-  if [[ ! "${install_desktop}" =~ ^([nN])$ ]]; then
-    cd desktop/
-    system_desktop=" "
-    local array_desktops=($(find . -mindepth 1 -maxdepth 1 -type d \
+  local array_desktops=($(find . -mindepth 1 -maxdepth 1 -type d \
 				 ! -iname "scripts-shared" \
-			      | sed 's%./%%g'))
-    printf "please select a desktop [${array_desktops[0]}]:\n"
-    until [[ "${__answer:-N}" =~ ^([yY])$ ]]; do
-      select option in "${array_desktops[@]}"; do
-	case "${option}" in
-	  "")
-	    system_desktop="${array_desktops[0]}"
-	    startcommand_xinitrc="$(cat. "${array_desktops[0]}"/startcommand-xinitrc.sh)"
-	    break
-	    ;;
-	  *)
-	    system_desktop="${option}"
-	    startcommand_xinitrc="$(cat ./"${option}"/startcommand-xinitrc.sh)"
-	    break
-	    ;;
-	esac
-      done
-      read -p "::Confirm install ${system_desktop}? [y/N]" __answer
-    done
-    # unset array_desktops || die "can not unset $_"
+			    | sed 's%./%%g'))
+  read -p "==> Install ${array_desktops[0]} desktop? [Y/n]" install_desktop_default
+  if [[ ! "${install_desktop_default}" =~ ^([nN])$ ]]; then
+    system_desktop="${array_desktops[0]}" \
+      || die "can not set $$system_desktop=$_"
+    startcommand_xinitrc="$(cat ./"${array_desktops[0]}"/startcommand-xinitrc.sh)" \
+      || die "can not set $$startcommand_xinitrc=$_"
     export system_desktop || die "can not export $_"
     export startcommand_xinitrc || die "can not export $_"
-    msg "${system_desktop} Confirmed!"
-    cd $OLDPWD
-    eval "${__resultvar}"="${__answer}"
+    eval "${__resultvar}"='y' || die "can not eval $_"
   else
-    eval "${__resultvar}"='N'
+    read -p "Do you want to install a desktop? [Y/n]" install_desktop
+    if [[ ! "${install_desktop}" =~ ^([nN])$ ]]; then
+      printf "please select a desktop:\n"
+      until [[ "${__answer:-N}" =~ ^([yY])$ ]]; do
+	select option in "${array_desktops[@]}"; do
+	  case "${option}" in
+	    "")
+	      echo "::Incorrect option! Try again"
+	      ;;
+	    *)
+	      system_desktop="${option}"
+	      startcommand_xinitrc="$(cat ./"${option}"/startcommand-xinitrc.sh)"
+	      break
+	      ;;
+	  esac
+	done
+	read -p "::Confirm install ${system_desktop}? [y/N]" __answer
+      done
+      # unset array_desktops || die "can not unset $_"
+      export system_desktop || die "can not export $_"
+      export startcommand_xinitrc || die "can not export $_"
+      msg "${system_desktop} Confirmed!"
+      eval "${__resultvar}"="${__answer}"
+    else
+      eval "${__resultvar}"='N'
+    fi
   fi
+  cd $OLDPWD
 }
 
 ########################################
