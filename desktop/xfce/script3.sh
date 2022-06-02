@@ -47,6 +47,8 @@ msg2() { out "  ->" "$@";}
 die() { error "$@"; exit 1; }
 
 
+## starting message
+echo "Starting $0 for basic xfce desktop customization"
 ## run commands with sudo password (but do not show it, option -s)
 read -sp "[sudo] password for $USER:" user_password \
      || die "can not read sudo password"
@@ -232,11 +234,12 @@ echo "script3_time_seconds=${duration}
 total_time_minutes=\"$(((script1_time_seconds + $duration) / 60))\"
 " >> $HOME/Projects/archlinux_install_report/installation_report
 
+# clear saved xfce session
+rm -rf ~/.cache/sessions/*
 
-printf "\n\nInstall xfce desktop finished succesfully. Rebooting now!"
 # mount shared in fstab require reboot
-echo -e "${user_password}" | sudo -S reboot now
-# sleep 3 && xfce4-session-logout -l
+read -p "$0 succeeded. Reboot required to update fstab. Rebooting now?[Y/n]" response
+[[ ! "${response}" =~ ^[nN]$ ]] && sudo reboot now
 
 
 # emacs:
