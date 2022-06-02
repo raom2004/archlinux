@@ -234,8 +234,21 @@ echo "script3_time_seconds=${duration}
 total_time_minutes=\"$(((script1_time_seconds + $duration) / 60))\"
 " >> $HOME/Projects/archlinux_install_report/installation_report
 
-# clear saved xfce session
-rm -rf ~/.cache/sessions/*
+
+## disable prompt on logout
+# xfconf-query --channel xfce4-session \
+# 	     --create -p /general/PromptOnLogout \
+# 	     --type 'bool' \
+# 	     --set 'false' \
+#   || die "can not set /general/PromptOnLogout $_"
+
+## Disable saved sessions
+xfconf-query --channel xfce4-session \
+	     --create -p /general/SaveOnExit \
+	     --type 'bool' \
+	     --set 'false' \
+  || die "can not set /general/SaveOnExit $_"
+rm -rf ~/.cache/sessions/*	# clear saved xfce session
 
 # mount shared in fstab require reboot
 read -p "$0 succeeded. Reboot required to update fstab. Rebooting now?[Y/n]" response
