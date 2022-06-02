@@ -106,24 +106,24 @@ function dialog_ask_install_desktop
 {
   local __resultvar="$1"
   
-  read -p "Do you want to install a desktop? [y/N]" install_desktop
-  if [[ "${install_desktop}" =~ ^([yY])$ ]]; then
+  read -p "Do you want to install a desktop? [Y/n]" install_desktop
+  if [[ ! "${install_desktop}" =~ ^([nN])$ ]]; then
     cd desktop/
     system_desktop=" "
-    printf "please select a desktop:\n"
     local array_desktops=($(find . -mindepth 1 -maxdepth 1 -type d \
 				 ! -iname "scripts-shared" \
 			      | sed 's%./%%g'))
+    printf "please select a desktop [${array_desktops[0]}]:\n"
     until [[ "${__answer:-N}" =~ ^([yY])$ ]]; do
       select option in "${array_desktops[@]}"; do
 	case "${option}" in
 	  "")
-	    die "Invalid option ${option}. Canceling...\n"
+	    system_desktop="${array_desktops[0]}"
+	    startcommand_xinitrc="$(cat. "${array_desktops[0]}"/startcommand-xinitrc.sh)"
 	    ;;
 	  *)
 	    system_desktop="${option}"
-	    startcommand_xinitrc="$(cat \
-				     ./"${option}"/startcommand-xinitrc.sh)"
+	    startcommand_xinitrc="$(cat ./"${option}"/startcommand-xinitrc.sh)"
 	    break
 	    ;;
 	esac
