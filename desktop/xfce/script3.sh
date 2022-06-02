@@ -62,14 +62,6 @@ pactl -- set-sink-mute 0 0 || die "can not turn on audio"
 pactl -- set-sink-volume 0 50% || die "can not set audio volume $_"
 
 
-## Disable saved sessions
-xfconf-query --channel xfce4-session \
-	     --create -p /general/SaveOnExit \
-	     --type 'bool' \
-	     --set false \
-  || die "can not set /general/SaveOnExit $_"
-
-
 ## install theme, icons and wallpaper
 # create dot directories
 mkdir -p $HOME/.{themes,icons,wallpapers} \
@@ -171,47 +163,6 @@ xfconf-query -c xfce4-desktop \
 xfconf-query -c xsettings -p /Net/EnableEventSounds --set true  \
   || die "can not enable sounds $_"
 
-## config xfce panel
-# hide secondary panel (1)
-xfconf-query -c xfce4-panel -p /panels -t int -s 0 -a
-# my_bar_position="$(xrandr | awk -F'x' '/*/{ printf $1-8 }' )"
-# xfconf-query -c xfce4-panel -p /panels/panel-2/position \
-  # 	     --set "p=1;x=${my_bar_position};y=200"
-# # bar positioning: --set p=(0:left,1:right);x=#;y=#
-# ;;; PANEL 0
-# ;; info
-# xfconf-query -c xfce4-panel -p /panels -lv
-# ;; automated way
-# function set_xfce4_panel {
-# xfconf-query --channel xfce4-panel \
-# 	     --create -p "$1" \
-# 	     --type "$2" \
-# 	     --set "$3" \
-#   || die "can not set $1 $2 $3"
-# }
-# xfconf-query -c xfce4-panel -p /panels/panel-1/plugin-ids
-# set_xfce4_panel '/panels/panel-1/lenght' 'bool' true
-# set_xfce4_panel '/panels/panel-1/mode' int 0
-# set_xfce4_panel '/panels/panel-1/position-locked' 'bool' true
-# set_xfce4_panel '/panels/panel-1/size' int 29
-# set_xfce4_panel '/panels/panel-1/position' 
-# xfconf-query -c xfce4-panel -p /panels/panel-1/position \
-# 	     --set "p=10;x=0;y=0"
-#TODO: check if the last function really works
-# PANEL 1
-# xfconf-query -c xfce4-panel -p /panels/panel-2/position-locked \
-# 	     --set true
-# xfconf-query -c xfce4-panel -p /panels/panel-2/mode \
-# 	     -n -t int \
-# 	     --set 0 		# --set 0:horizontal; 1:vertical
-# xfconf-query -c xfce4-panel -p /panels/panel-2/enter-opacity \
-# 	     -n -t int \
-# 	     --set 65
-# xfconf-query -c xfce4-panel -p /panels/panel-2/leave-opacity \
-# 	     -n -t int \
-# 	     --set 65
-# xfconf-query -c xfce4-panel -p /panels/panel-2/autohide-behavior \
-# 	     --set 2
 
 ## config mouse/touchpad
 xfconf-query -c pointers -p /ETPS2_Elantech_Touchpad/Properties/libinput_Tapping_Enabled \
@@ -230,7 +181,7 @@ bash $HOME/Projects/archlinux/desktop/xfce/shortcuts-xfce.sh \
 
 ## delete script after complete xfce desktop setup
 # rm -rf $HOME/script3.sh # remove script
-rm -rf $HOME/.config/autostart/script3.desktop \ \
+rm -rf $HOME/.config/autostart/script3.desktop \
   || die "can not remove autostart file $_"
 
 # source variables of the actual linux installation
