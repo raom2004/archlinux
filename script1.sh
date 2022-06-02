@@ -118,7 +118,8 @@ function dialog_ask_install_desktop
       || die "can not set $$startcommand_xinitrc=$_"
     export system_desktop || die "can not export $_"
     export startcommand_xinitrc || die "can not export $_"
-    eval "${__resultvar}"='y' || die "can not eval $_"
+    eval "${__resultvar}"='y' \
+      || die "can not set $$install_desktop to $_"
   else
     read -p "Do you want to install a desktop? [Y/n]" install_desktop
     if [[ ! "${install_desktop}" =~ ^([nN])$ ]]; then
