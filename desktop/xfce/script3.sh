@@ -58,6 +58,8 @@ read -sp "[sudo] password for $USER:" user_password \
 ## backup desktop configuration files before changes  
 mkdir -p $HOME/.config_bk || die "can not create $_"
 cp -r $HOME/.config/* $HOME/.config_bk || die "can not backup $_"
+mkdir -p $HOME/.local_bk || die "can not create $_"
+cp -r $HOME/.local/* $HOME/.local_bk || die "can not backup $_"
 
 
 ## Audio
