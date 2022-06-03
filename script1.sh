@@ -26,6 +26,7 @@ elif ! pacman -S --needed --noconfirm dmidecode; then
 else
   read -p "Running $0. Do you want to INSTALL archlinux?[Y/n]" answer
   [[ "${answer:-N}" == ^([nN])$ ]] && echo "Quit.." | exit 0
+  unset answer
 fi
 
 
