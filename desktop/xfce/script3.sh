@@ -9,17 +9,20 @@
 
 ### REQUIREMENTS:
 
-# Verify user privileges:
-if [[ "$EUID" -eq 0 ]]; then echo "Do not run ./$0 as root!"; exit; fi 
-# source dependencies
-if ! source ~/.functions; then
-    echo "can not source ~/.functions" && sleep 3
-    exit
-fi
-# verify internet connection
-if ! check_internet; then
-    echo "can not run function: check_internet" && sleep 3
-    exit
+# Basic Verifications
+if [[ "$EUID" -eq 0 ]]; then	 # user privileges
+  echo "Do not run ./$0 as root!"
+  exit
+elif ! source ~/.functions; then # source dependencies
+  echo "can not source ~/.functions" && sleep 3
+  exit
+elif ! check_internet; then	 # internet connection
+  echo "can not run function: check_internet" && sleep 3
+  exit
+else
+  echo "running $0"
+  read -p "Allow run script3.sh to customize the desktop?[Y/n]" answer
+  [[ "${answer}" == ^([nN])$ ]] && exit
 fi    
 # measure time
 SECONDS=0
