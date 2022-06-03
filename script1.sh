@@ -23,6 +23,9 @@ if [[ "$EUID" -ne 0 ]]; then
 elif ! pacman -S --needed --noconfirm dmidecode; then
   echo "ERROR: can not install required package dmidecode"
   exit
+else
+  read -p "Running $0. Do you want to INSTALL archlinux?[Y/n]" answer
+  [[ "${answer:-N}" == ^([nN])$ ]] && echo "Quit.." | exit 0
 fi
 
 
@@ -567,8 +570,8 @@ chown -R ${user_name}:${user_name} /home/${user_name}/Down*/*;" \
 
 ### UNMOUNT EVERYTHING AND REBOOT
 
-read -p "$0 install succeded! umount '/mnt' and reboot?[y/N]" response
-[[ "${response}" =~ ^[yY]$ ]] && umount -R /mnt | reboot now
+read -p "$0 install succeded! umount '/mnt' and reboot?[Y/n]" response
+[[ "${response}" =~ ^([nN])$ ]] && umount -R /mnt | reboot now
 
 
 # emacs:
