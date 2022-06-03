@@ -569,8 +569,7 @@ chown -R ${user_name}:${user_name} /home/${user_name}/Down*/*;" \
 
 
 ### UNMOUNT EVERYTHING AND REBOOT
-
-read -p "$0 install succeded! umount '/mnt' and reboot?[Y/n]" response
+read -p "$0 install succeded (${duration} seconds)! umount '/mnt' and reboot?[Y/n]" response
 [[ "${response}" =~ ^([nN])$ ]] && umount -R /mnt | reboot now
 
 

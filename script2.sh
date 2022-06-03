@@ -95,7 +95,7 @@ echo 'LC_MESSAGES=en_US.UTF-8' >> /etc/locale.conf || die "MESSAGES in $_"
 echo 'LC_TIME=en_DK.UTF-8'     >> /etc/locale.conf || die "LC_TIME in $_"
 # Keyboard Configuration (e.g. set spanish as keyboard layout)
 # localectl set-keymap --no-convert es # do not work under chroot
-echo "KEYMAP=${keyboard_keymap}"               > /etc/vconsole.conf \
+echo "KEYMAP=${keyboard_keymap}" > /etc/vconsole.conf \
   || die "can not set KEYMAP=${keyboard_keymap} in $_"
 
 
