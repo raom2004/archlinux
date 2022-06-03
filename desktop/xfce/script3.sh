@@ -256,6 +256,10 @@ xfconf-query --channel xfce4-session \
   || die "can not set /general/SaveOnExit $_"
 # clear saved xfce session
 rm -rf ~/.cache/sessions/*
+# clear recently used files
+file=$HOME/.local/share/recently-used.xbel
+[[ -f "${file}" ]] && rm -rf "${file}"
+unset file
 
 # mount shared in fstab require reboot
 read -p "$0 succeeded. Reboot required to update fstab. Rebooting now?[Y/n]" response
