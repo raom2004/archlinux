@@ -285,7 +285,7 @@ Type=Application
 Name=setup desktop on first startup
 Comment[C]=Script to config a new Desktop on first boot
 Terminal=true
-Exec=xdg-open --launch TerminalEmulator bash -c \"bash \$HOME/Projects/archlinux/desktop/${system_desktop}/script3.sh; exec bash\"
+Exec=xdg-open --launch TerminalEmulator bash -c \"sleep 5; bash \$HOME/Projects/archlinux/desktop/${system_desktop}/script3.sh; exec bash\"
 X-GNOME-Autostart-enabled=true
 NoDisplay=false
 " > $HOME/.config/autostart/script3.desktop || die "can not create $_"
