@@ -13,7 +13,7 @@ alias ll="ls -l"
 alias lo="ls -o"
 alias lh="ls -lh"
 alias la="ls -la"
-
+alias lt="ls  -al --time-style=+%D | grep $(date +%D)"
 
 ## sys admin aliases
 
