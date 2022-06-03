@@ -278,9 +278,8 @@ esac
   # create autostart dir and desktop entry
   mkdir -p $HOME/.config/autostart/ \
     || die " can not create dir $_"
-  # [[ "${system_desktop}" == 'xfce' ]] && cmd='xfce4-terminal -e'
-  # [[ "${system_desktop}" == 'cinnamon' ]] && cmd='gnome-terminal --'
-  cmd='gnome-terminal --'
+  [[ "${system_desktop}" == 'xfce' ]] && cmd='xfce4-terminal -e'
+  [[ "${system_desktop}" == 'cinnamon' ]] && cmd='gnome-terminal --'
   echo "[Desktop Entry]
 Type=Application
 Name=setup-desktop-on-first-startup
