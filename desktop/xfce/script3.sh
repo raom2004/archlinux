@@ -22,7 +22,8 @@ elif ! check_internet; then	 # internet connection
 else
   echo "running $0"
   read -p "Allow run script3.sh to customize the desktop?[Y/n]" answer
-  [[ "${answer}" == ^([nN])$ ]] && exit
+  [[ "${answer:-Y}" =~ ^([nN])$ ]] && exit
+  unset answer
 fi    
 # measure time
 SECONDS=0

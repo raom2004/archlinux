@@ -280,24 +280,16 @@ esac
     || die " can not create dir $_"
   # [[ "${system_desktop}" == 'xfce' ]] && cmd='xfce4-terminal -e'
   # [[ "${system_desktop}" == 'cinnamon' ]] && cmd='gnome-terminal --'
+  cmd='gnome-terminal --'
   echo "[Desktop Entry]
 Type=Application
-Name=setup desktop on first startup
+Name=setup-desktop-on-first-startup
 Comment[C]=Script to config a new Desktop on first boot
 Terminal=true
-Exec=xdg-open --launch TerminalEmulator bash -c \"sleep 5; bash \$HOME/Projects/archlinux/desktop/${system_desktop}/script3.sh; exec bash\"
+Exec=${cmd} \"bash -c \\\"bash \$HOME/Projects/archlinux/desktop/${system_desktop}/script3.sh; exec bash\\\"\"
 X-GNOME-Autostart-enabled=true
 NoDisplay=false
 " > $HOME/.config/autostart/script3.desktop || die "can not create $_"
-#   echo "[Desktop Entry]
-# Type=Application
-# Name=setup-desktop-on-first-startup
-# Comment[C]=Script to config a new Desktop on first boot
-# Terminal=true
-# Exec=${cmd} \"bash -c \\\"bash \$HOME/Projects/archlinux/desktop/${system_desktop}/script3.sh; exec bash\\\"\"
-# X-GNOME-Autostart-enabled=true
-# NoDisplay=false
-# " > $HOME/.config/autostart/script3.desktop || die "can not create $_"
   unset cmd
 fi
 # ~/.serverrc
