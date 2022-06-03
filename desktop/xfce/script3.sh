@@ -52,7 +52,7 @@ die() { error "$@"; exit 1; }
 
 
 ## starting message
-echo "Starting $0 for basic xfce desktop customization"
+echo "Starting basic xfce desktop customization"
 ## run commands with sudo password (but do not show it, option -s)
 read -sp "[sudo] password for $USER:" user_password \
      || die "can not read sudo password"
