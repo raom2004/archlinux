@@ -578,7 +578,7 @@ unset my_path || die "can not unset $_"
 if [[ "${install_desktop}" =~ ^([yY])$ ]]; then
   my_path=/mnt/home/"${user_name}"/bin
   mkdir -p "${my_path}" || die "can not create $_"
-  cp -r ./desktop/scripts-shared "${my_path}" \
+  cp ./desktop/scripts-shared/* "${my_path}" \
     || die "Pacstrap can not install the packages $_"
 fi
 

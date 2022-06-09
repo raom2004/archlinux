@@ -98,6 +98,10 @@ xfconf-query -c xfce4-keyboard-shortcuts \
 	     -n -t 'string' \
 	     -p '/commands/custom/<Primary><Alt>4' \
 	     --set "emacsclient -nc"
+xfconf-query -c xfce4-keyboard-shortcuts \
+	     -n -t 'string' \
+	     -p '/commands/custom/<Super>t' \
+	     --set "eatmydata firefox --private-window"
 
 
 # /commands/custom/<Alt>F1                   xfce4-popup-applicationsmenu
