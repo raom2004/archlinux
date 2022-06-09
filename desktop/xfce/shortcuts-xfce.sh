@@ -90,6 +90,14 @@ xfconf-query -c xfce4-keyboard-shortcuts \
 	     -n -t 'string' \
 	     -p '/xfwm4/custom/<Super>Down' \
 	     --set tile_down_key
+xfconf-query -c xfce4-keyboard-shortcuts \
+	     -n -t 'string' \
+	     -p '/commands/custom/<Primary><Alt>3' \
+	     --set "emacs --debug-init"
+xfconf-query -c xfce4-keyboard-shortcuts \
+	     -n -t 'string' \
+	     -p '/commands/custom/<Primary><Alt>4' \
+	     --set "emacsclient -nc"
 
 
 # /commands/custom/<Alt>F1                   xfce4-popup-applicationsmenu
