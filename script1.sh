@@ -196,14 +196,35 @@ die() { error "$@"; exit 1; }
 ### DECLARE VARIABLES
 
 ## variables that user must provide (hide passwords by -sp option)
-read -p "==> Enter hostname: " host_name \
-  || die 'can not set variable ${host_name}'
-read -sp "==> Enter ROOT password: " root_password \
-  || die 'can not set variable ${root_password}'
-read -p "==> Enter NEW user: " user_name \
-  || die 'can not set variable ${user_name}'
-read -sp "==> Enter NEW user PASSWORD: " user_password \
-  || die 'can not set variable ${user_password}'
+until (( "${#host_name}" > 2 )); do
+  read -p "==> Enter HOSTNAME: " host_name \
+    || die 'can not set variable ${host_name}'
+  if (( "${#host_name}" < 2 )); then
+      echo "invalid length (${#host_name}), required (>2)"
+  fi
+done
+until (( "${#root_password}" > 7 )); do
+  read -sp "==> Enter ROOT PASSWORD: " root_password && echo \
+    || die 'can not set variable ${root_password}'
+  if (( "${#root_password}" < 7 )); then
+      echo "invalid length (${#root_password}), required (>7)"
+  fi
+done
+until (( "${#user_name}" > 2 )); do
+  read -p "==> Enter USER NAME: " user_name \
+    || die 'can not set variable ${user_name}'
+  if (( "${#user_name}" < 2 )); then
+      echo "invalid length (${#user_name}), required (>2)"
+  fi
+done
+until (( "${#user_password}" > 6 )); do
+  read -sp "==> Enter USER PASSWORD: " user_password && echo \
+    || die 'can not set variable ${user_password}'
+  if (( "${#user_password}" < 6 )); then
+      echo "invalid length (${#user_password}), required (>7)"
+  fi
+  echo "user input data correct.."
+done
 
 ## variables automatically recognized
 machine="$(dmidecode -s system-manufacturer)" \
