@@ -13,5 +13,5 @@ case "$check_keymap" in
 	setxkbmap es
 	break
 	;;
-    
+esac
 unset check_keymap
