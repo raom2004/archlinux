@@ -95,9 +95,14 @@ echo 'LC_MESSAGES=en_US.UTF-8' >> /etc/locale.conf || die "MESSAGES in $_"
 echo 'LC_TIME=en_DK.UTF-8'     >> /etc/locale.conf || die "LC_TIME in $_"
 # Keyboard Configuration (e.g. set spanish as keyboard layout)
 # localectl set-keymap --no-convert es # do not work under chroot
-echo "KEYMAP=${keyboard_keymap}" > /etc/vconsole.conf \
-  || die "can not set KEYMAP=${keyboard_keymap} in $_"
-
+if [[ "${system_desktop:-}" == 'openbox' ]]; then
+  localectl --no-convert set-x11-keymap es,us,de pc105 \
+	    grp:win_space_toggle \
+    || die 'can not set keyboard with localectl'
+else
+  echo "KEYMAP=${keyboard_keymap}" > /etc/vconsole.conf \
+    || die "can not set KEYMAP=${keyboard_keymap} in $_"
+fi
 
 ### Network Configuration
 

@@ -1,0 +1,5 @@
+openbox
+ttf-dejavu
+ttf-liberation
+feh
+menumaker
