@@ -6,12 +6,8 @@
 check_keymap="$(setxkbmap -query | awk '/layout/{ print $2 }')"
 case "$check_keymap" in
     es)
-	setxkbmap us
-	break
-	;;
+	setxkbmap us;;
     us)
-	setxkbmap es
-	break
-	;;
-    
+	setxkbmap es;;
+esac
 unset check_keymap
