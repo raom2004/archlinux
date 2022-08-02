@@ -196,7 +196,8 @@ die() { error "$@"; exit 1; }
 ### DECLARE VARIABLES
 
 ## variables that user must provide (hide passwords by -sp option)
-until (( "${#host_name:-}" > 2 )); do
+host_name="${host_name:-}"
+until (( "${#host_name}" > 2 )); do
   read -p "==> Enter HOSTNAME: " host_name \
     || die 'can not set variable ${host_name}'
   if (( "${#host_name}" < 2 )); then
