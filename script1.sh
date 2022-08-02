@@ -204,6 +204,7 @@ until (( "${#host_name}" > 2 )); do
       echo "invalid length (${#host_name}), required (>2)"
   fi
 done
+root_password="${root_password:-}"
 until (( "${#root_password}" > 7 )); do
   read -sp "==> Enter ROOT PASSWORD: " root_password && echo \
     || die 'can not set variable ${root_password}'
@@ -211,6 +212,7 @@ until (( "${#root_password}" > 7 )); do
       echo "invalid length (${#root_password}), required (>7)"
   fi
 done
+user_name="${user_name:-}"
 until (( "${#user_name}" > 2 )); do
   read -p "==> Enter USER NAME: " user_name \
     || die 'can not set variable ${user_name}'
@@ -218,6 +220,7 @@ until (( "${#user_name}" > 2 )); do
       echo "invalid length (${#user_name}), required (>2)"
   fi
 done
+user_password="${user_password:-}"
 until (( "${#user_password}" > 6 )); do
   read -sp "==> Enter USER PASSWORD: " user_password && echo \
     || die 'can not set variable ${user_password}'
