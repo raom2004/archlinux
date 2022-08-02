@@ -284,6 +284,7 @@ esac
   mkdir -p $HOME/.config/autostart/ \
     || die " can not create dir $_"
   [[ "${system_desktop}" == 'xfce' ]] && cmd='xfce4-terminal -e'
+  [[ "${system_desktop}" == 'openbox' ]] && cmd='urxvt '
   [[ "${system_desktop}" == 'cinnamon' ]] && cmd='gnome-terminal --'
   echo "[Desktop Entry]
 Type=Application
