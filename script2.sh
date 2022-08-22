@@ -251,7 +251,7 @@ echo 'LANGUAGE=en_GB:en_US:en' >> $HOME/.config/locale.conf \
 head -n50 /etc/X11/xinit/xinitrc > $HOME/.xinitrc \
   || die "can not create $_ from template /etc/X11/xinit/xinitrc"
 # set keyboard keymap in .xinitrc
-available_layouts=(${keyboard_keymap})
+available_layouts=("${keyboard_keymap}")
 [[ ! "${available_layouts[*]}" =~ es ]] && available_layouts+=('es')
 [[ ! "${available_layouts[*]}" =~ at ]] && available_layouts+=('at')
 [[ ! "${available_layouts[*]}" =~ us ]] && available_layouts+=('us')
@@ -281,10 +281,11 @@ esac
   #  * Create a script3.sh with your customizations
   #  * Create script3.desktop entry to autostart script3.sh at first boot
   # create autostart dir and desktop entry
-  mkdir -p $HOME/.config/autostart/ \
-    || die " can not create dir $_"
+  autotart_path=$HOME/.config/autostart
+  [[ "${system_desktop}" == 'openbox' ]] && autotart_path=$HOME/.config/openbox/autostart
+  mkdir -p "${autostart_path}"/ || die " can not create dir $_"
   [[ "${system_desktop}" == 'xfce' ]] && cmd='xfce4-terminal -e'
-  [[ "${system_desktop}" == 'openbox' ]] && cmd='urxvt '
+  [[ "${system_desktop}" == 'openbox' ]] && cmd='xterm '
   [[ "${system_desktop}" == 'cinnamon' ]] && cmd='gnome-terminal --'
   echo "[Desktop Entry]
 Type=Application
@@ -294,7 +295,7 @@ Terminal=true
 Exec=${cmd} \"bash -c \\\"bash \$HOME/Projects/archlinux/desktop/${system_desktop}/script3.sh; exec bash\\\"\"
 X-GNOME-Autostart-enabled=true
 NoDisplay=false
-" > $HOME/.config/autostart/script3.desktop || die "can not create $_"
+" > "${autostart_path}"/script3.desktop || die "can not create $_"
   unset cmd
 fi
 # ~/.serverrc

@@ -30,7 +30,7 @@ SECONDS=0
 
 
 ### BASH SCRIPT FLAGS FOR SECURITY AND DEBUGGING ###################
-
+    
 
 ## shopt -o noclobber # avoid file overwriting (>) but can be forced (>|)
 set +o history     # disably bash history temporarilly
@@ -53,7 +53,7 @@ die() { error "$@"; exit 1; }
 
 
 ## starting message
-echo "Starting basic openbox window manager customization"
+echo "Starting $0 for openbox window manager customization"
 ## run commands with sudo password (but do not show it, option -s)
 read -sp "[sudo] password for $USER:" user_password \
      || die "can not read sudo password"
@@ -69,6 +69,71 @@ cp -r $HOME/.local/* $HOME/.local_bk || die "can not backup $_"
 ## Audio
 pactl -- set-sink-mute 0 0 || die "can not turn on audio"
 pactl -- set-sink-volume 0 50% || die "can not set audio volume $_"
+
+
+### XINITRC CONFIGURATION
+
+## configure .xinitrc to start terminal on start up
+sed -i 's%udiskie &%source ~/.xinitrc_autostart%' ~/.xinitrc
+echo '
+udiskie &
+xterm &
+~/.fehbg
+' ~/.xinitrc_autostart
+
+## set background
+mkdir -p $HOME/.{themes,icons,wallpapers} \
+  || die "can not create $_"
+image="https://i.imgur.com/IwPvX8Z.jpg" \
+  || die "can not set \$image $_"
+my_path=$HOME/.wallpapers/arch-tv-wallpaper.jpg \
+  || die "can not set \$my_path $_"
+wget --output-document="${my_path}" "${image}" \
+  || die "can not download $_"
+feh --bg-scale "${my_path}"
+
+
+### XRESOURCES CONFIGURATION
+
+## install dependencies 
+
+# sudo pacman -S $(pacman -Ssq noto-fonts)
+
+## configure .xresources
+
+echo '! Dracula Xresources palette
+*.foreground: #F8F8F2
+*.background: #282A36
+*.color0:     #000000
+*.color8:     #4D4D4D
+*.color1:     #FF5555
+*.color9:     #FF6E67
+*.color2:     #50FA7B
+*.color10:    #5AF78E
+*.color3:     #F1FA8C
+*.color11:    #F4F99D
+*.color4:     #BD93F9
+*.color12:    #CAA9FA
+*.color5:     #FF79C6
+*.color13:    #FF92D0
+*.color6:     #8BE9FD
+*.color14:    #9AEDFE
+*.color7:     #BFBFBF
+*.color15:    #E6E6E6' > ~/.xresources
+
+## customize xterm font
+echo '
+XTerm*scrollBar: true
+XTerm*scrollbar.width: 8
+XTerm*reverseVideo: true
+XTerm*geometry: 76x20
+XTerm*font: 7x13
+XTerm*faceName: Liberation Mono:size=10:antialias=false
+XTerm*faceSize: 12
+XTerm*faceName: Dejavu Sans Mono:size=10:style=Book:antialias=true
+XTerm*cursorColor: cyan
+XTerm*cursorBlink: true
+' >> ~/.xresources
 
 
 ### OPENBOX CONFIGURATION
