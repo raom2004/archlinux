@@ -264,7 +264,7 @@ echo "udiskie &" >> $HOME/.xinitrc \
 ## if user asked to install a desktop
 # configure .xinitrc to start desktop session on startup
 if [[ "${install_desktop}" =~ ^([yY])$ ]]; then
-  if ! grep "-${system_desktop}" $HOME/.xinitrc; then
+  if ! grep "\-${system_desktop}" $HOME/.xinitrc; then
     echo "# Here ${system_desktop} is the default
 session=\${1:-${system_desktop}}
 
@@ -281,7 +281,7 @@ esac
   #  * Create a script3.sh with your customizations
   #  * Create script3.desktop entry to autostart script3.sh at first boot
   # create autostart dir and desktop entry
-  autotart_path=$HOME/.config/autostart
+  autostart_path=$HOME/.config/autostart
   [[ "${system_desktop}" == 'openbox' ]] && autotart_path=$HOME/.config/openbox/autostart
   mkdir -p "${autostart_path}"/ || die " can not create dir $_"
   [[ "${system_desktop}" == 'xfce' ]] && cmd='xfce4-terminal -e'
