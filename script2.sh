@@ -302,8 +302,8 @@ NoDisplay=false
 " > "${autostart_path}"/script3.desktop || die "can not create $_"
   else
    echo "# Programs that will run after Openbox has started
-${cmd} \"bash -c \\\"bash \$HOME/Projects/archlinux/desktop/${system_desktop}/script3.sh; exec bash\\\" &\"
-" > "${autostart_path}"/autostart || die "can not create $_ file"
+${cmd} &\"" > "${autostart_path}"/autostart \
+     || die "can not create $_ file"
   fi
   unset cmd
   unset autostart_path
