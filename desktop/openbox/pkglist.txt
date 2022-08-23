@@ -3,3 +3,7 @@ ttf-dejavu
 ttf-liberation
 feh
 menumaker
+pavucontrol
+pavucontrol-qt
+alsa-utils
+network-manager-applet

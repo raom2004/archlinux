@@ -282,12 +282,13 @@ esac
   #  * Create script3.desktop entry to autostart script3.sh at first boot
   # create autostart dir and desktop entry
   autostart_path=$HOME/.config/autostart
-  [[ "${system_desktop}" == 'openbox' ]] && autotart_path=$HOME/.config/openbox/autostart
+  [[ "${system_desktop}" == 'openbox' ]] && autotart_path=$HOME/.config/openbox
   mkdir -p "${autostart_path}"/ || die " can not create dir $_"
   [[ "${system_desktop}" == 'xfce' ]] && cmd='xfce4-terminal -e'
-  [[ "${system_desktop}" == 'openbox' ]] && cmd='xterm '
+  [[ "${system_desktop}" == 'openbox' ]] && cmd='xterm -rv -hold -e'
   [[ "${system_desktop}" == 'cinnamon' ]] && cmd='gnome-terminal --'
-  echo "[Desktop Entry]
+  if [[ ! "${system_desktop}" == 'openbox' ]]; then
+    echo "[Desktop Entry]
 Type=Application
 Name=setup-desktop-on-first-startup
 Comment[C]=Script to config a new Desktop on first boot
@@ -296,7 +297,12 @@ Exec=${cmd} \"bash -c \\\"bash \$HOME/Projects/archlinux/desktop/${system_deskto
 X-GNOME-Autostart-enabled=true
 NoDisplay=false
 " > "${autostart_path}"/script3.desktop || die "can not create $_"
-  unset cmd
+    unset cmd
+  else
+   echo "# Programs that will run after Openbox has started
+${cmd} \"bash -c \\\"bash \$HOME/Projects/archlinux/desktop/${system_desktop}/script3.sh; exec bash\\\" &\"
+" > "${autostart_path}"/openbox/autostart || die "can not create $_ file"
+  fi
 fi
 # ~/.serverrc
 # In order to maintain an authenticated session with logind and to
