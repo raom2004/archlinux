@@ -301,7 +301,7 @@ NoDisplay=false
   else
    echo "# Programs that will run after Openbox has started
 ${cmd} \"bash -c \\\"bash \$HOME/Projects/archlinux/desktop/${system_desktop}/script3.sh; exec bash\\\" &\"
-" > "${autostart_path}"/openbox/autostart || die "can not create $_ file"
+" > "${autostart_path}"/autostart || die "can not create $_ file"
   fi
 fi
 # ~/.serverrc
