@@ -114,7 +114,7 @@ function dialog_ask_install_desktop
   local array_desktops=($(find . -mindepth 1 -maxdepth 1 -type d \
 			       ! -iname "scripts-shared" \
 			    | sed 's%./%%g'))
-  array_desktops+='none'
+  array_desktops+=('none')
   printf "please select a desktop:\n"
   until [[ "${__answer:-}" =~ ^([yY])$ ]]; do
     select option in "${array_desktops[@]}"; do
