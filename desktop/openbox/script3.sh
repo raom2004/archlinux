@@ -304,7 +304,7 @@ case "${MACHINE}" in
     if ! mount | grep -q shared; then
       echo -e "${user_password}" | sudo -S bash -c "echo \"shared $HOME/shared vboxsf uid=1000,gid=1000 0 0\" >> /etc/fstab"
       ## run customized emacs on startup
-      echo "${cmd} -e \"bash -c \\\"bash \$HOME/shared/emacs-installer.sh; exec bash \\\"\" &
+      echo "xterm -rv -hold -e \"bash -c \\\"bash \$HOME/shared/emacs-installer.sh; exec bash \\\"\" &
 " > $HOME/.config/openbox/autostart
     fi
     break
