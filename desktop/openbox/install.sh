@@ -11,12 +11,25 @@
 #
 ### CODE:
 
-### Requirements:
 
-# check priviledges
-if [[ "$EUID" -ne 0 ]]; then
-  echo "error: run ./$0 require root priviledges"
+### REQUIREMENTS:
+
+# Basic Verifications
+if [[ "$EUID" -eq 0 ]]; then	 # user privileges
+  echo "Do not run ./$0 as root!"
   exit
+elif ! source ~/.functions; then # source dependencies
+  echo "can not source ~/.functions" && sleep 3
+  exit
+elif ! check_internet; then	 # internet connection
+  echo "can not run function: check_internet" && sleep 3
+  exit
+else
+  system_desktop="$(basename $PWD)"
+  echo "running $0"
+  read -p "Allow run ./$0 to customize the desktop ${system_desktop}?[Y/n]" answer
+  [[ "${answer:-Y}" =~ ^([nN])$ ]] && exit
+  unset answer
 fi
 
 
@@ -43,7 +56,6 @@ die() { error "$@"; exit 1; }
 
 
 ### install desktop
-system_desktop="$(basename $PWD)"
 
 read -p "::Install ${system_desktop} desktop? [y/N]" install_desktop
 if [[ "${install_desktop}" =~ ^([yY])$ ]]; then
