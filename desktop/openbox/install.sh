@@ -42,6 +42,64 @@ msg2() { out "  ->" "$@";}
 die() { error "$@"; exit 1; }
 
 
+### install desktop
+system_desktop="$(basename $PWD)"
+
+read -p "::Install ${system_desktop} desktop? [y/N]" install_desktop
+if [[ "${install_desktop}" =~ ^([yY])$ ]]; then
+  # install packages
+  packages_to_install=$HOME/Projects/archlinux/desktop/"${system_desktop}"/pkglist.txt
+  readarray -t DesktopPkg < "${packages_to_install}"
+  Packages=(${DesktopPkg[@]})
+  sudo pacman --needed --noconfirm "${Packages[@]}" \
+    || die "Pacman can not install the packages $_"
+  # configure .xinitrc to start desktop session on startup
+  if ! grep "\-${system_desktop}" $HOME/.xinitrc; then
+    echo "# Here ${system_desktop} is the default
+session=\${1:-${system_desktop}}
+
+case \$session in
+    ${system_desktop}         ) exec ${startcommand_xinitrc};;
+    # No known session, try to run it as command
+    *                 ) exec \$1;;
+esac
+" >> $HOME/.xinitrc \
+      || die "can not set ${system_desktop} desktop in ~/.xinitrc"
+  fi
+  ## How to customize a new desktop on first boot?
+  # With a startup script that just need two steps:
+  #  * Create a script3.sh with your customizations
+  #  * Create script3.desktop entry to autostart script3.sh at first boot
+  # create autostart dir and desktop entry
+  if [[ "${system_desktop}" == 'openbox' ]]; then
+    autostart_path=$HOME/.config/openbox
+  else
+    autostart_path=$HOME/.config/autostart
+  fi
+  mkdir -p "${autostart_path}"/ || die " can not create dir $_"
+  [[ "${system_desktop}" == 'xfce' ]] && cmd='xfce4-terminal -e'
+  # [[ "${system_desktop}" == 'openbox' ]] && cmd='xterm -rv -hold -e'
+  [[ "${system_desktop}" == 'openbox' ]] && cmd='xterm -rv'
+  [[ "${system_desktop}" == 'cinnamon' ]] && cmd='gnome-terminal --'
+  if [[ "${system_desktop}" == 'openbox' ]]; then
+   echo "# Programs that will run after Openbox has started
+${cmd} &" > "${autostart_path}"/autostart \
+     || die "can not create $_ file"
+  else
+    echo "[Desktop Entry]
+Type=Application
+Name=setup-desktop-on-first-startup
+Comment[C]=Script to config a new Desktop on first boot
+Terminal=true
+Exec=${cmd} \"bash -c \\\"bash \$HOME/Projects/archlinux/desktop/${system_desktop}/script3.sh; exec bash\\\"\"
+X-GNOME-Autostart-enabled=true
+NoDisplay=false
+" > "${autostart_path}"/script3.desktop || die "can not create $_"
+  fi
+  unset cmd
+  unset autostart_path
+fi
+
 
 ## show final message and exit
 echo "$0 successful" && sleep 3 && exit

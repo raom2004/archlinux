@@ -279,7 +279,7 @@ esac
       || die "can not set ${system_desktop} desktop in ~/.xinitrc"
   fi
   ## How to customize a new desktop on first boot?
-  # With a startup script that just need to steps:
+  # With a startup script that just need two steps:
   #  * Create a script3.sh with your customizations
   #  * Create script3.desktop entry to autostart script3.sh at first boot
   # create autostart dir and desktop entry
