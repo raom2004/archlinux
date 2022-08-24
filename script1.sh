@@ -112,45 +112,36 @@ function dialog_ask_install_desktop
   system_desktop=" "
   local __resultvar="$1"
   local array_desktops=($(find . -mindepth 1 -maxdepth 1 -type d \
-				 ! -iname "scripts-shared" \
+			       ! -iname "scripts-shared" \
 			    | sed 's%./%%g'))
-  read -p "==> Install ${array_desktops[0]} desktop? [Y/n]" install_desktop_default
-  if [[ ! "${install_desktop_default}" =~ ^([nN])$ ]]; then
-    system_desktop="${array_desktops[0]}" \
-      || die "can not set $$system_desktop=$_"
-    startcommand_xinitrc="$(cat ./"${array_desktops[0]}"/startcommand-xinitrc.sh)" \
-      || die "can not set $$startcommand_xinitrc=$_"
+  array_desktops+='none'
+  printf "please select a desktop:\n"
+  until [[ "${__answer:-}" =~ ^([yY])$ ]]; do
+    select option in "${array_desktops[@]}"; do
+      case "${option}" in
+	"")
+	  echo "::Incorrect option! Try again"
+	  ;;
+	"none")
+	  system_desktop="${option}"
+	  break
+	  ;;
+	*)
+	  system_desktop="${option}"
+	  startcommand_xinitrc="$(cat ./"${option}"/startcommand-xinitrc.sh)"
+	  break
+	  ;;
+      esac
+    done
+    read -p "::Confirm install ${system_desktop} desktop? [y/N]" __answer
+  done
+  msg "${system_desktop} desktop confirmed!"
+  if [[ "${system_desktop}" == 'none' ]]; then
+    eval "${__resultvar}"='N'
+  else
     export system_desktop || die "can not export $_"
     export startcommand_xinitrc || die "can not export $_"
-    eval "${__resultvar}"='y' \
-      || die "can not set $$install_desktop to $_"
-  else
-    read -p "Do you want to install a desktop? [Y/n]" install_desktop
-    if [[ ! "${install_desktop}" =~ ^([nN])$ ]]; then
-      printf "please select a desktop:\n"
-      until [[ "${__answer:-N}" =~ ^([yY])$ ]]; do
-	select option in "${array_desktops[@]}"; do
-	  case "${option}" in
-	    "")
-	      echo "::Incorrect option! Try again"
-	      ;;
-	    *)
-	      system_desktop="${option}"
-	      startcommand_xinitrc="$(cat ./"${option}"/startcommand-xinitrc.sh)"
-	      break
-	      ;;
-	  esac
-	done
-	read -p "::Confirm install ${system_desktop}? [y/N]" __answer
-      done
-      # unset array_desktops || die "can not unset $_"
-      export system_desktop || die "can not export $_"
-      export startcommand_xinitrc || die "can not export $_"
-      msg "${system_desktop} Confirmed!"
-      eval "${__resultvar}"="${__answer}"
-    else
-      eval "${__resultvar}"='N'
-    fi
+    eval "${__resultvar}"="${__answer}"
   fi
   cd $OLDPWD
 }
