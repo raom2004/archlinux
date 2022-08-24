@@ -84,31 +84,13 @@ esac
   #  * Create a script3.sh with your customizations
   #  * Create script3.desktop entry to autostart script3.sh at first boot
   # create autostart dir and desktop entry
-  if [[ "${system_desktop}" == 'openbox' ]]; then
-    autostart_path=$HOME/.config/openbox
-  else
-    autostart_path=$HOME/.config/autostart
-  fi
+  autostart_path=$HOME/.config/openbox
   mkdir -p "${autostart_path}"/ || die " can not create dir $_"
-  [[ "${system_desktop}" == 'xfce' ]] && cmd='xfce4-terminal -e'
   # [[ "${system_desktop}" == 'openbox' ]] && cmd='xterm -rv -hold -e'
   [[ "${system_desktop}" == 'openbox' ]] && cmd='xterm -rv'
-  [[ "${system_desktop}" == 'cinnamon' ]] && cmd='gnome-terminal --'
-  if [[ "${system_desktop}" == 'openbox' ]]; then
-   echo "# Programs that will run after Openbox has started
-${cmd} &" > "${autostart_path}"/autostart \
-     || die "can not create $_ file"
-  else
-    echo "[Desktop Entry]
-Type=Application
-Name=setup-desktop-on-first-startup
-Comment[C]=Script to config a new Desktop on first boot
-Terminal=true
-Exec=${cmd} \"bash -c \\\"bash \$HOME/Projects/archlinux/desktop/${system_desktop}/script3.sh; exec bash\\\"\"
-X-GNOME-Autostart-enabled=true
-NoDisplay=false
-" > "${autostart_path}"/script3.desktop || die "can not create $_"
-  fi
+  echo "# Programs that will run after Openbox has started
+${cmd} \"bash -c \\\"bash \$HOME/Projects/archlinux/desktop/${system_desktop}/script3.sh; exec bash\\\"\" &" > "${autostart_path}"/autostart \
+    || die "can not create $_ file"
   unset cmd
   unset autostart_path
   unset startcommand_xinitrc

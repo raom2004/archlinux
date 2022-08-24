@@ -71,15 +71,7 @@ pactl -- set-sink-mute 0 0 || die "can not turn on audio"
 pactl -- set-sink-volume 0 50% || die "can not set audio volume $_"
 
 
-### XINITRC CONFIGURATION
-
-## configure .xinitrc to start terminal on start up
-sed -i 's%udiskie &%source ~/.xinitrc_autostart%' ~/.xinitrc
-echo '
-udiskie &
-xterm &
-~/.fehbg
-' ~/.xinitrc_autostart
+### OPENBOX AUTOSTART CONFIGURATION
 
 ## set background
 mkdir -p $HOME/.{themes,icons,wallpapers} \
@@ -265,13 +257,18 @@ mmaker -vf OpenBox3 || die "menumaker can not create new menus"
 #  sources ~/.config/openbox/environment
 #  runs /etc/xdg/openbox/autostart
 #  runs ~/.config/openbox/autostart
-echo '~/.fehbg &' > ~/.config/openbox/autostart
 # Issues regarding commands are often resolved by the addition of small delays
 # echo '
 # xset -b
 # (sleep 3s && nm-applet) &
 # (sleep 3s && conky) &
 # ' > /etc/xdg/openbox/environment
+
+## set backgroumd permanent
+echo '~/.fehbg &
+nm-applet & 
+conky &' >> $HOME/.xinitrc
+
 
 ## environment
 # path: ~/.config/openbox/environment
@@ -309,15 +306,8 @@ case "${MACHINE}" in
     if ! mount | grep -q shared; then
       echo -e "${user_password}" | sudo -S bash -c "echo \"shared $HOME/shared vboxsf uid=1000,gid=1000 0 0\" >> /etc/fstab"
       ## run customized emacs on startup
-      echo '[Desktop Entry]
-Type=Application
-Name=script for desktop customization
-Comment[C]=desktop customizations
-Terminal=false
-Exec=xfce4-terminal -e "bash -c \"bash \$HOME/shared/emacs-installer.sh; exec bash\""
-X-GNOME-Autostart-enabled=true
-NoDisplay=false
-' > $HOME/.config/autostart/desktop-customization.desktop
+      echo "${cmd} -e \"bash -c \\\"bash \$HOME/shared/emacs-installer.sh; exec bash \\\"\" &
+" > $HOME/.config/openbox/autostart
     fi
     break
     ;;

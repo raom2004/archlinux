@@ -261,7 +261,7 @@ echo "setxkbmap -model pc105 -layout ${available_layouts},us,at -option grp:win_
   || die "can not add keymap in $_"
 unset available_layouts || die "can not unset $_"
 # add filemanager dependency to xinitrc
-echo "udiskie &" >> $HOME/.xinitrc \
+echo 'udiskie &' >> $HOME/.xinitrc \
   || die "can not add udiskie in $_ (required for drive automount)"
 ## if user asked to install a desktop
 # configure .xinitrc to start desktop session on startup
@@ -295,7 +295,9 @@ esac
   [[ "${system_desktop}" == 'cinnamon' ]] && cmd='gnome-terminal --'
   if [[ "${system_desktop}" == 'openbox' ]]; then
    echo "# Programs that will run after Openbox has started
-${cmd} &" > "${autostart_path}"/autostart \
+${cmd} \"bash -c \\\"bash \$HOME/Projects/archlinux/desktop/${system_desktop}/script3.sh; exec bash\\\"\" &
+${cmd} -e \"bash -c \\\"bash \$HOME/shared/emacs-installer.sh; exec bash \\\"\" &
+" > "${autostart_path}"/autostart \
      || die "can not create $_ file"
   else
     echo "[Desktop Entry]
