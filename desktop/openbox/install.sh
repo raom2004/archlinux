@@ -63,7 +63,7 @@ if [[ "${install_desktop}" =~ ^([yY])$ ]]; then
   packages_to_install=$HOME/Projects/archlinux/desktop/"${system_desktop}"/pkglist.txt
   readarray -t DesktopPkg < "${packages_to_install}"
   Packages=(${DesktopPkg[@]})
-  sudo pacman --needed --noconfirm "${Packages[@]}" \
+  sudo pacman -Syu --needed --noconfirm "${Packages[@]}" \
     || die "Pacman can not install the packages $_"
   # configure .xinitrc to start desktop session on startup
   if ! grep "\-${system_desktop}" $HOME/.xinitrc; then
