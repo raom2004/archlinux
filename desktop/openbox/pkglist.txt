@@ -5,5 +5,5 @@ feh
 menumaker
 pavucontrol
 pavucontrol-qt
-alsa-utils
 network-manager-applet
+alsa-utils
