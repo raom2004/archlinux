@@ -66,7 +66,7 @@ if [[ "${install_desktop}" =~ ^([yY])$ ]]; then
   sudo pacman -Syu --needed --noconfirm "${Packages[@]}" \
     || die "Pacman can not install the packages $_"
   # configure .xinitrc to start desktop session on startup
-  startcommand_xinitrc="$(cat ./"${system_desktop}"/startcommand-xinitrc.sh)"
+  startcommand_xinitrc="$(cat ./startcommand-xinitrc.sh)"
   if ! grep "\-${system_desktop}" $HOME/.xinitrc; then
     echo "# Here ${system_desktop} is the default
 session=\${1:-${system_desktop}}
