@@ -288,9 +288,14 @@ esac
   fi
   mkdir -p "${autostart_path}"/ || die " can not create dir $_"
   [[ "${system_desktop}" == 'xfce' ]] && cmd='xfce4-terminal -e'
-  [[ "${system_desktop}" == 'openbox' ]] && cmd='xterm -rv -hold -e'
+  # [[ "${system_desktop}" == 'openbox' ]] && cmd='xterm -rv -hold -e'
+  [[ "${system_desktop}" == 'openbox' ]] && cmd='xterm -rv'
   [[ "${system_desktop}" == 'cinnamon' ]] && cmd='gnome-terminal --'
-  if [[ ! "${system_desktop}" == 'openbox' ]]; then
+  if [[ "${system_desktop}" == 'openbox' ]]; then
+   echo "# Programs that will run after Openbox has started
+${cmd} &" > "${autostart_path}"/autostart \
+     || die "can not create $_ file"
+  else
     echo "[Desktop Entry]
 Type=Application
 Name=setup-desktop-on-first-startup
@@ -300,10 +305,6 @@ Exec=${cmd} \"bash -c \\\"bash \$HOME/Projects/archlinux/desktop/${system_deskto
 X-GNOME-Autostart-enabled=true
 NoDisplay=false
 " > "${autostart_path}"/script3.desktop || die "can not create $_"
-  else
-   echo "# Programs that will run after Openbox has started
-${cmd} &\"" > "${autostart_path}"/autostart \
-     || die "can not create $_ file"
   fi
   unset cmd
   unset autostart_path
