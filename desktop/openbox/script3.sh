@@ -82,7 +82,7 @@ my_path=$HOME/.wallpapers/arch-tv-wallpaper.jpg \
   || die "can not set \$my_path $_"
 wget --output-document="${my_path}" "${image}" \
   || die "can not download $_"
-feh --bg-scale "${my_path}"
+feh --bg-scale --bg-fill "${my_path}"
 
 
 ### XRESOURCES CONFIGURATION
