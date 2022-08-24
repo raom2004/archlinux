@@ -201,21 +201,19 @@ echo '
 url=https://aur.archlinux.org/xcursor-human.git
 msg "installing AUR package $url"
 package_name="$(basename $url .git)"
-search_package_in_system="$(pacman -Qm ${package_name})"
-if [[ -n "${search_package_in_system}" ]]; then
-  warning "AUR package %s is already on system\n" "${package_name}"
-  sleep 3
-  exit 0
-else
-    ## remove directory if previously present in /tmp
+if ! pacman -Qm "${package_name}"; then
+  ## remove directory if previously present in /tmp
   [[ -d /tmp/"${package_name}" ]] && rm -rf /tmp/"${package_name}"
-
   ## install aur package after check it was not previously installed
   msg "installing AUR package %s\n" "${package_name}"
   git clone "$1" /tmp/"${package_name}"
   cd /tmp/"${package_name}"
   makepkg -Ccsri --noconfirm --needed
   cd "${OLDPWD}"
+else
+  warning "AUR package %s is already on system\n" "${package_name}"
+  sleep 3
+  exit 0
 fi
 # set cursor
 mkdir -p ~/.icons/default
