@@ -223,13 +223,15 @@ pkgfile -u || die "can not update with 'pkgfile -u'"
 ## set environment variables
 HOME=/home/"${user_name}"
 
-## Autostart X at login
-echo 'if [[ -z "${DISPLAY}" ]] && [[ "${XDG_VTNR}" -eq 1 ]]; then
+## Autostart X at login (only if user installed a desktop)
+if [[ "${install_desktop}" =~ ^([yY])$ ]]; then
+  echo 'if [[ -z "${DISPLAY}" ]] && [[ "${XDG_VTNR}" -eq 1 ]]; then
   exec startx
 fi' > $HOME/.zprofile || die "can not create $_" 
-echo 'if [[ -z "${DISPLAY}" ]] && [[ "${XDG_VTNR}" -eq 1 ]]; then
+  echo 'if [[ -z "${DISPLAY}" ]] && [[ "${XDG_VTNR}" -eq 1 ]]; then
   exec startx
 fi' >> $HOME/.bash_profile || die "can not create $_"
+fi
 
 
 ## create $USER dirs (LC_ALL=C, means everything in English)
