@@ -206,7 +206,7 @@ if ! pacman -Qm "${package_name}"; then
   [[ -d /tmp/"${package_name}" ]] && rm -rf /tmp/"${package_name}"
   ## install aur package after check it was not previously installed
   msg "installing AUR package %s\n" "${package_name}"
-  git clone "$1" /tmp/"${package_name}"
+  git clone "${url}" /tmp/"${package_name}"
   cd /tmp/"${package_name}"
   makepkg -Ccsri --noconfirm --needed
   cd "${OLDPWD}"
