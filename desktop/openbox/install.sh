@@ -87,7 +87,7 @@ esac
   autostart_path=$HOME/.config/openbox
   mkdir -p "${autostart_path}"/ || die " can not create dir $_"
   # [[ "${system_desktop}" == 'openbox' ]] && cmd='xterm -rv -hold -e'
-  [[ "${system_desktop}" == 'openbox' ]] && cmd='xterm -rv'
+  [[ "${system_desktop}" == 'openbox' ]] && cmd='xterm -rvi -hold -e'
   echo "# Programs that will run after Openbox has started
 ${cmd} \"bash -c \\\"bash \$HOME/Projects/archlinux/desktop/${system_desktop}/script3.sh; exec bash\\\"\" &" > "${autostart_path}"/autostart \
     || die "can not create $_ file"
