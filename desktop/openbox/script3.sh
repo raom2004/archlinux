@@ -239,7 +239,7 @@ my_path=$HOME/.wallpapers/space-wallpaper.jpg \
   || die "can not set \$my_path $_"
 wget --output-document="${my_path}" "${image}" \
   || die "can not download $_"
-feh --bg-scale $HOME/.wallpapers/space-wallpaper.jpg \
+feh --bg-scale -bg-fill $HOME/.wallpapers/space-wallpaper.jpg \
   || die "can not set wallpaper $_"
     
 
@@ -261,11 +261,6 @@ mmaker -vf OpenBox3 || die "menumaker can not create new menus"
 # (sleep 3s && nm-applet) &
 # (sleep 3s && conky) &
 # ' > /etc/xdg/openbox/environment
-
-## set backgroumd permanent
-echo '~/.fehbg &
-nm-applet & 
-conky &' >> $HOME/.xinitrc
 
 
 ## environment
@@ -302,9 +297,14 @@ case "${MACHINE}" in
     # if mounted, add shared to fstab & use it in desktop shorcuts
     if ! mount | grep -q shared; then
       echo -e "${user_password}" | sudo -S bash -c "echo \"shared $HOME/shared vboxsf uid=1000,gid=1000 0 0\" >> /etc/fstab"
+      ## set permanent startup programs
+echo '~/.fehbg &
+nm-applet & 
+conky &
+' > $HOME/.config/openbox/autostart
       ## run customized emacs on startup
       echo "xterm -rv -hold -e \"bash -c \\\"bash \$HOME/shared/emacs-installer.sh; exec bash \\\"\" &
-" > $HOME/.config/openbox/autostart
+" >> $HOME/.config/openbox/autostart
     fi
     break
     ;;
