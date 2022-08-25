@@ -291,7 +291,7 @@ esac
   mkdir -p "${autostart_path}"/ || die " can not create dir $_"
   [[ "${system_desktop}" == 'xfce' ]] && cmd='xfce4-terminal -e'
   # [[ "${system_desktop}" == 'openbox' ]] && cmd='xterm -rv -hold -e'
-  [[ "${system_desktop}" == 'openbox' ]] && cmd='xterm -rv'
+  [[ "${system_desktop}" == 'openbox' ]] && cmd="xterm -rv -fa 'Ubuntu Mono' -fs 14"
   [[ "${system_desktop}" == 'cinnamon' ]] && cmd='gnome-terminal --'
   if [[ "${system_desktop}" == 'openbox' ]]; then
    echo "# Programs that will run after Openbox has started
