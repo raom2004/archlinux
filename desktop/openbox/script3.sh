@@ -284,9 +284,8 @@ bash $HOME/Projects/archlinux/desktop/openbox/shortcuts-openbox.sh \
 
 ## delete script after complete xfce desktop setup
 # rm -rf $HOME/script3.sh # remove script
-rm -rf $HOME/.config/autostart/script3.desktop \
-  || die "can not remove autostart file $_"
-
+# rm -rf $HOME/.config/autostart/script3.desktop \
+#   || die "can not remove autostart file $_"
 # source variables of the actual linux installation
 source $HOME/Projects/archlinux_install_report/installation_report \
   || die "can not source $_"

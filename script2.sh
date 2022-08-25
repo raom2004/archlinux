@@ -296,7 +296,6 @@ esac
   if [[ "${system_desktop}" == 'openbox' ]]; then
    echo "# Programs that will run after Openbox has started
 ${cmd} \"bash -c \\\"bash \$HOME/Projects/archlinux/desktop/${system_desktop}/script3.sh; exec bash\\\"\" &
-${cmd} -e \"bash -c \\\"bash \$HOME/shared/emacs-installer.sh; exec bash \\\"\" &
 " > "${autostart_path}"/autostart \
      || die "can not create $_ file"
   else
