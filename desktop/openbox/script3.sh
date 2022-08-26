@@ -137,57 +137,72 @@ cp -a /etc/xdg/openbox/ ~/.config/
 ## rc.xml: (pre-configured, only allow add more content)
 # path: ~/.config/openbox/rc.xml 
 # Key shortcuts, Theming, (Virtual) desktop, Application Window settings
-# key shortkut : show menu
-echo '
-<keybind key="C-m">
-    <action name="ShowMenu">
-       <menu>root-menu</menu>
+
+## keybind : show menu
+text_original="<keyboard>"
+text_replace="
+  <!-- keybind: show menu -->
+  <keybind key=\"C-m\">
+    <action name=\"ShowMenu\">
+      <menu>root-menu</menu>
     </action>
+  </keybind>
+"
+# convert mewlines into "\n"
+text_replace="$(echo "${text_replace}" | awk '{printf "%s\\n"}', $0)"
+sed -i "s|${text_original}|${text_replace}|" ~/.config/openbox/rc.xml
+
+## keybind: reconfigure  openbox
+text_original="<keyboard>"
+text_replace="
+<keybind key=\"W-F11\">
+  <action name=\"Reconfigure\"/>
 </keybind>
-' >> ~/.config/openbox/rc.xml
-# key shortkut : reconfigure  openbox
-echo '
-<keybind key="W-F11">
-  <action name="Reconfigure"/>
-</keybind>
- <keybind key="Print">
-   <action name="Execute">
+ <keybind key=\"Print\">
+   <action name=\"Execute\">
      <command>gnome-screenshot -c</command>
    </action>
  </keybind>
- <keybind key="A-Print">
-   <action name="Execute">
+ <keybind key=\"A-Print\">
+   <action name=\"Execute\">
      <command>gnome-screenshot -c -w</command>
    </action>
  </keybind>
- <keybind key="W-Print">
-   <action name="Execute">
+ <keybind key=\"W-Print\">
+   <action name=\"Execute\">
      <command>gnome-screenshot -i</command>
    </action>
  </keybind>
-' >> ~/.config/openbox/rc.xml
-# key shortcuts: window snapping
-echo '<keybind key="W-Left">
-    <action name="Unmaximize"/>
-    <action name="MaximizeVert"/>
-    <action name="MoveResizeTo">
+"
+text_replace="$(echo "${text_replace}" | awk '{printf "%s\\n"}', $0)"
+sed -i "s|${text_original}|${text_replace}|" ~/.config/openbox/rc.xml
+
+## key shortcuts: window snapping
+text_original="<keyboard>"
+text_replace="<keybind key=\"W-Left\">
+    <action name=\"Unmaximize\"/>
+    <action name=\"MaximizeVert\"/>
+    <action name=\"MoveResizeTo\">
         <width>50%</width>
     </action>
-    <action name="MoveToEdge"><direction>west</direction></action>
+    <action name=\"MoveToEdge\"><direction>west</direction></action>
 </keybind>
-<keybind key="W-Right">
-    <action name="Unmaximize"/>
-    <action name="MaximizeVert"/>
-    <action name="MoveResizeTo">
+<keybind key=\"W-Right\">
+    <action name=\"Unmaximize\"/>
+    <action name=\"MaximizeVert\"/>
+    <action name=\"MoveResizeTo\">
         <width>50%</width>
     </action>
-    <action name="MoveToEdge"><direction>east</direction></action>
+    <action name=\"MoveToEdge\"><direction>east</direction></action>
 </keybind>
-' >> ~/.config/openbox/rc.xml
-# show icons in menu
-echo '
-<showIcons>yes</showIcons>
-' >> ~/.config/openbox/rc.xml
+"
+text_replace="$(echo "${text_replace}" | awk '{printf "%s\\n"}', $0)"
+sed -i "s|${text_original}|${text_replace}|" ~/.config/openbox/rc.xml
+
+# show icons in menu (standar option, do not need to modofocate)
+# echo '
+# <showIcons>yes</showIcons>
+# ' >> ~/.config/openbox/rc.xml
 
 # echo '<!-- Keybindings for running aplications -->
 # <keybind key="my-key-combination">
@@ -197,7 +212,7 @@ echo '
 # </keybind>
 # ' >> ~/.config/openbox/rc.xml
 
-# TODO: download cursor
+# download cursor
 url=https://aur.archlinux.org/xcursor-human.git
 msg "installing AUR package $url"
 package_name="$(basename $url .git)"
@@ -298,13 +313,11 @@ case "${MACHINE}" in
     if ! mount | grep -q shared; then
       echo -e "${user_password}" | sudo -S bash -c "echo \"shared $HOME/shared vboxsf uid=1000,gid=1000 0 0\" >> /etc/fstab"
       ## set permanent startup programs
-echo '~/.fehbg &
-nm-applet & 
-conky &
-' > $HOME/.config/openbox/autostart
+      sed 's%udiskie &%&\n~/.fehbg \&\nnm-applet \&conky &%' > $HOME/.xinitrc
       ## run customized emacs on startup
-      echo "xterm -rv -hold -e \"bash -c \\\"bash \$HOME/shared/emacs-installer.sh; exec bash \\\"\" &
-" >> $HOME/.config/openbox/autostart
+      cmd="xterm -rv -fa 'Ubuntu Mono' -fs 14  -hold -e"
+      echo "${cmd} \"bash -c \\\"bash \$HOME/shared/emacs-installer.sh;\
+ exec bash \\\"\" &" >> $HOME/.config/openbox/autostart
     fi
     break
     ;;
