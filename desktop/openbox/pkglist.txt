@@ -7,3 +7,6 @@ pavucontrol
 pavucontrol-qt
 network-manager-applet
 alsa-utils
+conky
+stalonetray
+tint2
