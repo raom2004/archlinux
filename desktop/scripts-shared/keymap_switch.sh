@@ -3,11 +3,28 @@
 # alternate between keyboard layouts
 #
 # Dependencies: pulseaudio
-check_keymap="$(setxkbmap -query | awk '/layout/{ print $2 }')"
-case "$check_keymap" in
+lang="$(setxkbmap -query | awk '/layout/{ print $2 }')"
+case "${lang}" in
     es)
-	setxkbmap us;;
+	setxkbmap us
+	notify-send Layout US
+	;;
     us)
-	setxkbmap es;;
+	setxkbmap es
+	notify-send Layout DE
+	;;
 esac
-unset check_keymap
+unset lang
+
+# lang=$(setxkbmap -query | grep layout | sed 's/layout.* //g')
+
+# if [[ $lang == "de" ]]
+# then
+#     setxkbmap us
+#     notify-send Layout US
+# elif [[ $lang == "us" ]]
+# then
+#     setxkbmap de
+#     notify-send Layout DE
+# fi
+
