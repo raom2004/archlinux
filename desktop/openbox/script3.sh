@@ -297,8 +297,8 @@ bash $HOME/Projects/archlinux/desktop/openbox/shortcuts-openbox.sh \
   || die "can not install $_"
 
 ## set custom autostart programs
-bash $HOME/Projects/archlinux/desktop/openbox/autostart.sh \
-  || die "can not install $_"
+cp $HOME/Projects/archlinux/desktop/openbox/autostart
+~/.config/openbox/
 
 ## delete script after complete xfce desktop setup
 # rm -rf $HOME/script3.sh # remove script
