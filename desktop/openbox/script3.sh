@@ -354,6 +354,19 @@ read -p "$0 succeeded. Reboot required to update fstab. Rebooting now?[Y/n]" res
 [[ ! "${response}" =~ ^([nN])$ ]] && sudo reboot now
 
 
+## configure touchpad
+# configure tap as click, including this code after line 13
+head -n13 /usr/share/X11/xorg.conf.d/70-synaptics.conf \
+ > /tmp/70-synaptics.conf
+echo '        Option "TapButton1" "1"
+        Option "TapButton2" "3"
+        Option "TapButton3" "2"' >> /tmp/70-synaptics.conf
+# copy the rest of the code (46 - 13 = rest 33 lines)        
+tail -n33 /usr/share/X11/xorg.conf.d/70-synaptics.conf \
+ >> /tmp/70-synaptics.conf
+mv /tmp/70-synaptics.conf /usr/share/X11/xorg.conf.d/70-synaptics.conf
+
+
 # emacs:
 # Local Variables:
 # sh-basic-offset: 2
