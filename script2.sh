@@ -149,7 +149,7 @@ if [[ "${MACHINE}" == 'VBox' ]]; then
       /etc/default/grub || die "can not set grub custom resolution $_"
 fi
 ## detect additional kernels or operative systems available
-# sed -i 's/#\(GRUB_DISABLE_OS_PROBER=false\)/\1/' /etc/default/grub \
+sed -i 's/#\(GRUB_DISABLE_OS_PROBER=false\)/\1/' /etc/default/grub \
 #   || die "can not disable grub in $_"
 ## hide boot loader at startup
 echo "GRUB_FORCE_HIDDEN_MENU=true"  >> /etc/default/grub \
