@@ -12,3 +12,6 @@ alsa-utils
 conky
 stalonetray
 tint2
+thunar
+gmrun
+dmenu
