@@ -128,26 +128,27 @@ fi
 ### BOOT LOADER (GRUB) CONFIG
 
 ## Install boot loader GRUB
-if [[ "${drive_removable}" == 'no' ]]; then
-  grub-install --target=i386-pc "${target_device}" \
-    && msg2 "Installing grub on $_" \
-      || die "can not install grub on $_"
-else
-  grub-install --target=i386-pc --debug --removable "${target_device}" \
-    && msg2 "Installing grub on $_" \
-      || die "can not install grub on $_"
-  mkdir -p /etc/systemd/journald.conf.d/ || die "can not create $_"
-  echo '[Journal]
-Storage=volatile
-SystemMaxUse=16M
-RuntimeMaxUse=32M' > /etc/systemd/journald.conf.d/10-volatille.conf \
-       || die "can not create journal file $_"
-fi
+# if [[ "${drive_removable}" == 'no' ]]; then
+  # grub-install --target=i386-pc "${target_device}" \
+grub-install --target=i386-pc /dev/sdc \
+  && msg2 "Installing grub on $_" \
+    || die "can not install grub on $_"
+# else
+#   grub-install --target=i386-pc --debug --removable "${target_device}" \
+#     && msg2 "Installing grub on $_" \
+#       || die "can not install grub on $_"
+#   mkdir -p /etc/systemd/journald.conf.d/ || die "can not create $_"
+#   echo '[Journal]
+# Storage=volatile
+# SystemMaxUse=16M
+# RuntimeMaxUse=32M' > /etc/systemd/journald.conf.d/10-volatille.conf \
+#        || die "can not create journal file $_"
+# fi
 ## set display resolution bigger in virtual machine
-if [[ "${MACHINE}" == 'VBox' ]]; then
-   sed -i 's/\(GRUB_GFX_MODE=\)\(auto\)/\11024x768x32,\2/' \
-      /etc/default/grub || die "can not set grub custom resolution $_"
-fi
+# if [[ "${MACHINE}" == 'VBox' ]]; then
+#    sed -i 's/\(GRUB_GFX_MODE=\)\(auto\)/\11024x768x32,\2/' \
+#       /etc/default/grub || die "can not set grub custom resolution $_"
+# fi
 ## detect additional kernels or operative systems available
 sed -i 's/#\(GRUB_DISABLE_OS_PROBER=false\)/\1/' /etc/default/grub \
 #   || die "can not disable grub in $_"

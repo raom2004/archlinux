@@ -265,16 +265,16 @@ local_time=${local_time:-$local_time_default} \
      || die "can not set local_time"
 unset local_time_default || die "can not unset $_"
 # variables that user must provide by dialog
-target_device=" "; dialog_get_target_device target_device
-drive_info="$(find /dev/disk/by-id/ -lname *${target_device##*/})" \
-  || die 'can not set ${drive_info}'
-if echo "${drive_info}" | grep -i -q 'usb\|mmcblk'; then
-  drive_removable='yes' \
-    || die 'can not set variable ${drive_removable}'
-else
-  drive_removable='no' \
-    || die 'can not set variable ${drive_removable}'
-fi
+# target_device=" "; dialog_get_target_device target_device
+# drive_info="$(find /dev/disk/by-id/ -lname *${target_device##*/})" \
+  # || die 'can not set ${drive_info}'
+# if echo "${drive_info}" | grep -i -q 'usb\|mmcblk'; then
+  # drive_removable='yes' \
+    # || die 'can not set variable ${drive_removable}'
+# else
+  # drive_removable='no' \
+    # || die 'can not set variable ${drive_removable}'
+# fi
 # select and install arch linux desktop (required for script3.sh)
 install_desktop=" "; dialog_ask_install_desktop install_desktop
 
@@ -286,7 +286,7 @@ export root_password
 export user_name
 export user_password
 export user_shell
-export target_device
+# export target_device
 export keyboard_keymap
 export local_time
 export MACHINE
@@ -307,81 +307,40 @@ if mount | grep -q '/mnt'; then
 fi
 
 
-### HDD PARTITIONING 
+### SSD PARTITIONING (BIOS/MBR)
 
-## using: parted and grub
-#souce: https://wiki.archlinux.org/title/Parted
-#define maximum size of root partition = Root_Max
-[[ "${MACHINE}" == 'Real' ]] && Root_Max=70GiB || Root_Max=15GiB
-## BIOS
-if [[ ${boot_mode} == 'BIOS' ]]; then
-  if [[ ${partition_table} == 'MBR' ]]; then
-    ### HDD PARTITIONING (BIOS/MBR)
-    parted -s -a optimal "${target_device}" \
-	   mklabel msdos \
-	   mkpart primary ext4 0% "${Root_Max}" \
-	   set 1 boot on \
-	   mkpart primary ext4 "${Root_Max}" 100% \
-      || die "can not create BIOS/MBR partition"
-    parted -s "${target_device}" print
 
-    ## HDD formating (-F: overwrite if necessary)
-    if [[ "${drive_removable}" == 'no' ]]; then
-      mkfs.ext4 -F "${target_device}1" \
-	|| die "can not format $_"
-      mkfs.ext4 -F "${target_device}2" \
-	|| die "can not format $_"
-    else
-      mkfs.ext4 -F -O "^has_journal" "${target_device}1" \
-	|| die "can not format $_"
-      mkfs.ext4 -F -O "^has_journal" "${target_device}2" \
-	|| die "can not format $_"
-    fi
+## SSD partitioning: root "/" in ssd in free space (/dev/sdc3)
 
-    ## HDD mounting
-    mount "${target_device}1" /mnt \
-      || die "can not mount ${target_device}1"
-    mkdir -p /mnt/home || die "can not create $_"
-    mount "${target_device}2" /mnt/home \
-      || die "can not mount ${target_device}2"
-    lsblk
-    sleep 3
-  fi
+# parted -s -a optimal /dev/sdc \
+#        mkpart primary ext4 125GB 100% \
+#        set 1 boot on \
+#   || die "can not create BIOS/MBR partition"
 
-  if [[ ${partition_table} == 'GPT' ]]; then
-    ## HDD partitioning (BIOS/GPT)
-    parted -s -a optimal "${target_device}" mklabel gpt \
-	   mkpart "BIOS" ext2 2MiB 4MiB \
-	   set 1 bios_grub on \
-	   mkpart "ROOT" ext4 4MiB "${Root_Max}" \
-	   mkpart "HOME" ext4 "${Root_Max}" 100% \
-      || die "can not create BIOS/GPT partition"
-    parted -s "${target_device}" print
 
-    ## HDD formating (-F: overwrite if necessary)
-    if [[ "${drive_removable}" == 'no' ]]; then
-      mkfs.ext4 -F "${target_device}2" \
-	|| die "can not format $_"
-      mkfs.ext4 -F "${target_device}3" \
-	|| die "can not format $_"
-    else
-      mkfs.ext4 -F -O "^has_journal" "${target_device}2" \
-	|| die "can not format $_"
-      mkfs.ext4 -F -O "^has_journal" "${target_device}3" \
-	|| die "can not format $_"
-    fi
-    parted -s "${target_device}" print
+## HDD formating (-F: overwrite if necessary)
 
-    ## HDD mounting
-    mount "${target_device}2" /mnt \
-      || die "can not mount ${target_device}2"
-    mkdir -p /mnt/home || die "can not create $_"
-    mount "${target_device}3" /mnt/home \
-      || die "can not mount ${target_device}3"
-    lsblk
-    sleep 3
-  fi
-fi
+# root "/" will be the preexistent SDD /dev/sdc3 (125GB) 
+mkfs.ext4 -F /dev/sdc3 \
+  || die "can not format $_"
+# "/home"  will be the preexistent HDD /dev/sda3 (33.3GB)
+mkfs.ext4 -F /dev/sda3 \
+  || die "can not format $_"
+
+
+## HDD mounting
+
+# root /
+mount /dev/sdc3 /mnt \
+  || die "can not mount root /"
+# /home
+mkdir -p /mnt/home || die "can not create /home"
+mount /dev/sda3 /mnt/home \
+  || die "can not mount /home"
+
+# show result
+
+(lsblk && sleep 3)
 
 
 ### REQUIREMENTS BEFORE SYSTEM PACKAGES INSTALLATION
