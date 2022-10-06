@@ -117,12 +117,12 @@ echo "127.0.0.1	localhost
 
 ## Initramfs was run for pacstrap but must be run for LVM, encryp or USB
 # support to boot in removable media (USB stick)
-if [[ "${drive_removable}" == 'yes' ]]; then
-  sed -i 's/HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)/HOOKS=(base udev block keyboard autodetect modconf filesystems fsck)/' /etc/mkinitcpio.conf \
-    && msg2 "setting HOOKS for removable drive ${drive_removable}" \
-      || die "can not set KOOKS for removable drive ${drive_removable}"
-  mkinitcpio -P && msg2 "success mkinitcpio" || die "can not run mkinitcpio"
-fi
+# if [[ "${drive_removable}" == 'yes' ]]; then
+#   sed -i 's/HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)/HOOKS=(base udev block keyboard autodetect modconf filesystems fsck)/' /etc/mkinitcpio.conf \
+#     && msg2 "setting HOOKS for removable drive ${drive_removable}" \
+#       || die "can not set KOOKS for removable drive ${drive_removable}"
+#   mkinitcpio -P && msg2 "success mkinitcpio" || die "can not run mkinitcpio"
+# fi
 
 
 ### BOOT LOADER (GRUB) CONFIG
