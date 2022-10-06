@@ -13,12 +13,12 @@
 if [[ "$EUID" -eq 0 ]]; then	 # user privileges
   echo "Do not run ./$0 as root!"
   exit
-elif ! source ~/.functions; then # source dependencies
-  echo "can not source ~/.functions" && sleep 3
-  exit
-elif ! check_internet; then	 # internet connection
-  echo "can not run function: check_internet" && sleep 3
-  exit
+#elif ! source ~/.bash_functions; then # source dependencies
+#  echo "can not source ~/.bash_functions" && sleep 3
+#  exit
+#elif ! check_internet; then	 # internet connection
+#  echo "can not run function: check_internet" && sleep 3
+#  exit
 else
   echo "running $0"
   read -p "Allow run script3.sh to customize the desktop?[Y/n]" answer
@@ -111,7 +111,7 @@ echo '! Dracula Xresources palette
 *.color6:     #8BE9FD
 *.color14:    #9AEDFE
 *.color7:     #BFBFBF
-*.color15:    #E6E6E6' > ~/.xresources
+*.color15:    #E6E6E6' >> ~/.xresources
 
 ## customize xterm font
 echo '

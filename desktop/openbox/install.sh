@@ -18,12 +18,6 @@
 if [[ "$EUID" -eq 0 ]]; then	 # user privileges
   echo "Do not run ./$0 as root!"
   exit
-elif ! source ~/.functions; then # source dependencies
-  echo "can not source ~/.functions" && sleep 3
-  exit
-elif ! check_internet; then	 # internet connection
-  echo "can not run function: check_internet" && sleep 3
-  exit
 else
   system_desktop="$(basename $PWD)"
   echo "running $0"
@@ -60,45 +54,13 @@ die() { error "$@"; exit 1; }
 read -p "::Install ${system_desktop} desktop? [y/N]" install_desktop
 if [[ "${install_desktop}" =~ ^([yY])$ ]]; then
   # install packages
-  packages_to_install=$HOME/Projects/archlinux/desktop/"${system_desktop}"/pkglist.txt
-  readarray -t DesktopPkg < "${packages_to_install}"
-  Packages=(${DesktopPkg[@]})
-  sudo pacman -Syu --needed --noconfirm "${Packages[@]}" \
+  sudo pacman -Syu --needed --noconfirm - < pkglist.txt \
     || die "Pacman can not install the packages $_"
-  # configure .xinitrc to start desktop session on startup
-  startcommand_xinitrc="$(cat ./startcommand-xinitrc.sh)"
-  if ! grep "\-${system_desktop}" $HOME/.xinitrc; then
-    echo "# Here ${system_desktop} is the default
-session=\${1:-${system_desktop}}
-
-case \$session in
-    ${system_desktop}         ) exec ${startcommand_xinitrc};;
-    # No known session, try to run it as command
-    *                 ) exec \$1;;
-esac
-" >> $HOME/.xinitrc \
-      || die "can not set ${system_desktop} desktop in ~/.xinitrc"
-  fi
-  ## How to customize a new desktop on first boot?
-  # With a startup script that just need two steps:
-  #  * Create a script3.sh with your customizations
-  #  * Create script3.desktop entry to autostart script3.sh at first boot
-  # create autostart dir and desktop entry
-  autostart_path=$HOME/.config/openbox
-  mkdir -p "${autostart_path}"/ || die " can not create dir $_"
-  # [[ "${system_desktop}" == 'openbox' ]] && cmd='xterm -rv -hold -e'
-  [[ "${system_desktop}" == 'openbox' ]] && cmd='xterm -rv -hold -e'
-  echo "# Programs that will run after Openbox has started
-${cmd} \"bash -c \\\"bash \$HOME/Projects/archlinux/desktop/${system_desktop}/script3.sh; exec bash\\\"\" &" > "${autostart_path}"/autostart \
-    || die "can not create $_ file"
-  unset cmd
-  unset autostart_path
-  unset startcommand_xinitrc
+  ## show final message and exit
+  echo "$0 successful" && sleep 3 && exit
+else 
+  echo "Desktop ${system_desktop} will nos be installed"
 fi
-
-
-## show final message and exit
-echo "$0 successful" && sleep 3 && exit
 
 
 # emacs:

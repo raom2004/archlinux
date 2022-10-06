@@ -5,6 +5,8 @@ feh
 menumaker
 pavucontrol
 pavucontrol-qt
+pulseaudio
+pulseaudio-alsa
 network-manager-applet
 alsa-utils
 conky
