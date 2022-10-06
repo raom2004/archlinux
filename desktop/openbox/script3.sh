@@ -60,11 +60,15 @@ read -sp "[sudo] password for $USER:" user_password \
 
 
 ## backup desktop configuration files before changes  
-mkdir -p $HOME/.config_bk || die "can not create $_"
-cp -r $HOME/.config/* $HOME/.config_bk || die "can not backup $_"
-mkdir -p $HOME/.local_bk || die "can not create $_"
-cp -r $HOME/.local/* $HOME/.local_bk || die "can not backup $_"
+if [[ -d $HOME/.config ]]; then
+  mkdir -p $HOME/.config_bk || die "can not create $_"
+  cp -r $HOME/.config/* $HOME/.config_bk || die "can not backup $_"
+fi
 
+if [[ -d $HOME/.local ]]; then
+  mkdir -p $HOME/.local_bk || die "can not create $_"
+  cp -r $HOME/.local/* $HOME/.local_bk || die "can not backup $_"
+fi
 
 ## Audio
 pactl -- set-sink-mute 0 0 || die "can not turn on audio"
@@ -138,66 +142,66 @@ cp -a /etc/xdg/openbox/ ~/.config/
 # path: ~/.config/openbox/rc.xml 
 # Key shortcuts, Theming, (Virtual) desktop, Application Window settings
 
-## keybind : show menu
-text_original="<keyboard>"
-text_replace="
-  <!-- keybind: show menu -->
-  <keybind key=\"C-m\">
-    <action name=\"ShowMenu\">
-      <menu>root-menu</menu>
-    </action>
-  </keybind>
-"
-# convert mewlines into "\n"
-text_replace="$(echo "${text_replace}" | awk '{printf "%s\\n"}', $0)"
-sed -i "s|${text_original}|${text_replace}|" ~/.config/openbox/rc.xml
+# ## keybind : show menu
+# text_original="<keyboard>"
+# text_replace="
+#   <!-- keybind: show menu -->
+#   <keybind key=\"C-m\">
+#     <action name=\"ShowMenu\">
+#       <menu>root-menu</menu>
+#     </action>
+#   </keybind>
+# "
+# # convert mewlines into "\n"
+# text_replace="$(echo "${text_replace}" | awk '{printf "%s\\n"}', $0)"
+# sed -i "s|${text_original}|${text_replace}|" ~/.config/openbox/rc.xml
 
 ## keybind: reconfigure  openbox
-text_original="<keyboard>"
-text_replace="
-<keybind key=\"W-F11\">
-  <action name=\"Reconfigure\"/>
-</keybind>
- <keybind key=\"Print\">
-   <action name=\"Execute\">
-     <command>gnome-screenshot -c</command>
-   </action>
- </keybind>
- <keybind key=\"A-Print\">
-   <action name=\"Execute\">
-     <command>gnome-screenshot -c -w</command>
-   </action>
- </keybind>
- <keybind key=\"W-Print\">
-   <action name=\"Execute\">
-     <command>gnome-screenshot -i</command>
-   </action>
- </keybind>
-"
-text_replace="$(echo "${text_replace}" | awk '{printf "%s\\n"}', $0)"
-sed -i "s|${text_original}|${text_replace}|" ~/.config/openbox/rc.xml
+# text_original="<keyboard>"
+# text_replace="
+# <keybind key=\"W-F11\">
+#   <action name=\"Reconfigure\"/>
+# </keybind>
+#  <keybind key=\"Print\">
+#    <action name=\"Execute\">
+#      <command>gnome-screenshot -c</command>
+#    </action>
+#  </keybind>
+#  <keybind key=\"A-Print\">
+#    <action name=\"Execute\">
+#      <command>gnome-screenshot -c -w</command>
+#    </action>
+#  </keybind>
+#  <keybind key=\"W-Print\">
+#    <action name=\"Execute\">
+#      <command>gnome-screenshot -i</command>
+#    </action>
+#  </keybind>
+# "
+# text_replace="$(echo "${text_replace}" | awk '{printf "%s\\n"}', $0)"
+# sed -i "s|${text_original}|${text_replace}|" ~/.config/openbox/rc.xml
 
-## key shortcuts: window snapping
-text_original="<keyboard>"
-text_replace="<keybind key=\"W-Left\">
-    <action name=\"Unmaximize\"/>
-    <action name=\"MaximizeVert\"/>
-    <action name=\"MoveResizeTo\">
-        <width>50%</width>
-    </action>
-    <action name=\"MoveToEdge\"><direction>west</direction></action>
-</keybind>
-<keybind key=\"W-Right\">
-    <action name=\"Unmaximize\"/>
-    <action name=\"MaximizeVert\"/>
-    <action name=\"MoveResizeTo\">
-        <width>50%</width>
-    </action>
-    <action name=\"MoveToEdge\"><direction>east</direction></action>
-</keybind>
-"
-text_replace="$(echo "${text_replace}" | awk '{printf "%s\\n"}', $0)"
-sed -i "s|${text_original}|${text_replace}|" ~/.config/openbox/rc.xml
+# ## key shortcuts: window snapping
+# text_original="<keyboard>"
+# text_replace="<keybind key=\"W-Left\">
+#     <action name=\"Unmaximize\"/>
+#     <action name=\"MaximizeVert\"/>
+#     <action name=\"MoveResizeTo\">
+#         <width>50%</width>
+#     </action>
+#     <action name=\"MoveToEdge\"><direction>west</direction></action>
+# </keybind>
+# <keybind key=\"W-Right\">
+#     <action name=\"Unmaximize\"/>
+#     <action name=\"MaximizeVert\"/>
+#     <action name=\"MoveResizeTo\">
+#         <width>50%</width>
+#     </action>
+#     <action name=\"MoveToEdge\"><direction>east</direction></action>
+# </keybind>
+# "
+# text_replace="$(echo "${text_replace}" | awk '{printf "%s\\n"}', $0)"
+# sed -i "s|${text_original}|${text_replace}|" ~/.config/openbox/rc.xml
 
 # show icons in menu (standar option, do not need to modofocate)
 # echo '
@@ -290,6 +294,10 @@ mmaker -vf OpenBox3 || die "menumaker can not create new menus"
 
 ## set custom keyboard shortcuts
 bash $HOME/Projects/archlinux/desktop/openbox/shortcuts-openbox.sh \
+  || die "can not install $_"
+
+## set custom autostart programs
+bash $HOME/Projects/archlinux/desktop/openbox/autostart.sh \
   || die "can not install $_"
 
 ## delete script after complete xfce desktop setup
