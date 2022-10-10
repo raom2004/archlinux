@@ -263,14 +263,11 @@ mv /tmp/70-synaptics.conf \
 
 
 ### SCREEN AND KEYBOARD BACKLICHT SCRIPTS
-screen_kernel_path=$(ls /sys/class/backlight/*_backlight/../)
-screen_kernel=/sys/class/backlight/"${screen_kernel_path}"
-
-touch /usr/local/bin/backlight
-   
+screen_kernel=/sys/class/backlight/$(ls /sys/class/backlight | grep backlight)
 echo "#!/bin/bash
 
 set -e
+
 
 screen=\$(ls ${screen_kernel}/brightness)
 screen_current=\$(cat \${screen})
@@ -279,23 +276,19 @@ screen_max=\$(cat ${screen_kernel}/max_brightness)
 # it is a percentage calculated using the max brightness
 # its value is 5%, but can also be set using an arg $2 between 1-100
 screen_value=\$(((screen_max * \${2:-5}) / 100))
-" >> /usr/local/bin/backlight
 
-if ls /sys/class/leds/*kbd_backlight/../ &>2; then
-  keyboard_kernel_path=$(ls /sys/class/leds/*kbd_backlight/../)
-  keyboard_kernel=/sys/class/leds/"${keyboard_kernel_path}"
-  echo "
+keyboard_kernel_path=\$(ls /sys/class/leds | grep backlight)
+keyboard_kernel=/sys/class/leds/\${keyboard_kernel_path}
 keyboard=\$(ls ${keyboard_kernel:-}/brightness)
-key_current=\$(cat "${keyboard}")
-key_max=\$(cat ${keyboard_kernel:-}/max_brightness)
+key_current=\$(cat \${keyboard})
+key_max=\$(cat \${keyboard_kernel}/max_brightness)
 # key_value: is a % value used to increase or decrease brightness
 # it is a percentage calculated using the max brightness
 # its value is 10%, but can also be set using an arg $2 between 1-100
 key_value=\$(((key_max * \${2:-25}) / 100))
-" >> /usr/local/bin/backlight
-fi
 
-echo "case \$1 in
+case \$1 in
+     
     -dinc|--display-increase)
         echo \"\$((screen_current + screen_value > screen_max ? screen_max : screen_current + screen_value))\" > \$screen
 	;;
@@ -303,33 +296,28 @@ echo "case \$1 in
     -ddec|--display-decrease)
         echo \"\$((screen_current < screen_value ? 0 : screen_current - screen_value))\" > \$screen
 	;;
-" >> /usr/local/bin/backlight
 
-if ls /sys/class/leds/*kbd_backlight/../ &>2; then
-  echo "
     -kinc|--keyboard-increase)
         value=\"\$((key_current + key_value > key_max ? key_max : key_current + key_value))\"
-    brightnessctl --device=\"${keyboard_kernel_path}\" set \"\${value}\" &>2
-    unset value
+        brightnessctl --device=\"\${keyboard_kernel_path}\" set \"\${value}\" &>2
+        unset value
 	;;
 
     -kdec|--keyboard-increase)
-    value=\"\$((key_current < key_value ? 0 : key_current - key_value))\"
-    brightnessctl --device=\"${keyboard_kernel_path}\" set \"\${value}\" &>2
+        value=\"\$((key_current < key_value ? 0 : key_current - key_value))\"
+        brightnessctl --device=\"\${keyboard_kernel_path}\" set \"\${value}\" &>2
     unset value
 	;;
-" >> /usr/local/bin/backlight
-fi
 
-echo "    -h|--help)
+    -h|--help)
         echo -e \"\$0 increase or decreace screen and keyboard backlight:
     Usage:
-     -dinc <n>    \"increase display brightness (0-100%)\"
-     -ddec <n>    \"decrease display brightness (0-100%)\"
-     -kinc <n>    \"increase keyboard led brightness (0-100%)\"
-     -kdec <n>    \"decrease keyboard led brightness (0-100%)\"
+     -dinc <n>    \\\"increase display brightness (0-100%)\\\"
+     -ddec <n>    \\\"decrease display brightness (0-100%)\\\"
+     -kinc <n>    \\\"increase keyboard led brightness (0-100%)\\\"
+     -kdec <n>    \\\"decrease keyboard led brightness (0-100%)\\\"
 
-    *<n> is optional, when not provided, standard value will be:
+    ,*<n> is optional, when not provided, standard value will be:
      - screen 5%
      - keyboard 10%
 
@@ -347,7 +335,7 @@ chmod +x /usr/local/bin/backlight
 
 ## generate a udev rule to allow screen backline work to non root users
 mkdir -p /etc/udev/rules.d
-echo "KERNEL==\"${screen_kernel_path}\", \
+echo "KERNEL==\"$(ls /sys/class/backlight | grep backlight)\", \
 SUBSYSTEM==\"backlight\", \
 RUN+=\"/usr/bin/find ${screen_kernel}/ -type f -name brightness -exec chown ${user_name}:${user_name} {} ; -exec chmod 666 {} ;\"" > /etc/udev/rules.d/30-brightness.rules
 
