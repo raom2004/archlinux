@@ -330,7 +330,7 @@ case \$1 in
 	;;
     ,*)
         echo -e \"Unknown option try -h or --help\";;
-esac" >> /usr/local/bin/backlight
+esac" > /usr/local/bin/backlight
 chmod +x /usr/local/bin/backlight
 
 ## generate a udev rule to allow screen backline work to non root users
