@@ -274,7 +274,7 @@ screen_current=\$(cat \${screen})
 screen_max=\$(cat ${screen_kernel}/max_brightness)
 # screen_value: is a % value used to increase or decrease brightness
 # it is a percentage calculated using the max brightness
-# its value is 5%, but can also be set using an arg $2 between 1-100
+# its value is 5%, but can also be set using an arg \$2 between 1-100
 screen_value=\$(((screen_max * \${2:-5}) / 100))
 
 keyboard_kernel_path=\$(ls /sys/class/leds | grep backlight)
@@ -325,11 +325,13 @@ case \$1 in
       $ $0 -kinc
        -> this command will increment screen brightness in 5%
       $ $0 -kinc 20
-       -> this command will increment screen brightness in 20%
-\"
+       -> this command will increment screen brightness in 20%\"
 	;;
+
     ,*)
-        echo -e \"Unknown option try -h or --help\";;
+        echo -e \"Unknown option try -h or --help\"
+        ;;
+
 esac" > /usr/local/bin/backlight
 chmod +x /usr/local/bin/backlight
 
