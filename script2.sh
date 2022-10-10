@@ -284,7 +284,7 @@ key_current=\$(cat \${keyboard})
 key_max=\$(cat \${keyboard_kernel}/max_brightness)
 # key_value: is a % value used to increase or decrease brightness
 # it is a percentage calculated using the max brightness
-# its value is 10%, but can also be set using an arg $2 between 1-100
+# its value is 10%, but can also be set using an arg \$2 between 1-100
 key_value=\$(((key_max * \${2:-25}) / 100))
 
 case \$1 in
