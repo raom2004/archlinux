@@ -13,5 +13,12 @@ conky
 stalonetray
 tint2
 thunar
+nemo
 gmrun
 dmenu
+xf86-input-synaptics
+xorg-xwininfo
+volumeicon
+pasystray
+polkit-gnome
+wmctrl

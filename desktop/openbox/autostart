@@ -49,8 +49,15 @@ tint2 &
 
 nm-applet &             # network manager
 xfce4-power-manager &   # battery info
-# volumeicon &	        # volume 
-# pasystray &	        # volume (pulseaudio)
+pasystray &	        # volume (pulseaudio)
+
+## permission to mount drives
+
+/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
+
+## automount usb
+
+udiskie --notify --automount --tray &
 
 ## System Monitor Software
 
@@ -58,19 +65,19 @@ conky &
 
 # when sound card is recognixed, run: amixer volume and audacios
 
-# sh -c "until aplay -l | grep PCH; do sleep 10; done" \
-#     && (sleep 4 && sh -c "amixer sset Master unmute") \
-#     && (sleep 2 && sh -c "amixer set Master 2%+") \
-#     && (sleep 2 && sh -c "amixer set Master 50%") \
-#     && (sleep 2 && sh -c "audacious --play") &
+sh -c "until aplay -l | grep PCH; do sleep 10; done" \
+    && (sleep 4 && sh -c "amixer sset Master unmute") \
+    && (sleep 2 && sh -c "amixer set Master 2%+") \
+    && (sleep 2 && sh -c "amixer set Master 50%") \
+    && (sleep 2 && sh -c "audacious --play") &
 
-sh -c "audacious --play" &
 
 ### START PROGRAMS
 
 ## File Manager
 
 thunar ~/Projects/archlinux/desktop/openbox &
+nemo ~/Projects/archlinux/desktop/openbox &
 
 ## terminal:
 #   Geometry Specifications: WIDTH x HEIGHT + XOFF + YOFF
@@ -185,14 +192,6 @@ open_urls_in_firefox "${urls[@]}"
 # amixer
 # aplay -l
 
-
-# autostart x at login
-# echo 'if [ -z "${DISPLAY}" ] && [ "${XDG_VTNR}" -eq 1 ]; then
-#   exec startx
-# fi' >> ~/.bash_profile
-# echo 'if [ -z "${DISPLAY}" ] && [ "${XDG_VTNR}" -eq 1 ]; then
-#   exec startx
-# fi' >> ~/.zprofile
 
 # vlc '/run/media/angel/KN28/A BEAUTIFUL COSMOS with ALEXANDRA BADOI - Episode 21-lagcP_j1pdg.mp3' --start-paused &
 

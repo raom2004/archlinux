@@ -14,32 +14,17 @@
 # 
 ### CODE:
 
-### Requirements:
 
-# Root Privileges
-if [[ "$EUID" -ne 0 ]]; then
-  echo "ERROR: ./$0 require root priviledges"
-  exit
-elif ! pacman -S --needed --noconfirm dmidecode; then
-  echo "ERROR: can not install required package dmidecode"
-  exit
-else
-  read -p "Running $0. Do you want to INSTALL archlinux?[Y/n]" answer
-  [[ "${answer:-N}" =~ ^([nN])$ ]] && echo "Quit.." | exit 0
-  unset answer
-fi
+### BASH SCRIPT FLAGS FOR SECURITY AND DEBUGGING ###########
 
-
-### BASH SCRIPT FLAGS FOR SECURITY AND DEBUGGING ###################
-
-# shopt -o noclobber # avoid file overwriting (>) but can be forced (>|)
+# shopt -o noclobber # file overwriting (>) only if forced (>|)
 set +o history     # disably bash history temporarilly
 set -o errtrace    # inherit any trap on ERROR
 set -o functrace   # inherit any trap on DEBUG and RETURN
-set -o errexit     # EXIT if script command fails
-set -o nounset     # EXIT if script try to use undeclared variables
+set -o errexit     # EXIT if command fails
+set -o nounset     # EXIT if try to use undeclared variables
 set -o pipefail    # CATCH failed piped commands
-set -o xtrace      # trace & expand what gets executed (useful for debug)
+set -o xtrace      # TRACE & EXPAND what gets executed
 
 
 ### DECLARE FUNCTIONS
@@ -70,7 +55,7 @@ function dialog_get_target_device
 	    ;;
 	  *)
 	    eval "${__resultvar}"="/dev/${option}" \
-	      || die "can not set value $_"
+	      || die
 	    break
 	    ;;
 	esac
@@ -83,7 +68,7 @@ function dialog_get_target_device
     #   for ((i = "${limit}" ; i > 0  ; i--)); do
     # 	warning "${__result}${i} is mounted, umounting..."
     # 	umount "${__result}${i}" \
-      # 	  || die "can not umount ${__result}"
+      # 	  || die
     #   done
     #   printf "::List of block devices updated:\n%s\n\n" "$(lsblk)"
     # fi
@@ -94,7 +79,7 @@ function dialog_get_target_device
   local __result=" "
   ## main code
   if [[ ! "${MACHINE}" == 'Real' ]]; then
-    eval "${__resultvar}"=/dev/sda || die 'can not set var $target_device'
+    eval "${__resultvar}"=/dev/sda || die
   else
     dialog_to_input_a_target_device __result
     eval "${__resultvar}"="${__result}"
@@ -139,8 +124,8 @@ function dialog_ask_install_desktop
   if [[ "${system_desktop}" == 'none' ]]; then
     eval "${__resultvar}"='N'
   else
-    export system_desktop || die "can not export $_"
-    export startcommand_xinitrc || die "can not export $_"
+    export system_desktop || die
+    export startcommand_xinitrc || die
     eval "${__resultvar}"="${__answer}"
   fi
   cd $OLDPWD
@@ -176,104 +161,133 @@ function extract
 # Purpose: ERROR HANDLING
 # Requirements: None
 ########################################
-out() { printf "$1 $2\n" "${@:3}"; }
-error() { out "==> ERROR:" "$@"; } >&2
-warning() { out "==> WARNING:" "$@"; } >&2
-msg() { out "==>" "$@"; }
-msg2() { out "  ->" "$@";}
-die() { error "$@"; exit 1; }
+## ERROR HANDLING
+function out     { printf "$1 $2\n" "${@:3}"; }
+# function error   { out "==> ERROR:" "$@"; } >&2
+# if error: show file of origin, line number and function
+function error   {
+  local file="${BASH_SOURCE[1]}"
+  local line="${BASH_LINENO[1]}"
+  local func="${FUNCNAME[2]}"
+  local description="$(sed -n "${line}p" "${file}")"
+  out "==> ERROR:" "${file}: line ${line}:"
+  msg2 "code: ${description}" 
+} >&2
+function die     { error "$@"; exit 1; }
+## MESSAGES
+function warning { out "==> WARNING:" "$@"; } >&2
+function msg     { out "==>" "$@"; }
+function msg2    { out "  ->" "$@";}
 
+
+########################################
+# Purpose: declare variable if minimun lenght is ok
+# Arguments: $1=variable name; $2=minimum length
+# Return: $1 will become a variable name with a $variable_value
+# Usage: variable_declaration host_name HostName
+# host_name=" "; variable_declaration host_name 2
+#  after call the function if variable leght
+########################################
+
+function variable_declaration {
+  local __resultvar="$1"
+  local min_legth="$2"
+  local hide="${3:-}"
+  local variable_value="${variable_value:-}"
+  until (( "${#variable_value}" > "${min_legth}" )); do
+    if [[ "${hide}" == 'hide' ]]; then
+      read -sp "==> Enter ${__resultvar^^}: " variable_value \
+	|| die
+    else
+      # (hide passwords by using -sp option)'
+      read -p "==> Enter ${__resultvar^^}: " variable_value \
+	|| die
+    fi
+    if (( "${#variable_value}" < "${min_legth}" || "${#variable_value}" == "${min_legth}" ))
+    then
+      warning "invalid length (${#variable_value}), required (>${min_legth})"
+    else
+      eval "${__resultvar}"="${variable_value}" || die
+      msg2 "variable declared ${__resultvar} correct!"
+    fi
+  done
+}
+
+#### MAIN CODE #############################################
+############################################################
+
+### Requirements:
+
+# Root Privileges
+if [[ "$EUID" -ne 0 ]]; then
+  echo "ERROR: ./$0 require root priviledges"
+  exit
+elif ! pacman -S --needed --noconfirm dmidecode; then
+  echo "ERROR: can not install required package dmidecode"
+  exit
+else
+  read -p "Running $0. Do you want to INSTALL archlinux?[Y/n]" answer
+  [[ "${answer:-N}" =~ ^([nN])$ ]] && echo "Quit.." | exit 0
+  unset answer
+fi
 
 ### DECLARE VARIABLES
 
-## variables that user must provide (hide passwords by -sp option)
-host_name="${host_name:-}"
-until (( "${#host_name}" > 2 )); do
-  read -p "==> Enter HOSTNAME: " host_name \
-    || die 'can not set variable ${host_name}'
-  if (( "${#host_name}" < 2 )); then
-      echo "invalid length (${#host_name}), required (>2)"
-  fi
-done
-root_password="${root_password:-}"
-until (( "${#root_password}" > 7 )); do
-  read -sp "==> Enter ROOT PASSWORD: " root_password && echo \
-    || die 'can not set variable ${root_password}'
-  if (( "${#root_password}" < 7 )); then
-      echo "invalid length (${#root_password}), required (>7)"
-  fi
-done
-user_name="${user_name:-}"
-until (( "${#user_name}" > 2 )); do
-  read -p "==> Enter USER NAME: " user_name \
-    || die 'can not set variable ${user_name}'
-  if (( "${#user_name}" < 2 )); then
-      echo "invalid length (${#user_name}), required (>2)"
-  fi
-done
-user_password="${user_password:-}"
-until (( "${#user_password}" > 6 )); do
-  read -sp "==> Enter USER PASSWORD: " user_password && echo \
-    || die 'can not set variable ${user_password}'
-  if (( "${#user_password}" < 6 )); then
-      echo "invalid length (${#user_password}), required (>7)"
-  fi
-  echo "user input data correct.."
-done
+## variables declared by function 
+variable_declaration host_name 2
+variable_declaration root_password 6 hide
+variable_declaration user_name 2
+variable_declaration user_password 6 hide
 
 ## variables automatically recognized
 machine="$(dmidecode -s system-manufacturer)" \
-  || die "can not set variable ${machine}"
+  || die
 if [[ "${machine}" == 'innotek GmbH' ]]; then
-  MACHINE='VBox' || die "can not set variable ${MACHINE}"
+  MACHINE='VBox' || die
 else
-  MACHINE='Real' || die "can not set variable ${MACHINE}"
+  MACHINE='Real' || die
 fi
 
 ## BIOS and UEFI support
 if ! ls /sys/firmware/efi/efivars >& /dev/null; then
-  boot_mode='BIOS' || die "can not set variable ${boor_mode}"
+  boot_mode='BIOS' || die
   partition_table_default=MBR
-  read -p "==> BIOS detected! select MBR or GPT partition table [${partition_table_default}]:" partition_table || die "can not read $_"
+  read -p "==> BIOS detected! select MBR or GPT partition table [${partition_table_default}]:" partition_table || die
   partition_table=${partition_table:-$partition_table_default} \
-     || die "can not set partition_table"
-  unset partition_table_default || die "can not unset $_"
+     || die
+  unset partition_table_default || die
 else
-  boot_mode='UEFI' || die "can not set variable ${boor_mode}"
+  boot_mode='UEFI' || die
   partition_table=GPT
 fi
 
 ## variables that user must confirm or edit
 # shell
 user_shell_default=/bin/bash	# examples: /bin/zsh; /bin/bash
-read -p "==> Enter user shell [${user_shell_default}]: " user_shell \
-     || die "can not set $_"
-user_shell=${user_shell:-$user_shell_default} \
-     || die "can not set user_shell"
-unset user_shell_default || die "can not unset $_"
+read -p "==> Enter user shell [${user_shell_default}]: " user_shell || die
+user_shell=${user_shell:-$user_shell_default} || die
+unset user_shell_default || die
 # keyboard
 keyboard_keymap_default='es' \
-  || die "can not set keyboard_keymap_default"
-read -p "==> Enter system Keyboard keymap [${keyboard_keymap_default}]:" keyboard_keymap \
-  || die "can not unset $_"
+  || die
+read -p "==> Enter system Keyboard keymap [${keyboard_keymap_default}]:" keyboard_keymap || die
 keyboard_keymap=${keyboard_keymap:-$keyboard_keymap_default}
-unset keyboard_keymap_default || die "can not unset $_"
+unset keyboard_keymap_default || die
 # local time
 local_time_default=/Europe/Berlin
 read -p "==> Enter local time [${local_time_default}]: " local_time
-local_time=${local_time:-$local_time_default} \
-     || die "can not set local_time"
-unset local_time_default || die "can not unset $_"
+local_time=${local_time:-$local_time_default} || die
+unset local_time_default || die
 # variables that user must provide by dialog
 # target_device=" "; dialog_get_target_device target_device
 # drive_info="$(find /dev/disk/by-id/ -lname *${target_device##*/})" \
-  # || die 'can not set ${drive_info}'
+  # || die
 # if echo "${drive_info}" | grep -i -q 'usb\|mmcblk'; then
   # drive_removable='yes' \
-    # || die 'can not set variable ${drive_removable}'
+    # || die
 # else
   # drive_removable='no' \
-    # || die 'can not set variable ${drive_removable}'
+    # || die
 # fi
 # select and install arch linux desktop (required for script3.sh)
 install_desktop=" "; dialog_ask_install_desktop install_desktop
@@ -297,13 +311,13 @@ export install_desktop
 ### SET TIME AND SYNCHRONIZE SYSTEM CLOCK
 
 timedatectl set-ntp true \
-  || die "can not set time/date"
+  || die
 
 
 ## clear start
 if mount | grep -q '/mnt'; then
   warning '/mnt is mounted, umounting /mnt...'
-  umount -R /mnt && msg2 "done" || die 'can not umount /mnt'
+  umount -R /mnt && msg2 "done" || die
 fi
 
 
@@ -315,28 +329,24 @@ fi
 # parted -s -a optimal /dev/sdc \
 #        mkpart primary ext4 125GB 100% \
 #        set 1 boot on \
-#   || die "can not create BIOS/MBR partition"
+#   || die
 
 
 ## HDD formating (-F: overwrite if necessary)
 
 # root "/" will be the preexistent SDD /dev/sdc3 (125GB) 
-mkfs.ext4 -F /dev/sdc3 \
-  || die "can not format $_"
+mkfs.ext4 -F /dev/sdc3 || die
 # "/home"  will be the preexistent HDD /dev/sda3 (33.3GB)
-mkfs.ext4 -F /dev/sda3 \
-  || die "can not format $_"
+mkfs.ext4 -F /dev/sda3 || die
 
 
 ## HDD mounting
 
 # root /
-mount /dev/sdc3 /mnt \
-  || die "can not mount root /"
+mount /dev/sdc3 /mnt || die
 # /home
-mkdir -p /mnt/home || die "can not create /home"
-mount /dev/sda3 /mnt/home \
-  || die "can not mount /home"
+mkdir -p /mnt/home || die
+mount /dev/sda3 /mnt/home || die
 
 # show result
 
@@ -349,8 +359,7 @@ mount /dev/sda3 /mnt/home \
 SECONDS=0
 
 ## update keyring
-pacman -Syy --noconfirm archlinux-keyring \
-  || die 'can not updated keyring'
+pacman -Syy --noconfirm archlinux-keyring || die
 
 
 ### SYSTEM PACKAGES INSTALLATION
@@ -460,13 +469,12 @@ if [[ "${install_desktop}" =~ ^([yY])$ ]]; then
 fi
 
 ## System Packages Installation
-pacstrap /mnt --needed --noconfirm "${Packages[@]}" \
-  || die "Pacstrap can not install the packages $_"
+pacstrap /mnt --needed --noconfirm "${Packages[@]}" || die
 
 
 ### GENERATE FILE SYSTEM TABLE
 
-genfstab -L /mnt >> /mnt/etc/fstab || die 'can not generate $_'
+genfstab -L /mnt >> /mnt/etc/fstab || die
 
 # if present, add aditional hardware to fstab 
 # if [[ "${MACHINE}" == 'Real' ]]; then
@@ -474,21 +482,19 @@ genfstab -L /mnt >> /mnt/etc/fstab || die 'can not generate $_'
 #   #  LABEL=xxx /dir ext4 rw,nosuid,nodev,user_id=0,group_id=0,allow_other,blksize=4096 0 0
 #   # code example:
 #   #  mount --types ext4 /dev/sdxY /dir -o noatime,nodev,nosuid
-#   mount_drive="$(lsblk -f | awk '/lack/{ print $0 }')" \
-  #     || die 'can not set ${mount_drive}'
+#   mount_drive="$(lsblk -f | awk '/lack/{ print $0 }')" || die
 #   if [[ -n "${mount_drive}" ]]; then
 #     tmp_array=( $mount_drive )
-#     my_drive="${tmp_array[0]:2}" || die 'can not set my_drive'
-#     my_fs="${tmp_array[1]}" || die 'can not set my_fs'
-#     my_label="${tmp_array[2]}" || die 'can not set my_label'
-#     my_UUID="${tmp_array[3]}" || die 'can not set my_UUID'
-#     my_path=/run/media/"${user_name}"/"${my_label}" \
-  # 	|| die 'can not set ${my_path} in ${my_drive}'
+#     my_drive="${tmp_array[0]:2}" || die
+#     my_fs="${tmp_array[1]}" || die
+#     my_label="${tmp_array[2]}" || die
+#     my_UUID="${tmp_array[3]}" || die
+#     my_path=/run/media/"${user_name}"/"${my_label}" || die
 #       echo "# ${my_UUID}
 # /dev/${my_drive:2} 									${my_path} 		${my_fs} 	uid=1000,gid=1000,umask=0022,fmask=133 	0 0
-# " >> /etc/fstab || die "can not add ${my_drive} to $_"
-#       unset my_path || die "can not unset $_"
-#       unset mount_drive || die "can not unset $_"
+# " >> /etc/fstab || die
+#       unset my_path || die
+#       unset mount_drive || die
 #     fi
 # fi
 
@@ -496,60 +502,58 @@ genfstab -L /mnt >> /mnt/etc/fstab || die 'can not generate $_'
 ### SCRIPTING INSIDE CHROOT
 
 # copy and run script2.sh to configure the new Arch Linux system
-cp ./script2.sh /mnt/home || die "can not copy script2.sh to $_"
-arch-chroot /mnt bash /home/script2.sh || die "can not run arch-root $_"
+cp ./script2.sh /mnt/home || die
+arch-chroot /mnt bash /home/script2.sh || die
 # remove script2.sh after finish
-rm /mnt/home/script2.sh || die "can not remove $_"
+rm /mnt/home/script2.sh || die
 
 
 ### DOTFILES
 
 # copy dotfiles to new system
-cp ./dotfiles/.[a-z]* /mnt/home/"${user_name}" || die 'can not copy $_'
+cp ./dotfiles/.[a-z]* /mnt/home/"${user_name}" || die
 # create the folder Project in $HOME
 my_path=/mnt/home/"${user_name}"/Projects/archlinux
-mkdir -p "${my_path}" || die "can not create $_"
+mkdir -p "${my_path}" || die
 # backup archlinux repo inside ~/Projects folder
-cp -r . "${my_path}" || die "can not backup archlinux repo"
+cp -r . "${my_path}" || die
 # backup the scripts used during arch linux installation
 my_path=/mnt/home/"${user_name}"/Projects/archlinux_install_report
-mkdir -p "${my_path}" || die "can not create $_"
-cp ./script[1-2].sh "${my_path}" || die "can not copy $_"
+mkdir -p "${my_path}" || die
+cp ./script[1-2].sh "${my_path}" || die
 # copy script3 only if user selected to install a desktop
 if [[ "${install_desktop}" =~ ^([yY])$ ]]; then
   cp ./desktop/"${system_desktop}"/script3.sh "${my_path}" \
-    || die "can not copy $_"
+    || die
 fi
-duration=$SECONDS || die 'can not set variable $duration'
+duration=$SECONDS || die
 echo "user_name=${user_name}
 MACHINE=${MACHINE}
 script1_time_seconds=${duration}
-" > "${my_path}"/installation_report || die "can not create $_"
-chmod +x "${my_path}"/installation_report \
-  || die "can not set executable $_"
-unset my_path || die "can not unset $_"
+" > "${my_path}"/installation_report || die
+chmod +x "${my_path}"/installation_report || die
+unset my_path || die
 
 
 ### BIN SCRIPTS
 
 if [[ "${install_desktop}" =~ ^([yY])$ ]]; then
   my_path=/mnt/home/"${user_name}"/bin
-  mkdir -p "${my_path}" || die "can not create $_"
-  cp ./desktop/scripts-shared/* "${my_path}" \
-    || die "Pacstrap can not install the packages $_"
+  mkdir -p "${my_path}" || die
+  cp ./desktop/scripts-shared/* "${my_path}" || die
 fi
 
 # correct user permissions
 arch-chroot /mnt bash -c "\
 chown -R ${user_name}:${user_name} /home/${user_name}/.[a-z]*;\
 chown -R ${user_name}:${user_name} /home/${user_name}/[a-zA-Z]*;\
-chown -R ${user_name}:${user_name} /home/${user_name}/Down*/*;" \
-  || die 'can not correct user permissions in /home/user'
+chown -R ${user_name}:${user_name} /home/${user_name}/Down*/*;" || die
 
 
 ### UNMOUNT EVERYTHING AND REBOOT
 read -p "$0 install succeded (${duration} seconds)! umount '/mnt' and reboot?[Y/n]" response
-[[ "${response:-Y}" =~ ^([yY])$ ]] && umount -R /mnt | reboot now
+[[ "${response:-Y}" =~ ^([yY])$ ]] \
+  && umount -R /mnt | reboot now
 
 
 # emacs:

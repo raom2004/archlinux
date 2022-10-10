@@ -91,6 +91,16 @@ sed -i 's|kfmclient openProfile filemanagement|firefox|' \
 
 # global custom keybindings
 echo '
+  <keybind key="A-C-3">
+    <action name="Execute">
+      <command>emacs -q -l ~/.emacs.d/init-openbox.el</command>
+    </action>
+  </keybind>
+  <keybind key="A-C-4">
+    <action name="Execute">
+      <command>emacsclient -c</command>
+    </action>
+  </keybind>
   <keybind key="A-C-m">
     <action name="Execute">
       <command>xterm -rv -fa "Ubuntu Mono" -fs 13</command>
@@ -142,7 +152,7 @@ echo '
         <enabled>true</enabled>
         <name>Poweroff</name>
       </startupnotify>
-      <command>sh -c "ps | grep audacious &amp;>2 &amp;&amp; audacious --pause | pkill audacious; systemctl poweroff;"</command>
+      <command>sh -c "ps | grep audacious &amp;>2 &amp;&amp; audacious --pause | pkill audacious; emacsclient --eval \"(kill-emacs)\"; systemctl poweroff;"</command>
     </action>
   </keybind>
   <keybind key="W-S-q">
@@ -151,12 +161,12 @@ echo '
         <enabled>true</enabled>
         <name>reboot</name>
       </startupnotify>
-      <command>sh -c "ps | grep audacious &amp;>2 &amp;&amp; audacious --pause | pkill audacious; systemctl reboot"</command>
+      <command>sh -c "ps | grep audacious &amp;>2 &amp;&amp; audacious --pause | pkill audacious; emacsclient --eval \"(kill-emacs)\"; systemctl reboot"</command>
     </action>
   </keybind>
   <keybind key="W-q">
     <action name="Execute">
-      <command>sh -c "ps | grep audacious &amp;>2 &amp;&amp; audacious --pause | pkill audacious; bash ~/Projects/archlinux/desktop/openbox/shortcuts-openbox.sh; openbox --exit"</command>
+      <command>sh -c "ps | grep audacious &amp;>2 &amp;&amp; audacious --pause | pkill audacious; bash ~/Projects/archlinux/desktop/openbox/shortcuts-openbox.sh; emacsclient --eval \"(kill-emacs)\"; openbox --exit"</command>
     </action>
   </keybind>
   <keybind key="W-S-Down">
@@ -165,7 +175,8 @@ echo '
         <enabled>true</enabled>
         <name>light down</name>
       </startupnotify>
-      <command>macbacklight -ddec 2500</command>
+      <!-- <command>macbacklight -ddec 2500</command> -->
+      <command>backlight_screen -dec</command>
     </action>
   </keybind>
   <keybind key="W-S-Up">
@@ -174,7 +185,8 @@ echo '
         <enabled>true</enabled>
         <name>light up</name>
       </startupnotify>
-      <command>macbacklight -dinc 2500</command>
+      <!-- <command>macbacklight -dinc 2500</command> -->
+      <command>backlight_screen -inc</command>
     </action>
   </keybind>
   <keybind key="W-S-Right">
@@ -267,6 +279,51 @@ echo '
       <command>audtool playlist-advance</command>
     </action>
   </keybind>' > /tmp/add.txt
+
+
+# screen backlight key bindings
+# if grep -i apple /sys/devices/virtual/dmi/id/board_vendor
+echo '<!-- screen backlight key bindings -->
+  <keybind key="XF86MonBrightnessUp">
+    <action name="Execute">
+      <startupnotify>
+        <enabled>true</enabled>
+        <name>backlight up</name>
+      </startupnotify>
+      <command>backlight -dinc</command>
+    </action>
+  </keybind>
+  <keybind key="XF86MonBrightnessDown">
+    <action name="Execute">
+      <startupnotify>
+        <enabled>true</enabled>
+        <name>backlight up</name>
+      </startupnotify>
+      <command>backlight -ddec</command>
+    </action>
+  </keybind>' >> /tmp/add.txt
+
+# keyboard backlight key bindings 
+echo '<!-- keyboard backlight key bindings -->
+  <keybind key="XF86KbdBrightnessUp">
+    <action name="Execute">
+      <startupnotify>
+        <enabled>true</enabled>
+        <name>backlight up</name>
+      </startupnotify>
+      <command>backlight -kinc</command>
+    </action>
+  </keybind>
+  <keybind key="XF86XbdBrightnessDown">
+    <action name="Execute">
+      <startupnotify>
+        <enabled>true</enabled>
+        <name>backlight up</name>
+      </startupnotify>
+      <command>backlight -kdec</command>
+    </action>
+  </keybind>
+' >> /tmp/add.txt
 
 # ## worked
 # echo '
