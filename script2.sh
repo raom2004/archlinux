@@ -277,15 +277,17 @@ screen_max=\$(cat ${screen_kernel}/max_brightness)
 # its value is 5%, but can also be set using an arg \$2 between 1-100
 screen_value=\$(((screen_max * \${2:-5}) / 100))
 
-keyboard_kernel_path=\$(ls /sys/class/leds | grep backlight)
-keyboard_kernel=/sys/class/leds/\${keyboard_kernel_path}
-keyboard=\$(ls ${keyboard_kernel:-}/brightness)
-key_current=\$(cat \${keyboard})
-key_max=\$(cat \${keyboard_kernel}/max_brightness)
-# key_value: is a % value used to increase or decrease brightness
-# it is a percentage calculated using the max brightness
-# its value is 10%, but can also be set using an arg \$2 between 1-100
-key_value=\$(((key_max * \${2:-25}) / 100))
+if ls /sys/class/leds | grep backlight); then
+  keyboard_kernel_path=\$(ls /sys/class/leds | grep backlight)
+  keyboard_kernel=/sys/class/leds/\${keyboard_kernel_path}
+  keyboard=\$(ls ${keyboard_kernel:-}/brightness)
+  key_current=\$(cat \${keyboard})
+  key_max=\$(cat \${keyboard_kernel}/max_brightness)
+  # key_value: is a % value used to increase or decrease brightness
+  # it is a percentage calculated using the max brightness
+  # its value is 10%, but can also be set using an arg \$2 between 1-100
+  key_value=\$(((key_max * \${2:-25}) / 100))
+fi
 
 case \$1 in
      
