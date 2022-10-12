@@ -159,22 +159,22 @@ echo'  <!-- Keybindings for running applications -->
 echo '  <!-- emacs key bindings -->
   <keybind key="A-C-1">
     <action name="Execute">
-      <command>emacs ~/.config/openbox/rc.xml</command>
+      <command>emacs</command>
     </action>
   </keybind>
   <keybind key="A-C-2">
     <action name="Execute">
-      <command>emacsclient -c ~/.config/openbox/rc.xml</command>
+      <command>emacsclient -c ~/.emacs.d/init-essentials.el</command>
     </action>
   </keybind>
   <keybind key="A-C-3">
     <action name="Execute">
-      <command>emacs</command>
+      <command>emacsclient -c ~/.config/openbox/autostart</command>
     </action>
   </keybind>
   <keybind key="A-C-4">
     <action name="Execute">
-      <command>emacsclient -c</command>
+      <command>emacsclient -c ~/.config/openbox/rc.xml</command>
     </action>
   </keybind>
 ' >> /tmp/add.txt
