@@ -22,15 +22,48 @@ set -o nounset     # EXIT if script try to use undeclared variables
 set -o pipefail    # CATCH failed piped commands
 set -o xtrace      # trace & expand what gets executed (useful for debug)
 
-## ERROR HANDLING FUNCTIONS 
 
-out() { printf "$1 $2\n" "${@:3}"; }
-error() { out "==> ERROR:" "$@"; } >&2
-warning() { out "==> WARNING:" "$@"; } >&2
-msg() { out "==>" "$@"; }
-msg2() { out "  ->" "$@";}
-die() { error "$@"; exit 1; }
 
+### DECLARE FUNCTIONS
+
+
+########################################
+# Purpose: ERROR HANDLING FUNCTIONS
+# Requirements: None
+########################################
+## Deprecated
+# out() { printf "$1 $2\n" "${@:3}"; }
+# error() { out "==> ERROR:" "$@"; } >&2
+# warning() { out "==> WARNING:" "$@"; } >&2
+# msg() { out "==>" "$@"; }
+# msg2() { out "  ->" "$@";}
+# die() { error "$@"; exit 1; }
+
+## ERROR HANDLING
+function out     { printf "$1 $2\n" "${@:3}"; }
+# function error   { out "==> ERROR:" "$@"; } >&2
+# function die     { error "$@"; exit 1; }
+function die {
+  # if error, exit and show file of origin, line number and function
+  # colors
+  NO_FORMAT="\033[0m"
+  C_RED="\033[38;5;9m"
+  C_YEL="\033[38;5;226m"
+  # color functions
+  function msg_red { printf "${C_RED}${@}${NO_FORMAT}"; }
+  function msg_yel { printf "${C_YEL}${@}${NO_FORMAT}"; }
+  # error detailed message (colored)
+  msg_red "==> ERROR: " && printf " %s" "$@" && printf "\n"
+  msg_yel "  -> file: " && printf "${BASH_SOURCE[1]}\n"
+  msg_yel "  -> func: " && printf "${FUNCNAME[2]}\n"
+  msg_yel "  -> line: " && printf "${BASH_LINENO[1]}\n"
+  exit 1
+}
+
+## MESSAGES
+function warning { out "==> WARNING:" "$@"; } >&2
+function msg     { out "==>" "$@"; }
+function msg2    { out "  ->" "$@"; }
 
 ############################################################
 ### MAIN CODE ##############################################
@@ -58,8 +91,8 @@ SECONDS=0
 
 for folder in $HOME/.{config,local}; do
   if [[ -d "${folder}" ]]; then
-    mkdir -p "${folder}_bk" || die "can not create $_"
-    cp -r "${folder}"/* "${folder}_bk" || die "can not backup $_"
+    mkdir -p "${folder}_bk" || die
+    cp -r "${folder}"/* "${folder}_bk" || die
   fi
 done
 
@@ -72,24 +105,8 @@ sudo pacman -Syu --needed --noconfirm \
 
 ## Audio: unmute and set volume
 
-pactl -- set-sink-mute 0 0 || die "can not turn on audio"
-pactl -- set-sink-volume 0 50% || die "can not set audio volume $_"
-
-
-## configure touchpad to set taps as clicks
-
-# create a config file using the first 13 lines
-head -n13 /usr/share/X11/xorg.conf.d/70-synaptics.conf \
- > /tmp/70-synaptics.conf
-# add tap customizations
-echo '        Option "TapButton1" "1"
-        Option "TapButton2" "2"
-        Option "TapButton3" "3"' >> /tmp/70-synaptics.conf
-# add the rest (46 - 13 = 33 lines) of the reference code         
-tail -n33 /usr/share/X11/xorg.conf.d/70-synaptics.conf \
-     >> /tmp/70-synaptics.conf
-# replace the original file with the customized file
-sudo mv /tmp/70-synaptics.conf /usr/share/X11/xorg.conf.d/70-synaptics.conf
+pactl -- set-sink-mute 0 0 || die
+pactl -- set-sink-volume 0 50% || die
 
 
 ### OPENBOX BASIC CUSTOMIZATION
@@ -98,7 +115,7 @@ sudo mv /tmp/70-synaptics.conf /usr/share/X11/xorg.conf.d/70-synaptics.conf
 #    rc.xml, menu.xml, autostart, and environment
 mkdir -p ~/.config/openbox \
   && cp -a /etc/xdg/openbox/ ~/.config/ \
-    || die "can not create openbox files"
+    || die
 
 
 ### rc.xml config
@@ -108,7 +125,7 @@ mkdir -p ~/.config/openbox \
 #     Key shortcuts, Theming, (Virtual) desktop, Application Window settings
 # key shortcuts
 bash $HOME/Projects/archlinux/desktop/openbox/shortcuts-openbox.sh \
-  || die "can not install $_"
+  || die
 
 
 ### menu.xml:
@@ -116,7 +133,7 @@ bash $HOME/Projects/archlinux/desktop/openbox/shortcuts-openbox.sh \
 # path: ~/.config/openbox/menu.xml
 # make menu dinamically
 
-mmaker -vf OpenBox3 || die "menumaker can not create new menus"
+mmaker -vf OpenBox3 || die
 
 
 ### autostart: Openbox's own autostart mechanism
@@ -145,18 +162,18 @@ cp $HOME/Projects/archlinux/desktop/openbox/autostart $HOME/.config/openbox
 ## create folders for customization
 
 mkdir -p $HOME/.{themes,icons,wallpapers} \
-  || die "can not create $_"
+  || die
 
 ## set wallpaper
 
 image="https://i.imgur.com/IwPvX8Z.jpg" \
-  || die "can not set image $_"
+  || die
 my_path=$HOME/.wallpapers/arch-tv-wallpaper.jpg \
-  || die "can not set \$my_path $_"
+  || die
 wget --output-document="${my_path}" "${image}" \
-  || die "can not download $_"
+  || die
 feh --bg-scale -bg-fill $HOME/.wallpapers/arch-tv-wallpaper.jpg \
-  || die "can not set wallpaper $_"
+  || die
 
 
 ############################################################
@@ -167,7 +184,7 @@ feh --bg-scale -bg-fill $HOME/.wallpapers/arch-tv-wallpaper.jpg \
 ## source variables of the actual linux installation
 
 source $HOME/Projects/archlinux_install_report/installation_report \
-  || die "can not source $_"
+  || die
 
 ### OPENBOX ADVANCE CUSTOMIZATIONS #########################
 
@@ -178,7 +195,7 @@ case "${MACHINE}" in
 #   * make an autostart shortcut to run a desktop-customization script
 
   VBox)
-    xrandr -s 1920x1080 || die "can not set xrandr $_"
+    xrandr -s 1920x1080 || die
     msg "screen size set to 2k"
     # https://www.techrepublic.com/article/how-to-create-a-shared-folder-in-virtualbox/
     # sudo mount -t vboxsf shared ~/shared
@@ -202,7 +219,7 @@ case "${MACHINE}" in
 
   Real)
     my_emacs_path="$(lsblk -f | awk '/run.*_EXT/{ print $7 }')" \
-      || die 'can not set ${my_emacs_path}'
+      || die
     if [[ -n "${my_emacs_path}" ]]; then
       ## install emacs customized
       bash "${my_emacs_path}"/emacs-installer.sh
@@ -217,7 +234,7 @@ esac
 duration=$SECONDS
 echo "script3_time_seconds=${duration}
 total_time_minutes=\"$(((script1_time_seconds + $duration) / 60))\"
-" >> $HOME/Projects/archlinux_install_report/installation_report
+" >> $HOME/Projects/archlinux_install_report/installation_report || die
 
 
 # mount shared in fstab require reboot
