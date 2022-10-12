@@ -2,8 +2,22 @@
 #
 # ./shorcuts-openbox.sh
 #  customize key shorcuts for openbox with terminal commands
+#
+## create rc.xml from scratch?
+# Why not just copy the template and change only what we really need!
+cp /etc/xdg/openbox/rc.xml ~/.config/openbox/rc.xml || exit 1
+# remove unnecessary lines:
+#  * Keybindings for window switching with the arrow key, lines 279-300
+#  * Keybindings for running applications, lines 301-3011
+sed -i '279,310d' ~/.config/openbox/rc.xml || exit 1
 
-
+## template to modify fie content using sed
+# if cat "${rc_file}" | grep 'find'; then
+#     sed -i 's|find|replace|g' "${rc_file}"
+#     cat "${rc_file}" | grep 'replace'
+# fi
+#
+#
 ### BASH SCRIPT FLAGS FOR SECURITY AND DEBUGGING ###################
 
 # shopt -o noclobber # avoid file overwriting (>) but can be forced (>|)
@@ -15,24 +29,37 @@ set -o nounset     # EXIT if script try to use undeclared variables
 set -o pipefail    # CATCH failed piped commands
 set -o xtrace      # trace & expand what gets executed (useful for debug)
 
+
+## strength window movement between desktops
 rc_file=~/.config/openbox/rc.xml
-cp /etc/xdg/openbox/rc.xml ~/.config/openbox/rc.xml || exit 1
-
-if cat "${rc_file}" | grep '<keybind key="W-F'; then
-    sed -i 's|<keybind key="W-F|<keybind key="W-|g' "${rc_file}"
-    cat "${rc_file}" | grep '<keybind key="W-'
-fi
-
 if cat "${rc_file}" | grep '<strength>10<'; then
     sed -i 's|<strength>10<|<strength>120<|g' "${rc_file}"
     cat "${rc_file}" | grep '<strength>'
 fi
 
-# if cat "${rc_file}" | grep 'find'; then
-#     sed -i 's|find|replace|g' "${rc_file}"
-#     cat "${rc_file}" | grep 'replace'
-# fi
 
+############################################################
+## set key bindings to change desktop: like in x monad
+#  final result:
+#   W-1: change to desktop 1
+#   W-2: change to desktop 2
+#   W-3: change to desktop 3
+#   W-4: change to desktop 4
+#
+## set keybinding W-F- to only W-
+if cat "${rc_file}" | grep '<keybind key="W-F'; then
+    sed -i 's|<keybind key="W-F|<keybind key="W-|g' "${rc_file}"
+    cat "${rc_file}" | grep '<keybind key="W-'
+fi
+
+## set key bindings to move windows between desktops: like in xmonad
+#  final result:
+#   S-W-1: move window to desktop 1
+#   S-W-2: move window to desktop 2
+#   S-W-3: move window to desktop 3
+#   S-W-4: move window to desktop 4
+#
+# original: S-A-Left replace: S-A-1
 if cat "${rc_file}" | grep '<keybind key="S-A-Left">'; then
     sed -i 's|<keybind key="S-A-Left">|<keybind key="S-A-1">|g' "${rc_file}"
     cat "${rc_file}" | grep '<keybind key="S-A-1">'
@@ -41,8 +68,7 @@ if cat "${rc_file}" | grep '<action name="SendToDesktop"><to>left</to><wrap>no</
     sed -i 's|<action name="SendToDesktop"><to>left</to><wrap>no</wrap></action>|<action name="SendToDesktop"><to>1</to><wrap>no</wrap></action>|g' "${rc_file}"
     cat "${rc_file}" | grep '<action name="SendToDesktop"><to>1</to><wrap>no</wrap></action>'
 fi
-    
-
+# original: S-A-Right replace: S-A-2
 if cat "${rc_file}" | grep '<keybind key="S-A-Right">'; then
     sed -i 's|<keybind key="S-A-Right">|<keybind key="S-A-2">|g' "${rc_file}"
     cat "${rc_file}" | grep '<keybind key="S-A-2">'
@@ -51,8 +77,7 @@ if cat "${rc_file}" | grep '<action name="SendToDesktop"><to>right</to><wrap>no<
     sed -i 's|<action name="SendToDesktop"><to>right</to><wrap>no</wrap></action>|<action name="SendToDesktop"><to>2</to><wrap>no</wrap></action>|g' "${rc_file}"
     cat "${rc_file}" | grep '<action name="SendToDesktop"><to>2</to><wrap>no</wrap></action>'
 fi
-
-
+# original: S-A-Up replace: S-A-3
 if cat "${rc_file}" | grep '<keybind key="S-A-Up">'; then
     sed -i 's|<keybind key="S-A-Up">|<keybind key="S-A-3">|g' "${rc_file}"
     cat "${rc_file}" | grep '<keybind key="S-A-3">'
@@ -61,8 +86,7 @@ if cat "${rc_file}" | grep '<action name="SendToDesktop"><to>up</to><wrap>no</wr
     sed -i 's|<action name="SendToDesktop"><to>up</to><wrap>no</wrap></action>|<action name="SendToDesktop"><to>3</to><wrap>no</wrap></action>|g' "${rc_file}"
     cat "${rc_file}" | grep '<action name="SendToDesktop"><to>3</to><wrap>no</wrap></action>'
 fi
-
-
+# original: 'S-A-Down' replace: 'S-A-4'
 if cat "${rc_file}" | grep '<keybind key="S-A-Down">'; then
     sed -i 's|<keybind key="S-A-Down">|<keybind key="S-A-4">|g' "${rc_file}"
     cat "${rc_file}" | grep '<keybind key="S-A-4">'
@@ -71,49 +95,54 @@ if cat "${rc_file}" | grep '<action name="SendToDesktop"><to>down</to><wrap>no</
     sed -i 's|<action name="SendToDesktop"><to>down</to><wrap>no</wrap></action>|<action name="SendToDesktop"><to>4</to><wrap>no</wrap></action>|g' "${rc_file}"
     cat "${rc_file}" | grep '<action name="SendToDesktop"><to>4</to><wrap>no</wrap></action>'
 fi
-
-
+# set key binding 'S-A-' to 'S-W-'
 if cat "${rc_file}" | grep '<keybind key="S-A-'; then
     sed -i 's|<keybind key="S-A-|<keybind key="S-W-|g' \
 	"${rc_file}"
     cat "${rc_file}" | grep '<keybind key="S-W-'
 fi
+############################################################
 
-# replace konkeror for firefox
-sed -i 's|<keybind key="W-e">|<keybind key="W-r">|' \
-    "${rc_file}"
-sed -i 's|<name>Konqueror</name>|<name>Firefox</name>|' \
-    "${rc_file}"
-sed -i 's|kfmclient openProfile filemanagement|firefox|' \
-    "${rc_file}"
-# add custom keybinding after the clote tag </keyboard>
+
+
+#~ Deprecated
+###~ add custom keybinding after the clote tag </keyboard>
 # last_xml_tag_keyboard="$(cat ~/.config/openbox/rc.xml | sed -n '/<\/keyboard>/=')"
 
-# global custom keybindings
-echo '
-  <keybind key="A-C-3">
-    <action name="Execute">
-      <command>emacs -q -l ~/.emacs.d/init-openbox.el</command>
-    </action>
-  </keybind>
-  <keybind key="A-C-4">
-    <action name="Execute">
-      <command>emacsclient -c</command>
-    </action>
-  </keybind>
-  <keybind key="A-C-m">
-    <action name="Execute">
-      <command>xterm -rv -fa "Ubuntu Mono" -fs 13</command>
-    </action>
-  </keybind>
+
+
+############################################################
+###~ global custom keybindings
+#
+# 1/2 we will create our custom openbox key bindings in xml tags
+# and store it in a file called
+echo '' > /tmp/add.txt
+# 2/2 we will insert such code in the ~/.config/openbox/rc.xml
+# after the line: <!-- Keybindings for running applications -->
+#
+# WARNING: in shell commands use '&amp;' instead of '&'
+############################################################
+## OPENBOX custom Key bindings
+# Openbox
+echo '  <!-- openbox key bindings -->
   <keybind key="W-F11">
     <action name="Reconfigure">
       <command>openbox --reconfigure</command>
     </action>
   </keybind>
-  <keybind key="W-a">
+' >> /tmp/add.txt
+############################################################
+## KEYBINDINGS FOR RUNNING APPLICATIONS
+# Webbrowser
+echo'  <!-- Keybindings for running applications -->
+  <!-- run webbrowser -->
+  <keybind key="W-r">
     <action name="Execute">
-      <command>audacious --play</command>
+      <startupnotify>
+        <enabled>true</enabled>
+        <name>Firefox</name>
+      </startupnotify>
+      <command>firefox</command>
     </action>
   </keybind>
   <keybind key="W-t">
@@ -125,15 +154,48 @@ echo '
       <command>firefox --private-window</command>
     </action>
   </keybind>
-  <keybind key="W-r">
+' >> /tmp/add.txt
+# Emacs
+echo '  <!-- emacs key bindings -->
+  <keybind key="A-C-1">
     <action name="Execute">
-      <startupnotify>
-        <enabled>true</enabled>
-        <name>Firefox</name>
-      </startupnotify>
-      <command>firefox</command>
+      <command>emacs ~/.config/openbox/rc.xml</command>
     </action>
   </keybind>
+  <keybind key="A-C-2">
+    <action name="Execute">
+      <command>emacsclient -c ~/.config/openbox/rc.xml</command>
+    </action>
+  </keybind>
+  <keybind key="A-C-3">
+    <action name="Execute">
+      <command>emacs</command>
+    </action>
+  </keybind>
+  <keybind key="A-C-4">
+    <action name="Execute">
+      <command>emacsclient -c</command>
+    </action>
+  </keybind>
+' >> /tmp/add.txt
+# Terminal
+echo '  <!-- terminal key bindings -->
+  <keybind key="A-C-m">
+    <action name="Execute">
+      <command>xterm -rv -fa "Ubuntu Mono" -fs 13</command>
+    </action>
+  </keybind>
+' >> /tmp/add.txt
+# Musik Player
+echo '  <!-- start custom programs -->
+  <keybind key="W-a">
+    <action name="Execute">
+      <command>audacious --play</command>
+    </action>
+  </keybind>
+' >> /tmp/add.txt
+# Program Launchers
+echo '  <!--  program launcher key bindings -->
   <keybind key="W-S-p">
     <action name="Execute">
       <name>dmenu</name>
@@ -144,6 +206,19 @@ echo '
     <action name="Execute">
       <name>find-app</name>
       <command>gmrun</command>
+    </action>
+  </keybind>
+' >> /tmp/add.txt
+############################################################
+# Power System 
+echo '  <!--  power system keybindings -->
+  <keybind key="W-S-Delete">
+    <action name="Execute">
+      <startupnotify>
+        <enabled>true</enabled>
+        <name>Poweroff</name>
+      </startupnotify>
+      <command>sh -c "ps | grep audacious &amp;>2 &amp;&amp; audacious --pause | pkill audacious; emacsclient --eval \"(kill-emacs)\"; systemctl poweroff;"</command>
     </action>
   </keybind>
   <keybind key="W-S-XF86Eject">
@@ -169,54 +244,44 @@ echo '
       <command>sh -c "ps | grep audacious &amp;>2 &amp;&amp; audacious --pause | pkill audacious; bash ~/Projects/archlinux/desktop/openbox/shortcuts-openbox.sh; emacsclient --eval \"(kill-emacs)\"; openbox --exit"</command>
     </action>
   </keybind>
-  <keybind key="W-S-Down">
-    <action name="Execute">
-      <startupnotify>
-        <enabled>true</enabled>
-        <name>light down</name>
-      </startupnotify>
-      <!-- <command>macbacklight -ddec 2500</command> -->
-      <command>backlight_screen -dec</command>
-    </action>
-  </keybind>
-  <keybind key="W-S-Up">
-    <action name="Execute">
-      <startupnotify>
-        <enabled>true</enabled>
-        <name>light up</name>
-      </startupnotify>
-      <!-- <command>macbacklight -dinc 2500</command> -->
-      <command>backlight_screen -inc</command>
-    </action>
-  </keybind>
-  <keybind key="W-S-Right">
-    <action name="Execute">
-      <startupnotify>
-        <enabled>true</enabled>
-        <name>Volume up</name>
-      </startupnotify>
-      <command>sh -c "pactl set-sink-mute 1 false ; pactl set-sink-volume 0 +5%"</command>
-    </action>
-  </keybind>
-  <keybind key="W-S-Left">
-    <action name="Execute">
-      <startupnotify>
-        <enabled>true</enabled>
-        <name>Volume down</name>
-      </startupnotify>
-      <command>sh -c "pactl set-sink-mute 1 false ; pactl set-sink-volume 0 -5%"</command>
-    </action>
-  </keybind>
-  <!-- <keybind key="W-F1">
-    <action name="Execute">
-      <startupnotify>
-        <enabled>true</enabled>
-        <name>setxkbmap -query | grep es$ &amp;&amp; setxkbmap us || setxkbmap es</name>
-      </startupnotify>
-      <command></command>
-    </action>
-  </keybind> -->
-  <keybind key="XF86AudioRaiseVolume">
+' >> /tmp/add.txt
+
+############################################################
+## keyboard language
+## deprecated for command in .xinitrc
+# echo ' <!-- switch keyboard language -->
+#   <keybind key="W-F1">
+#     <action name="Execute">
+#       <startupnotify>
+#         <enabled>true</enabled>
+#         <name>setxkbmap -query | grep es$ &amp;&amp; setxkbmap us || setxkbmap es</name>
+#       </startupnotify>
+#       <command></command>
+#     </action>
+#   </keybind>' >> /tmp/add.txt
+
+############################################################
+## Media Control : Sound
+# echo '  <!-- sound control key bindings -->
+#   <keybind key="W-S-Right">
+#     <action name="Execute">
+#       <startupnotify>
+#         <enabled>true</enabled>
+#         <name>Volume up</name>
+#       </startupnotify>
+#       <command>sh -c "pactl set-sink-mute 1 false ; pactl set-sink-volume 0 +5%"</command>
+#     </action>
+#   </keybind>
+#   <keybind key="W-S-Left">
+#     <action name="Execute">
+#       <startupnotify>
+#         <enabled>true</enabled>
+#         <name>Volume down</name>
+#       </startupnotify>
+#       <command>sh -c "pactl set-sink-mute 1 false ; pactl set-sink-volume 0 -5%"</command>
+#     </action>
+#   </keybind>
+echo '  <keybind key="XF86AudioRaiseVolume">
     <action name="Execute">
       <startupnotify>
         <enabled>true</enabled>
@@ -278,11 +343,39 @@ echo '
       </startupnotify>
       <command>audtool playlist-advance</command>
     </action>
-  </keybind>' > /tmp/add.txt
+  </keybind>
+' >> /tmp/add.txt
 
+## WARNING: set fallback key binding when keyboard has no media keys
+# set key binding to sound volume up:        W-S-Right 
+# set key binding to sound volume down:      W-S-Left 
+echo '  <!-- sound control key bindings -->
+  <keybind key="W-S-Right">
+    <action name="Execute">
+      <startupnotify>
+        <enabled>true</enabled>
+        <name>Volume up</name>
+      </startupnotify>
+      <command>sh -c "pactl set-sink-mute 1 false ; pactl set-sink-volume 0 +5%"</command>
+    </action>
+  </keybind>
+  <keybind key="W-S-Left">
+    <action name="Execute">
+      <startupnotify>
+        <enabled>true</enabled>
+        <name>Volume down</name>
+      </startupnotify>
+      <command>sh -c "pactl set-sink-mute 1 false ; pactl set-sink-volume 0 -5%"</command>
+    </action>
+  </keybind>
+' >> /tmp/add.txt
 
-# screen backlight key bindings
+############################################################
+## Screen Backlight
+# 
 # if grep -i apple /sys/devices/virtual/dmi/id/board_vendor
+
+## screen backlight
 echo '<!-- screen backlight key bindings -->
   <keybind key="XF86MonBrightnessUp">
     <action name="Execute">
@@ -301,9 +394,35 @@ echo '<!-- screen backlight key bindings -->
       </startupnotify>
       <command>backlight -ddec</command>
     </action>
-  </keybind>' >> /tmp/add.txt
+  </keybind>
+' >> /tmp/add.txt
 
-# keyboard backlight key bindings 
+## WARNING: set fallback key binding when keyboard has no backlight keys
+# set key binding to screen backlight up:    W-S-Up 
+# set key binding to screen backlight down:  W-S-Down 
+echo '  <!-- backlight key bindings -->
+  <keybind key="W-S-Down">
+    <action name="Execute">
+      <startupnotify>
+        <enabled>true</enabled>
+        <name>light down</name>
+      </startupnotify>
+      <command>backlight -ddec</command>
+    </action>
+  </keybind>
+  <keybind key="W-S-Up">
+    <action name="Execute">
+      <startupnotify>
+        <enabled>true</enabled>
+        <name>light up</name>
+      </startupnotify>
+      <command>backlight -dinc</command>
+    </action>
+  </keybind>
+' >> /tmp/add.txt
+
+############################################################
+## keyboard backlight key bindings 
 echo '<!-- keyboard backlight key bindings -->
   <keybind key="XF86KbdBrightnessUp">
     <action name="Execute">
@@ -324,6 +443,7 @@ echo '<!-- keyboard backlight key bindings -->
     </action>
   </keybind>
 ' >> /tmp/add.txt
+
 
 # ## worked
 # echo '
@@ -730,7 +850,6 @@ echo '
 # </keybind>
 # ' >> /tmp/add.txt
     
-sed -i '/<!-- Keybindings for running applications -->/r /tmp/add.txt' "${rc_file}"
 
         # <action name="ToggleMaximize">
         #   <direction>vertical</direction>
@@ -952,3 +1071,5 @@ sed -i '/<!-- Keybindings for running applications -->/r /tmp/add.txt' "${rc_fil
 #     <action name="UnmaximizeFull"/>
 #     <action name="MoveResizeTo"><x>0</x><y>-0</y><width>100%</width><height>50%</height></action>
 # </keybind>' >> /tmp/add.txt
+
+sed -i '/<!-- Keybindings for running applications -->/r /tmp/add.txt' ~/.config/openbox/rc.xml

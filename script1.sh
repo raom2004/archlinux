@@ -30,6 +30,36 @@ set -o xtrace      # TRACE & EXPAND what gets executed
 ### DECLARE FUNCTIONS
 
 ########################################
+# Purpose: ERROR HANDLING
+# Requirements: None
+########################################
+## ERROR HANDLING
+function out     { printf "$1 $2\n" "${@:3}"; }
+# function error   { out "==> ERROR:" "$@"; } >&2
+# function die     { error "$@"; exit 1; }
+function die {
+  # if error, exit and show file of origin, line number and function
+  # colors
+  NO_FORMAT="\033[0m"
+  C_RED="\033[38;5;9m"
+  C_YEL="\033[38;5;226m"
+  # color functions
+  function msg_red { printf "${C_RED}${@}${NO_FORMAT}"; }
+  function msg_yel { printf "${C_YEL}${@}${NO_FORMAT}"; }
+  # error detailed message (colored)
+  msg_red "==> ERROR: " && printf " %s" "$@" && printf "\n"
+  msg_yel "  -> file: " && printf "${BASH_SOURCE[1]}\n"
+  msg_yel "  -> func: " && printf "${FUNCNAME[2]}\n"
+  msg_yel "  -> line: " && printf "${BASH_LINENO[1]}\n"
+  exit 1
+}
+## MESSAGES
+function warning { out "==> WARNING:" "$@"; } >&2
+function msg     { out "==>" "$@"; }
+function msg2    { out "  ->" "$@"; }
+
+
+########################################
 # Purpose: dialog to select a target block device for archlinux install
 # Arguments: $1
 # Return: the argument $1 will store a valid block device (e.g. /dev/sdX)
@@ -156,28 +186,6 @@ function extract
     echo "'$1' is not a valid file!"
   fi
 }
-
-########################################
-# Purpose: ERROR HANDLING
-# Requirements: None
-########################################
-## ERROR HANDLING
-function out     { printf "$1 $2\n" "${@:3}"; }
-# function error   { out "==> ERROR:" "$@"; } >&2
-# if error: show file of origin, line number and function
-function error   {
-  local file="${BASH_SOURCE[1]}"
-  local line="${BASH_LINENO[1]}"
-  local func="${FUNCNAME[2]}"
-  local description="$(sed -n "${line}p" "${file}")"
-  out "==> ERROR:" "${file}: line ${line}:"
-  msg2 "code: ${description}" 
-} >&2
-function die     { error "$@"; exit 1; }
-## MESSAGES
-function warning { out "==> WARNING:" "$@"; } >&2
-function msg     { out "==>" "$@"; }
-function msg2    { out "  ->" "$@";}
 
 
 ########################################
@@ -423,7 +431,7 @@ Packages+=('hunspell'
 # Display server - xorg (because wayland lack support for nvidia CUDA)
 Packages+=('xorg-xinit' 'xorg-server' 'xorg-xrandr' 'xterm')
 # Display driver - Nvidia support
-if lspci -k | grep -e "3D.*NVIDIA" &>/dev/null; then
+if lspci -k | grep -e "3D.*NVIDIA" &> /dev/null; then
   [[ "${Packages[*]}" =~ 'linux-lts' ]] && Packages+=('nvidia-lts')
   [[ "${Packages[*]}" =~ 'linux' ]] && Packages+=('nvidia')
   # nvidia monitoring tool
