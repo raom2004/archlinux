@@ -299,7 +299,7 @@ echo '        Option "TapButton3" "2"' >> /tmp/synaptics
 
 # insert temporal file content into the synaptics.conf
 #  after the line: MatchIsTouchpad "on"
-sudo sed -i '/MatchIsTouchpad "on"/r /tmp/synaptics' \
+sed -i '/MatchIsTouchpad "on"/r /tmp/synaptics' \
     /usr/share/X11/xorg.conf.d/70-synaptics.conf || die
 
 ### SCREEN AND KEYBOARD BACKLICHT SCRIPTS
