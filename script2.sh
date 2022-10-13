@@ -413,20 +413,47 @@ echo 'LANGUAGE=en_GB:en_US:en:C' >> $HOME/.config/locale.conf || die
 #   * source: https://wiki.archlinux.org/title/Xinit#xinitrc
 # ~/.xinitrc: create from template
 head -n50 /etc/X11/xinit/xinitrc > $HOME/.xinitrc || die
+# ~/.serverrc:
+# In order to maintain an authenticated session with logind and to
+# prevent bypassing the screen locker by switching terminals,
+# it is recommended to specify vt$XDG_VTNR in the ~/.xserverrc file: 
+echo '#!/bin/sh
+exec /usr/bin/Xorg -nolisten tcp -nolisten local "$@" vt$XDG_VTNR
+' > $HOME/.xserverrc
 
-# set Xorg keyboard keymap in .xinitrc
-available_layouts=("${keyboard_keymap}")
-[[ ! "${available_layouts[*]}" =~ es ]] && available_layouts+=('es')
-[[ ! "${available_layouts[*]}" =~ at ]] && available_layouts+=('at')
-[[ ! "${available_layouts[*]}" =~ us ]] && available_layouts+=('us')
-echo "setxkbmap -model pc105 -layout ${available_layouts},us,at -option grp:win_space_toggle" >> $HOME/.xinitrc || die
-unset available_layouts || die
-
-# add filemanager dependency to xinitrc
-echo 'udiskie &' >> $HOME/.xinitrc || die
 
 ## if user asked to install a desktop
 if [[ "${install_desktop}" =~ ^([yY])$ ]]; then
+
+  ## set Xorg keyboard keymap and filemanager dependency
+  # add to keyboard_keymap support for other keymaps: es, at, us
+  available_layouts=("${keyboard_keymap}")
+  [[ ! "${available_layouts[*]}" =~ es ]] && available_layouts+=('es')
+  [[ ! "${available_layouts[*]}" =~ at ]] && available_layouts+=('at')
+  [[ ! "${available_layouts[*]}" =~ us ]] && available_layouts+=('us')
+
+  # WARNING: keymap can be set in ~/.xinitrc, but in xmonad that FAILED
+  if [[ "${system_desktop}" == 'openbox' ]]; then
+    # Contrary to linux desktops, in OPENBOX the keymap and
+    # the filemanager dependency can be set in
+    # ~/.config/openbox/autostart
+    # So, they do not be included in ~/.xinitrc
+    mkdir -p $HOME/.config/openbox
+    echo "setxkbmap \
+    -model pc105 \
+    -layout ${available_layouts} \
+    -option grp:win_space_toggle" '&' \
+	 >> $HOME/.config/openbox/autostart || die
+    # add filemanager dependency to xinitrc
+    echo 'udiskie &' >> $HOME/.config/openbox/autostart || die
+  else
+    echo "setxkbmap \
+    -model pc105 \
+    -layout ${available_layouts} \
+    -option grp:win_space_toggle" >> $HOME/.xinitrc || die
+    # add filemanager dependency to xinitrc
+    echo 'udiskie &' >> $HOME/.xinitrc || die
+  fi
 
   ## Autostart X at login
   autostart_x_at_login
@@ -452,30 +479,31 @@ esac
   #  * Create script3.desktop entry to autostart script3.sh at first boot
 
   # create autostart dir and desktop entry
-  if [[ "${system_desktop}" == 'openbox' ]]; then
-    autostart_path=$HOME/.config/openbox
-  else
-    autostart_path=$HOME/.config/autostart
-  fi
-  mkdir -p "${autostart_path}"/ || die
+  # if [[ "${system_desktop}" == 'openbox' ]]; then
+  #   autostart_path=$HOME/.config/openbox
+  # else
+  #   autostart_path=$HOME/.config/autostart
+  # fi
+  # mkdir -p "${autostart_path}"/ || die
 
   # set terminal command 'cmd' for every Desktop or Window Manager
   [[ "${system_desktop}" == 'xfce' ]] && cmd='xfce4-terminal -e'
   [[ "${system_desktop}" == 'cinnamon' ]] && cmd='gnome-terminal --'
-  [[ "${system_desktop}" == 'openbox' ]] && cmd="xterm -rv -fa 'Ubuntu Mono' -fs 13 -e "
+  [[ "${system_desktop}" == 'openbox' ]] \
+    && cmd="xterm -rv -fa 'Ubuntu Mono' -fs 13 -e "
 
   case "${system_desktop}" in
 
-    # in openbox WM: call 'script3.sh' adding this line to the autostart file
-    openbox)
-      echo "# Programs that will run after Openbox has started
-${cmd} \"bash -c \\\"bash \$HOME/Projects/archlinux/desktop/${system_desktop}/script3.sh; exec bash\\\"\" &
-" > "${autostart_path}"/autostart || die
-      break
-      ;;
-
-    # in desktops: call 'script3.sh' using a desktop file
+    ## AUTOSTART
+    # Linux Desktops implement XDG autostarting to start programs on
+    # start up, normally creating destop files in a specific location:
+    #  ~/config/autostart/
+    # 
+    # We will use this to call 'script3.sh' creating
+    # a desktop file: script3.desktop
+    # located in the directory: ~/.config/autostart/
     xfce|cinnamon)
+      mkdir -p $HOME/.config/autostart || die
       echo "[Desktop Entry]
 Type=Application
 Name=setup-desktop-on-first-startup
@@ -483,35 +511,49 @@ Comment[C]=Script to config a new Desktop on first boot
 Terminal=true
 Exec=${cmd} \"bash -c \\\"bash \$HOME/Projects/archlinux/desktop/${system_desktop}/script3.sh; exec bash\\\"\"
 X-GNOME-Autostart-enabled=true
-NoDisplay=false" > "${autostart_path}"/script3.desktop || die
+NoDisplay=false" > $HOME/.config/autostart/script3.desktop || die
       break
       ;;
 
+    # openbox has its own autostart system:
+    # Instead of "~/.config/autostart", openbox uses their own folder:
+    #  ~/.config/openbox
+    # an a unique fail called 'autostart', to locate the programs:
+    #  ~/.config/openbox/autostart
+    # WARNING: in OPENBOX autostart is a file, NOT A DIRECTORY
+    # call 'script3.sh' adding this line to the autostart file
+    openbox)
+      echo "# Programs that will run after Openbox has started
+${cmd} \"bash -c \\\"bash \$HOME/Projects/archlinux/desktop/openbox/script3.sh; exec bash\\\"\" &
+" > $HOME/.config/openbox/autostart || die
+  # unset available_layouts || die  
+
+      # support for keyboard
+      # instead of ~/.xinitrc, we will add keyboard config
+      # using the autostart file:
+      echo "setxkbmap -model pc105 -layout ${available_layouts},us,at -option grp:win_space_toggle" >> $HOME/.config/openbox/autostart || die
+      break
+      ;;
   esac
+  
   # unset unnecessary variables 
-  unset cmd
-  unset autostart_path
+  [[ ! -z "${cmd}" ]] && unset cmd
+  # [[ ! -z "${autostart_path}" ]] && unset autostart_path
 fi
-# ~/.serverrc
-# In order to maintain an authenticated session with logind and to
-# prevent bypassing the screen locker by switching terminals,
-# it is recommended to specify vt$XDG_VTNR in the ~/.xserverrc file: 
-echo '#!/bin/sh
-exec /usr/bin/Xorg -nolisten tcp -nolisten local "$@" vt$XDG_VTNR
-' > $HOME/.xserverrc
+
 
 ### INSTALL DEPENDECIES
 
 ## Vim Plugin Manager
 url=https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-wget "${url}" -P $HOME/.vim/autoload \
-  || die
+wget "${url}" -P $HOME/.vim/autoload || die
 ## TODO: install vim plugins without open vim (must not be run as root)
 # vim -E -s -u $HOME/.vimrc +PlugInstall +visual +qall
 unset url || die
 
 ## add dictionaty of english medical terms for hunspell
 # source: https://github.com/Glutanimate/hunspell-en-med-glut
+
 url=https://raw.githubusercontent.com/glutanimate/hunspell-en-med-glut/master/en_med_glut.dic
 wget "${url}" -P /usr/share/hunspell || die
 unset url || die
@@ -520,9 +562,12 @@ unset url || die
 ### INSTALL EMACS DEPENDENCIES
 
 ## support for ditaa graphs - emacs org
+
 url=https://github.com/stathissideris/ditaa/blob/master/service/web/lib/ditaa0_10.jar || die
 wget "${url}" -P $HOME/Downloads || die
+
 ## support for language tools
+
 url=https://languagetool.org/download/
 latest_version=$(wget -O - "${url}" \
 			       | awk -F'"' '/[0-9]\.zip/{ print $2 }' \
@@ -532,16 +577,17 @@ latest_version=$(wget -O - "${url}" \
 url=https://languagetool.org/download/"${latest_version}"
 wget "${url}" -P $HOME/Downloads || die
 unset latest_version
-# decompressing language tools
+
+## decompressing language tools
+
 cd $HOME/Downloads || die
 extract "$(basename "${url}")" || die
-[[ -d "$(basename "${url}" .zip)" ]] \
-  && rm "$(basename "${url}")" \
-    || die
+[[ -d "$(basename "${url}" .zip)" ]] && rm "$(basename "${url}")" || die
 cd $PWD || die
 
 
 ## show final message and exit
+
 echo "$0 successful" && sleep 3 && exit
 
 
