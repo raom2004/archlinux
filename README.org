@@ -1,1 +1,79 @@
 # dot-emacs
+
+* Intro
+
+Linux configuration files are known as dotfiles. In the Emacs editor the customization file is called =init= and can have different locations, like =~/.emacs=, =~/.emacs.el=, or =~/.emacs.d/init.el=. Thus, everytime that Emacs is invoqued, it will verify these locations looking for an =init= file to load.
+
+Emacs users constantly add new code to =~/.emacs.d/init.el=, which can grow very fast becoming a unique init file, extremelly large, difficult to maintain, and slow to load. But, Emacs can be open using a specific init file. You just need to set the options =-q= and =-l= when you call emacs, like in this example:
+
+#+begin_example bash
+emacs -q -l ~/.emacs.d/my-init-file.el
+#+end_example
+
+This confers to Emacs the flexibility to be open using a customization file designed for an specific purpose, like:
+- Text edition
+- Code programming
+- Or suited for an explicit project
+
+This way, you can open an Emacs instance preloaded only with the tools required for an specific assignment, nothing more, nothing less.
+
+This is exactly the purpose of this git repo, to store the init files that I will be creating to customize Emacs for programming, professional text edition, and many more.
+
+The objective is to keep the Emacs customizations, clean, readabe and maintainable. This way the code is coherent and efficient to load. And I mention this because start an emacs instance that fulfills your requirements, in just 2 or 3 seconds, is a pleasure.
+
+
+* Emacs init files
+
+The emacs init files are lisp code located in the root directory =./=. But this files are originally writed as org files, located in =./src-org=. Each lisp code block has been exported using the header argument =:tangle=.  
+
+** init-essentials.el
+definitive file: [[file:init-essentials.el][init-essentials.el]]
+org source file: [[file:init-essentials.org][init-essentials.org]]
+
+This is an Emacs general customization for everyday day work, with the fundamentally important, and necessary tools.
+
+#+begin_src bash :results verbatim
+cat $HOME/Projects/dot-emacs/init-essentials.el | grep -n '^;;;~'
+#+end_src
+
+#+RESULTS:
+#+begin_example
+126:;;;~ theme
+138:;;;~ update file changes
+146:;;;~ delete selected region such as MS-Word (word, etc)
+155:;;;~ backup configuration (source: catchestocatches.com)
+172:;;;~ enable list of opened recent files
+186:;;;~ display line mode with line & column numbers
+204:;;;~ unset emacs predefined key bindings 
+223:;;;~ custom user macros
+239:;;;~ avoid emacs to overwrite customization file
+248:;;;~ frame customizations (title, cursor, location and font)
+442:;;;~ remember cursor last location
+453:;;;~ set cursor bookmark directory 
+463:;;;~ fill paragraph customized commands
+545:;;;~ jump inside text
+553:;;;~ Display hexagecimal color strings  with a background color
+562:;;;~ display delimiters in color
+651:;;;~ show emacs keyshorcuts in minibuffer
+661:;;;~ search selected region in multiple browsers: engine-mode
+691:;;;~ emacs REPL customization  
+702:;;;~ package to improve the searching menu: helm
+763:;;;~ emacs snippets
+795:;;;~ org global customization
+891:;;;~ emacs start server mode (if not started previously)
+#+end_example
+
+
+* Future init files
+- Basic org support for literate programming
+- Professional document edition using TeX, LaTeX and bibtex
+- Programming support, with control version (git), autocompletion and spell checking
+- Python programming with virtual environments support
+- R statistics programming (R) and ESS support 
+- Extended enconding support
+
+
+
+
+
+

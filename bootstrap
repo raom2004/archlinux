@@ -1,0 +1,67 @@
+#!/bin/bash
+#
+# bootstrap copy the lisp files from this folder into ~/.emacs.d#
+# IMPORTANT: ONLY init files.el will be synchronized
+#
+### CODE:
+
+
+### BASH SCRIPT FLAGS FOR SECURITY AND DEBUGGING ###########
+
+
+# shopt -o noclobber # file overwriting (>) only if forced (>|)
+set +o history     # disably bash history temporarilly
+set -o errtrace    # inherit any trap on ERROR
+set -o functrace   # inherit any trap on DEBUG and RETURN
+set -o errexit     # EXIT if command fails
+set -o nounset     # EXIT if try to use undeclared variables
+set -o pipefail    # CATCH failed piped commands
+set -o xtrace      # TRACE & EXPAND what gets executed
+
+
+### Declare functions ######################################
+
+############################################################
+# Descrition:
+#  - Function to synchronize files from ./ to ~/.emacs.d
+#  - Exclude all directories and non elisp files
+function syncronize_only_elisp_files
+{
+  rsync --exclude ".git/" \
+	--exclude "original-init/" \
+	--exclude "src-org/" \
+	--exclude "bootstrap.sh" \
+	--exclude "README.org" \
+	--exclude "LICENSE" \
+	--backup --backup-dir=~/.emacs.d/.backup --suffix=bk \
+	--archive --human-readable --verbose --no-perms . ~/.emacs.d
+  
+  ls ~/.emacs.d/*.el
+}
+
+
+### MAIN ###################################################
+
+#~ Set Working Directory
+
+cd "$(dirname "${BASH_SOURCE}")"
+
+#~ Update changes in git repository
+
+git pull # origin main
+
+#~ Syncronize files.el from ./dot-emacs to ~/.emacs.d
+
+read -p "This may Overwrite files in ~/.emacs.d. Continue? [y/N] " -n 1
+echo ""
+if [[ "$REPLY" =~ ^[Yy]$ ]]; then
+  syncronize_only_elisp_files
+fi
+
+
+# emacs:
+# Local Variables:
+# sh-basic-offset: 2
+# End:
+
+# vim: set ts=2 sw=2 et:
