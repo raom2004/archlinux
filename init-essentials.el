@@ -485,7 +485,7 @@
     (progn (select-frame (make-frame))
 	   (modify-frame-location-upper-right)))
 
-  (defun fl-fill-screen-with-frames ()
+  (defun fill-screen-with-frames ()
     (interactive)
     ;; Fill the upper row with frames:
     ;;  * locating the original frame to the left
@@ -547,6 +547,7 @@
    ("C-ñ <C-f1>" . modify-frame-location-lower-left)
    ("C-ñ <C-f2>" . modify-frame-location-lower-middle)
    ("C-ñ <C-f3>" . modify-frame-location-lower-right)
+   ("C-ñ <C-f4>" . fill-screen-with-frames)
    ("C-x |" . toggle-window-split)
 
    ;;;~ new frame in custom position
