@@ -33,7 +33,8 @@ function syncronize_only_elisp_files
 	--exclude "bootstrap.sh" \
 	--exclude "README.org" \
 	--exclude "LICENSE" \
-	--backup --backup-dir=.backup --suffix=_bk \
+	--backup \
+	--backup-dir=.backup/"$(date +%Y%m%d_%H%M)" --suffix=_bk \
 	--archive --human-readable --verbose --no-perms . ~/.emacs.d
   
   ls ~/.emacs.d/*.el
