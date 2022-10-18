@@ -104,7 +104,7 @@
     ;; (load-file "~/.emacs.d/init-private--variables.el")
 
 
-    ;;;~ show line numbers in:programming & text mode
+    ;;;~ show line numbers in: programming & text mode
 
     (add-hook 'prog-mode-hook 'display-line-numbers-mode)
     (add-hook 'text-mode-hook 'display-line-numbers-mode)
@@ -120,8 +120,8 @@
 
     ;;;~ startup emacs config
 
-    (setq inhibit-startup-message t)
     (setq inhibit-startup-screen t)
+
     ;; (setq initial-scratch-message 'nil)
     (setq initial-scratch-message ";; This buffer is for text that is not saved, and for Lisp evaluation.
 ;; To create a file, visit it with \\[find-file] and enter text in its buffer.
@@ -382,20 +382,28 @@
 
   ;;;~ frame geometry and location 
 
-  (let
+  (let*
       ((calculated-frame-height
   	(- (* (/ (cadddr (frame-monitor-workarea)) 3) 2) 50))
        (calculated-frame-width
   	(- (/ (caddr (frame-monitor-workarea)) 3)
 	   (cdr (assoc 'scroll-bar-width (frame-parameters)))))
        (frame-position-list '())
-       (positions (/ (caddr (frame-monitor-workarea)) 3)))
+       (positions (/ (caddr (frame-monitor-workarea)) 3))
+       (wm--info (shell-command-to-string "wmctrl -m"))
+       (wm--detected (and (string-match "^Name: \\(.*\\)" wm--info)
+			  (print (match-string 1 wm--info)))))
     
     (dotimes (i 3)
       (add-to-list
        'frame-position-list
-       (+ (+ (* positions (expt i 1))) 
-  	  (* (% 1 (expt i i)) (expt i (+ i 1))))
+       (if (equal wm--detected "Xfwm4")
+	   ;;;~ xfce wm require complex calculation
+	   (+ (+ (* positions (expt i 1))) 
+	      (* (% 1 (expt i i)) (expt i (+ i 1))))
+	 ;;;~ the other window managers do not require this
+	 (+ (* positions (expt i 1)))
+	 )
        t))
 
     (setq initial-frame-alist
@@ -476,6 +484,23 @@
     (interactive)
     (progn (select-frame (make-frame))
 	   (modify-frame-location-upper-right)))
+
+  (defun fl-fill-screen-with-frames ()
+    (interactive)
+    ;; Fill the upper row with frames:
+    ;;  * locating the original frame to the left
+    (modify-frame-location-upper-left)
+    ;;  * and making new frames in the middle and the right
+    (let* ((location-list
+	    '(modify-frame-location-upper-middle
+	      modify-frame-location-upper-right
+	      modify-frame-location-lower-left
+	      modify-frame-location-lower-middle
+	      modify-frame-location-lower-right)))
+      (dolist (frame-location location-list)
+	(make-frame)
+	(other-frame -1)
+	(funcall frame-location))))
 
   :config
 
@@ -667,7 +692,8 @@
 
   ;;;~ activate smartparens in minibuffer
 
-  (add-hook 'minibuffer-setup-hook (lambda()(smartparens-mode 1)))
+  (add-hook 'minibuffer-setup-hook
+	    #'(lambda()(smartparens-mode 1)))
 
   ;;;~ highlight enclosing pair of parens
 
