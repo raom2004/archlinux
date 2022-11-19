@@ -161,19 +161,14 @@ cp $HOME/Projects/archlinux/desktop/openbox/autostart $HOME/.config/openbox
 
 ## create folders for customization
 
-mkdir -p $HOME/.{themes,icons,wallpapers} \
-  || die
+mkdir -p $HOME/.{themes,icons,wallpapers} || die
 
 ## set wallpaper
 
-image="https://i.imgur.com/IwPvX8Z.jpg" \
-  || die
-my_path=$HOME/.wallpapers/arch-tv-wallpaper.jpg \
-  || die
-wget --output-document="${my_path}" "${image}" \
-  || die
-feh --bg-scale -bg-fill $HOME/.wallpapers/arch-tv-wallpaper.jpg \
-  || die
+image="https://i.imgur.com/IwPvX8Z.jpg" || die
+my_path=$HOME/.wallpapers/arch-tv-wallpaper.jpg || die
+wget --output-document="${my_path}" "${image}" || die
+feh --bg-scale -bg-fill $HOME/.wallpapers/arch-tv-wallpaper.jpg || die
 
 
 ############################################################
