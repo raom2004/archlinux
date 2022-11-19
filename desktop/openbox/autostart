@@ -63,7 +63,7 @@ udiskie --notify --automount --tray &
 
 conky &
 
-# when sound card is recognixed, run: amixer volume and audacios
+## amixer volume and musik player: run when sound card is recognixed
 
 sh -c "until aplay -l | grep PCH; do sleep 10; done" \
     && (sleep 4 && sh -c "amixer sset Master unmute") \
@@ -76,8 +76,9 @@ sh -c "until aplay -l | grep PCH; do sleep 10; done" \
 
 ## File Manager
 
-thunar $HOME/Projects/archlinux/desktop/openbox &
-nemo $HOME/Projects/archlinux/desktop/openbox &
+(sleep 4 && thunar $HOME/Projects/archlinux) &
+(sleep 4 && thunar $HOME/Projects/archlinux/desktop/openbox) &
+(sleep 4 && thunar $HOME/Projects/dot-emacs) &
 
 ## terminal:
 #   Geometry Specifications: WIDTH x HEIGHT + XOFF + YOFF
@@ -96,14 +97,13 @@ nemo $HOME/Projects/archlinux/desktop/openbox &
 #
 #   source: https://linux.die.net/man/7/x
 #
-# terminal located in: lower left hand corner
-
-xterm -rv -fa 'Ubuntu Mono' -fs 13 -geometry 60x17+0-30 &
-
-# terminal located in: lower right hand corner
-
-xterm -rv -fa 'Ubuntu Mono' -fs 13 -geometry 60x17-0-30 &
-
+# lower right hand corner
+xterm -rv -fa 'Ubuntu Mono' -fs 13 -geometry 60x17-0-30 \
+      -e "cd $HOME/Projects/dot-emacs; exec zsh" &
+# lower left hand corner
+xterm -rv -fa 'Ubuntu Mono' -fs 13 -geometry 60x17+0-30 \
+      -e "cd $HOME/Projects/archlinux/desktop/openbox; exec zsh" &
+# ## OPEN XTERM USING AUTOMATED LOCATION 
 # get screen dimentions and set it to term geometry
 ## get screen dimensions: X Y
 # X_size="$(xrandr | awk '/*/{print $1}' | awk -F'x' '{print $1}')"
@@ -113,6 +113,12 @@ xterm -rv -fa 'Ubuntu Mono' -fs 13 -geometry 60x17-0-30 &
 # xterm \
 #     -rv -fa 'Ubuntu Mono' -fs 13 -geometry 70x16-0+0 \
 #     -hold -e 'xwininfo -id "${WINDOWID}"'
+X_size="$(xrandr | awk '/*/{print $1}' | awk -F'x' '{print $1}')"
+Y_size="$(xrandr | awk '/*/{print $1}' | awk -F'x' '{print $2}')"
+X_center="$((X_size / 3))"
+xterm -rv -fa 'Ubuntu Mono' -fs 12 \
+      -geometry 69x18+"${X_center}"-30 -e \
+      "cd $HOME/Projects/archlinux; exec zsh" &
 
 
 
