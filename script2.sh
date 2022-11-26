@@ -301,6 +301,7 @@ echo '        Option "TapButton3" "2"' >> /tmp/synaptics
 #  after the line: MatchIsTouchpad "on"
 sed -i '/MatchIsTouchpad "on"/r /tmp/synaptics' \
     /usr/share/X11/xorg.conf.d/70-synaptics.conf || die
+        
 
 ### SCREEN AND KEYBOARD BACKLICHT SCRIPTS
 
@@ -431,26 +432,23 @@ if [[ "${install_desktop}" =~ ^([yY])$ ]]; then
   [[ ! "${available_layouts[*]}" =~ es ]] && available_layouts+=('es')
   [[ ! "${available_layouts[*]}" =~ at ]] && available_layouts+=('at')
   [[ ! "${available_layouts[*]}" =~ us ]] && available_layouts+=('us')
+  #~ set keyboard map using /etc/X11/xorg.conf.d
+  echo "Section \"InputClass\"
+    Identifier \"keyboard defaults\"
+    MatchIsKeyboard \"on\"
+    Option \"XkbModel\" \"pc105\"
+    Option \"XkbLayout\" \"${available_layouts}\"
+    Option \"XKbOptions\" \"grp:win_space_toggle\"
+EndSection" > /etc/X11/xorg.conf.d/90-custom-kbd.conf || die
 
   # WARNING: keymap can be set in ~/.xinitrc, but in xmonad that FAILED
   if [[ "${system_desktop}" == 'openbox' ]]; then
-    # Contrary to linux desktops, in OPENBOX the keymap and
-    # the filemanager dependency can be set in
-    # ~/.config/openbox/autostart
-    # So, they do not be included in ~/.xinitrc
-    mkdir -p $HOME/.config/openbox
-    echo "setxkbmap \
-    -model pc105 \
-    -layout ${available_layouts} \
-    -option grp:win_space_toggle" '&' \
-	 >> $HOME/.config/openbox/autostart || die
-    # add filemanager dependency to xinitrc
+    #~ Contrary to linux desktops, in OPENBOX the
+    #~ the filemanager dependency can be set in
+    #~  ~/.config/openbox/autostart instead of ~/.xinitrc
+    mkdir -p $HOME/.config/openbox    
     echo 'udiskie &' >> $HOME/.config/openbox/autostart || die
   else
-    echo "setxkbmap \
-    -model pc105 \
-    -layout ${available_layouts} \
-    -option grp:win_space_toggle" >> $HOME/.xinitrc || die
     # add filemanager dependency to xinitrc
     echo 'udiskie &' >> $HOME/.xinitrc || die
   fi

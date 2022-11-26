@@ -25,11 +25,11 @@ function open_urls_in_firefox {
 
 ### ESSENTIAL SETUP 
 
-## Keyboard Setup
+## Keyboard Setup (set in script 2 instead)
 
-setxkbmap -model pc105 \
-	  -layout es,us,at \
-	  -option grp:win_space_toggle &
+# setxkbmap -model pc105 \
+# 	  -layout es,us,at \
+# 	  -option grp:win_space_toggle &
 
 ## Screen Brigthness Setup
 
