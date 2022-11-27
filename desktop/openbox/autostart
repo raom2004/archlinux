@@ -273,3 +273,12 @@ open_urls_in_firefox "${urls[@]}"
 # If you want to use XFCE config tools...
 #
 #xfce-mcs-manager &
+
+
+# emacs:
+# Local Variables:
+# mode:Shell-script
+# sh-basic-offset:2
+# End:
+
+# vim: set ts=2 sw=2 et:
