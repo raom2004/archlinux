@@ -26,45 +26,38 @@ function open_urls_in_firefox {
 ### ESSENTIAL SETUP 
 
 ## Keyboard Setup (set in script 2 instead)
-
-# setxkbmap -model pc105 \
-# 	  -layout es,us,at \
-# 	  -option grp:win_space_toggle &
+xmodmap -e "keysym XF86Eject = BackSpace"
 
 ## Screen Brigthness Setup
-
 if grep -i apple /sys/devices/virtual/dmi/id/board_vendor; then
     brightnessctl set 25% &
+else
+  brightnessctl set 50% &
 fi
 
 ## Set Background
-
 ~/.fehbg &
 
 ## Bar
-
 tint2 &
 
 ## Tray Icons
-
 nm-applet &             # network manager
 xfce4-power-manager &   # battery info
-# pasystray &	        # volume (pulseaudio)
 
 ## permission to mount drives
-
 /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
 
 ## automount usb
-
 udiskie --notify --automount --tray &
 
-## System Monitor Software
+## Composite Manager
+picom &
 
-conky &
+## System Monitor Software
+(sleep 3 && conky) &
 
 ## amixer volume and musik player: run when sound card is recognixed
-
 sh -c "until aplay -l | grep PCH; do sleep 10; done" \
     && (sleep 4 && sh -c "amixer sset Master unmute") \
     && (sleep 2 && sh -c "amixer set Master 2%+") \
@@ -75,7 +68,6 @@ sh -c "until aplay -l | grep PCH; do sleep 10; done" \
 ### START PROGRAMS
 
 ## File Manager
-
 (sleep 4 && thunar $HOME/Projects/archlinux) &
 (sleep 4 && thunar $HOME/Projects/archlinux/desktop/openbox) &
 (sleep 4 && thunar $HOME/Projects/dot-emacs) &
@@ -97,29 +89,20 @@ sh -c "until aplay -l | grep PCH; do sleep 10; done" \
 #
 #   source: https://linux.die.net/man/7/x
 #
-# lower right hand corner
-xterm -rv -fa 'Ubuntu Mono' -fs 13 -geometry 60x17-0-30 \
-      -e "cd $HOME/Projects/dot-emacs; exec zsh" &
-# lower left hand corner
-xterm -rv -fa 'Ubuntu Mono' -fs 13 -geometry 60x17+0-30 \
-      -e "cd $HOME/Projects/archlinux/desktop/openbox; exec zsh" &
-# ## OPEN XTERM USING AUTOMATED LOCATION 
-# get screen dimentions and set it to term geometry
-## get screen dimensions: X Y
-# X_size="$(xrandr | awk '/*/{print $1}' | awk -F'x' '{print $1}')"
-# Y_size="$(xrandr | awk '/*/{print $1}' | awk -F'x' '{print $2}')"
-# echo "${X_size}" "${Y_size}"
-# TODO: get dimensions from xterm window using xwininfo
-# xterm \
-#     -rv -fa 'Ubuntu Mono' -fs 13 -geometry 70x16-0+0 \
-#     -hold -e 'xwininfo -id "${WINDOWID}"'
+# variable declaration
 X_size="$(xrandr | awk '/*/{print $1}' | awk -F'x' '{print $1}')"
-Y_size="$(xrandr | awk '/*/{print $1}' | awk -F'x' '{print $2}')"
 X_center="$((X_size / 3))"
+panel_height="$(awk '/panel_size/{print $4}' ~/.config/tint2/tint2rc)"
+# open terminal, location: lower right hand corner
+xterm -rv -fa 'Ubuntu Mono' -fs 12 -geometry 60x17-0-30 \
+      -e "cd $HOME/Projects/dot-emacs; exec zsh" &
+# open terminal, location: lower left hand corner
+xterm -rv -fa 'Ubuntu Mono' -fs 12 -geometry "60x17+0-${panel_height}" \
+      -e "cd $HOME/Projects/archlinux/desktop/openbox; exec zsh" &
+# open terminal, location: center
 xterm -rv -fa 'Ubuntu Mono' -fs 12 \
-      -geometry 69x18+"${X_center}"-30 -e \
+      -geometry 69x18+"${X_center}"-"${panel_height}" -e \
       "cd $HOME/Projects/archlinux; exec zsh" &
-
 
 
 ## webbroser : open unique url in privat mode
@@ -139,17 +122,13 @@ xterm -rv -fa 'Ubuntu Mono' -fs 12 \
 # open_urls_in_firefox "${urls[@]}"
 
 urls=(
-
     # vim command cheat sheet
-
     'https://phoenixnap.com/kb/vim-commands-cheat-sheet'
 
     # cron
-
     'https://wiki.archlinux.org/title/Cron'
 
     # openbox example for window snapping
-
     'https://wiki.archlinux.org/title/Openbox#Window_snapping'
     'http://openbox.org/wiki/Help:Actions#GrowToEdge'
     'https://aur.archlinux.org/packages/opensnap'
@@ -158,121 +137,17 @@ urls=(
 open_urls_in_firefox "${urls[@]}"
 
 ## text/code editor
+emacs -q -l ~/.emacs.d/init-openbox.el &
 
-# emacs -q -l ~/.emacs.d/init-openbox.el &
+## Editor
+emacs -q -l ~/.emacs.d/init-openbox.el &
 
-# TODO: add upcase/capilize-region to init.el
-# TODO: create a function for customized comment titles
-#       using (current-column)
-#  source:
-# https://stackoverflow.com/questions/6638885/column-of-buffer-position-in-emacs-lisp
-
-# TODO: speed up emacs startup
-
-
-### SOUND SETUP
-
-## unmute sound using alsa mixer package (amixer)
-
-# amixer sset Master unmute &
-# amixer sset Speaker unmute &
-# amixer sset Headphone unmute &
-
-## change sound card using pulse audio (pacmd)
-
-# pacmd set-default-sink 1 & pacmd move-sink-input 5 1
-# pacmd set-default-sink 1 &
-# pactl set-sink-mute 1 false &
-
-#############################################################
-## Problem: sound card recognized later
-#
-# Possible cause: mac laptop has two sound cards, ATI and intel
-#
-# Possile solutions reviewed:
-#  source:
-# https://www.hifiberry.com/docs/software/amixer-multiple-sound-cards-pulseaudio/
-############################################################
-
-## get sound card information 
-# amixer
-# aplay -l
-
-
-# vlc '/run/media/angel/KN28/A BEAUTIFUL COSMOS with ALEXANDRA BADOI - Episode 21-lagcP_j1pdg.mp3' --start-paused &
-
-
-
-# xterm \
-#     -rv \
-#     -fa 'Ubuntu Mono' \
-#     -fs 13 \
-#     -hold &
-
-# stop and start pulseaudio daemon
-# xterm \
-#     -rv -fa 'Ubuntu Mono' -fs 13 \
-#     -e "pulseaudio -k; pulseaudio -start" \
-#     -hold &
-
-
-
-
-
-### PULSEAUDIO REFERENCE URLS
-
-## troubleshooting
-
-# url='https://wiki.archlinux.org/title/PulseAudio/Troubleshooting'
-
-## PulseAudio examples
-
-# url='https://wiki.archlinux.org/title/PulseAudio/Examples' &
-
-## PulseAudio Modules
-
-# url='https://www.freedesktop.org/wiki/Software/PulseAudio/Documentation/User/Modules/'
-
-## PulseAudio no sound after suspended
-
-# url='https://unix.stackexchange.com/questions/114602/pulseaudio-sink-always-suspended'
-
-
-### ALSA REFERENCE URLS
-
-## amixer show sound cards
-
-# url='https://duckduckgo.com/?t=ffab&q=amixer+show+sound+cards+available&atb=v344-5&ia=web'
-
-## set default sound card
-
-# 	url='https://wiki.archlinux.org/title/Advanced_Linux_Sound_Architeacture#Set_the_default_sound_card'
-
-## error abour snd_pcm_open failed
-
-#     url='https://duckduckgo.com/?t=ffab&q=archlinux+ALSA+error%3A+snd_pcm_open+failed%3A+No+such+file+or+directory.&atb=v344-5&ia=web'
-
-
-### OPENBOX WINDOW SNAPPING
-
-# urls about openbox window snapping
-    # 'http://openbox.org/wiki/Help:Actions#ToggleMaximize'
-    # 'http://openbox.org/wiki/Help:Actions#ResizeRelative'
-    # 'https://wiki.archlinux.org/title/NFS'
-    # 'https://duckduckgo.com/?t=ffab&q=archlinux+openbox&ia=web'
-
-    
-### IF YOU WANT TO USE GNOME CONFIG TOOLS...
-
-# if test -x /usr/lib/openbox/gnome-settings-daemon >/dev/null; then
-#  /usr/lib/openbox/gnome-settings-daemon &
-# elif which gnome-settings-daemon >/dev/null 2>&1; then
-#  gnome-settings-daemon &
-# fi
-
-# If you want to use XFCE config tools...
-#
-#xfce-mcs-manager &
+## Musik player (will start when sound card is detected)
+sh -c "until aplay -l | grep PCH; do sleep 5; done" \
+    && (sleep 4 && sh -c "amixer sset Master unmute") \
+    && (sleep 2 && sh -c "amixer set Master 2%+") \
+    && (sleep 2 && sh -c "amixer set Master 12%") \
+    && (sleep 2 && sh -c "audacious --headless --play") &
 
 
 # emacs:
