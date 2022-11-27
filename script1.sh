@@ -345,7 +345,22 @@ fi
 # root "/" will be the preexistent SDD /dev/sdc3 (125GB) 
 mkfs.ext4 -F /dev/sdc3 || die
 # "/home"  will be the preexistent HDD /dev/sda3 (33.3GB)
-mkfs.ext4 -F /dev/sda3 || die
+# mkfs.ext4 -F /dev/sda3 || die
+# "/home"  will be the preexistent HDD /dev/sdb1 (1,8TB)
+lsblk
+read -p "Do you want to partition HDD /dev/sdb?[y/N]" answer
+if [[ "${answer:-N}" =~ ^([yY])$ ]]; then
+  parted -s -a optimal /dev/sdb \
+	 mkpart primary ext4 0 100% || die
+  mkfs.ext4 -F /dev/sdb1 || die
+else
+  unset answer
+  read -p "Do you want to format /dev/sdb1?[y/N]" answer
+  if [[ "${answer:-N}" =~ ^([yY])$ ]]; then
+    mkfs.ext4 -F /dev/sdb1 || die
+  fi
+fi
+unset answer
 
 
 ## HDD mounting
@@ -354,7 +369,8 @@ mkfs.ext4 -F /dev/sda3 || die
 mount /dev/sdc3 /mnt || die
 # /home
 mkdir -p /mnt/home || die
-mount /dev/sda3 /mnt/home || die
+mount /dev/sdb1 /mnt/home || die
+# mount /dev/sda3 /mnt/home || die
 
 # show result
 

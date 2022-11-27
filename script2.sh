@@ -529,7 +529,7 @@ ${cmd} \"bash -c \\\"bash \$HOME/Projects/archlinux/desktop/openbox/script3.sh; 
       # support for keyboard
       # instead of ~/.xinitrc, we will add keyboard config
       # using the autostart file:
-      echo "setxkbmap -model pc105 -layout ${available_layouts},us,at -option grp:win_space_toggle" >> $HOME/.config/openbox/autostart || die
+      # echo "setxkbmap -model pc105 -layout ${available_layouts},us,at -option grp:win_space_toggle" >> $HOME/.config/openbox/autostart || die
       break
       ;;
   esac
@@ -584,7 +584,19 @@ extract "$(basename "${url}")" || die
 cd $PWD || die
 
 
-## show final message and exit
+### INSTALL OPENBOX FROM GIT REPO AND ADD SNAP FEATURE
+
+git clone https://github.com/lawl/opensnap || die
+cd opensnap || die
+make|| die
+make install || die
+git clone https://github.com/danakj/openbox || die
+cp openbox-window-snap.diff openbox || die
+cd openbox || die
+git apply openbox-window-snap.diff || die
+openbox --restart || die
+
+### show final message and exit
 
 echo "$0 successful" && sleep 3 && exit
 
