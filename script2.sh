@@ -586,15 +586,17 @@ cd $PWD || die
 
 ### INSTALL OPENBOX FROM GIT REPO AND ADD SNAP FEATURE
 
-git clone https://github.com/lawl/opensnap || die
-cd opensnap || die
-make|| die
-make install || die
+# git clone https://github.com/lawl/opensnap || die
+# cd opensnap || die
+# make || die
+# make install || die
 git clone https://github.com/danakj/openbox || die
 cp openbox-window-snap.diff openbox || die
 cd openbox || die
 git apply openbox-window-snap.diff || die
-openbox --restart || die
+./bootstrap
+make || die
+make install || die
 
 ### show final message and exit
 
