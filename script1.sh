@@ -351,6 +351,7 @@ lsblk
 read -p "Do you want to partition HDD /dev/sdb?[y/N]" answer
 if [[ "${answer:-N}" =~ ^([yY])$ ]]; then
   parted -s -a optimal /dev/sdb \
+	 mklabel msdos \
 	 mkpart primary ext4 0% 100% || die
   mkfs.ext4 -F /dev/sdb1 || die
 else
