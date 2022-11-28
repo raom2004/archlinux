@@ -248,6 +248,9 @@ case "${MACHINE}" in
       ## install emacs customized
       bash "${my_emacs_path}"/emacs-installer.sh
       unset my_emacs_path
+    else
+      echo ";; init.el -- Emacs init file -*- lexical-binding: t -*-
+(load-file \"$HOME/Projects/dot-emacs/init-essentials.el\")" > ~/.emacs.d/init.el
     fi
     break
     ;;
