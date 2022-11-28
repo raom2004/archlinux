@@ -428,16 +428,16 @@ if [[ "${install_desktop}" =~ ^([yY])$ ]]; then
 
   ## set Xorg keyboard keymap and filemanager dependency
   # add to keyboard_keymap support for other keymaps: es, at, us
-  available_layouts=("${keyboard_keymap}")
-  [[ ! "${available_layouts[*]}" =~ es ]] && available_layouts+=('es')
-  [[ ! "${available_layouts[*]}" =~ at ]] && available_layouts+=('at')
-  [[ ! "${available_layouts[*]}" =~ us ]] && available_layouts+=('us')
+  keymaps=$keyboard_keymap
+  for kbd in es at us; do
+    echo $keymaps | grep -q $kbd || keymaps="${keymaps},${kbd}"
+  done
   #~ set keyboard map using /etc/X11/xorg.conf.d
   echo "Section \"InputClass\"
     Identifier \"keyboard defaults\"
     MatchIsKeyboard \"on\"
     Option \"XkbModel\" \"pc105\"
-    Option \"XkbLayout\" \"${available_layouts}\"
+    Option \"XkbLayout\" \"${keymaps}\"
     Option \"XKbOptions\" \"grp:win_space_toggle\"
 EndSection" > /etc/X11/xorg.conf.d/90-custom-kbd.conf || die
   # WARNING: keymap can be set in ~/.xinitrc, but in xmonad that FAILED
