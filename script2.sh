@@ -329,7 +329,7 @@ screen_value=\$(((screen_max * \${2:-5}) / 100))
 if ls /sys/class/leds | grep backlight); then
   keyboard_kernel=\$(ls /sys/class/leds | grep backlight)
   keyboard_kernel_path=/sys/class/leds/\${keyboard_kernel}
-  keyboard=\$(ls ${keyboard_kernel_path}/brightness)
+  keyboard=\$(ls \${keyboard_kernel_path}/brightness)
   key_current=\$(cat \${keyboard})
   key_max=\$(cat \${keyboard_kernel_path}/max_brightness)
   # key_value: is a % value used to increase or decrease brightness
