@@ -579,7 +579,7 @@ unset latest_version
 ## decompressing language tools
 
 cd $HOME/Downloads || die
-extract "$(basename "${url}")" || die
+extract "$(basename "${url}")" &> /dev/null || die
 [[ -d "$(basename "${url}" .zip)" ]] && rm "$(basename "${url}")" || die
 cd $PWD || die
 
@@ -590,13 +590,12 @@ cd $PWD || die
 # cd opensnap || die
 # make || die
 # make install || die
+git clone https://github.com/emilypeto/openbox-window-snap || die
 git clone https://github.com/danakj/openbox || die
-cp openbox-window-snap.diff openbox || die
+cp openbox-window-snap/openbox-window-snap.diff openbox || die
 cd openbox || die
 git apply openbox-window-snap.diff || die
-./bootstrap
-make || die
-make install || die
+./bootstrap && ./configure && make && make install || die
 
 ### show final message and exit
 
