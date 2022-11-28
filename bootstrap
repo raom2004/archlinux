@@ -52,8 +52,8 @@ cd "$(dirname "${BASH_SOURCE}")"
 git pull # origin main
 
 #~ Syncronize files.el from ./dot-emacs to ~/.emacs.d
-
-read -p "This may Overwrite files in ~/.emacs.d. Continue? [y/N] " -n 1
+printf "dot-emacs/$0 may Overwrite files in ~/.emacs.d \n"
+read -p "==> Continue? [y/N] " -n 1
 echo ""
 if [[ "$REPLY" =~ ^[Yy]$ ]]; then
   syncronize_only_elisp_files
