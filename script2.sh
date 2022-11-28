@@ -326,7 +326,7 @@ screen_max=\$(cat ${screen_kernel_path}/max_brightness)
 screen_value=\$(((screen_max * \${2:-5}) / 100))
 
 # if keyboard HAS backlight, set variables to control it
-if ls /sys/class/leds | grep backlight); then
+if ls /sys/class/leds | grep backlight; then
   keyboard_kernel=\$(ls /sys/class/leds | grep backlight)
   keyboard_kernel_path=/sys/class/leds/\${keyboard_kernel}
   keyboard=\$(ls \${keyboard_kernel_path}/brightness)
@@ -440,8 +440,8 @@ if [[ "${install_desktop}" =~ ^([yY])$ ]]; then
     Option \"XkbLayout\" \"${available_layouts}\"
     Option \"XKbOptions\" \"grp:win_space_toggle\"
 EndSection" > /etc/X11/xorg.conf.d/90-custom-kbd.conf || die
-
   # WARNING: keymap can be set in ~/.xinitrc, but in xmonad that FAILED
+
   if [[ "${system_desktop}" == 'openbox' ]]; then
     #~ Contrary to linux desktops, in OPENBOX the
     #~ the filemanager dependency can be set in
@@ -596,6 +596,12 @@ cp openbox-window-snap/openbox-window-snap.diff openbox || die
 cd openbox || die
 git apply openbox-window-snap.diff || die
 ./bootstrap && ./configure && make && make install || die
+
+
+### INSTALL EMACS DOT-FILES FROM GIT REPO
+cd $HOME/Projects || die
+git clone https://github.com/raom2004/dot-emacs || die
+
 
 ### show final message and exit
 
