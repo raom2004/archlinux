@@ -170,6 +170,35 @@ my_path=$HOME/.wallpapers/arch-tv-wallpaper.jpg || die
 wget --output-document="${my_path}" "${image}" || die
 feh --bg-scale -bg-fill $HOME/.wallpapers/arch-tv-wallpaper.jpg || die
 
+### keyboard layout monitor for X11
+
+url=https://github.com/xkbmon/xkbmon.git
+folder="$(basename $url .git)"
+[[ ! -d /tmp/$folder ]] && git clone "$url" /tmp/$folder
+cd /tmp/$folder
+make
+[[ ! -f /usr/local/bin/xkbmon ]] && sudo cp xkbmon /usr/local/bin
+cd $OLDPWD
+
+
+if ! grep Executor $HOME/.config/tint2/tint2rc &> /dev/null; then
+    echo '#-------------------------------------
+# Executor 1
+execp = new
+execp_command = xkbmon -u
+execp_interval = 1
+execp_has_icon = 0
+execp_cache_icon = 1
+execp_continuous = 1
+execp_markup = 0
+execp_font = Sans Bold 9
+execp_font_color = #dcdcdc 100
+execp_padding = 0 0
+execp_background_id = 0
+execp_centered = 0' >> $HOME/.config/tint2/tint2rc
+fi
+
+sed -i 's/\(panel_items = \)\(LTSBC$\)/\1\2E/' $HOME/.config/tint2/tint2rc
 
 ############################################################
 ### CODE FOOTER ############################################

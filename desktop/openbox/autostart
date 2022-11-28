@@ -28,6 +28,9 @@ function open_urls_in_firefox {
 ## Keyboard Setup (set in script 2 instead)
 xmodmap -e "keysym XF86Eject = BackSpace"
 
+## deactivate screen saver
+(sleep 40 && xset s 0 0) &
+
 ## Screen Brigthness Setup
 if grep -i apple /sys/devices/virtual/dmi/id/board_vendor; then
     brightnessctl set 25% &
@@ -42,6 +45,7 @@ fi
 tint2 &
 
 ## Tray Icons
+pasystray &		# sound volume icon
 nm-applet &             # network manager
 xfce4-power-manager &   # battery info
 
@@ -68,6 +72,7 @@ sh -c "until aplay -l | grep PCH; do sleep 10; done" \
 ### START PROGRAMS
 
 ## File Manager
+thunar --daemon &
 (sleep 4 && thunar $HOME/Projects/archlinux) &
 (sleep 4 && thunar $HOME/Projects/archlinux/desktop/openbox) &
 (sleep 4 && thunar $HOME/Projects/dot-emacs) &
@@ -138,16 +143,6 @@ open_urls_in_firefox "${urls[@]}"
 
 ## text/code editor
 emacs -q -l ~/.emacs.d/init-openbox.el &
-
-## Editor
-emacs -q -l ~/.emacs.d/init-openbox.el &
-
-## Musik player (will start when sound card is detected)
-sh -c "until aplay -l | grep PCH; do sleep 5; done" \
-    && (sleep 4 && sh -c "amixer sset Master unmute") \
-    && (sleep 2 && sh -c "amixer set Master 2%+") \
-    && (sleep 2 && sh -c "amixer set Master 12%") \
-    && (sleep 2 && sh -c "audacious --headless --play") &
 
 
 # emacs:
