@@ -5,7 +5,7 @@
  (lambda()
    (message
     "Welcome %s
-Emacs version: %s\tOrg version: %s\tload time: %s
+Emacs version: %s\t%s\tload time: %s
 user-init-file: %s"
     (propertize
      (format "%s" (capitalize user-login-name))
@@ -15,10 +15,13 @@ user-init-file: %s"
      emacs-version
      'face
      'font-lock-keyword-face)
-    (propertize
-     org-version
-     'face
-     'font-lock-keyword-face)
+    (format "Org version: %s"
+	    (if (boundp 'org-version)
+		(propertize
+		 org-version
+		 'face
+		 'font-lock-keyword-face)
+	    "not loaded yet"))
     (propertize
      (emacs-init-time "%.2f sec")
      'face

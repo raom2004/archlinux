@@ -5,8 +5,10 @@
 ;; Title: Emacs Init File with Essential Customization
 ;; Author: Ricardo Orbegozo
 ;; Created: 2020-04-13
-;; Updated: 2022-10-14
+;; Updated: 2022-11-18 08:09:46
+;; Source: init-python-env.org
 ;;
+
 ;;;; Code:
 
 ;;;; ================ Accelerate Emacs Startup =============
@@ -70,74 +72,89 @@
 	;;;~ record how many packages have been loaded by use-package
 	use-package-compute-statistics t)
   ;;;~ show how many packages have been loaded by use-package
-  ;; (add-hook 'emacs-startup-hook 'use-package-report)
+  (add-hook 'emacs-startup-hook 'use-package-report)
   )
 
 ;;;; =================== EMACS SETTINGS ====================
 
 ;;;; (1/3) SETTINGS WITHOUT CORRESPONDING PACKAGES ---------
 
-  ;;;~ Emacs basic customizations: variables, toolbar, messages, etc 
+;;;~ Emacs basic customizations: variables, toolbar, messages, etc 
 
-  (use-package emacs
-    :config
+(use-package emacs
+  :config
 
-    ;;;~ declare custom function to show file name and path
-    
-    (defun show-file-name ()
-      "Show the full path file name in the minibuffer."
-      (interactive)
-      (if (equal current-prefix-arg nil) ; no C-u
-	  ;; then
-	  (message (buffer-file-name))
-	;; else
-	(insert (buffer-file-name))))
-    ;; (global-set-key [C-f1] 'show-file-name) ; deprecated
+  ;;;~ declare custom function to show file name and path
+  
+  (defun show-file-name ()
+    "Show the full path file name in the minibuffer."
+    (interactive)
+    (if (equal current-prefix-arg nil) ; no C-u
+	;; then
+	(message (buffer-file-name))
+      ;; else
+      (insert (buffer-file-name))))
+  ;; (global-set-key [C-f1] 'show-file-name) ; deprecated
 
-    ;;;~ don't show "C-g" prompt
+  ;;;~ declare function to insert current date
 
-    ;; (setq ring-bell-function 'ignore)
-    ;; (setq visible-bell nil)
+  (defun insert-date (&optional prefix)
+    "Insert the current date. With prefix-argument, use ISO format.
+        With two prefix arguments, write out the day and month name."
+    (interactive "P")
+    (let ((format (cond
+		   ((not prefix) "%Y-%m-%d")
+		   ((equal prefix '(4)) "%Y/%m/%d %H:%M:%S")
+		   ((equal prefix '(16)) "%A, %d. %B %Y")
+		   ((equal prefix '(64)) "%W%u"))) ;; #week#day
+	  (system-time-locale "en_US")) ;; "de_DE"))
+      (insert
+       (format-time-string format)))) ;; Thursday, 20. September 2018
 
-    ;;;~ set private variables: default-directory, user-emacs-directory
+  ;;;~ don't show "C-g" prompt
 
-    ;; (load-file "~/.emacs.d/init-private--variables.el")
+  ;; (setq ring-bell-function 'ignore)
+  ;; (setq visible-bell nil)
+
+  ;;;~ set private variables: default-directory, user-emacs-directory
+
+  ;; (load-file "~/.emacs.d/init-private--variables.el")
 
 
-    ;;;~ show line numbers in: programming & text mode
+  ;;;~ show line numbers in: programming & text mode
 
-    (add-hook 'prog-mode-hook 'display-line-numbers-mode)
-    (add-hook 'text-mode-hook 'display-line-numbers-mode)
+  (add-hook 'prog-mode-hook 'display-line-numbers-mode)
+  (add-hook 'text-mode-hook 'display-line-numbers-mode)
 
-    ;;;~ basic emacs configuration
+  ;;;~ basic emacs configuration
 
-    (tool-bar-mode -1)                           ; don't show tool-bar
-    (fset 'yes-or-no-p 'y-or-n-p)                ; simplify questions
-    (put 'narrow-to-region 'disabled nil)        ; disable query
-    ;; (setq-default line-spacing 2)             ; default line space
-    (savehist-mode 1)			       ; save minibuffer history
-    (setq frame-resize-pixelwise t)              ; resize frames by pixels
+  (tool-bar-mode -1)                           ; don't show tool-bar
+  (fset 'yes-or-no-p 'y-or-n-p)                ; simplify questions
+  (put 'narrow-to-region 'disabled nil)        ; disable query
+  ;; (setq-default line-spacing 2)             ; default line space
+  (savehist-mode 1)			       ; save minibuffer history
+  (setq frame-resize-pixelwise t)              ; resize frames by pixels
 
-    ;;;~ startup emacs config
+  ;;;~ startup emacs config
 
-    (setq inhibit-startup-screen t)
+  (setq inhibit-startup-screen t)
+  ;; (setq initial-major-mode 'emacs-lisp-mode)
+  ;; (setq initial-scratch-message 'nil)
+  ;;     (setq initial-scratch-message
+  ;; 	  (format "%s This buffer is for text that is not saved, and for Lisp evaluation.
+  ;; %s To create a file, visit it with \\[find-file] and enter text in its buffer.\n\n" comment-start comment-start))
+  
+  (setq auto-save-list-file-prefix
+	(expand-file-name
+	 "../auto-save-list/.saves-" package-user-dir))
 
-    ;; (setq initial-scratch-message 'nil)
-    (setq initial-scratch-message ";; This buffer is for text that is not saved, and for Lisp evaluation.
-;; To create a file, visit it with \\[find-file] and enter text in its buffer.
-
-")
-    (setq auto-save-list-file-prefix
-	  (expand-file-name
-	   "../auto-save-list/.saves-" package-user-dir))
-
-    :bind (("C-ñ 1" . show-file-name)	       ; show file name path
-	   ("C-ñ ," . (lambda()(interactive)(insert "<"))); insert "<"
-	   ("C-ñ ." . (lambda()(interactive)(insert ">"))); insert ">"
-	   ("<f1>"  . call-last-kbd-macro)       ; kbd for emacs macro
-	   ("C-c d" . insert-date)               ; insert date HH:MM:SS
-	   ("<f12>" . display-line-numbers-mode)); show line numbers
-    )
+  :bind (("C-ñ 1" . show-file-name)	       ; show file name path
+	 ("C-ñ ," . (lambda()(interactive)(insert "<"))); insert "<"
+	 ("C-ñ ." . (lambda()(interactive)(insert ">"))); insert ">"
+	 ("<f1>"  . call-last-kbd-macro)       ; kbd for emacs macro
+	 ("C-c d" . insert-date)               ; insert date HH:MM:SS
+	 ("<f12>" . display-line-numbers-mode)); show line numbers
+  )
 
 ;;;; (2/3) BUILTIN PACKAGES ---------------------------------
 
@@ -310,7 +327,7 @@
   ;; (unbind-key "C-." flyspell-mode-map)
   (global-set-key (kbd "C-S-d") 'delete-char)
   (global-set-key (kbd "<XF86Eject>") 'delete-char)
-  (global-set-key (kbd "<f6>") '(lambda()(interactive)(insert "β")))
+  (global-set-key (kbd "<f6>") #'(lambda()(interactive)(insert "β")))
   )
 
 ;;;~ custom user macros
@@ -340,7 +357,7 @@
 
 (use-package frame
   :ensure nil
-  :init
+  :config
 
   ;;;~ custom title format
 
@@ -392,7 +409,7 @@
        (positions (/ (caddr (frame-monitor-workarea)) 3))
        (wm--info (shell-command-to-string "wmctrl -m"))
        (wm--detected (and (string-match "^Name: \\(.*\\)" wm--info)
-			  (print (match-string 1 wm--info)))))
+			 (print (match-string 1 wm--info)))))
     
     (dotimes (i 3)
       (add-to-list
@@ -502,8 +519,6 @@
 	(other-frame -1)
 	(funcall frame-location))))
 
-  :config
-
   ;;;~ Cursor Color
   
   ;; (set-cursor-color "SpringGreen")
@@ -572,6 +587,31 @@
   :config
   (setq bookmark-default-file
 	(expand-file-name "bookmarks" user-emacs-directory))
+  )
+
+;;;~ customized commit functions
+
+(use-package newcomment
+  :ensure nil
+  :config
+
+  ;;;~ 
+  (defvar ra/comment-length 60
+    "length desired for comment characters.")
+
+  (defun ra/comment-fill ()
+    "From the actual cursor position 'current-column',
+fill the rest of the line with the active comment symbol 'comment-start'."
+    (interactive)
+    (let* ((ra/comment-symbol
+	    (replace-regexp-in-string " " "" comment-start))
+	   (ra/comment-fill-column
+	    (- ra/comment-length (current-column))))
+      (insert
+       (make-string
+	ra/comment-fill-column (string-to-char ra/comment-symbol)))
+      ))
+  :bind ("C-c f" . ra/comment-fill)
   )
 
 ;;;~ fill paragraph customized commands
@@ -654,6 +694,59 @@
 
 ;;;; (3/3) THIRD PARTY PACKAGES ----------------------------
 
+;;;~ function to download elisp file if not prevously present
+
+(defun download-required-elisp-file (my-file my-url)
+  "'download-required-elisp-file' is a function defined in 'init.el'
+to automatically download elisp files required for 3rd party packages.
+
+'my-file' is the directory and a file name were emacs will check for the elisp file.
+
+'my-url' is an url used only when 'my-file' is not found. In such case emacs will download the content of 'my-url' and located in 'my-file'. If the directory defined in 'my-file' is not previously present in the system, it will be automatically created (of course, when the location has the addequate user permissions).
+"
+  (let* ((my-file-name (file-name-nondirectory my-file))
+	 (my-file-dir (file-name-directory my-file)))
+    (if (file-exists-p my-file)
+	;;;~ open hide-comnt.el if exists
+	(load-file my-file)
+      ;;;~ download hide-comnt.el if not exists
+      (progn
+	(require 'url)
+	;;;~ create required directory
+	(if nil (file-directory-p my-file-dir) (mkdir my-file-dir t))
+	;;;~ download file
+	(url-copy-file my-url my-file t))))
+  )
+
+;;;~ spell correction: 1. hooks activation
+
+(use-package flyspell
+  :ensure nil
+  :load-path "~/.emacs.d/elisp/"
+  :config
+  (download-required-elisp-file
+   "~/.emacs.d/elisp/flyspell.el"
+   "https://www-sop.inria.fr/members/Manuel.Serrano/flyspell/flyspell-1.7q.el")
+  (dolist (hook '(text-mode-hook))
+    (add-hook hook (lambda () (flyspell-mode 1))))
+  (dolist (hook '(change-log-mode-hook log-edit-mode-hook))
+    (add-hook hook (lambda () (flyspell-mode -1))))
+  (add-hook 'elisp-mode-hook (lambda () (flyspell-prog-mode)))
+  (add-hook 'python-mode-hook (lambda () (flyspell-prog-mode)))
+  )
+
+;;;~ spell correction: 2. dictionaries (US, DE, en_med_glut)
+
+;;;~ syntax checking
+;;~ check languages available and supported fot emacs+flycheck
+;;~ source: https://www.flycheck.org/en/latest/languages.html#flycheck-languages
+
+(use-package flycheck
+  :ensure t
+  ;; :init (global-flycheck-mode) ; global on is a litle bit annoying
+  :bind ("<f9>" . flycheck-mode)
+  )
+
 ;;;~ jump inside text
 
 (use-package ace-jump-mode
@@ -704,7 +797,7 @@
 
   (sp-local-pair 'org-mode "'" nil :actions '(wrap))
   (sp-pair "_" "_" :actions '(wrap))
-  (sp-pair "~" "~" :actions '(wrap))
+  ;; (sp-pair "~" "~" :actions '(wrap))
   (sp-pair "/" "/" :actions '(wrap))
   (sp-pair "=" "=" :actions '(wrap))
 
@@ -844,31 +937,9 @@ A remastered version of the function `browse-url-firefox'."
 	 ("M-y" . helm-show-kill-ring)
 	 ;; ("C-x C-f" . helm-find-files)
 	 )
-  :init
-
-  ;;;~ WARNING: don't breack if hide-comnt.el not exists
+  ;; :init
 
   ;; (load "hide-comnt") ;; deprecated
-  (let* ((mydir "~/.emacs.d/elisp")
-	 (myfile "hide-comnt.el")
-	 (entire-path (expand-file-name myfile mydir)))
-    (if (file-exists-p entire-path)
-	;;;~ open hide-comnt.el if exists
-    	(load-file entire-path)
-      ;;;~ download hide-comnt.el if not exists
-      (progn
-	(require 'url)
-	;;;~ create required directory
-	(if nil (file-directory-p mydir) (mkdir mydir t))
-	;;;~ download file
-	(url-copy-file 
-	 "https://www.emacswiki.org/emacs/download/hide-comnt.el"
-	 entire-path
-	 t))))
-
-  ;;;~ helm mode activation
-  
-  (helm-mode)
 
   :custom-face
   (helm-source-header
@@ -881,8 +952,37 @@ A remastered version of the function `browse-url-firefox'."
    ((t (:background "RoyalBlue"
 		    :distant-foreground "black"))))
   :config
+
+  ;; moved from :init
+
+  ;;;~ helm mode activation
+  (helm-mode)
+  
+  ;;;~ WARNING: don't breack if hide-comnt.el not exists
+  (download-required-elisp-file
+   "~/.emacs.d/elisp/hide-comnt.el"
+   "https://www.emacswiki.org/emacs/download/hide-comnt.el")
+  ;;;~ deprecated
+  ;; (let* ((mydir "~/.emacs.d/elisp")
+  ;; 	 (myfile "hide-comnt.el")
+  ;; 	 (entire-path (expand-file-name myfile mydir)))
+  ;;   (if (file-exists-p entire-path)
+  ;; 	;;;~ open hide-comnt.el if exists
+  ;;   	(load-file entire-path)
+  ;;     ;;;~ download hide-comnt.el if not exists
+  ;;     (progn
+  ;; 	(require 'url)
+  ;; 	;;;~ create required directory
+  ;; 	(if nil (file-directory-p mydir) (mkdir mydir t))
+  ;; 	;;;~ download file
+  ;; 	(url-copy-file 
+  ;; 	 "https://www.emacswiki.org/emacs/download/hide-comnt.el"
+  ;; 	 entire-path
+  ;; 	 t))))
+
   (use-package helm-buffers
     :ensure nil
+    :defer t
     :custom-face
     (helm-buffer-size
      ((t (:foreground "cyan1"))))
@@ -890,6 +990,104 @@ A remastered version of the function `browse-url-firefox'."
      ((t (:foreground "cyan1")))) ;MediumSpringGreen
     (helm-non-file-buffer
      ((t (:inherit italic :weight bold)))) ;MediumSpringGreen
+    )
+  )
+
+;;;~ improve word search and lines highlighted
+
+(use-package swiper
+  ;; :ensure try
+  :ensure t
+  :defer t
+  :config
+  (ivy-mode 1)
+  (setq ivy-use-virtual-buffers t)
+  (setq enable-recursive-minibuffers t)
+  ;; enable this if you want `swiper' to use it
+  ;; (setq search-default-mode #'char-fold-to-regexp)
+  (global-set-key (kbd "C-ñ s") 'swiper)
+  (global-set-key (kbd "C-ñ r") 'swiper-backward)
+  (global-set-key (kbd "C-c C-r") 'ivy-resume)
+  ;; (global-set-key (kbd "<f6>") 'ivy-resume)
+  (global-set-key (kbd "M-x") 'counsel-M-x)
+  (global-set-key (kbd "C-x C-f") 'counsel-find-file)
+  (global-set-key (kbd "<f7> f") 'counsel-describe-function)
+  (global-set-key (kbd "<f7> v") 'counsel-describe-variable)
+  (global-set-key (kbd "<f7> o") 'counsel-describe-symbol)
+  (global-set-key (kbd "<f7> l") 'counsel-find-library)
+  (global-set-key (kbd "<f7> i") 'counsel-info-lookup-symbol)
+  (global-set-key (kbd "<f7> u") 'counsel-unicode-char)
+  (global-set-key (kbd "C-c g") 'counsel-git)
+  (global-set-key (kbd "C-c j") 'counsel-git-grep)
+  (global-set-key (kbd "C-c k") 'counsel-ag)
+  ;; (global-set-key (kbd "C-x l") 'counsel-locate)
+  ;; (global-set-key (kbd "C-S-o") 'counsel-rhythmbox)
+  ;; (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history)
+
+  ;; required by swiper
+  (use-package counsel
+    :ensure t
+    :defer t
+    )
+)
+
+;;;~ autocompletion support
+
+(use-package auto-complete
+  :ensure t
+  :defer t
+  :init
+  ;; don't break if not installed 
+  (when (require 'auto-complete-config nil 'noerror) 
+    (add-to-list 'ac-dictionary-directories 
+		 (expand-file-name "ac-dict" user-emacs-directory))
+    (setq ac-comphist-file
+	  (expand-file-name "ac-comphist.dat" user-emacs-directory))
+    (ac-config-default))
+  (load "auto-complete-config")
+  ;; (progn
+  ;;   (ac-config-default)
+  ;;   (global-auto-complete-mode t)
+  ;;   )
+  )
+
+;;;~ git emacs
+
+(use-package magit
+  :ensure t
+  :config
+  (setq magit-view-git-manual-method 'man)
+  :bind ("C-x g" . magit-status)
+  )
+
+;;;~ pyenv (support to use multiple python versions)
+
+(use-package pyenv-mode
+  :ensure t
+  )
+
+
+;;;~ virtualwrapper (support for python virtual environments)
+
+(use-package virtualenvwrapper
+  :ensure t
+  :init
+  ;;;~ set python virtual environments location
+  (setq venv-location "~/.virtualenvs")
+  :config
+  ;;;~ create directory location if it not exists
+  (if nil (file-directory-p venv-location) (mkdir venv-location t))
+  ;;;~ create standard environment "biopython" if it not exists
+   ;;;~ IMPORTANT: venv-get-candidates shows virtual environments available
+  (when (or (not (venv-get-candidates))
+	  ;; (not (string-match-p
+	  ;; 	(regexp-quote "biopython") (venv-get-candidates))))
+	  (not (member "biopython" (venv-get-candidates))))
+    ;;;~ create environment
+    (venv-mkvirtualenv "biopython")
+    ;;;~ include python packages required for emacs : "epc jedi pytz"
+    (venv-with-virtualenv-shell-command
+     "biopython" "pip install epc jedi pytz biopython")
     )
   )
 
@@ -925,107 +1123,165 @@ A remastered version of the function `browse-url-firefox'."
   :bind  ("<C-f12>" . yas-minor-mode)
   )
 
-  ;;;~ org global customization
+;;;~ org global customization
 
-  (use-package org
-    :defer t
-    :bind (("C-c a" . org-agenda)
-	   ("C-c c" . org-capture)
-	   ("C-c l" . org-store-link)
-	   )
-    :config
-    ;; (setq org-directory
-    ;;       (expand-file-name "../documents/org" user-emacs-directory))
-    (setq org-adapt-indentation nil) 
-    (setq org-confirm-babel-evaluate nil)
-    (setq org-confirm-elisp-link-function nil)
-    ;; (setq org-hide-emphasis-markers t) ;; hide markers: // ** == 
-    (setq org-tags-column -66) 
+(use-package org
+  :defer t
+  :bind (("C-c a" . org-agenda)
+	 ("C-c c" . org-capture)
+	 ("C-c l" . org-store-link)
+	 )
+  ;; :init
+  :config
 
-    ;;;~ org babel customization
+  ;;;~ functions to update fields in org files (/Projects/dot-emacs/src-org)
 
-    (setq org-src-fontify-natively t) 
-    (setq org-src-preserve-indentation t)  ;; do not indent code blocks
-    (setq org-src-window-setup 'current-window) ;; eval in new frame
+  (defun ra/find-replace (from to)
+    "Find and replase string. It supports 'regexpr'."
+    (interactive)
+    (save-excursion
+      (beginning-of-buffer)
+      (while (re-search-forward from nil t)
+        (replace-match to t))))
 
-    ;;;~ open link in new window 
+  (defun ra/org-update-updated ()
+    (interactive)
+    "Update field: 'Updated' in org buffer"
+    (ra/find-replace
+     "\\(^;; Updated: \\)\\(.*\\)"
+     (format-time-string "\\1%Y-%m-%d %H:%M:%S")))
 
-    (setq org-link-frame-setup
-	  '((vm . vm-visit-folder-other-frame)
-	    (vm-imap . vm-visit-imap-folder-other-frame)
-	    (gnus . org-gnus-no-new-news)
-	    (file . find-file)                 ;open link in new window  
-	    ;; (file . find-file-other-window) ;open link in new window  
-	    ;; (file . find-file-other-frame)  ;open link in new frame
-	    (wl . wl-other-frame)))
+  (defun ra/org-update-source ()
+    (interactive)
+    "Update field: 'Source' in org buffer"
+    (ra/find-replace
+     "\\(^;; Source: \\)\\(.*\\)"
+     (format "\\1%s"(file-name-nondirectory (buffer-file-name)))))
+
+  (defun ra/src-org-update-fields ()
+    (interactive)
+    "Update fields 'Updated' (last modified) and 'Source' (org file) before save org files in '/home/angel/Projects/dot-emacs/src-org/' "
+    (when
+	(and (derived-mode-p 'org-mode)
+	     (string-equal (file-name-directory (buffer-file-name))
+			   "/home/angel/Projects/dot-emacs/src-org/"))
+      (ra/org-update-updated)
+      (ra/org-update-source)))
+
+  ;; :config
+
+  ;;;~ hook to update fields in org files (/Projects/dot-emacs/src-org)
+
+  (add-hook 'org-mode-hook
+	    #'(lambda()
+		(add-hook
+		 'write-contents-functions 'ra/src-org-update-fields)) nil)
+
+
+  ;;;~ org basic customizations
+
+  ;; (setq org-directory
+  ;;       (expand-file-name "../documents/org" user-emacs-directory))
+  (setq org-adapt-indentation nil) 
+  (setq org-confirm-babel-evaluate nil)
+  (setq org-confirm-elisp-link-function nil)
+  ;; (setq org-hide-emphasis-markers t) ;; hide markers: // ** == 
+  (setq org-tags-column -66) 
+
+  ;;;~ org babel customization
+
+  (setq org-src-fontify-natively t) 
+  (setq org-src-preserve-indentation t)  ;; do not indent code blocks
+  (setq org-src-window-setup 'current-window) ;; eval in new frame
+
+  ;;;~ open link in new window 
+
+  (setq org-link-frame-setup
+	'((vm . vm-visit-folder-other-frame)
+	  (vm-imap . vm-visit-imap-folder-other-frame)
+	  (gnus . org-gnus-no-new-news)
+	  (file . find-file)                 ;open link in new window  
+	  ;; (file . find-file-other-window) ;open link in new window  
+	  ;; (file . find-file-other-frame)  ;open link in new frame
+	  (wl . wl-other-frame)))
 
     ;;;~ org custom templates
 
-    (setq org-structure-template-alist
-	  '(
+  (setq org-structure-template-alist
+	'(
 	    ;;;~ text bloques
-	    ("E" . "example")
-	    ("M" . "comment")
-	    ("N" . "notes")
-	    ("Q" . "quote")
+	  ("E" . "example")
+	  ("M" . "comment")
+	  ("N" . "notes")
+	  ("Q" . "quote")
 	    ;;;~ markup bloques
-	    ("a" . "export ascii")
-	    ("h" . "export html")
-	    ("l" . "export latex")
-	    ("x" . "export xml")
+	  ("a" . "export ascii")
+	  ("h" . "export html")
+	  ("l" . "export latex")
+	  ("x" . "export xml")
 	    ;;;~ code bloques
-	    ("0" . "src")
-	    ("c" . "src C")
-	    ("e" . "src emacs-lisp")
-	    ("s" . "src shell :results verbatim")
-	    ("b" . "src bash :results verbatim")
-	    )
-	  )	
+	  ("0" . "src")
+	  ("c" . "src C")
+	  ("e" . "src emacs-lisp")
+	  ("s" . "src shell :results verbatim")
+	  ("b" . "src bash :results verbatim")
+	  ("p" . "src python :results output")
+	  )
+	)	
 
     ;;;~ org add template
-	
-	  (add-to-list
-	   'org-structure-template-alist
-	   '("B" . "src bash :results verbatim :dir \"/sudo::/\"")
-	   t				;added at the end
-	   )
+  
+  (add-to-list
+   'org-structure-template-alist
+   '("B" .
+     "src bash :results verbatim :dir \"/sudo::/\" :wrap src bash")
+   t				;added at the end
+   )
+
+  (add-to-list
+   'org-structure-template-alist
+   '("P" .
+     "src python :session python-session :results output :preamble (venv-workon \"biopython\")")
+   t				;added at the end
+   )
 
     ;;;~ org load babel languages
 
-	  (org-babel-do-load-languages
-	   'org-babel-load-languages
-	   '(
-	     (C          . t) ;; C, C++
-	     ;; (R          . t)
-	     ;; (clojure    . t)
-	     ;; (ditaa      . t)
-	     ;; (dot        . t) ;; graphviz-dot-mode
-	     (emacs-lisp . t)
-	     ;; (haskell    . t)
-	     ;; (js         . t)
-	     ;; (latex      . t)
-	     (org        . t)
-	     ;; (prolog     . t)
-	     ;; (python     . t)
-	     ;; (sh         . t)
-	     (shell      . t)
-	     ;; (sql        . t)
-	     ;; (sqlite     . t)
-	     ))
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '(
+     (C          . t) ;; C, C++
+     ;; (R          . t)
+     ;; (clojure    . t)
+     ;; (ditaa      . t)
+     ;; (dot        . t) ;; graphviz-dot-mode
+     (emacs-lisp . t)
+     ;; (haskell    . t)
+     ;; (js         . t)
+     ;; (latex      . t)
+     ;; (lua      . t)
+     (org        . t)
+     ;; (prolog     . t)
+     (python     . t)
+     ;; (sh         . t)
+     (shell      . t)
+     ;; (sql        . t)
+     ;; (sqlite     . t)
+     ))
 
-	  ;; perl support
-	
-	  (require 'ob-perl)
-	
-	  (use-package gnuplot
-	    :ensure t
-	    )
+  ;; perl support
+  
+  (require 'ob-perl)
+  
+  (use-package gnuplot
+    :ensure t
+    )
 
-	  (use-package gnuplot-mode
-	    :ensure t
-	    )
+  (use-package gnuplot-mode
+    :ensure t
+    )
 
-	  ); end -- org --
+  ); end -- org --
 
 ;;;~ emacs start server mode (if not started previously)
 
