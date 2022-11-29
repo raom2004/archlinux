@@ -77,45 +77,18 @@ thunar --daemon &
 (sleep 4 && thunar $HOME/Projects/archlinux/desktop/openbox) &
 (sleep 4 && thunar $HOME/Projects/dot-emacs) &
 
-## terminal:
-#   Geometry Specifications: WIDTH x HEIGHT + XOFF + YOFF
-#   total screen size in pixels can be shown by "xrandr"
-#     Setting size: WIDTH x HEIGHT
-#       xterm set size by character instead of pixels
-#       using "xwininfo" you can get this info in pixels
-#         WIDTH=60 (xwininfo Width = 544 / 9 ==> 60) 
-#         HEIGHT=17 (xwininfo Height = 310 / 18 ==> 17)
-#     Setting location: + XOFF - XOFF
-#       Predefined values:
-#         +0+0 = upper left hand corner. 
-#         -0+0 = upper right hand corner. 
-#         -0-0 = lower right hand corner. 
-#         +0-0 = lower left hand corner.
-#
-#   source: https://linux.die.net/man/7/x
-#
-# variable declaration
-X_size="$(xrandr | awk '/*/{print $1}' | awk -F'x' '{print $1}')"
-X_center="$((X_size / 3))"
-panel_height="$(awk '/panel_size/{print $4}' ~/.config/tint2/tint2rc)"
-# open terminal, location: lower right hand corner
-xterm -rv -fa 'Ubuntu Mono' -fs 12 -geometry 60x17-0-30 \
-      -e "cd $HOME/Projects/dot-emacs; exec zsh" &
-# open terminal, location: lower left hand corner
-xterm -rv -fa 'Ubuntu Mono' -fs 12 -geometry "60x17+0-${panel_height}" \
-      -e "cd $HOME/Projects/archlinux/desktop/openbox; exec zsh" &
-# open terminal, location: center
-xterm -rv -fa 'Ubuntu Mono' -fs 12 \
-      -geometry 69x18+"${X_center}"-"${panel_height}" -e \
-      "cd $HOME/Projects/archlinux; exec zsh" &
+## Terminal
+open_xterm_custom "$HOME/Projects/archlinux/desktop/openbox" left
+open_xterm_custom "$HOME/Projects/archlinux" middle
+open_xterm_custom "$HOME/Projects/dot-emacs"
 
 
-## webbroser : open unique url in privat mode
+## Webbroser : open unique url in privat mode
 
 # url='https://wiki.archlinux.org/title/Openbox' \
 #    | firefox --private-window "${url}" &
 
-## webbroser : open multiples urls in private mode
+## Webbroser : open multiples urls in private mode
 
 # vim cheat sheet and cron
 # urls=(
@@ -142,7 +115,7 @@ urls=(
 open_urls_in_firefox "${urls[@]}"
 
 ## text/code editor
-emacs -q -l ~/.emacs.d/init-openbox.el &
+emacs &
 
 
 # emacs:

@@ -393,6 +393,33 @@ SUBSYSTEM==\"backlight\", \
 RUN+=\"/usr/bin/find ${screen_kernel_path}/ -type f -name brightness -exec chown ${user_name}:${user_name} {} ; -exec chmod 666 {} ;\"" > /etc/udev/rules.d/30-brightness.rules
  
 
+### xterm customization script #######################################
+
+echo "#!/bin/bash
+
+set -e
+
+# declare variables (according to hardware)
+if grep -i apple /sys/devices/virtual/dmi/id/board_vendor; then
+    path=\$1; site=\$2; font='Ubuntu Mono'; font_size=12; w=69; h=18
+else
+    path=\$1; site=\$2; font='Ubuntu Mono'; font_size=12; w=79; h=18
+fi
+# declare calculated variables
+center=\$(((\$(xrandr | awk '/*/{print \$1}' | awk -F'x' '{print \$1}')/3)+1))
+panel_height=\$(awk '/panel_size/{print \$4}' ~/.config/tint2/tint2rc)
+# declare geometry location
+declare -A area
+area=( [\"left\"]=\"+0\" [\"middle\"]=\"+\${center}\" [\"right\"]=\"-0\" )
+# run xterm
+xterm -rv -fa \$font -fs \$font_size \\
+      -geometry \${w}x\${h}\${area[\${site:-right}]}-\${panel_height} \\
+      -e \"cd \${path:-~}; exec zsh\" &
+" > /usr/local/bin/open_xterm_custom
+# set execution permission
+chmod +x /usr/local/open_xterm_custom
+
+
 ### USER SYSTEM CUSTOMIZATION ########################################
 
 
