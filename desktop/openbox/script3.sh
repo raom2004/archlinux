@@ -182,6 +182,7 @@ cd /tmp/$folder || die
 make || die
 [[ ! -f /usr/local/bin/xkbmon ]] && sudo cp xkbmon /usr/local/bin
 cd $OLDPWD || die
+mkdir -p $HOME/.config/tint2 || die
 if ! grep Executor $HOME/.config/tint2/tint2rc &> /dev/null; then
     echo '#-------------------------------------
 # Executor 1
