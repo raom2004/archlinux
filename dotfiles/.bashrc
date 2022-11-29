@@ -92,6 +92,12 @@ my_vim_install
 # use specific function
 my_git_config
 
+
+## python: virtualenv config
+export WORKON_HOME=~/.virtualenvs
+source /usr/bin/virtualenvwrapper.sh
+
+
 # emacs:
 # Local Variables:
 # sh-basic-offset: 2
