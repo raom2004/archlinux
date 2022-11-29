@@ -542,6 +542,8 @@ my_path=/mnt/home/"${user_name}"/Projects/archlinux
 mkdir -p "${my_path}" || die
 # backup archlinux repo inside ~/Projects folder
 cp -r . "${my_path}" || die
+# correct git branch in archlinux repo
+# arch-chroot /mnt bash -c "cd $HOME/Projects/dot-emacs && git checkout ssd" || die
 # backup the scripts used during arch linux installation
 my_path=/mnt/home/"${user_name}"/Projects/archlinux_install_report
 mkdir -p "${my_path}" || die
