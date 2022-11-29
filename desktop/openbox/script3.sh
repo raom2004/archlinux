@@ -142,7 +142,10 @@ mmaker -vf OpenBox3 || die
 #  runs /etc/xdg/openbox/autostart
 #  runs ~/.config/openbox/autostart
 
-cp $HOME/Projects/archlinux/desktop/openbox/autostart $HOME/.config/openbox
+# cp $HOME/Projects/archlinux/desktop/openbox/autostart $HOME/.config/openbox
+echo '# open custom autostart
+bash $HOME/Projects/archlinux/desktop/openbox/autostart &
+' > $HOME/.config/openbox
 
 
 ### environment
@@ -175,12 +178,10 @@ feh --bg-scale -bg-fill $HOME/.wallpapers/arch-tv-wallpaper.jpg || die
 url=https://github.com/xkbmon/xkbmon.git
 folder="$(basename $url .git)"
 [[ ! -d /tmp/$folder ]] && git clone "$url" /tmp/$folder
-cd /tmp/$folder
-make
+cd /tmp/$folder || die
+make || die
 [[ ! -f /usr/local/bin/xkbmon ]] && sudo cp xkbmon /usr/local/bin
-cd $OLDPWD
-
-
+cd $OLDPWD || die
 if ! grep Executor $HOME/.config/tint2/tint2rc &> /dev/null; then
     echo '#-------------------------------------
 # Executor 1
@@ -195,10 +196,10 @@ execp_font = Sans Bold 9
 execp_font_color = #dcdcdc 100
 execp_padding = 0 0
 execp_background_id = 0
-execp_centered = 0' >> $HOME/.config/tint2/tint2rc
+execp_centered = 0' >> $HOME/.config/tint2/tint2rc || die
 fi
 
-sed -i 's/\(panel_items = \)\(LTSBC$\)/\1\2E/' $HOME/.config/tint2/tint2rc
+sed -i 's/\(panel_items = \)\(LTSBC$\)/\1\2E/' $HOME/.config/tint2/tint2rc || die
 
 ############################################################
 ### CODE FOOTER ############################################
@@ -230,9 +231,9 @@ case "${MACHINE}" in
       ## set permanent startup programs
       sed 's%udiskie &%&\n~/.fehbg \&\nnm-applet \&conky &%' > $HOME/.xinitrc
       ## run customized emacs on startup
-      cmd="xterm -rv -fa 'Ubuntu Mono' -fs 14  -hold -e"
-      echo "${cmd} \"bash -c \\\"bash \$HOME/shared/emacs-installer.sh;\
- exec bash \\\"\" &" >> $HOME/.config/openbox/autostart
+ #      cmd="xterm -rv -fa 'Ubuntu Mono' -fs 14  -hold -e"
+ #      echo "${cmd} \"bash -c \\\"bash \$HOME/shared/emacs-installer.sh;\
+ # exec bash \\\"\" &" >> $HOME/.config/openbox/autostart
     fi
     break
     ;;
@@ -241,19 +242,19 @@ case "${MACHINE}" in
 #   * check if share folder is available
 #   * make an autostart shortcut to run a desktop-customization script
 
-  Real)
-    my_emacs_path="$(lsblk -f | awk '/run.*_EXT/{ print $7 }')" \
-      || die
-    if [[ -n "${my_emacs_path}" ]]; then
-      ## install emacs customized
-      bash "${my_emacs_path}"/emacs-installer.sh
-      unset my_emacs_path
-    else
-      echo ";; init.el -- Emacs init file -*- lexical-binding: t -*-
-(load-file \"$HOME/Projects/dot-emacs/init-essentials.el\")" > ~/.emacs.d/init.el
-    fi
-    break
-    ;;
+#   Real)
+#     my_emacs_path="$(lsblk -f | awk '/run.*_EXT/{ print $7 }')" \
+#       || die
+#     if [[ -n "${my_emacs_path}" ]]; then
+#       ## install emacs customized
+#       bash "${my_emacs_path}"/emacs-installer.sh
+#       unset my_emacs_path
+#     else
+#       echo ";; init.el -- Emacs init file -*- lexical-binding: t -*-
+# (load-file \"$HOME/Projects/dot-emacs/init-essentials.el\")" > ~/.emacs.d/init.el
+#     fi
+#     break
+#     ;;
 esac
 
 
