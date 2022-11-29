@@ -94,9 +94,9 @@ my_git_config
 
 
 ## python: virtualenv config
-export WORKON_HOME=~/.virtualenvs
-source /usr/bin/virtualenvwrapper.sh
-
+export PATH="$HOME/.local/bin:$PATH"
+export WORKON_HOME=$HOME/.virtualenvs
+source $HOME/.local/bin/virtualenvwrapper.sh
 
 # emacs:
 # Local Variables:

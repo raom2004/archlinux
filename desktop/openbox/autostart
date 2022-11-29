@@ -115,7 +115,7 @@ urls=(
 open_urls_in_firefox "${urls[@]}"
 
 ## text/code editor
-emacs &
+emacs -q -l $HOME/Projects/dot-emacs/init-openbox.el &
 
 
 # emacs:

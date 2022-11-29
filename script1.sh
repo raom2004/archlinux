@@ -474,6 +474,8 @@ if [[ "${MACHINE}" == 'Real' ]]; then
   Packages+=('okular')
   # browser
   Packages+=('firefox')
+  # programming
+  Packages+=('python-pip')
   # text editor
   Packages+=('libreoffice-fresh' 'libreoffice-fresh-de')
   Packages+=('libreoffice-fresh-en-gb' 'libreoffice-fresh-es')
