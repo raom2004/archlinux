@@ -417,7 +417,7 @@ xterm -rv -fa \$font -fs \$font_size \\
       -e \"cd \${path:-~}; exec zsh\" &
 " > /usr/local/bin/open_xterm_custom
 # set execution permission
-chmod +x /usr/local/open_xterm_custom
+chmod +x /usr/local/bin/open_xterm_custom
 
 
 ### USER SYSTEM CUSTOMIZATION ########################################
@@ -628,7 +628,8 @@ git apply openbox-window-snap.diff || die
 ### INSTALL EMACS DOT-FILES FROM GIT REPO
 cd $HOME/Projects || die
 git clone https://github.com/raom2004/dot-emacs || die
-
+cd $HOME/Projects/dot-emacs || die
+git checkout ssd || die
 
 ### show final message and exit
 
