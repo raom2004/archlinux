@@ -200,8 +200,26 @@ execp_padding = 0 0
 execp_background_id = 0
 execp_centered = 0' >> $HOME/.config/tint2/tint2rc || die
 fi
-
 sed -i 's/\(panel_items = \)\(LTSBC$\)/\1\2E/' $HOME/.config/tint2/tint2rc || die
+
+### set monitor settings
+
+sudo bash -c "echo 'Section \"ServerFlags\"
+    Option \"BlankTime\" \"0\"
+    Option \"StandbyTime\" \"0\"
+    Option \"SuspendTime\" \"0\"
+    Option \"OffTime\" \"0\"
+    Option \"NoPM\" \"false\"
+EndSection
+
+Section \"ServerLayout\"
+    Identifier \"ServerLayout0\"
+EndSection
+
+Section \"Extensions\"
+    Option \"DPMS\" \"Disable\"
+EndSection' > /etc/X11/xorg.conf.d/10-monitor.conf"
+
 
 ############################################################
 ### CODE FOOTER ############################################
@@ -244,19 +262,19 @@ case "${MACHINE}" in
 #   * check if share folder is available
 #   * make an autostart shortcut to run a desktop-customization script
 
-#   Real)
-#     my_emacs_path="$(lsblk -f | awk '/run.*_EXT/{ print $7 }')" \
-#       || die
-#     if [[ -n "${my_emacs_path}" ]]; then
-#       ## install emacs customized
-#       bash "${my_emacs_path}"/emacs-installer.sh
-#       unset my_emacs_path
-#     else
-#       echo ";; init.el -- Emacs init file -*- lexical-binding: t -*-
-# (load-file \"$HOME/Projects/dot-emacs/init-essentials.el\")" > ~/.emacs.d/init.el
-#     fi
-#     break
-#     ;;
+  Real)
+    my_emacs_path="$(lsblk -f | awk '/run.*_EXT/{ print $7 }')" \
+      || die
+    if [[ -n "${my_emacs_path}" ]]; then
+      ## install emacs customized
+      bash "${my_emacs_path}"/emacs-installer.sh
+      unset my_emacs_path
+    else
+      echo ";; init.el -- Emacs init file -*- lexical-binding: t -*-
+(load-file \"$HOME/Projects/dot-emacs/init-openbox.el\")" > ~/.emacs.d/init.el
+    fi
+    break
+    ;;
 esac
 
 
