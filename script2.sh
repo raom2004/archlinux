@@ -475,6 +475,7 @@ EndSection" > /etc/X11/xorg.conf.d/90-custom-kbd.conf || die
     #~  ~/.config/openbox/autostart instead of ~/.xinitrc
     mkdir -p $HOME/.config/openbox    
     echo 'udiskie &' >> $HOME/.config/openbox/autostart || die
+    echo 'tint2 &' >> $HOME/.config/openbox/autostart || die
   else
     # add filemanager dependency to xinitrc
     echo 'udiskie &' >> $HOME/.xinitrc || die

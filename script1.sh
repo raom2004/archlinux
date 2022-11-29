@@ -478,9 +478,10 @@ if [[ "${MACHINE}" == 'Real' ]]; then
   Packages+=('libreoffice-fresh' 'libreoffice-fresh-de')
   Packages+=('libreoffice-fresh-en-gb' 'libreoffice-fresh-es')
   # text edition - latex support
-  read -p "LATEX download take time. Install it anyway?[y/N]" response
-  [[ "${response}" =~ ^[yY]$ ]] \
-      && Packages+=('texlive-core' 'texlive-latexextra')
+  # read -p "LATEX download take time. Install it anyway?[y/N]" response
+  # [[ "${response}" =~ ^[yY]$ ]] \
+  #     && Packages+=('texlive-core' 'texlive-latexextra')
+  Packages+=('texlive-core' 'texlive-latexextra')
 fi
 # if VirtualBox: install guest utils package
 if [[ "${MACHINE}" == 'VBox' ]]; then
