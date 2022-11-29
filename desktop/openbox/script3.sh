@@ -145,7 +145,7 @@ mmaker -vf OpenBox3 || die
 # cp $HOME/Projects/archlinux/desktop/openbox/autostart $HOME/.config/openbox
 echo '# open custom autostart
 bash $HOME/Projects/archlinux/desktop/openbox/autostart &
-' > $HOME/.config/openbox
+' > $HOME/.config/openbox/autostart
 
 
 ### environment

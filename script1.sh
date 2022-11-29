@@ -348,16 +348,19 @@ mkfs.ext4 -F /dev/sdc3 || die
 # mkfs.ext4 -F /dev/sda3 || die
 # "/home"  will be the preexistent HDD /dev/sdb1 (1,8TB)
 lsblk
-read -p "Do you want to partition HDD /dev/sdb?[y/N]" answer
+read -p "==> Do you want to partition HDD /dev/sdb?[y/N]" answer
 if [[ "${answer:-N}" =~ ^([yY])$ ]]; then
+  printf " --> Partitioning /dev/sdb\n\n"
   parted -s -a optimal /dev/sdb \
 	 mklabel msdos \
 	 mkpart primary ext4 0% 100% || die
+  printf " --> Formatting /dev/sdb\n\n"
   mkfs.ext4 -F /dev/sdb1 || die
 else
   unset answer
-  read -p "Do you want to format /dev/sdb1?[y/N]" answer
+  read -p "==> Do you want to format /dev/sdb1?[y/N]" answer
   if [[ "${answer:-N}" =~ ^([yY])$ ]]; then
+    printf " --> Formatting /dev/sdb\n\n"
     mkfs.ext4 -F /dev/sdb1 || die
   fi
 fi
@@ -374,7 +377,6 @@ mount /dev/sdb1 /mnt/home || die
 # mount /dev/sda3 /mnt/home || die
 
 # show result
-
 (lsblk && sleep 3)
 
 
@@ -476,9 +478,9 @@ if [[ "${MACHINE}" == 'Real' ]]; then
   Packages+=('libreoffice-fresh' 'libreoffice-fresh-de')
   Packages+=('libreoffice-fresh-en-gb' 'libreoffice-fresh-es')
   # text edition - latex support
-  # read -p "LATEX download take time. Install it anyway?[y/N]" response
-  # [[ "${response}" =~ ^[yY]$ ]] \
-    #   && Packages+=('texlive-core' 'texlive-latexextra')
+  read -p "LATEX download take time. Install it anyway?[y/N]" response
+  [[ "${response}" =~ ^[yY]$ ]] \
+      && Packages+=('texlive-core' 'texlive-latexextra')
 fi
 # if VirtualBox: install guest utils package
 if [[ "${MACHINE}" == 'VBox' ]]; then
