@@ -274,8 +274,10 @@ case "${MACHINE}" in
       bash "${my_emacs_path}"/emacs-installer.sh
       unset my_emacs_path
     else
+      mkdir -p $HOME/.emacs.d
       echo ";; init.el -- Emacs init file -*- lexical-binding: t -*-
-(load-file \"$HOME/Projects/dot-emacs/init-openbox.el\")" > ~/.emacs.d/init.el
+(load-file \"$HOME/Projects/dot-emacs/init-openbox.el\")
+" > $HOME/.emacs.d/init.el
     fi
     break
     ;;
