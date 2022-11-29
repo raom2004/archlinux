@@ -412,7 +412,7 @@ panel_height=\$(awk '/panel_size/{print \$4}' ~/.config/tint2/tint2rc)
 declare -A area
 area=( [\"left\"]=\"+0\" [\"middle\"]=\"+\${center}\" [\"right\"]=\"-0\" )
 # run xterm
-xterm -rv -fa \$font -fs \$font_size \\
+xterm -rv -fa \"\$font\" -fs \"\$font_size\" \\
       -geometry \${w}x\${h}\${area[\${site:-right}]}-\${panel_height} \\
       -e \"cd \${path:-~}; exec zsh\" &
 " > /usr/local/bin/open_xterm_custom
