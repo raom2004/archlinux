@@ -626,7 +626,7 @@ git apply openbox-window-snap.diff || die
 
 
 ### INSTALL EMACS DOT-FILES FROM GIT REPO
-mkdir -p $HOME/Projects | cd $_ || die
+mkdir -p $HOME/Projects && cd $$HOME/Projects || die
 git clone https://github.com/raom2004/dot-emacs || die
 cd $HOME/Projects/dot-emacs && git checkout ssd || die
 
