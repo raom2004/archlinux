@@ -226,7 +226,12 @@ EndSection' > /etc/X11/xorg.conf.d/10-monitor.conf"
 
 
 ### conky setup
-cd $HOME/Projects/archlinux/desktop/openbox && bash conky-install.sh \
+cd $HOME/Downloads || die
+git clone https://aur.archlinux.org/font-symbola.git || die
+cd font-symbola || die
+makepkg -Ccsri --noconfirm --needed || die
+cd $HOME/Projects/archlinux/desktop/openbox \
+  && bash conky-install.sh \
     || die
 
 
