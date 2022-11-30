@@ -204,7 +204,7 @@ execp_padding = 0 0
 execp_background_id = 0
 execp_centered = 0' >> $HOME/.config/tint2/tint2rc || die
 fi
-sed -i 's/\(panel_items = \)\(LTSBC$\)/\1\2E/' $HOME/.config/tint2/tint2rc || die
+sed -i 's/\(panel_items = \)\(LTSC$\)/\1LTSBCE/' $HOME/.config/tint2/tint2rc || die
 
 ### set monitor settings
 
