@@ -632,6 +632,10 @@ mkdir -p $HOME/Projects && cd $HOME/Projects || die
 git clone https://github.com/raom2004/dot-emacs || die
 
 
+### python support for virtualenv
+pip install virtualenvwrapper || die
+
+
 ### show final message and exit
 
 echo "$0 successful" && sleep 3 && exit
