@@ -1,3 +1,9 @@
+sudo pacman -Syu --needed --noconfirm \
+     ttf-font-awesome \
+     ttf-nerd-fonts-symbols-1000-em-mono \
+     ttf-nerd-fonts-symbols-common
+     
+
 #~ clear changes
 [[ -f ~/.config/conky/conky.conf ]] && rm -rf ~/.config/conky/conky.conf
 mkdir -p ~/.config/conky \
