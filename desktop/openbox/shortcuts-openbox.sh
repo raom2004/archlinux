@@ -223,7 +223,7 @@ echo '
 echo '  <!-- emacs key bindings -->
   <keybind key="A-C-1">
     <action name="Execute">
-      <command>emacs -q -l ~/.emacs.d/init-essentials.el ~/.emacs.d/init-essentials.el</command>
+      <command>emacs -q -l ~/Projects/dot-emacs/init-essentials.el ~/.emacs.d/init-essentials.el</command>
     </action>
   </keybind>
   <keybind key="A-C-2">
@@ -233,7 +233,7 @@ echo '  <!-- emacs key bindings -->
   </keybind>
   <keybind key="A-C-3">
     <action name="Execute">
-      <command>emacsclient -c ~/.config/openbox/autostart</command>
+      <command>emacsclient -c ~/Projects/archlinux/openbox/autostart</command>
     </action>
   </keybind>
   <keybind key="A-C-4">
