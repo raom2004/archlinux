@@ -418,6 +418,7 @@ echo '  <keybind key="XF86AudioRaiseVolume">
 ## WARNING: set fallback key binding when keyboard has no media keys
 # set key binding to sound volume up:        W-S-Right 
 # set key binding to sound volume down:      W-S-Left 
+# set key binding to play and pause:         S-Delete 
 echo '  <!-- sound control key bindings -->
   <keybind key="W-S-Right">
     <action name="Execute">
@@ -437,7 +438,42 @@ echo '  <!-- sound control key bindings -->
       <command>amixer set Master 5%-</command>
     </action>
   </keybind>
-' >> /tmp/add.txt || die
+  <keybind key="W-Insert">
+    <action name="Execute">
+      <startupnotify>
+        <enabled>true</enabled>
+        <name>Stop playback</name>
+      </startupnotify>
+      <command>audtool playback-stop</command>
+    </action>
+  </keybind>
+  <keybind key="W-Delete">
+    <action name="Execute">
+      <startupnotify>
+        <enabled>true</enabled>
+        <name>playback</name>
+      </startupnotify>
+      <command>audtool playback-playpause</command>
+    </action>
+  </keybind>
+  <keybind key="W-Prior">
+    <action name="Execute">
+      <startupnotify>
+        <enabled>true</enabled>
+        <name>playback-reverse</name>
+      </startupnotify>
+      <command>audtool playlist-reverse</command>
+    </action>
+  </keybind>
+  <keybind key="W-Next">
+    <action name="Execute">
+      <startupnotify>
+        <enabled>true</enabled>
+        <name>playback-advance</name>
+      </startupnotify>
+      <command>audtool playlist-advance</command>
+    </action>
+  </keybind>' >> /tmp/add.txt || die
 
 ############################################################
 ## Screen Backlight
