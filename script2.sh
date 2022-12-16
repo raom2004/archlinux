@@ -459,14 +459,15 @@ if [[ "${install_desktop}" =~ ^([yY])$ ]]; then
   for kbd in es at us; do
     echo $keymaps | grep -q $kbd || keymaps="${keymaps},${kbd}"
   done
-  #~ set keyboard map using /etc/X11/xorg.conf.d
-  echo "Section \"InputClass\"
-    Identifier \"keyboard defaults\"
-    MatchIsKeyboard \"on\"
-    Option \"XkbModel\" \"pc105\"
-    Option \"XkbLayout\" \"${keymaps}\"
-    Option \"XKbOptions\" \"grp:win_space_toggle\"
-EndSection" > /etc/X11/xorg.conf.d/90-custom-kbd.conf || die
+  #~ METHOD 1: set keyboard map using /etc/X11/xorg.conf.d
+  #~ IMPORTANT: successful but started always in us instead of es
+#   echo "Section \"InputClass\"
+#     Identifier \"keyboard defaults\"
+#     MatchIsKeyboard \"on\"
+#     Option \"XkbModel\" \"pc105\"
+#     Option \"XkbLayout\" \"${keymaps}\"
+#     Option \"XKbOptions\" \"grp:win_space_toggle\"
+# EndSection" > /etc/X11/xorg.conf.d/90-custom-kbd.conf || die
   # WARNING: keymap can be set in ~/.xinitrc, but in xmonad that FAILED
 
   if [[ "${system_desktop}" == 'openbox' ]]; then
@@ -557,7 +558,7 @@ ${cmd} \"bash -c \\\"bash \$HOME/Projects/archlinux/desktop/openbox/script3.sh; 
       # support for keyboard
       # instead of ~/.xinitrc, we will add keyboard config
       # using the autostart file:
-      # echo "setxkbmap -model pc105 -layout ${available_layouts},us,at -option grp:win_space_toggle" >> $HOME/.config/openbox/autostart || die
+      echo "setxkbmap -model pc105 -layout ${keymaps} -option grp:win_space_toggle" >> $HOME/.config/openbox/autostart || die
       break
       ;;
   esac
@@ -633,6 +634,9 @@ git clone https://github.com/raom2004/dot-emacs || die
 
 
 ### python support for virtualenv
+mkdir -p $HOME/.virtualenv || die 
+cd $HOME/.virtualenv || die 
+pip install virtualenv || die
 pip install virtualenvwrapper || die
 
 
