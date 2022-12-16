@@ -5,7 +5,7 @@
 #
 # CODE:
 
-### FUNCTIONS DECLARATION
+### FUNCTION DECLARATION
 
 ############################################################
 # Description:
@@ -23,45 +23,41 @@ function open_urls_in_firefox {
 }
 
 
+### variable declaration
+
+board_vendor=$(cat /sys/devices/virtual/dmi/id/board_vendor)
+if [[ $board_vendor =~ apple ]]; then bright="25%"; else bright="50%"; fi
+
+
 ### ESSENTIAL SETUP 
 
-## Keyboard Setup (set in script 2 instead)
-xmodmap -e "keysym XF86Eject = BackSpace"
-
-## deactivate screen saver
+# Keyboard Setup (set in script 2 instead)
+xmodmap -e "keysym XF86Eject = BackSpace" &
+setxkbmap -model pc105 -layout es,us,at -option grp:win_space_toggle &
+# deactivate screen saver
 (sleep 40 && xset s 0 0) &
-
-## Screen Brigthness Setup
-if grep -i apple /sys/devices/virtual/dmi/id/board_vendor; then
-    brightnessctl set 25% &
-else
-  brightnessctl set 50% &
-fi
-
-## Set Background
+# Screen Brigthness Setup
+brightnessctl set "${bright}" &
+# Set Background
 ~/.fehbg &
-
-## Bar
+# Bar
 tint2 &
-
-## Tray Icons
-pasystray &		# sound volume icon
+# Tray Icons
 nm-applet &             # network manager
 xfce4-power-manager &   # battery info
-
-## permission to mount drives
-/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
-
-## automount usb
+# volume icon
+(if [[ ! $board_vendor =~ apple ]]; then pasystray; fi) &
+# permission to mount drives
+if [[ ! ${board_vendor} =~ apple ]]; then
+  /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
+fi
+# automount usb
 udiskie --notify --automount --tray &
-
-## Composite Manager
+# Composite Manager
 picom &
-
-## System Monitor Software
-(sleep 3 && conky) &
-
-## amixer volume and musik player: run when sound card is recognixed
+# System Monitor Software
+(sleep 2 && conky) &
+# amixer volume and musik player: run when sound card is recognixed
 sh -c "until aplay -l | grep PCH; do sleep 10; done" \
     && (sleep 4 && sh -c "amixer sset Master unmute") \
     && (sleep 2 && sh -c "amixer set Master 2%+") \
@@ -71,25 +67,29 @@ sh -c "until aplay -l | grep PCH; do sleep 10; done" \
 
 ### START PROGRAMS
 
-## File Manager
+## start Terminal
+(sleep 3 && open_xterm_custom "$HOME/Projects/archlinux/desktop/openbox" left) &
+(sleep 4 && open_xterm_custom "$HOME/Projects/archlinux" middle) &
+(sleep 5 && open_xterm_custom "$HOME/Projects/dot-emacs") &
+
+## start file manager
 thunar --daemon &
-(sleep 4 && thunar $HOME/Projects/archlinux) &
-(sleep 4 && thunar $HOME/Projects/archlinux/desktop/openbox) &
-(sleep 4 && thunar $HOME/Projects/dot-emacs) &
 
-## Terminal
-open_xterm_custom "$HOME/Projects/archlinux/desktop/openbox" left
-open_xterm_custom "$HOME/Projects/archlinux" middle
-open_xterm_custom "$HOME/Projects/dot-emacs"
+## open File Manager
+(sleep 1 && thunar $HOME/Projects/archlinux) &
+(sleep 2 && thunar $HOME/Projects/archlinux/desktop/openbox) &
+(sleep 2 && thunar $HOME/Projects/dot-emacs) &
+my_path=/run/media/*/EAFB-BEA4/share-projects/
+(sleep 2 && if [[ -d "${my_path}" ]]; then thunar "${my_path}"; fi) &
+unset my_path
+## start Text/Code Editor
+(sleep 6 && emacs -q -l $HOME/Projects/dot-emacs/init-openbox.el) &
 
-
-## Webbroser : open unique url in privat mode
-
+## start Webbroser: open single url in privat mode
 # url='https://wiki.archlinux.org/title/Openbox' \
 #    | firefox --private-window "${url}" &
 
-## Webbroser : open multiples urls in private mode
-
+## start Webbroser: open multiples urls in private mode
 # vim cheat sheet and cron
 # urls=(
 #     # cron
@@ -99,6 +99,7 @@ open_xterm_custom "$HOME/Projects/dot-emacs"
 # )
 # open_urls_in_firefox "${urls[@]}"
 
+## start Firefox
 urls=(
     # vim command cheat sheet
     'https://phoenixnap.com/kb/vim-commands-cheat-sheet'
@@ -106,16 +107,20 @@ urls=(
     # cron
     'https://wiki.archlinux.org/title/Cron'
 
+    # systemd
+    'https://wiki.archlinux.org/title/Systemd'
+    'https://seb.jambor.dev/posts/systemd-by-example-part-1-minimization/'
     # openbox example for window snapping
-    'https://wiki.archlinux.org/title/Openbox#Window_snapping'
-    'http://openbox.org/wiki/Help:Actions#GrowToEdge'
-    'https://aur.archlinux.org/packages/opensnap'
+    # 'https://wiki.archlinux.org/title/Openbox#Window_snapping'
+    # 'http://openbox.org/wiki/Help:Actions#GrowToEdge'
+    # 'https://aur.archlinux.org/packages/opensnap'
+    # 'https://wiki.archlinux.org/title/X_keyboard_extension'
 )
+(sleep 4 && open_urls_in_firefox "${urls[@]}")
 
-open_urls_in_firefox "${urls[@]}"
-
-## text/code editor
-emacs -q -l $HOME/Projects/dot-emacs/init-openbox.el &
+## minimize application
+# wmctrl -ri "$(xwininfo -name "openbox" | awk '/Window id/{print $4}')" -b toggle,hidden
+(sleep 6 && wmctrl -r "Firefox" -b toggle,hidden) &
 
 
 # emacs:
