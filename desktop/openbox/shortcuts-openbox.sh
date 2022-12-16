@@ -221,9 +221,14 @@ echo '
 ' >> /tmp/add.txt || die
 # Emacs
 echo '  <!-- emacs key bindings -->
+  <keybind key="A-C-0">
+    <action name="Execute">
+      <command>emacs -q -l ~/Projects/dot-emacs/init-essentials.el ~/Projects/dot-emacs/init-essentials.el</command>
+    </action>
+  </keybind>
   <keybind key="A-C-1">
     <action name="Execute">
-      <command>emacs -q -l ~/Projects/dot-emacs/init-essentials.el ~/.emacs.d/init-essentials.el</command>
+      <command>emacs -q -l ~/Projects/dot-emacs/init-openbox.el ~/Projects/dot-emacs/init-openbox.el</command>
     </action>
   </keybind>
   <keybind key="A-C-2">
