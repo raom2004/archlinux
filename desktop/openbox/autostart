@@ -9,31 +9,80 @@
 
 ############################################################
 # Description:
+#  function to initialize variables to resize and locate windows
+#  as a grid of 3x3 in the screen
+#
+#  source:
+# ~/Projects/archlinux/desktop/scripts-shared/rasize-resize-x-windows.org
+############################################################
+initialize_variables ()
+{
+  # screen dimentions: screen_width; screen_height
+  eval $(xrandr \
+	   | awk '/*/{print $1}' \
+	   | sed -e "s/\([0-9]*\)x\([0-9]*\)/screen_width=\\1;screen_height=\\2/g")
+  # corrections
+  panel_height=$(awk '/panel_size/{print $4}' ~/.config/tint2/tint2rc)
+  screen_height=$((screen_height - panel_height))
+  # window decorations
+  # get window decorations: _NET_FRAME_EXTENTS(CARDINAL) = 1, 1, 22, 5
+  eval $(xprop _NET_FRAME_EXTENTS -id $(xdotool getactivewindow) \
+	   | sed -e 's/.*=[ ]*\(.*\)/deco=(\1)/' -e 's/,//g')
+  # set a human comprensible name
+  width_border_left=${deco[0]}
+  width_border_right=${deco[1]}
+  height_tittle_bar=${deco[2]}
+  height_bottom_border=${deco[3]}  
+
+  # x (horizontal) = left;middle;right
+  left=0
+  middle=$((screen_width / 3))
+  right=$(((screen_width / 3) * 2))
+
+  # y (vertical) = upper;center;bottom
+  upper=0
+  center=$((screen_height / 3))
+  # bottom=$(((screen_height / 3) * 2))
+  bottom=$((((screen_height / 3) * 2) - height_bottom_border))
+  
+  # width = third
+  third=$(((screen_width / 3) - width_border_left - width_border_right))
+
+  # height = one_third;two_third
+  one_third=$(((screen_height / 3) - height_tittle_bar - height_bottom_border - panel_height))
+  two_third=$(((screen_height / 3) + one_third))
+}
+
+############################################################
+# Description:
 #  function to open multiple urls in firefox with private mode
 # pass an array as argument for a function
 #  source:
 #  https://duckduckgo.com/?q=bash+use+list+as+function+argument&t=ffab&atb=v344-5&ia=web&iax=qa
 ############################################################
-
 function open_urls_in_firefox {
-    a=("$@")
-    for i in "${a[@]}" ; do
-        firefox --private-window "$i" &
-    done
+  a=("$@")
+  for i in "${a[@]}"
+  do 
+    firefox --private-window "$i" &
+  done
 }
 
 
 ### variable declaration
-
-board_vendor=$(cat /sys/devices/virtual/dmi/id/board_vendor)
-if [[ $board_vendor =~ apple ]]; then bright="25%"; else bright="50%"; fi
-
+my_path=/sys/devices/virtual/dmi/id/board_vendor
+board_vendor="$(cat $my_path awk '{print $1}')"
+[[ $board_vendor =~ Apple ]] && bright="25%" || bright="50%"
+unset my_path
 
 ### ESSENTIAL SETUP 
 
 # Keyboard Setup (set in script 2 instead)
-xmodmap -e "keysym XF86Eject = BackSpace" &
 setxkbmap -model pc105 -layout es,us,at -option grp:win_space_toggle &
+# xmodmap -e "keysym XF86Eject = Delete" &
+if [[ ${board_vendor} =~ Apple ]]; then
+  (sleep 5 && xmodmap -e "keysym XF86Eject = Delete") &
+fi
 # deactivate screen saver
 (sleep 40 && xset s 0 0) &
 # Screen Brigthness Setup
@@ -45,49 +94,103 @@ tint2 &
 # Tray Icons
 nm-applet &             # network manager
 xfce4-power-manager &   # battery info
-# volume icon
-(if [[ ! $board_vendor =~ apple ]]; then pasystray; fi) &
-# permission to mount drives
-if [[ ! ${board_vendor} =~ apple ]]; then
+# (if [[ ! ${board_vendor} =~ Apple ]]; then pasystray; fi) &
+if [[ ! ${board_vendor} =~ Apple ]]; then
+  # volume icon
+  pasistray &
+  # permission to mount drives
   /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
 fi
 # automount usb
 udiskie --notify --automount --tray &
 # Composite Manager
-picom &
+# picom &
 # System Monitor Software
-(sleep 2 && conky) &
+(if [[ ! ${board_vendor} =~ Apple ]]; then sleep 2 && conky; fi) &
 # amixer volume and musik player: run when sound card is recognixed
 sh -c "until aplay -l | grep PCH; do sleep 10; done" \
-    && (sleep 4 && sh -c "amixer sset Master unmute") \
-    && (sleep 2 && sh -c "amixer set Master 2%+") \
-    && (sleep 2 && sh -c "amixer set Master 25%") \
-    && (sleep 2 && sh -c "audacious --headless --play") &
+  && (sleep 4 && sh -c "amixer sset Master unmute") \
+  && (sleep 2 && sh -c "amixer set Master 2%+") \
+  && (sleep 2 && sh -c "amixer set Master 25%") \
+  && (sleep 2 && sh -c "audacious --headless --play") &
 
 
 ### START PROGRAMS
 
-## start Terminal
-(sleep 3 && open_xterm_custom "$HOME/Projects/archlinux/desktop/openbox" left) &
-(sleep 4 && open_xterm_custom "$HOME/Projects/archlinux" middle) &
-(sleep 5 && open_xterm_custom "$HOME/Projects/dot-emacs") &
+
+## start Terminal 
+xfce4-terminal --hide-menubar --working-directory \
+	       $HOME/Projects/dot-emacs &
+xfce4-terminal --hide-menubar --working-directory \
+	       $HOME/Projects/archlinux &
+xfce4-terminal --hide-menubar --working-directory \
+	       $HOME/Projects/archlinux/desktop/openbox &
+
+
+## resize and relocate terminal windows
+initialize_variables # required
+xdotool search --sync --onlyvisible \
+	--name 'Terminal - angel@Dark: ~/Projects/archlinux$' \
+	windowactivate \
+	windowsize $third $one_third \
+	windowmove $left $bottom
+
+xdotool search --sync --onlyvisible \
+	--name \
+	'Terminal - angel@Dark: ~/Projects/archlinux/desktop/openbox' \
+	windowactivate \
+	windowsize $third $one_third \
+	windowmove $middle $bottom
+
+xdotool search --sync --onlyvisible \
+	--name 'Terminal - angel@Dark: ~/Projects/dot-emacs' \
+	windowactivate \
+	windowsize $third $one_third \
+	windowmove $right $bottom
+
+## start Terminal and resize it (xterm)
+# (sleep .1 && xterm_custom $HOME/Projects/archlinux left) &
+# (sleep .8 && xterm_custom $HOME/Projects/archlinux/desktop/openbox middle) &
+# (sleep .9 && xterm_custom $HOME/Projects/dot-emacs) &
+
 
 ## start file manager
 thunar --daemon &
 
+
 ## open File Manager
-(sleep 1 && thunar $HOME/Projects/archlinux) &
-(sleep 2 && thunar $HOME/Projects/archlinux/desktop/openbox) &
-(sleep 2 && thunar $HOME/Projects/dot-emacs) &
+(sleep 1.3 && thunar $HOME/Projects/archlinux) &
+(sleep 1.4 && thunar $HOME/Projects/archlinux/desktop/openbox) &
+(sleep 1.8 && thunar $HOME/Projects/dot-emacs) &
 my_path=/run/media/*/EAFB-BEA4/share-projects/
-(sleep 2 && if [[ -d "${my_path}" ]]; then thunar "${my_path}"; fi) &
+(sleep 1.9 && if [[ -d "${my_path}" ]]; then thunar "${my_path}"; fi) &
 unset my_path
-## start Text/Code Editor
-(sleep 6 && emacs -q -l $HOME/Projects/dot-emacs/init-openbox.el) &
+
+
+## resize file manager windows and relocate it
+xdotool search --sync --onlyvisible \
+	--name 'dot-emacs - Thunar' \
+	windowactivate \
+	windowsize $third $one_third \
+	windowmove $left $bottom
+
+xdotool search --sync --onlyvisible \
+	--name 'openbox - Thunar' \
+	windowactivate \
+	windowsize $third $one_third \
+	windowmove $middle $bottom
+
+xdotool search --sync --onlyvisible \
+	--name 'archlinux - Thunar' \
+	windowactivate \
+	windowsize $third $one_third \
+	windowmove $right $bottom
+
 
 ## start Webbroser: open single url in privat mode
 # url='https://wiki.archlinux.org/title/Openbox' \
-#    | firefox --private-window "${url}" &
+  #    | firefox --private-window "${url}" &
+
 
 ## start Webbroser: open multiples urls in private mode
 # vim cheat sheet and cron
@@ -101,26 +204,37 @@ unset my_path
 
 ## start Firefox
 urls=(
-    # vim command cheat sheet
-    'https://phoenixnap.com/kb/vim-commands-cheat-sheet'
-
-    # cron
-    'https://wiki.archlinux.org/title/Cron'
-
-    # systemd
-    'https://wiki.archlinux.org/title/Systemd'
-    'https://seb.jambor.dev/posts/systemd-by-example-part-1-minimization/'
-    # openbox example for window snapping
-    # 'https://wiki.archlinux.org/title/Openbox#Window_snapping'
-    # 'http://openbox.org/wiki/Help:Actions#GrowToEdge'
-    # 'https://aur.archlinux.org/packages/opensnap'
-    # 'https://wiki.archlinux.org/title/X_keyboard_extension'
+  #~ man page for window tool
+  # 'https://man.archlinux.org/man/xdotool.1.en#WINDOW_COMMANDS'
+  #~ openbox page
+  'https://wiki.archlinux.org/title/Openbox#Autostart'
+  #~ vim command cheat sheet
+  # 'https://phoenixnap.com/kb/vim-commands-cheat-sheet'
+  #~ cron
+  # 'https://wiki.archlinux.org/title/Cron'
+  #~ systemd
+  'https://wiki.archlinux.org/title/Systemd'
+  'https://seb.jambor.dev/posts/systemd-by-example-part-1-minimization/'
+  #~ openbox example for window snapping
+  # 'https://wiki.archlinux.org/title/Openbox#Window_snapping'
+  # 'http://openbox.org/wiki/Help:Actions#GrowToEdge'
+  # 'https://aur.archlinux.org/packages/opensnap'
+  # 'https://wiki.archlinux.org/title/X_keyboard_extension'
 )
-(sleep 4 && open_urls_in_firefox "${urls[@]}")
+open_urls_in_firefox "${urls[@]}"
 
-## minimize application
+
+## minimize application using xdotool
+xdotool search --sync --onlyvisible --class firefox windowminimize &
+
+
+## minimize application (with "wmctrl")
 # wmctrl -ri "$(xwininfo -name "openbox" | awk '/Window id/{print $4}')" -b toggle,hidden
-(sleep 6 && wmctrl -r "Firefox" -b toggle,hidden) &
+# (sleep 4 && wmctrl -r "Firefox" -b toggle,hidden) &
+
+
+## start Text/Code Editor
+(sleep 2.1 && emacs -q -l $HOME/Projects/dot-emacs/init-openbox.el) &
 
 
 # emacs:
