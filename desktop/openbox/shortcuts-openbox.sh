@@ -180,9 +180,14 @@ echo '  <!-- openbox key bindings -->
   </keybind>' >> /tmp/add.txt || die
 # screenshot
 echo '  <!-- screenshot key bindings -->
+  <keybind key="C-A-s">
+    <action name="Execute">
+      <command>sh -c "nemo $HOME/Pictures/screenshots"</command>
+    </action>
+  </keybind>
   <keybind key="W-s">
     <action name="Execute">
-      <command>sh -c "gnome-screenshot -cf /tmp/screenshot &amp;&amp; cat /tmp/screenshot | xclip -i -selection clipboard -target image/png; gimp /tmp/screenshot"</command>
+      <command>sh -c "screenshot"</command>
     </action>
   </keybind>' >> /tmp/add.txt || die
 ############################################################
@@ -268,11 +273,22 @@ echo '  <!-- emacs key bindings -->
   </keybind>' >> /tmp/add.txt || die
 # Terminal
 echo '  <!-- terminal key bindings -->
+  <keybind key="A-C-b">
+    <action name="Execute">
+      <command>sh -c "xterm_custom \"/tmp\" right"</command>
+    </action>
+  </keybind>
+  <keybind key="A-C-n">
+    <action name="Execute">
+      <command>sh -c "xterm_custom \"$HOME/Projects/archlinux\" right"</command>
+    </action>
+  </keybind>
   <keybind key="A-C-m">
     <action name="Execute">
-      <command>xterm -rv -fa "Ubuntu Mono" -fs 13</command>
+      <command>sh -c "xterm_custom \"$HOME/Projects/dot-emacs\" right"</command>
     </action>
-  </keybind>' >> /tmp/add.txt || die
+  </keybind>
+' >> /tmp/add.txt || die
 # Musik Player
 echo '  <!-- start and stop musik program -->
   <keybind key="W-a">
@@ -297,11 +313,20 @@ echo '  <!--  program launcher key bindings -->
 ############################################################
 # Power System 
 echo '  <!--  power system keybindings -->
+  <keybind key="C-A-BackSpace">
+    <action name="Execute">
+      <startupnotify>
+        <enabled>true</enabled>
+        <name>Reboot</name>
+      </startupnotify>
+      <command>sh -c "ps | grep audacious &amp;> /dev/null &amp;&amp; audacious --pause | pkill audacious; ps | grep emacs &amp;> /dev/null &amp;&amp; pkill emacs; systemctl reboot"</command>
+    </action>
+  </keybind>
   <keybind key="C-A-Delete">
     <action name="Execute">
       <startupnotify>
         <enabled>true</enabled>
-        <name>Poweroff</name>
+        <name>Reboot</name>
       </startupnotify>
       <command>sh -c "ps | grep audacious &amp;> /dev/null &amp;&amp; audacious --pause | pkill audacious; ps | grep emacs &amp;> /dev/null &amp;&amp; pkill emacs; systemctl reboot"</command>
     </action>
@@ -500,7 +525,7 @@ echo '<!-- screen backlight key bindings -->
     <action name="Execute">
       <startupnotify>
         <enabled>true</enabled>
-        <name>backlight up</name>
+        <name>backlight down</name>
       </startupnotify>
       <command>backlight -ddec</command>
     </action>
@@ -553,6 +578,67 @@ echo '<!-- keyboard backlight key bindings -->
   </keybind>' >> /tmp/add.txt || die
 
 
+############################################################
+## Window movement
+echo '<!-- Window Movement key bindings -->
+<!-- Window Movement key bindings -->
+  <keybind key="W-Up">
+    <action name="Execute">
+      <command>snap up</command>
+    </action>
+  </keybind>
+  <keybind key="W-Down">
+    <action name="Execute">
+      <command>snap bottom</command>
+    </action>
+  </keybind>
+  <keybind key="W-Left">
+    <action name="Execute">
+      <command>snap left</command>
+    </action>
+  </keybind>
+  <keybind key="W-Right">
+    <action name="Execute">
+      <command>snap right</command>
+    </action>
+  </keybind>
+    <keybind key="W-6">
+    <action name="Execute">
+      <command>snap upper_left</command>
+    </action>
+  </keybind>
+  <keybind key="W-7">
+    <action name="Execute">
+      <command>snap upper_right</command>
+    </action>
+  </keybind>
+  <keybind key="W-8">
+    <action name="Execute">
+      <command>snap bottom_left</command>
+    </action>
+  </keybind>
+  <keybind key="W-9">
+    <action name="Execute">
+      <command>snap bottom_right</command>
+    </action>
+  </keybind>' >> /tmp/add.txt || die
+# echo '<!-- Window Movement key bindings -->
+#   <keybind key="W-Up">
+#     <action name="MoveToEdgeNorth"/>
+#   </keybind>
+#   <keybind key="W-Down">
+#     <action name="MoveToEdgeSouth"/>
+#   </keybind>
+#   <keybind key="W-Left">
+#     <action name="MoveToEdgeWest"/>
+#   </keybind>
+#   <keybind key="W-Right">
+#     <action name="MoveToEdgeEast"/>
+#   </keybind>' >> /tmp/add.txt || die
+
+############################################################
+## Window Expanding
+
 # ## worked
 # echo '
 #   <keybind key="W-Up">
@@ -574,27 +660,59 @@ echo '<!-- keyboard backlight key bindings -->
 # ' >> /tmp/add.txt
 
 ## worked
-echo '
-  <keybind key="W-Up">
-    <action name="If">
-      <query>
-        <maximizedhorizontal>no</maximizedhorizontal>
-      </query>
-      <then>
-        <action name="ToggleMaximizeHorz"/>
-      </then>
-      <else>
-        <action name="ToggleMaximize"/>
-      </else>
-    </action>
-  </keybind>
-  <keybind key="W-Left">
-        <action name="ToggleMaximizeVert"/>
-  </keybind>' >> /tmp/add.txt || die
+# echo '<!-- Window Expanding key bindings -->
+#   <keybind key="W-C-Up">
+#     <action name="If">
+#       <query>
+#         <maximizedhorizontal>no</maximizedhorizontal>
+#       </query>
+#       <then>
+#         <action name="ToggleMaximizeHorz"/>
+#       </then>
+#       <else>
+#         <action name="ToggleMaximize"/>
+#       </else>
+#     </action>
+#   </keybind>
+#   <keybind key="W-C-Left">
+#         <action name="ToggleMaximizeVert"/>
+#   </keybind>' >> /tmp/add.txt || die
+
+# window expanding using openbox native commands
+#  source:
+#  http://openbox.org/wiki/Help:WindowsInteractionWithWindowsKey
+# echo '<!-- Window Expanding key bindings -->
+#   <keybind key="W-C-Up">
+#     <action name="UnmaximizeFull"/>
+#     <action name="GrowToEdgeNorth"/>
+#   </keybind>
+#   <keybind key="W-C-Down">
+#     <action name="UnmaximizeFull"/>
+#     <action name="GrowToEdgeSouth"/>
+#   </keybind>
+#   <keybind key="W-C-Left">
+#     <action name="UnmaximizeFull"/>
+#     <action name="GrowToEdgeWest"/>
+#   </keybind>
+#   <keybind key="W-C-Right">
+#     <action name="UnmaximizeFull"/>
+#     <action name="GrowToEdgeEast"/>
+#   </keybind>
+#   <keybind key="W-C-space">
+#     <action name="ToggleMaximizeFull"/>
+#   </keybind>
+#   <keybind key="W-F">
+#     <action name="ToggleFullscreen"/>
+#   </keybind>
+#   <keybind key="W-C-Escape">
+#     <action name="Iconify"/>
+#   </keybind>
+#   <keybind key="W-S-d">
+#     <action name="ToggleDecorations"/>
+#   </keybind>' >> /tmp/add.txt || die
 
 
 ## TODO: testing code from maximize.c
-
 
 ## worked
 # echo '
@@ -631,6 +749,149 @@ echo '
 #     </action>
 #   </keybind>
 # ' >> /tmp/add.txt
+
+echo '
+<!-- open file manager-->
+<keybind key="W-b">
+    <action name="Execute">
+      <startupnotify>
+        <enabled>true</enabled>
+        <name>file manager bottom left</name>
+      </startupnotify>
+      <command>sh -c "thunar $HOME/Projects; rasize two_third_upper_left"</command>
+    </action>
+</keybind>
+<keybind key="W-n">
+    <action name="Execute">
+      <startupnotify>
+        <enabled>true</enabled>
+        <name>file manager upper middle</name>
+      </startupnotify>
+      <command>sh -c "thunar $HOME/Projects/archlinux; rasize two_third_upper_middle"</command>
+    </action>
+</keybind>
+<keybind key="W-m">
+    <action name="Execute">
+      <startupnotify>
+        <enabled>true</enabled>
+        <name>file manager upper right</name>
+      </startupnotify>
+      <command>sh -c "thunar $HOME/Projects/dot-emacs; rasize two_third_upper_right"</command>
+    </action>
+</keybind>
+' >> /tmp/add.txt
+
+echo '
+<!-- Window Tiling: 3x3-->
+<keybind key="W-F1">
+    <action name="Execute">
+      <startupnotify>
+        <enabled>true</enabled>
+        <name>tiling upper left</name>
+      </startupnotify>
+      <command>rasize one_third_upper_left</command>
+    </action>
+</keybind>
+<keybind key="W-F2">
+    <action name="Execute">
+      <startupnotify>
+        <enabled>true</enabled>
+        <name>tiling upper middle</name>
+      </startupnotify>
+      <command>rasize one_third_upper_middle</command>
+    </action>
+</keybind>
+<keybind key="W-F3">
+    <action name="Execute">
+      <startupnotify>
+        <enabled>true</enabled>
+        <name>tiling upper right</name>
+      </startupnotify>
+      <command>rasize one_third_upper_right</command>
+    </action>
+</keybind>
+<keybind key="W-F4">
+    <action name="Execute">
+      <startupnotify>
+        <enabled>true</enabled>
+        <name>tiling center left</name>
+      </startupnotify>
+      <command>rasize one_third_center_left</command>
+    </action>
+</keybind>
+<keybind key="W-F5">
+    <action name="Execute">
+      <startupnotify>
+        <enabled>true</enabled>
+        <name>tiling center middle</name>
+      </startupnotify>
+      <command>rasize one_third_center_middle</command>
+    </action>
+</keybind>
+<keybind key="W-F6">
+    <action name="Execute">
+      <startupnotify>
+        <enabled>true</enabled>
+        <name>tiling center right</name>
+      </startupnotify>
+      <command>rasize one_third_center_right</command>
+    </action>
+</keybind>
+<keybind key="W-F7">
+    <action name="Execute">
+      <startupnotify>
+        <enabled>true</enabled>
+        <name>tiling bottom left</name>
+      </startupnotify>
+      <command>rasize one_third_bottom_left</command>
+    </action>
+</keybind>
+<keybind key="W-F8">
+    <action name="Execute">
+      <startupnotify>
+        <enabled>true</enabled>
+        <name>tiling bottom middle</name>
+      </startupnotify>
+      <command>rasize one_third_bottom_middle</command>
+    </action>
+</keybind>
+<keybind key="W-F9">
+    <action name="Execute">
+      <startupnotify>
+        <enabled>true</enabled>
+        <name>tiling bottom right</name>
+      </startupnotify>
+      <command>rasize one_third_bottom_right</command>
+    </action>
+</keybind>
+<keybind key="W-F10">
+    <action name="Execute">
+      <startupnotify>
+        <enabled>true</enabled>
+        <name>tiling double left</name>
+      </startupnotify>
+      <command>rasize two_third_upper_left</command>
+    </action>
+</keybind>
+<keybind key="W-F11">
+    <action name="Execute">
+      <startupnotify>
+        <enabled>true</enabled>
+        <name>tiling double middle</name>
+      </startupnotify>
+      <command>rasize two_third_upper_middle</command>
+    </action>
+</keybind>
+<keybind key="W-F12">
+    <action name="Execute">
+      <startupnotify>
+        <enabled>true</enabled>
+        <name>tiling double right</name>
+      </startupnotify>
+      <command>rasize two_third_upper_right</command>
+    </action>
+</keybind>
+' >> /tmp/add.txt
 
 # echo '
 # <!-- Window Tiling: Emulates Windows 7 Snap feature -->
