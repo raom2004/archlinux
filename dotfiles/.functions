@@ -294,6 +294,24 @@ function mygit
 }
 
 
+## automatize archlinux update
+
+function update_archlinux
+{
+  printf "\n==> Updating archlinux keyring\n"
+  try sudo pacman -Syy --noconfirm archlinux-keyring 
+  printf "\n==> Updating archlinux pacman packages\n"
+  try sudo pacman -Syu 
+  printf "\n==> Updating archlinux AUR virtualbox extention\n"
+  try aur 'https://aur.archlinux.org/virtualbox-ext-oracle.git'
+  ## UPDATE XMONAD
+  if grep 'Apple' /sys/devices/virtual/dmi/id/board_vendor; then
+    printf "\n==> Recompiling xmonad\n"
+    try xmonad --recompile
+  fi
+}
+
+
 # emacs:
 # Local Variables:
 # sh-basic-offset: 2
