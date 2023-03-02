@@ -118,13 +118,25 @@ sh -c "until aplay -l | grep PCH; do sleep 10; done" \
 ### START PROGRAMS
 
 
-## start Terminal 
-xfce4-terminal --hide-menubar --working-directory \
-	       $HOME/Projects/dot-emacs &
-xfce4-terminal --hide-menubar --working-directory \
-	       $HOME/Projects/archlinux &
-xfce4-terminal --hide-menubar --working-directory \
-	       $HOME/Projects/archlinux/desktop/openbox &
+## start Terminal
+# customize font
+if [[ ! ${board_vendor} =~ Apple ]]; then
+  my_font="Ubuntu Mono 13"
+else
+  my_font="Ubuntu Mono 12"
+fi
+# set working directories
+my_folders=("$HOME/Projects/dot-emacs"
+	    "$HOME/Projects/archlinux"
+	    "$HOME/Projects/archlinux/desktop/openbox")
+# open terminals with the customized variables
+for folder in ${my_folders[@]}
+do
+  xfce4-terminal --working-directory "$folder" --font "$my_font" \
+		 --hide-menubar &
+done
+# clean variables
+unset my_font my_folder
 
 
 ## resize and relocate terminal windows
@@ -207,7 +219,7 @@ urls=(
   #~ man page for window tool
   # 'https://man.archlinux.org/man/xdotool.1.en#WINDOW_COMMANDS'
   #~ openbox page
-  'https://wiki.archlinux.org/title/Openbox#Autostart'
+  # 'https://wiki.archlinux.org/title/Openbox#Autostart'
   #~ vim command cheat sheet
   # 'https://phoenixnap.com/kb/vim-commands-cheat-sheet'
   #~ cron
@@ -217,9 +229,14 @@ urls=(
   'https://seb.jambor.dev/posts/systemd-by-example-part-1-minimization/'
   #~ openbox example for window snapping
   # 'https://wiki.archlinux.org/title/Openbox#Window_snapping'
-  # 'http://openbox.org/wiki/Help:Actions#GrowToEdge'
+  'http://openbox.org/wiki/Help:Actions#GrowToEdge'
   # 'https://aur.archlinux.org/packages/opensnap'
   # 'https://wiki.archlinux.org/title/X_keyboard_extension'
+  #~ dic
+  # 'https://dict.leo.org/spanisch-deutsch/'
+  # german dativ verben
+  # 'https://www.youtube.com/watch?v=qW2-zdSlcxU'
+  
 )
 open_urls_in_firefox "${urls[@]}"
 
