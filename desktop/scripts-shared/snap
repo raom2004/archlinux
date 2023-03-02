@@ -1,0 +1,411 @@
+#!/bin/bash
+VERSION='1.1.0.0'
+
+# bash script to move window in the screen, using xdotool
+VERSION="1.1.0.0"
+# major, nimor, bug-fix, build-number
+# sources:
+# https://homes.cs.washington.edu/~mernst/advice/version-control.html
+# https://stackoverflow.com/questions/2864448/best-practice-software-versioning
+
+## function usage
+
+print_usage ()
+{
+  printf "%s\n" "
+\"$0\" script to move windows in the screen.
+Version=${VERSION}
+       
+Usage:
+  
+  The main scope of \"$0\" is to make easy to put two windows
+  side by side, or even four window in a grid of 2x2.
+
+  To achieve this, the script must be call specifying a location:
+  
+    \$ $0 upper_left
+
+  *This will move and size the window to the position 'upper left'
+  The locations available are:
+    - upper_left, upper_right
+    - bottom_left, bottom_right
+    - left, right
+    - up, bottom
+
+  This script uses the active window, but you can provide also
+   an specific window your choice, adding the -n argument,
+   like this: \$ $0 <location> -n <window name>
+
+  For example:
+  
+    \$ $0 upper_left -n Firefox 
+
+    
+  To show this help message, use '-h' or '--help' as argument:
+
+    \$ $0 -h
+
+"
+}
+
+## error handling
+
+out ()   { printf "$1 $2\n" "${@:3}"; }
+error () { out "==> ERROR:" "$@"; } >&2
+die ()   { error "$@"; exit 1; } >&2
+
+## messages display
+
+warning () { out "==> WARNING:" "$@"; } >&2
+msg ()     { out "==>" "$@"; }
+msg2 ()    { out "  ->" "$@"; }
+
+## declare variables, capturing all the data required for window move and size
+
+declare_variables ()
+{
+  ## functions to get window raw info
+  window_info_get ()
+  {
+
+    # get window info using a window name provided "${@}"
+    # *IMPORTANT: limit false matches using the symbols "^" and "$"
+    info_get_by_window_name ()
+    {
+      xdotool search --onlyvisible --name "^${@}$" \
+	      getdisplaygeometry \
+	      getwindowclassname \
+	      getwindowgeometry \
+	|| die "window not found"
+    }
+
+    # get info of the current window
+    info_get_current_window ()
+    {
+      xdotool getactivewindow \
+	      getdisplaygeometry \
+	      getwindowclassname \
+	      getwindowgeometry \
+	|| die "window not found"
+    }
+
+    ## get window raw info
+    if [[ "$#" > 1 ]];then
+       case "${2}" in
+	 -h|--help) print_usage; exit 0;;
+	 # if argument name provided, captures the info of
+	 #  the desired window
+	 -n|--name) info_get_by_window_name "${3}";;
+	 *) die "wrong arguments. Show help using the '-h' option";;
+       esac
+       else
+	 # if no argument provided, get current window info
+	 info_get_current_window
+    fi
+  }
+
+  ## function to filter display and window id
+  window_info_sed ()
+  {
+    sed -e 's/\(^[0-9]*\) \([0-9]*\)$/screen_width=\1;screen_height=\2/' \
+	-e 's/\(^[-a-zA-Z0-9]*$\)/window_class_name=\1/' \
+	-e 's/^Window \([0-9]*$\)/window_id=\1/' \
+	-e "s/^ \+Position: \([-0-9]\+\),\([-0-9]\+\) (screen: \+\([0-9]\+\))/x=\1;y=\2;screen=\3/" \
+	-e "s/^ \+Geometry: \+\([-0-9]\+\)x\+\([-0-9]\+\)/w=\1;h=\2/"
+  }
+
+  ## function to get window decoration info
+  window_info_deco ()
+  {
+    xprop _NET_FRAME_EXTENTS -id "${window_id}" \
+      | sed -e 's/^.*= \(.*\)$/deco=(\1)/' -e 's/,//g'
+  }
+
+  ## capture window information
+  eval "$(window_info_get "$@" | window_info_sed)"
+  eval "$(window_info_deco)"
+  ## set deco info into a human comprensible names
+  width_border_left="${deco[0]}"
+  width_border_right="${deco[1]}"
+  height_tittle_bar="${deco[2]}"
+  height_bottom_border="${deco[3]}"
+  ## correct window geometry: x, y
+  let x=$((${x}-${width_border_left}))
+  let y=$((${y}-${height_tittle_bar}))
+  ## set window initial geometry sorted as wmctrl geometry description
+  window_initial_geometry="0,$x,$y,$w,$h"
+  ## screen corrections
+  panel_height=$(awk '/panel_size/{print $4}' ~/.config/tint2/tint2rc)
+  screen_height_corr=$((screen_height - panel_height - height_bottom_border))
+  screen_width_corr=$((screen_width - width_border_left - width_border_right))
+  # x (horizontal) = left;right
+  left=0
+  right=$(((screen_width_corr / 2) + width_border_left))
+  # y (vertical) = upper;bottom
+  upper=0
+  bottom=$(((screen_height_corr / 2) + 3))
+  # width = width_half
+  width_half=$(((screen_width_corr / 2) - width_border_left))
+  # width_half=$(((screen_width_corr / 2) - width_border_left - width_border_right))
+  # height = height_half
+  height_half=$(((screen_height_corr / 2) - height_tittle_bar - 1))
+  screen_height_corr=$((screen_height_corr - height_tittle_bar + 1))
+  screen_height_com=$((screen_height - height_tittle_bar - panel_height))
+  ## height correction
+  if  [[ "${window_class_name}" == 'XTerm' ]]; then
+    upper=$((height_tittle_bar + 3))
+    bottom=$(((screen_height_corr / 2) + (height_tittle_bar * 2) - height_bottom_border))
+    printf "upper=%s (XTerm)\n" "${upper}"
+  fi
+}
+
+## declare geometry array,
+# required to stablish the initial and final position
+# amd size of a window
+
+declare_geometry_array ()
+{
+  # declare array
+  declare -gA geometry
+  # geometry description: "gravity,x,y,width,height"
+  geometry[upper_left]="0,$left,$upper,$width_half,$height_half"
+  geometry[upper_right]="0,$right,$upper,$width_half,$height_half"
+  geometry[bottom_left]="0,$left,$bottom,$width_half,$height_half"
+  geometry[bottom_right]="0,$right,$bottom,$width_half,$height_half"
+  geometry[left]="0,$left,$upper,$width_half,$screen_height_corr"
+  geometry[right]="0,$right,$upper,$width_half,$screen_height_corr"
+  geometry[up]="0,$left,$upper,$screen_width_corr,$height_half"
+  geometry[bottom]="0,$left,$bottom,$screen_width_corr,$height_half"
+  geometry[complete]="0,$left,$upper,$screen_width,$screen_height_com"
+}
+
+## function to check if argument $1 is equal to an geometry array snap
+#~  The argument $1 must containg geometry: "gravity,x,y,width,height" 
+geometry_check_if_snap ()
+{
+  local _result_geometry
+  case "${1}" in
+    "${geometry[upper_left]}") _result_geometry=upper_left ;;
+    "${geometry[upper_right]}") _result_geometry=upper_right ;;
+    "${geometry[bottom_left]}") _result_geometry=bottom_left ;;
+    "${geometry[bottom_right]}") _result_geometry=bottom_right ;;
+    "${geometry[left]}") _result_geometry=left ;;
+    "${geometry[right]}") _result_geometry=right ;;
+    "${geometry[up]}") _result_geometry=up ;;
+    "${geometry[bottom]}") _result_geometry=bottom ;;
+    "${geometry[complete]}") _result_geometry=complete ;;
+    *) _result_geometry="$1";;
+  esac
+  # if snap, returns a snap string, if not, return the original number
+  printf "${_result_geometry}"
+}
+
+## funtion to move a window
+# argument $1 must be a geometry description:
+# "gravity,x,y,width,height" 
+# that will be converted into coordinates:
+# x, y, w, h
+
+move_window ()
+{
+  geometry_convert_array_into_coordinates ()
+  {
+    # remove comma from $1 and get it as array
+    coordinates=(${1//,/ })
+    # set array values into variables
+    let gravity="${coordinates[0]}"
+    let x="${coordinates[1]}"
+    let y="${coordinates[2]}"
+    let w="${coordinates[3]}"
+    let h="${coordinates[4]}"
+  }
+
+  local position="$1"
+  geometry_convert_array_into_coordinates "${position}"
+  xdotool getactivewindow windowmove "$x" "$y" windowsize "$w" "$h"
+}
+
+## funtion to snap window in a particular zone of the screen
+# according to their initial location
+
+move_window_by_snapping ()
+{
+  ## this function handle when a window was moved before
+  # to a snap_geometry location and the user want to move it again,
+  # to a new location: that can be (1) the same snap_geometry,
+  # or a (2) new snap_geometry.
+  #
+  # CASE 1: move the window from to the same snap_geometry
+  if [[ "${snap_geometry}" == "${final_geometry}" ]]; then
+    printf "CASE 1: move the window from to the same snap_geometry\n"
+    case "${final_geometry}" in
+      up) wmctrl -r :ACTIVE: \
+		 -b toggle,maximized_vert,maximized_horz; break;;
+      *) move_window "${geometry[$final_geometry]}"; break;;
+    esac
+  else
+    # CASE 2: move the window from one snap_geometry to a new one snap_geometry
+    printf "CASE 2: move the window from one snap_geometry to a new one snap_geometry\n"
+    case "${snap_geometry}" in 
+      upper_left)
+	case "${final_geometry}" in
+	  right|up) move_window "${geometry[up]}"; break;;
+	  bottom) move_window "${geometry[left]}"; break;;
+	  *) move_window "${geometry[$final_geometry]}"; break;;
+	esac
+	break;;
+      upper_right)
+	case "${final_geometry}" in
+	  left|up) move_window "${geometry[up]}"; break;;
+	  bottom) move_window "${geometry[right]}"; break;;
+	  *) move_window "${geometry[$final_geometry]}"; break;;
+	esac
+	break;;
+      bottom_left)
+	case "${final_geometry}" in
+	  right|bottom) move_window "${geometry[bottom]}"; break;;
+	  up) move_window "${geometry[left]}"; break;;
+	  *) move_window "${geometry[$final_geometry]}"; break;;
+	esac
+	break;;
+      bottom_right)
+	case "${final_geometry}" in
+	  left|bottom) move_window "${geometry[bottom]}"; break;;
+	  up) move_window "${geometry[right]}"; break;;
+	  *) move_window "${geometry[$final_geometry]}"; break;;
+	esac
+	break;;
+      left)
+	case "${final_geometry}" in
+	  right) move_window "${geometry[right]}"; break;;
+	  up) move_window "${geometry[upper_left]}"; break;;
+	  bottom) move_window "${geometry[bottom_left]}"; break;;
+	  *) break;;
+	esac
+	break;;
+      right)
+	case "${final_geometry}" in
+	  left) move_window "${geometry[left]}"; break;;
+	  up) move_window "${geometry[upper_right]}"; break;;
+	  bottom) move_window "${geometry[bottom_right]}"; break;;
+	  *)break;;
+	esac
+	break;;
+      up)
+	case "${final_geometry}" in
+	  # up) wmctrl -r :ACTIVE: \
+	  # 	     -b toggle,maximized_vert,maximized_horz; break;;
+	  left) move_window "${geometry[upper_left]}"; break;;
+	  right) move_window "${geometry[upper_right]}"; break;;
+	  bottom) move_window "${geometry[bottom]}"; break;;
+	  *) break;;
+	esac
+	break;;
+      bottom)
+	case "${final_geometry}" in
+	  left) move_window "${geometry[bottom_left]}"; break;;
+	  right) move_window "${geometry[bottom_right]}"; break;;
+	  up) move_window "${geometry[up]}"; break;;
+	  *) break;;
+	esac
+	break;;
+      complete)
+	case "${final_geometry}" in
+	    up) wmctrl -r :ACTIVE: \
+		       -b toggle,maximized_vert,maximized_horz
+		move_window "${geometry[up]}"; break;;
+	    bottom) wmctrl -r :ACTIVE: \
+		       -b toggle,maximized_vert,maximized_horz
+		move_window "${geometry[bottom]}"; break;;
+	    left) wmctrl -r :ACTIVE: \
+		       -b toggle,maximized_vert,maximized_horz
+		move_window "${geometry[left]}"; break;;
+	    right) wmctrl -r :ACTIVE: \
+		       -b toggle,maximized_vert,maximized_horz
+		move_window "${geometry[right]}"; break;;
+	    *) break;;
+	esac
+	break;;
+    esac
+  fi
+}
+
+## get info for debbuging
+
+print_summary_info ()
+{
+  # show the main processed geometry
+  msg2 "Summary:"
+  printf "  window_initial_geometry=${window_initial_geometry}\n"
+  printf "  snap_geometry=${snap_geometry}\n"
+  printf "  final_geometry=${geometry[$1]} ($1)\n"
+  printf "  geometry[final_geometry]=${geometry[${final_geometry}]}\n"
+}
+
+print_geometry_info ()
+{
+  msg2 "Geometry Info"
+  for id in ${!geometry[@]}
+  do
+    printf "  geometry[%s]=%s\n" "${id}" "${geometry[$id]}"
+  done
+  printf "  window_initial_geometry=${window_initial_geometry}\n"
+}
+
+print_relevant_info ()
+{
+  msg2 "Target Window Info:"
+  # show the window information captured
+  printf "%s\n" "  window_class_name: ${window_class_name} "
+  printf "%s\n" "  window_id: ${window_id} "
+  printf "%s\n" "  location (corrected): x=$x, y=$y, w=$w, h=$h "
+  printf "%s\n" "  decoration=(${deco[@]})"
+}
+
+print_window_initial_info ()
+{
+  msg2 "Screen variables"
+  # printf "  $(window_info_get $@ | window_info_sed)\n"
+  printf "  screen_height=%s\n" "${screen_height}"
+  printf "  screen_width=%s\n" "${screen_width}"
+  printf "  upper=%s\n" "${upper}"
+  printf "  height_half=%s\n" "${height_half}"
+}
+
+print_debbugging_info ()
+{
+  msg "Debug Info"
+  print_summary_info "$1"
+  print_relevant_info "$1"
+  print_geometry_info "$@"
+  # print_window_initial_info "$@"
+}
+
+### FUNCTION MAIN
+
+main ()
+{
+  # declare variables, including: window_initial_geometry
+  declare_variables
+  declare_geometry_array
+  # user desired final window geometry to set at the end of this script
+  final_geometry="$1"
+  # declare variable snap_geometry
+  snap_geometry="$(geometry_check_if_snap ${window_initial_geometry})"
+  # when snap_geometry is a list of numbers separated by comma,
+  # or window_class_name is 'XTerm' or 'Terminal', move without snap:
+  if [[ "${snap_geometry}" =~ ^-?[0-9,]+$ ]] \
+       || [[ "${window_class_name}" =~ ([Xx]*[Tt]erm[inal]*) ]]; then
+    # move window in the snap geometry, using the argument "$1":
+    #  upper_{left,right}, bottom_{left,right}, left, right, up, bottom
+    msg2 "move_window $1=${geometry[$final_geometry]}"
+    move_window "${geometry[$final_geometry]}"
+  else
+    # if snap_geometry is a string, use the function for window snapping
+    msg2 "move_window_by_snapping $1=${geometry[$1]}"
+    move_window_by_snapping
+  fi
+  # print_debbugging_info "$@"
+}
+
+main "$@"

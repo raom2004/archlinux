@@ -1,0 +1,73 @@
+#!/bin/bash
+# this script takes a screenshot and save it in the folder '~/Pictures/screenshots'
+
+# usage:
+#  The script can be called, like this:
+#   $ screenshot
+#   No argument: capture a screenshot into jpeg image and save it
+#  
+#   $ screenshot <gimp>
+#   With argument: Specifiying an image editor to immediatly open the screenshot
+
+### CODE:
+
+
+### Function declaration
+
+#~ function to set a working directory for this script
+set_working_directory ()
+{
+  mkdir -p $HOME/Pictures/screenshots
+  cd $HOME/Pictures/screenshots
+}
+
+#~ function to generate a filenames and avoid to overwrite previous names if exists 
+generate_screenshot_file_name ()
+{
+  # if previous screenshot exists, sort it according to version (sort -V),
+  #  take the latest file (tail -n 1), use sed to extract
+  #  the version number, and finally
+  #  create a new subsequent screenshot: number=$((number+1))
+  if ls screenshot_[0-9]*.png >& /dev/null; then
+    eval $(ls screenshot_*.png | sort -V | tail -n 1 | sed 's|\(screenshot_\)\([0-9]\{1,\}\)\(.png\)|number=$((\2+1))|')
+  else
+    # if no previous file exist,
+    number=1
+  fi
+  # create a new file called 'screenshot_1.jpg'
+  printf "screenshot_%d.png" "${number}"
+}
+
+#~ function to take a screenshot using the variable '$file_name'
+take_screenshot ()
+{
+  gnome-screenshot -f "${file_name}"
+}
+
+#~ function to open the default file manager and show the working directory content
+open_screenshot_in_system_file_manager ()
+{
+  if ! wmctrl -l | grep 'screenshots$' &> /dev/null; then
+    eval $(xdg-mime query default inode/directory | sed 's/\(.desktop\)//') &
+  fi
+}
+
+open_screenshot_in_image_editor ()
+{
+  if [[ $# -eq 1 ]]; then
+    eval "$1 ${file_name}" &
+  fi
+}
+
+main ()
+{
+  set_working_directory
+  file_name=$(generate_screenshot_file_name)
+  take_screenshot
+  if [[ $# -eq 1 ]]; then 
+    open_screenshot_in_image_editor "$1"
+    open_screenshot_in_system_file_manager
+  fi
+}
+
+if [[ $# -eq 1 ]]; then  main "$1"; else main; fi
