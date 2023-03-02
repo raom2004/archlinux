@@ -389,7 +389,7 @@ if find /mnt/home/"${user_name}" -maxdepth 1 -type f -name ".*"; then
     find /mnt/home/"${user_name}"/*/ -maxdepth 0 -type d \
      -not -path "/mnt/home/${user_name}/Documents/*" \
      -not -path "/mnt/home/${user_name}/Pictures/*" \
-     -not -path "/mnt/home/${user_name}/Videos/*" | xargs rm || die
+     -not -path "/mnt/home/${user_name}/Videos/*" | xargs rm -rf || die
     printf " --> Deleting pre existent folders \n\n"
     rm -rf /mnt/{bin,boot,dev,etc,lib,lib64,opt,run,sbin,srv,tmp,usr,var} || die
   fi
