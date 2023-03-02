@@ -82,10 +82,11 @@ rc_file=~/.config/openbox/rc.xml || die
 #     sed -i 's|<strength>10<|<strength>200<|g' "${rc_file}" || die
 #     cat "${rc_file}" | grep '<strength>' || die
 # fi
-if cat "${rc_file}" | grep '<screen_edge_strength>20<'; then
-    sed -i 's|<screen_edge_strength>20<|<screen_edge_strength>200<|g' "${rc_file}" || die
-    cat "${rc_file}" | grep '<strength>' || die
-fi
+
+# if cat "${rc_file}" | grep '<screen_edge_strength>20<'; then
+#     sed -i 's|<screen_edge_strength>20<|<screen_edge_strength>200<|g' "${rc_file}" || die
+#     cat "${rc_file}" | grep '<strength>' || die
+# fi
 ############################################################
 ## set key bindings to change desktop: like in x monad
 #  final result:
@@ -95,10 +96,10 @@ fi
 #   W-4: change to desktop 4
 #
 ## set keybinding W-F- to only W-
-if cat "${rc_file}" | grep '<keybind key="W-F'; then
-    sed -i 's|<keybind key="W-F|<keybind key="W-|g' "${rc_file}" || die
-    cat "${rc_file}" | grep '<keybind key="W-' || die
-fi
+# if cat "${rc_file}" | grep '<keybind key="W-F'; then
+#     sed -i 's|<keybind key="W-F|<keybind key="W-|g' "${rc_file}" || die
+#     cat "${rc_file}" | grep '<keybind key="W-' || die
+# fi
 
 ## set key bindings to move windows between desktops: like in xmonad
 #  final result:
@@ -203,7 +204,6 @@ echo '  <!-- screenshot key bindings -->
 # Webbrowser
 echo '
 <!-- Keybindings for running applications -->
-
   <!-- run webbrowser -->
   <keybind key="W-r">
     <action name="Execute">
@@ -309,6 +309,12 @@ echo '  <!--  program launcher key bindings -->
       <name>Run App with ARGUMENTS</name>
       <command>dmenu_run</command>
     </action>
+  </keybind>
+  <keybind key="W-o">
+    <action name="Execute">
+      <name>obs</name>
+      <command>obs</command>
+    </action>
   </keybind>' >> /tmp/add.txt || die
 ############################################################
 # Power System 
@@ -354,13 +360,17 @@ echo '  <!--  power system keybindings -->
     <action name="Execute">
       <startupnotify>
         <enabled>true</enabled>
-        <name>reboot</name>
+        <name>restart openbox WITHOUT reboot</name>
       </startupnotify>
       <command>sh -c "bash ~/Projects/archlinux/desktop/openbox/shortcuts-openbox.sh; openbox --restart"</command>
     </action>
   </keybind>
   <keybind key="W-q">
     <action name="Execute">
+      <startupnotify>
+        <enabled>true</enabled>
+        <name>restart openbox and reboot</name>
+      </startupnotify>
       <command>sh -c "bash ~/Projects/archlinux/desktop/openbox/shortcuts-openbox.sh; ps | grep audacious &amp;> /dev/null &amp;&amp; audacious --pause | pkill audacious; ps | grep emacs &amp;> /dev/null &amp;&amp; pkill emacs; killall -SIGUSR1 tint2; openbox --exit"</command>
     </action>
   </keybind>' >> /tmp/add.txt || die
@@ -579,12 +589,78 @@ echo '<!-- keyboard backlight key bindings -->
 
 
 ############################################################
+## openbox native Window movement
+# echo '<!-- openbox native window movement key bindings -->
+#   <keybind key="C-S-Down">
+#     <action name="ResizeRelative"><bottom>1</bottom></action>
+#   </keybind>
+#   <keybind key="C-S-Up">
+#     <action name="ResizeRelative"><bottom>-1</bottom></action>
+#   </keybind>
+#   <keybind key="C-S-Right">
+#     <action name="ResizeRelative"><right>1</right></action>
+#   </keybind>
+#   <keybind key="C-S-Left">
+#     <action name="ResizeRelative"><right>-1</right></action>
+#   </keybind>' >> /tmp/add.txt || die
+
+# echo '<!-- openbox native window movement key bindings -->
+#   <keybind key="C-S-Down">
+#     <action name="MoveResizeTo"><width client="yes">1/2</width></action>
+#   </keybind>
+#   <keybind key="C-S-Up">
+#     <action name="MoveResizeTo"><height client="yes">1/2</height></action>
+#   </keybind>
+#   <keybind key="C-S-Right">
+#     <action name="MoveResizeTo"><x>-0</x></action>
+#   </keybind>
+#   <keybind key="C-S-Left">
+#     <action name="MoveResizeTo"><y>-0</y></action>
+#   </keybind>' >> /tmp/add.txt || die
+
+# echo '<!-- openbox native window movement key bindings -->
+#   <keybind key="C-S-Down">
+#     <action name="Resize"><edge>bottom</edge></action>
+#   </keybind>
+#   <keybind key="C-S-Up">
+#     <action name="Resize"><edge>top</edge></action>
+#   </keybind>
+#   <keybind key="C-S-Right">
+#     <action name="Resize"><edge>right</edge></action>
+#   </keybind>
+#   <keybind key="C-S-Left">
+#     <action name="Resize"><edge>left</edge></action>
+#   </keybind>' >> /tmp/add.txt || die
+
+# echo '<!-- openbox native window movement key bindings -->
+#   <keybind key="C-S-Up">
+#     <action name="GrowToEdge"><direction>north</direction></action>
+#   </keybind>
+#   <keybind key="C-S-Down">
+#     <action name="GrowToEdge"><direction>south</direction></action>
+#   </keybind>
+#   <keybind key="C-S-Left">
+#     <action name="GrowToEdge"><direction>east</direction></action>
+#   </keybind>
+#   <keybind key="C-S-Right">
+#     <action name="GrowToEdge"><direction>west</direction></action>
+#   </keybind>' >> /tmp/add.txt || die
+
 ## Window movement
 echo '<!-- Window Movement key bindings -->
-<!-- Window Movement key bindings -->
   <keybind key="W-Up">
-    <action name="Execute">
-      <command>snap up</command>
+    <action name="If">
+      <query>
+        <maximized>yes</maximized>
+      </query>
+      <then>
+        <action name="ToggleMaximize"/>
+      </then>
+      <else>
+        <action name="Execute">
+          <command>snap up</command>
+        </action>
+      </else>
     </action>
   </keybind>
   <keybind key="W-Down">
@@ -602,26 +678,49 @@ echo '<!-- Window Movement key bindings -->
       <command>snap right</command>
     </action>
   </keybind>
-    <keybind key="W-6">
-    <action name="Execute">
-      <command>snap upper_left</command>
-    </action>
-  </keybind>
-  <keybind key="W-7">
-    <action name="Execute">
-      <command>snap upper_right</command>
-    </action>
-  </keybind>
-  <keybind key="W-8">
-    <action name="Execute">
-      <command>snap bottom_left</command>
-    </action>
-  </keybind>
-  <keybind key="W-9">
-    <action name="Execute">
-      <command>snap bottom_right</command>
-    </action>
-  </keybind>' >> /tmp/add.txt || die
+' >> /tmp/add.txt || die
+# echo '<!-- Window Movement key bindings -->
+# <!-- Window Movement key bindings -->
+#   <keybind key="W-Up">
+#     <action name="Execute">
+#       <command>snap up</command>
+#     </action>
+#   </keybind>
+#   <keybind key="W-Down">
+#     <action name="Execute">
+#       <command>snap bottom</command>
+#     </action>
+#   </keybind>
+#   <keybind key="W-Left">
+#     <action name="Execute">
+#       <command>snap left</command>
+#     </action>
+#   </keybind>
+#   <keybind key="W-Right">
+#     <action name="Execute">
+#       <command>snap right</command>
+#     </action>
+#   </keybind>
+#     <keybind key="W-6">
+#     <action name="Execute">
+#       <command>snap upper_left</command>
+#     </action>
+#   </keybind>
+#   <keybind key="W-7">
+#     <action name="Execute">
+#       <command>snap upper_right</command>
+#     </action>
+#   </keybind>
+#   <keybind key="W-8">
+#     <action name="Execute">
+#       <command>snap bottom_left</command>
+#     </action>
+#   </keybind>
+#   <keybind key="W-9">
+#     <action name="Execute">
+#       <command>snap bottom_right</command>
+#     </action>
+#   </keybind>' >> /tmp/add.txt || die
 # echo '<!-- Window Movement key bindings -->
 #   <keybind key="W-Up">
 #     <action name="MoveToEdgeNorth"/>
@@ -781,8 +880,44 @@ echo '
 </keybind>
 ' >> /tmp/add.txt
 
+## Window maximize, using wmctrl
 echo '
-<!-- Window Tiling: 3x3-->
+<!-- Window maximize, using wmctrl-->
+<keybind key="C-F11">
+    <action name="ToggleMaximize">
+      <direction>vertical</direction>
+    </action>
+</keybind>
+<keybind key="A-F11">
+    <action name="ToggleMaximize">
+      <direction>horizontal</direction>
+    </action>
+</keybind>
+' >> /tmp/add.txt
+
+# echo '
+# <!-- Window maximize, using wmctrl-->
+# <keybind key="C-F11">
+#     <action name="Execute">
+#       <startupnotify>
+#         <enabled>true</enabled>
+#         <name>maximize vertically</name>
+#       </startupnotify>
+#       <command>sh -c "wmctrl -r :ACTIVE: -b toggle,mazimized_vert"</command>
+#     </action>
+# </keybind>
+# <keybind key="A-F11">
+#     <action name="Execute">
+#       <startupnotify>
+#         <enabled>true</enabled>
+#         <name>maximize horizontally</name>
+#       </startupnotify>
+#       <command>sh -c "wmctrl -r :ACTIVE: -b toggle,mazimized_vert"</action>
+# </keybind>
+# ' >> /tmp/add.txt
+
+## Window movement like tiling, in a grid of 3x3: Asymmetric
+echo '<!-- Window Tiling: 3x3 Symmetric-->
 <keybind key="W-F1">
     <action name="Execute">
       <startupnotify>
@@ -889,6 +1024,86 @@ echo '
         <name>tiling double right</name>
       </startupnotify>
       <command>rasize two_third_upper_right</command>
+    </action>
+</keybind>
+' >> /tmp/add.txt
+
+echo '<!-- Window Tiling: 2x2 symmetric-->
+<keybind key="W-1">
+  <action name="Execute">
+    <command>snap upper_left</command>
+  </action>
+</keybind>
+<keybind key="W-2">
+  <action name="Execute">
+    <command>snap upper_right</command>
+  </action>
+</keybind>
+<keybind key="W-3">
+  <action name="Execute">
+    <command>snap bottom_left</command>
+  </action>
+</keybind>
+<keybind key="W-4">
+  <action name="Execute">
+    <command>snap bottom_right</command>
+  </action>
+</keybind>
+' >> /tmp/add.txt
+
+echo '<!-- Window Tiling: 3x3 Asymetric-->
+<keybind key="W-5">
+    <action name="Execute">
+      <startupnotify>
+        <enabled>true</enabled>
+        <name>double upper left</name>
+      </startupnotify>
+      <command>rasize asym_double_upper_left</command>
+    </action>
+</keybind>
+<keybind key="W-6">
+    <action name="Execute">
+      <startupnotify>
+        <enabled>true</enabled>
+        <name>double bottom left</name>
+      </startupnotify>
+      <command>rasize asym_double_bottom_left</command>
+    </action>
+</keybind>
+<keybind key="W-7">
+    <action name="Execute">
+      <startupnotify>
+        <enabled>true</enabled>
+        <name>tiling upper left</name>
+      </startupnotify>
+      <command>rasize asym_upper_left</command>
+    </action>
+</keybind>
+<keybind key="W-8">
+    <action name="Execute">
+      <startupnotify>
+        <enabled>true</enabled>
+        <name>tiling upper right</name>
+      </startupnotify>
+      <command>rasize asym_upper_right</command>
+    </action>
+</keybind>
+<keybind key="W-9">
+    <action name="Execute">
+      <startupnotify>
+        <enabled>true</enabled>
+        <name>tiling bottom left</name>
+      </startupnotify>
+      <command>rasize asym_bottom_left</command>
+    </action>
+</keybind>
+<keybind key="W-0">
+    <action name="Execute">
+      <startupnotify>
+        <enabled>true</enabled>
+        <name>tiling bottom right</name>
+      </startupnotify>
+      <command>rasize asym_bottom_right</command>
     </action>
 </keybind>
 ' >> /tmp/add.txt
@@ -1230,7 +1445,7 @@ echo '
         # </action>
 
 
-# TODO
+# TODO (solved temporarily by other method)
 # remap key XF86Eject to delete
 # xmodmap -pke > ~/.Xmodmap
 # complementary material
@@ -1444,3 +1659,5 @@ echo '
 sed -i '/<!-- Keybindings for window switching with the arrow keys -->/r /tmp/add.txt' ~/.config/openbox/rc.xml || die
 ## delete unnecessary line
 sed -i '279,280d' ~/.config/openbox/rc.xml || die
+## delete unnecessary lines about W-F{1..4} keybindings
+sed -i '220,231d' ~/.config/openbox/rc.xml || die
