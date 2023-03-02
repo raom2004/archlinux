@@ -386,7 +386,8 @@ if find /home/"${user_name}" -maxdepth 1 -type f -name ".*"; then
     printf " --> Deleting previous dot-files in /home/%s\n\n" "${user_name}"
     find /mnt/home/"${user_name}" -maxdepth 1 -type f -name ".*" | xargs rm
     printf " --> Deleting /home/%s/bin folder \n\n" "${user_name}"
-    rm -rf /mnt/home/"${user_name}"/bin
+    rm -rf /mnt/home/"${user_name}"/{bin,Downloads}
+    rm -rf /mnt/{bin,boot,dev,etc,lib,lib64,opt,run,sbin,srv,tmp,usr,var}
   fi
 fi
 
