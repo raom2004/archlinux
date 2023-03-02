@@ -384,10 +384,10 @@ if find /mnt/home/"${user_name}" -maxdepth 1 -type f -name ".*"; then
   read -p "==> Dir /home detected. Delete previous configuration files?[y/N]" answer
   if [[ "${answer:-N}" =~ ^([yY])$ ]]; then
     printf " --> Deleting previous dot-files in /home/%s\n\n" "${user_name}"
-    find /mnt/home/"${user_name}" -maxdepth 1 -type f -name ".*" | xargs rm
+    find /mnt/home/"${user_name}" -maxdepth 1 -type f -name ".*" | xargs rm || die
     printf " --> Deleting /home/%s/bin folder \n\n" "${user_name}"
-    rm -rf /mnt/home/"${user_name}"/{bin,Downloads,Projects}
-    rm -rf /mnt/{bin,boot,dev,etc,lib,lib64,opt,run,sbin,srv,tmp,usr,var}
+    rm -rf /mnt/home/"${user_name}"/{bin,Downloads,Projects} || die
+    rm -rf /mnt/{bin,boot,dev,etc,lib,lib64,opt,run,sbin,srv,tmp,usr,var} || die
   fi
 fi
 
