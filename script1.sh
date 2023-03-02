@@ -378,7 +378,17 @@ mount /dev/sdb1 /mnt/home || die
 
 # show result
 (lsblk && sleep 3)
-
+# if previous /home dot-files exists, ask to delete them
+if find /home/"${user_name}" -maxdepth 1 -type f -name ".*"; then
+  printf "\n"
+  read -p "==> Old configuration files detected in /home. Delete it?[y/N]" answer
+  if [[ "${answer:-N}" =~ ^([yY])$ ]]; then
+    printf " --> Deleting previous dot-files in /home/%s\n\n" "${user_name}"
+    find /mnt/home/"${user_name}" -maxdepth 1 -type f -name ".*" | xargs rm
+    printf " --> Deleting /home/%s/bin folder \n\n" "${user_name}"
+    rm rf /mnt/home/"${user_name}"/bin
+  fi
+fi
 
 ### REQUIREMENTS BEFORE SYSTEM PACKAGES INSTALLATION
 
