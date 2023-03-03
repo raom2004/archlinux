@@ -358,7 +358,7 @@ if [[ "${answer:-N}" =~ ^([yY])$ ]]; then
   mkfs.ext4 -F /dev/sdb1 || die
 else
   unset answer
-  read -p "==> Do you want to format /dev/sdb1?[y/N]" answer
+  read -p "==> Do you want to format /dev/sdb1 (aka /home)?[y/N]" answer
   if [[ "${answer:-N}" =~ ^([yY])$ ]]; then
     printf " --> Formatting /dev/sdb\n\n"
     mkfs.ext4 -F /dev/sdb1 || die
