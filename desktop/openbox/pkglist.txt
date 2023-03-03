@@ -23,3 +23,4 @@ pasystray
 polkit-gnome
 wmctrl
 gnome-screenshot
+xfce4-terminal
