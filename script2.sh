@@ -90,14 +90,13 @@ function extract {
 # Requirements: None
 ########################################
 
-function autostart_x_at_login {
+autostart_x_at_login () {
   for file in $HOME/.{bash_profile,zprofile}; do
-    if [[ -f "${file}" ]]; then
-      echo '
+    if [[ ! -f "${file}" ]]; then touch "${file}"; fi
+    echo '
 if [ -z "${DISPLAY}" ] && [ "${XDG_VTNR}" -eq 1 ]; then
   exec startx
 fi' >> "${file}" || die
-    fi
   done
 }
 
