@@ -234,7 +234,7 @@ elif ! pacman -S --needed --noconfirm dmidecode; then
   echo "ERROR: can not install required package dmidecode"
   exit
 else
-  read -p "Running $0. Do you want to INSTALL archlinux?[y/N]" answer
+  read -p "Running $0. Do you want to INSTALL archlinux?[Y/n]" answer
   [[ "${answer:-N}" =~ ^([nN])$ ]] && echo "Quit.." | exit 0
   unset answer
 fi
