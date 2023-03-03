@@ -100,7 +100,8 @@ done
 sudo pacman -Syu --needed --noconfirm \
      xf86-input-synaptics \
      xorg-xwininfo \
-     menumaker
+     menumaker \
+     xfce4-terminal
 
 ## Audio: unmute and set volume
 
