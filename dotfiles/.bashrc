@@ -95,11 +95,9 @@ my_git_config
 
 ## python: virtualenv config
 # set PATH for virtualenvwrapper.sh
-str="$(which virtualenvwrapper.sh)"
-export PATH="${str%/*}":$PATH
+export PATH="$HOME/.local/bin:$PATH"
 export WORKON_HOME=$HOME/.virtualenvs
-source "${str%/*}"/virtualenvwrapper.sh
-unset str
+source $HOME/.local/bin/virtualenvwrapper.sh
 
 
 # emacs:
