@@ -390,8 +390,8 @@ if find /mnt/home/"${user_name}" -maxdepth 1 -type f -name ".*"; then
      -not -path "/mnt/home/${user_name}/Documents/*" \
      -not -path "/mnt/home/${user_name}/Pictures/*" \
      -not -path "/mnt/home/${user_name}/Videos/*" | xargs rm -rf || die
-    printf " --> Deleting 'dot-files' in /home/%s\n\n" "${user_name}"
-    find /home/"${user_name}"/ -maxdepth 1 -type d -name ".*" \
+    printf " --> Deleting 'dot-file folders' in /home/%s\n\n" "${user_name}"
+    find /mnt/home/"${user_name}"/ -maxdepth 1 -type d -name ".*" \
       | xargs rm -rf \
       || die
     printf " --> Deleting 'folders' in / \n\n"
