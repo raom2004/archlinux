@@ -521,7 +521,7 @@ if [[ "${install_desktop}" =~ ^([yY])$ ]]; then
   # data_dir="$(dirname $(realpath $0))/${system_desktop}"
   # readarray -t DesktopPkg < "${data_dir}"/pkglist.txt
   readarray -t DesktopPkg < ./desktop/"${system_desktop}"/pkglist.txt
-  Packages+=(${DesktopPkg[@]})
+  Packages+=("${DesktopPkg[@]}")
 fi
 
 ## System Packages Installation
@@ -562,6 +562,10 @@ cp ./script2.sh /mnt/home || die
 arch-chroot /mnt bash /home/script2.sh || die
 # remove script2.sh after finish
 rm /mnt/home/script2.sh || die
+# python support for virtualenv
+# arch-chroot -u "${user_name}" /mnt bash -c "HOME=/home/${user_name};\
+# mkdir -p $HOME/.virtualenvs && cd $HOME/.virtualenvs;\
+# pip install virtualenv virtualenvwrapper" || die
 
 
 ### DOTFILES

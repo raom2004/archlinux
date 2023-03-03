@@ -633,10 +633,10 @@ git clone https://github.com/raom2004/dot-emacs || die
 
 
 ### python support for virtualenv
-mkdir -p $HOME/.virtualenv || die 
-cd $HOME/.virtualenv || die 
-pip install virtualenv || die
-pip install virtualenvwrapper || die
+mkdir -p $HOME/.virtualenvs && cd $HOME/.virtualenvs
+# install dependencies as user
+sudo --user="${user_name}" pip install virtualenv virtualenvwrapper \
+  || die
 
 
 ### show final message and exit
