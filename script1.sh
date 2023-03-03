@@ -523,7 +523,9 @@ if [[ "${install_desktop}" =~ ^([yY])$ ]]; then
   # readarray -t DesktopPkg < "${data_dir}"/pkglist.txt
   readarray -t DesktopPkg < ./desktop/"${system_desktop}"/pkglist.txt
   Packages+=("${DesktopPkg[@]}")
-  printf "%s\n" "${Packages[@]}" | grep terminal | sleep 5
+  printf "%s\n" "${Packages[@]}" | grep terminal
+  read -p "==> Packages to install. Continue?[Y/n]" answer
+  if [[ "${answer:-Y}" =~ ^([nN])$ ]]; then die; fi
 fi
 
 ## System Packages Installation
