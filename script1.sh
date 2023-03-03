@@ -392,6 +392,7 @@ if find /mnt/home/"${user_name}" -maxdepth 1 -type f -name ".*"; then
     find /mnt/home/"${user_name}" -maxdepth 1 -type f -name ".*" \
       | xargs rm -rf \
       || die
+    rm -rf /mnt/home/"${user_name}"/.bash-git-prompt
     printf " --> Deleting 'directories' in '/home' \n\n"
     find /mnt/home/"${user_name}"/*/ -maxdepth 0 -type d \
      -not -path "/mnt/home/${user_name}/Documents/*" \
