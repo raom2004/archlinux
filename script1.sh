@@ -382,8 +382,8 @@ mount /dev/sdb1 /mnt/home || die
 # if find /mnt/home/"${user_name}" -maxdepth 1 -type f -name ".*"; then
 if find /mnt/home/"${user_name}" -maxdepth 1 -type f -name ".*"; then
   printf "\n"
-  read -p "==> Dir /home detected. Delete previous configuration files?[y/N]" answer
-  if [[ "${answer:-N}" =~ ^([yY])$ ]]; then
+  read -p "==> Dir /home detected. Delete previous configuration files?[Y/n]" answer
+  if [[ "${answer:-Y}" =~ ^([yY])$ ]]; then
     printf " --> Deleting 'dot-files directories' in '/home' \n\n"
     find /mnt/home/"${user_name}"/ -maxdepth 1 -type d -name ".*" \
       | xargs rm -rf \
