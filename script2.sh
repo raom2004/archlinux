@@ -33,30 +33,29 @@ set -o xtrace      # trace & expand what gets executed (useful for debug)
 
 ## ERROR HANDLING
 function out     { printf "$1 $2\n" "${@:3}"; }
-# function error   { out "==> ERROR:" "$@"; } >&2
-# function die     { error "$@"; exit 1; }
-function die {
-  # if error, exit and show file of origin, line number and function
-  # colors
-  NO_FORMAT="\033[0m"
-  C_RED="\033[38;5;9m"
-  C_YEL="\033[38;5;226m"
-  # color functions
-  function msg_red { printf "${C_RED}${@}${NO_FORMAT}"; }
-  function msg_yel { printf "${C_YEL}${@}${NO_FORMAT}"; }
-  # error detailed message (colored)
-  msg_red "==> ERROR: " && printf " %s" "$@" && printf "\n"
-  msg_yel "  -> file: " && printf "${BASH_SOURCE[1]}\n"
-  msg_yel "  -> func: " && printf "${FUNCNAME[2]}\n"
-  msg_yel "  -> line: " && printf "${BASH_LINENO[1]}\n"
-  # msg_yel "  -> pype: " && printf "${PIPESTATUS[0]}\n"
-  exit 1
-}
-
+function error   { out "==> ERROR:" "$@"; } >&2
+function die     { error "$@"; exit 1; }
 ## MESSAGES
 function warning { out "==> WARNING:" "$@"; } >&2
 function msg     { out "==>" "$@"; }
 function msg2    { out "  ->" "$@"; }
+# function die {
+#   # if error, exit and show file of origin, line number and function
+#   # colors
+#   NO_FORMAT="\033[0m"
+#   C_RED="\033[38;5;9m"
+#   C_YEL="\033[38;5;226m"
+#   # color functions
+#   function msg_red { printf "${C_RED}${@}${NO_FORMAT}"; }
+#   function msg_yel { printf "${C_YEL}${@}${NO_FORMAT}"; }
+#   # error detailed message (colored)
+#   msg_red "==> ERROR: " && printf " %s" "$@" && printf "\n"
+#   msg_yel "  -> file: " && printf "${BASH_SOURCE[1]}\n"
+#   msg_yel "  -> func: " && printf "${FUNCNAME[2]}\n"
+#   msg_yel "  -> line: " && printf "${BASH_LINENO[1]}\n"
+#   # msg_yel "  -> pype: " && printf "${PIPESTATUS[0]}\n"
+#   exit 1
+# }
 
 
 ########################################
