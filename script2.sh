@@ -49,6 +49,7 @@ function die {
   msg_yel "  -> file: " && printf "${BASH_SOURCE[1]}\n"
   msg_yel "  -> func: " && printf "${FUNCNAME[2]}\n"
   msg_yel "  -> line: " && printf "${BASH_LINENO[1]}\n"
+  # msg_yel "  -> pype: " && printf "${PIPESTATUS[0]}\n"
   exit 1
 }
 
@@ -91,7 +92,7 @@ function extract {
 ########################################
 
 function autostart_x_at_login {
-  for file in ~/.{bash_profile,zprofile}; do
+  for file in $HOME/.{bash_profile,zprofile}; do
     if [[ -f "${file}" ]]; then
       echo '
 if [ -z "${DISPLAY}" ] && [ "${XDG_VTNR}" -eq 1 ]; then
