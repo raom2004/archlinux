@@ -378,9 +378,10 @@ mount /dev/sdb1 /mnt/home || die
 
 # show result
 (lsblk && sleep 3)
+
 # if previous /home dot-files exists, ask to delete them
 # if find /mnt/home/"${user_name}" -maxdepth 1 -type f -name ".*"; then
-if find /mnt/home/"${user_name}" -maxdepth 1 -type f -name ".*"; then
+while find /mnt/home/"${user_name}" -maxdepth 1 -type f -name ".*"; do
   printf "\n"
   read -p "==> Dir /home detected. Delete previous configuration files?[Y/n]" answer
   if [[ "${answer:-Y}" =~ ^([yY])$ ]]; then
@@ -405,8 +406,8 @@ if find /mnt/home/"${user_name}" -maxdepth 1 -type f -name ".*"; then
        /mnt/{bin,boot,dev,etc,lib,lib64,opt,run,sbin,srv,tmp,usr,var} \
       || die
   fi
-fi
-
+done
+exit
 ### REQUIREMENTS BEFORE SYSTEM PACKAGES INSTALLATION
 
 ## record packages installation time

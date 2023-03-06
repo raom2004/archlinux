@@ -188,7 +188,7 @@ echo '  <!-- screenshot key bindings -->
   </keybind>
   <keybind key="W-s">
     <action name="Execute">
-      <command>sh -c "screenshot"</command>
+      <command>screenshot</command>
     </action>
   </keybind>' >> /tmp/add.txt || die
 ############################################################
