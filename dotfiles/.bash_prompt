@@ -3,8 +3,18 @@
 # ~/.bash_prompt
 #
 # Dependencies:
+#  ~/.bash_functions
 #  Git prompt support: https://github.com/magicmonty/bash-git-prompt.git
 #  Customized theme: ~/.git-prompt-colors.sh 
+
+## source dependencies
+my_file=~/.bash_functions
+[[ -r "${my_file}" ]] && [[ -f "${my_file}" ]] && source "${my_file}"
+unset my_file
+
+############################################################
+### CODE HEADER ############################################
+############################################################
 
 ### FUNCTION DECLARATION
 
@@ -36,17 +46,12 @@ PS1="${NCyan}\u${NC}@\h: \w \\$ "
 # source: https://github.com/magicmonty/bash-git-prompt
 if [[ ! -f "$HOME/.bash-git-prompt/gitprompt.sh" ]]; then
   echo "Download bash-git-prompt requires internet connection."
-  until [[ "${internet_available:-N}" =~ ^(y)$ ]]; do
-    sleep 3
-    if ! wget -q --spider http://google.com; then
-      echo "Internet not available. Try to connect again.."
-    else
-      echo "Internet connection detected."
-      internet_available='y'
-    fi
-  done
-  unset internet_available
-  git clone https://github.com/magicmonty/bash-git-prompt.git ~/.bash-git-prompt --depth=1
+  # give it time to connect to internet
+  sleep 5
+  # if not internet connection, ask to stablish a new one by wifi
+  iwctl_connect_wifi # sourced from ~/.functions
+  git clone https://github.com/magicmonty/bash-git-prompt.git \
+      ~/.bash-git-prompt --depth=1
 fi
 
 if [[ -f "$HOME/.bash-git-prompt/gitprompt.sh" ]]; then

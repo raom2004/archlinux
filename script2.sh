@@ -11,8 +11,7 @@
 #
 ### CODE:
 
-### BASH SCRIPT FLAGS FOR SECURITY AND DEBUGGING
-
+### BASH SCRIPT FLAGS FOR SECURITY AND DEBUGGING ###########
 # shopt -o noclobber # avoid file overwriting (>) but can be forced (>|)
 set +o history     # disably bash history temporarilly
 set -o errtrace    # inherit any trap on ERROR
@@ -22,47 +21,21 @@ set -o nounset     # EXIT if script try to use undeclared variables
 set -o pipefail    # CATCH failed piped commands
 set -o xtrace      # trace & expand what gets executed (useful for debug)
 
-
+############################################################
 ### DECLARE FUNCTIONS
+############################################################
 
+## ERROR HANDLING | Usage: die <command> ###################
+out () { printf "$1 $2\n" "${@:3}"; }
+error () { out "==> ERROR:" "$@"; } >&2
+die () { error "$@"; exit 1; }
+# Messages
+warning () { out "==> WARNING:" "$@"; } >&2
+msg () { out "==>" "$@"; }
+msg2 () { out "  ->" "$@"; }
 
-########################################
-# Purpose: ERROR HANDLING
+## Purpose: extract compressed files #######################
 # Requirements: None
-########################################
-
-## ERROR HANDLING
-function out     { printf "$1 $2\n" "${@:3}"; }
-function error   { out "==> ERROR:" "$@"; } >&2
-function die     { error "$@"; exit 1; }
-## MESSAGES
-function warning { out "==> WARNING:" "$@"; } >&2
-function msg     { out "==>" "$@"; }
-function msg2    { out "  ->" "$@"; }
-# function die {
-#   # if error, exit and show file of origin, line number and function
-#   # colors
-#   NO_FORMAT="\033[0m"
-#   C_RED="\033[38;5;9m"
-#   C_YEL="\033[38;5;226m"
-#   # color functions
-#   function msg_red { printf "${C_RED}${@}${NO_FORMAT}"; }
-#   function msg_yel { printf "${C_YEL}${@}${NO_FORMAT}"; }
-#   # error detailed message (colored)
-#   msg_red "==> ERROR: " && printf " %s" "$@" && printf "\n"
-#   msg_yel "  -> file: " && printf "${BASH_SOURCE[1]}\n"
-#   msg_yel "  -> func: " && printf "${FUNCNAME[2]}\n"
-#   msg_yel "  -> line: " && printf "${BASH_LINENO[1]}\n"
-#   # msg_yel "  -> pype: " && printf "${PIPESTATUS[0]}\n"
-#   exit 1
-# }
-
-
-########################################
-# Purpose: extract compressed files
-# Requirements: None
-########################################
-
 function extract {
   if [[ -f "$1" ]]; then
     case "$1" in
@@ -84,12 +57,8 @@ function extract {
   fi
 }
 
-
-########################################
-# Purpose: autostart x at login
+## Purpose: autostart x at login ###########################
 # Requirements: None
-########################################
-
 autostart_x_at_login () {
   for file in $HOME/.{bash_profile,zprofile}; do
     if [[ ! -f "${file}" ]]; then touch "${file}"; fi
@@ -100,44 +69,37 @@ fi' >> "${file}" || die
   done
 }
 
-
-### Requirements: check priviledges
-
-
+### Requirements: check priviledges ########################
 if [[ "$EUID" -ne 0 ]]; then
   echo "error: run ./$0 require root priviledges" || die
   exit
 fi
 
+############################################################
+### MAIN CODE ##############################################
+############################################################
 
 ### TIME CONFIGURATION 
-
-
 ln -sf /usr/share/zoneinfo"${local_time}" /etc/localtime || die
 hwclock --systohc || die
 
-
 ### LANGUAGE CONFIGURATION
-
-
 ## generate LOCALE with support for: us, gb, dk, es, de
-sed -i 's/#\(en_US.UTF-8\)/\1/' /etc/locale.gen || die
-sed -i 's/#\(en_GB.UTF-8\)/\1/' /etc/locale.gen || die
-sed -i 's/#\(en_DK.UTF-8\)/\1/' /etc/locale.gen || die
-sed -i 's/#\(es_ES.UTF-8\)/\1/' /etc/locale.gen || die
-sed -i 's/#\(de_DE.UTF-8\)/\1/' /etc/locale.gen || die
+for lang in en_US en_GB en_DK es_ES de_DE; do
+  sed -i "s/#\(${lang}.UTF-8\)/\1/" /etc/locale.gen || die
+done
 locale-gen || die
 
 ## Set SYSTEM LOCALE
 # WARNING: some programms name english as "C" instead of "en" or "en_US"
 # set default locale
-echo 'LANG=en_GB.UTF-8'          >  /etc/locale.conf || die
+echo 'LANG=en_GB.UTF-8'           > /etc/locale.conf || die
 # set fallback locales when the first option is not available
 echo 'LANGUAGE=en_GB:en_US:en:C' >> /etc/locale.conf || die
 # set how sorting and regular expressions works
 echo 'LC_COLLATE=C'              >> /etc/locale.conf || die
 # set specific language to display messages
-echo 'LC_MESSAGES=C' >> /etc/locale.conf || die
+echo 'LC_MESSAGES=C'             >> /etc/locale.conf || die
 # set the formatting used for time and date
 echo 'LC_TIME=en_DK.UTF-8'       >> /etc/locale.conf || die
 
@@ -151,20 +113,14 @@ echo 'LC_TIME=en_DK.UTF-8'       >> /etc/locale.conf || die
 echo "KEYMAP=${keyboard_keymap}" > /etc/vconsole.conf || die
 # fi
 
-
 ### Network Configuration
-
-
 echo "${host_name}" > /etc/hostname || die
 echo "127.0.0.1	localhost
 ::1		localhost
 127.0.1.1	${host_name}.localdomain	${host_name}
 " >> /etc/hosts || die
 
-
 ### INIT RAM FILSESYSTEM: initramfs
-
-
 ## Initramfs was run for pacstrap but must be run for LVM, encryp or USB
 # support to boot in removable media (USB stick)
 # if [[ "${drive_removable}" == 'yes' ]]; then
@@ -174,18 +130,14 @@ echo "127.0.0.1	localhost
 #   mkinitcpio -P && msg2 "success mkinitcpio" || die
 # fi
 
-
 ### BOOT LOADER (GRUB) CONFIG
-
 ## Install boot loader GRUB
 # if [[ "${drive_removable}" == 'no' ]]; then
 # grub-install --target=i386-pc "${target_device}" \
-
 # specific for installation git branch ssd
 grub-install --target=i386-pc /dev/sdc \
   && msg2 "Installing grub on $_" \
     || die
-
 # else
 #   grub-install --target=i386-pc --debug --removable "${target_device}" \
 #     && msg2 "Installing grub on $_" \
@@ -221,51 +173,37 @@ chmod a+x /etc/grub.d/31_hold_shift || die
 ## Config a boot loader GRUB
 grub-mkconfig -o /boot/grub/grub.cfg || die
 
-
 ### ACCOUNTS CONFIG
-
 ## sudo requires to turn on "wheel" groups
 sed -i 's/# \(%wheel ALL=(ALL:ALL) ALL\)/\1/g' /etc/sudoers || die
-
 ## set root password
 echo -e "${root_password}\n${root_password}" | (passwd root) || die
-
 ## create new user and set ZSH as shell
 useradd -m "${user_name}" -s "${user_shell}" || die
-
 ## set new user password
 echo -e "${user_password}\n${user_password}" | (passwd $user_name) \
   || die
-
 ## set user groups
 usermod -aG wheel,audio,optical,storage,power,network "${user_name}" \
   || die
 
-
 ### PACMAN PACKAGE MANAGER CUSTOMIZATION
-
 ## turn color on
 sed -i 's/#\(Color\)/\1/' /etc/pacman.conf || die
-
 ## improve compiling time adding processors "nproc"
 sed -i 's/#MAKEFLAGS="-j2"/MAKEFLAGS="-j$(nproc)"/' /etc/makepkg.conf \
   || die
 
-
 ### START SERVICES ON REBOOT
-
 ## enable ethernet and wifi
-systemctl enable dhcpcd	|| die
-systemctl enable NetworkManager || die
-
+systemctl enable dhcpcd.service	|| die
+systemctl enable NetworkManager.service || die
+systemctl enable systemd-networkd.service || die
+systemctl enable iwd.service || die
 ## enable virtualbox if this is a virtual machine
-if [[ "${MACHINE}" == 'VBox' ]]; then
-   systemctl enable vboxservice || die
-fi
-
+[[ "${MACHINE}" == 'VBox' ]] && systemctl enable vboxservice
 
 ### TTY AUTOLOGING AT STARTUP
-
 # create a service to enable autologin
 mkdir -p /etc/systemd/system/getty@tty1.service.d || die
 printf "[Service]
@@ -273,21 +211,14 @@ ExecStart=
 ExecStart=-/sbin/agetty --autologin ${user_name} --noclear %%I $TERM
 " > /etc/systemd/system/getty@tty1.service.d/autologin.conf || die
 
-
 ### CUSTOMIZE SHELL
-
 ## support for command not found
-pacman -S --needed --noconfirm pkgfile || die
-pkgfile -u || die
-
+pacman -S --needed --noconfirm pkgfile && pkgfile -u || die
 
 ### TOUCHPAD
-
 ## install touchpad package 'synaptics' and configure it
-
 # requirement
 pacman -S --needed --noconfirm xf86-input-synaptics
-
 # generate a temporal file with the configuration of taps as clicks:
 # set 1 Tap for left click "1"
 echo '        Option "TapButton1" "1"' > /tmp/synaptics
@@ -295,15 +226,12 @@ echo '        Option "TapButton1" "1"' > /tmp/synaptics
 echo '        Option "TapButton2" "3"' >> /tmp/synaptics
 # set 3 Taps for right click "2"
 echo '        Option "TapButton3" "2"' >> /tmp/synaptics
-
 # insert temporal file content into the synaptics.conf
 #  after the line: MatchIsTouchpad "on"
 sed -i '/MatchIsTouchpad "on"/r /tmp/synaptics' \
     /usr/share/X11/xorg.conf.d/70-synaptics.conf || die
         
-
 ### SCREEN AND KEYBOARD BACKLICHT SCRIPTS
-
 ## script "backlight" to control screen and keyboard
 # WARNING: the idea is to use this script with key bindings to:
 # XF86MonBrightnessUp or XF86KbdBrightnessUp
@@ -390,10 +318,8 @@ mkdir -p /etc/udev/rules.d
 echo "KERNEL==\"${screen_kernel}\", \
 SUBSYSTEM==\"backlight\", \
 RUN+=\"/usr/bin/find ${screen_kernel_path}/ -type f -name brightness -exec chown ${user_name}:${user_name} {} ; -exec chmod 666 {} ;\"" > /etc/udev/rules.d/30-brightness.rules
- 
 
 ### xterm customization script #######################################
-
 echo "#!/bin/bash
 
 set -e
@@ -418,24 +344,16 @@ xterm -rv -fa \"\$font\" -fs \"\$font_size\" \\
 # set execution permission
 chmod +x /usr/local/bin/open_xterm_custom
 
-
 ### USER SYSTEM CUSTOMIZATION ########################################
-
-
 ## set environment variables
 HOME=/home/"${user_name}"
-
 ## create $USER dirs (LC_ALL=C, means everything in English)
-pacman -S --needed --noconfirm xdg-user-dirs \
-  || die
-LC_ALL=C xdg-user-dirs-update --force \
-  || die
-
+pacman -S --needed --noconfirm xdg-user-dirs || die
+LC_ALL=C xdg-user-dirs-update --force || die
 ## Overriding system locale per $USER session
 mkdir -p $HOME/.config || die
-echo 'LANG=es_ES.UTF-8'          > $HOME/.config/locale.conf || die
+echo 'LANG=es_ES.UTF-8'           > $HOME/.config/locale.conf || die
 echo 'LANGUAGE=en_GB:en_US:en:C' >> $HOME/.config/locale.conf || die
-
 ## create dotfiles ".xinitrc" and ".serverrc"
 #   * source: https://wiki.archlinux.org/title/Xinit#xinitrc
 # ~/.xinitrc: create from template
@@ -448,10 +366,8 @@ echo '#!/bin/sh
 exec /usr/bin/Xorg -nolisten tcp -nolisten local "$@" vt$XDG_VTNR
 ' > $HOME/.xserverrc
 
-
 ## if user asked to install a desktop
 if [[ "${install_desktop}" =~ ^([yY])$ ]]; then
-
   ## set Xorg keyboard keymap and filemanager dependency
   # add to keyboard_keymap support for other keymaps: es, at, us
   keymaps=$keyboard_keymap
@@ -468,7 +384,6 @@ if [[ "${install_desktop}" =~ ^([yY])$ ]]; then
 #     Option \"XKbOptions\" \"grp:win_space_toggle\"
 # EndSection" > /etc/X11/xorg.conf.d/90-custom-kbd.conf || die
   # WARNING: keymap can be set in ~/.xinitrc, but in xmonad that FAILED
-
   if [[ "${system_desktop}" == 'openbox' ]]; then
     #~ Contrary to linux desktops, in OPENBOX the
     #~ the filemanager dependency can be set in
@@ -482,8 +397,7 @@ if [[ "${install_desktop}" =~ ^([yY])$ ]]; then
   fi
 
   ## Autostart X at login
-  autostart_x_at_login
-
+  # autostart_x_at_login
   ## configure .xinitrc to start desktop session on startup
   # continue only if .xinitrc NOT HAS a preexistent line:
   #   session=\${1:-${system_desktop}}
@@ -513,13 +427,13 @@ esac
   # mkdir -p "${autostart_path}"/ || die
 
   # set terminal command 'cmd' for every Desktop or Window Manager
-  [[ "${system_desktop}" == 'xfce' ]] && cmd='xfce4-terminal -e'
-  [[ "${system_desktop}" == 'cinnamon' ]] && cmd='gnome-terminal --'
-  [[ "${system_desktop}" == 'openbox' ]] \
-    && cmd="xterm -rv -fa 'Ubuntu Mono' -fs 13 -e "
+  case "${system_desktop}" in
+    xfce) cmd='xfce4-terminal -e'; break;;
+    cinnamon) cmd='gnome-terminal --'; break;;
+    openbox) cmd="xterm -rv -fa 'Ubuntu Mono' -fs 13 -e "; break;;
+  esac
 
   case "${system_desktop}" in
-
     ## AUTOSTART
     # Linux Desktops implement XDG autostarting to start programs on
     # start up, normally creating destop files in a specific location:

@@ -14,9 +14,7 @@
 # 
 ### CODE:
 
-
 ### BASH SCRIPT FLAGS FOR SECURITY AND DEBUGGING ###########
-
 # shopt -o noclobber # file overwriting (>) only if forced (>|)
 set +o history     # disably bash history temporarilly
 set -o errtrace    # inherit any trap on ERROR
@@ -26,49 +24,25 @@ set -o nounset     # EXIT if try to use undeclared variables
 set -o pipefail    # CATCH failed piped commands
 set -o xtrace      # TRACE & EXPAND what gets executed
 
-
+############################################################
 ### DECLARE FUNCTIONS
+############################################################
 
-########################################
-# Purpose: ERROR HANDLING
-# Requirements: None
-########################################
-## ERROR HANDLING
-function out     { printf "$1 $2\n" "${@:3}"; }
-function error   { out "==> ERROR:" "$@"; } >&2
-function die     { error "$@"; exit 1; }
-## MESSAGES
-function warning { out "==> WARNING:" "$@"; } >&2
-function msg     { out "==>" "$@"; }
-function msg2    { out "  ->" "$@"; }
-# function die {
-#   # if error, exit and show file of origin, line number and function
-#   # colors
-#   NO_FORMAT="\033[0m"
-#   C_RED="\033[38;5;9m"
-#   C_YEL="\033[38;5;226m"
-#   # color functions
-#   function msg_red { printf "${C_RED}${@}${NO_FORMAT}"; }
-#   function msg_yel { printf "${C_YEL}${@}${NO_FORMAT}"; }
-#   # error detailed message (colored)
-#   msg_red "==> ERROR: " && printf " %s" "$@" && printf "\n"
-#   msg_yel "  -> file: " && printf "${BASH_SOURCE[1]}\n"
-#   msg_yel "  -> func: " && printf "${FUNCNAME[2]}\n"
-#   msg_yel "  -> line: " && printf "${BASH_LINENO[1]}\n"
-#   exit 1
-# }
+## ERROR HANDLING | Usage: die <command>
+out () { printf "$1 $2\n" "${@:3}"; }
+error () { out "==> ERROR:" "$@"; } >&2
+die () { error "$@"; exit 1; }
+# Messages
+warning () { out "==> WARNING:" "$@"; } >&2
+msg () { out "==>" "$@"; }
+msg2 () { out "  ->" "$@"; }
 
-
-########################################
-# Purpose: dialog to select a target block device for archlinux install
+## DIALOG: to select a target block device for archlinux install
 # Arguments: $1
 # Return: the argument $1 will store a valid block device (e.g. /dev/sdX)
-########################################
-function dialog_get_target_device
-{
-  ## function declaration
-  function dialog_to_input_a_target_device
-  {
+dialog_get_target_device () {
+  ## subfunction declaration
+  dialog_to_input_a_target_device () {
     # Help the user showing the block devices available
     local array_of_block_devices=($(lsblk | awk '/disk/{ print $1 }'))
     printf "::List of block devices (lsblk):\n%s\n\n" "$(lsblk)"
@@ -77,15 +51,14 @@ function dialog_get_target_device
     local __resultvar="$1"
     local answer=" "
     until [[ "${answer}" =~ ^([yY])$ ]]; do
-      select option in "${array_of_block_devices[@]}";do
+      select option in "${array_of_block_devices[@]}"; do
 	case "${option}" in
 	  "")
 	    printf "\nInvalid option: ${option}. Canceling install!\n\n"
 	    exit 0
 	    ;;
 	  *)
-	    eval "${__resultvar}"="/dev/${option}" \
-	      || die
+	    eval "${__resultvar}"="/dev/${option}" || die
 	    break
 	    ;;
 	esac
@@ -116,12 +89,11 @@ function dialog_get_target_device
   fi
 }
 
-########################################
-# Purpose: dialog to ask if user want to install a desktop
+## DIALOG INSTALL DESKTOP ##################################
+# Ask if user want to install a desktop
 # Arguments: $1
 # Return: the argument $1 will store the variable $install_desktop (e.g. 'y')
-########################################
-function dialog_ask_install_desktop
+dialog_ask_install_desktop ()
 {
   cd desktop/
   system_desktop=" "
@@ -161,11 +133,8 @@ function dialog_ask_install_desktop
   cd $OLDPWD
 }
 
-########################################
-# Purpose: extract compressed files
-# Requirements: None
-########################################
-function extract
+## EXTRACT COMPRESSED FILES ################################
+extract ()
 {
   if [[ -f "$1" ]]; then
     case "$1" in
@@ -188,31 +157,25 @@ function extract
 }
 
 
-########################################
-# Purpose: declare variable if minimun lenght is ok
+## DIALOG TO DECLARE VARIABLE IF MINIMUN LENGHT IS OK ######
 # Arguments: $1=variable name; $2=minimum length
 # Return: $1 will become a variable name with a $variable_value
-# Usage: variable_declaration host_name HostName
-# host_name=" "; variable_declaration host_name 2
-#  after call the function if variable leght
-########################################
-
-function variable_declaration {
+# Usage: variable_declaration <variable name> <minimum length>
+variable_declaration ()
+{
   local __resultvar="$1"
   local min_legth="$2"
   local hide="${3:-}"
   local variable_value="${variable_value:-}"
   until (( "${#variable_value}" > "${min_legth}" )); do
+    ## use -sp option when user want to hide the "variable_value"
     if [[ "${hide}" == 'hide' ]]; then
-      read -sp "==> Enter ${__resultvar^^}: " variable_value \
-	|| die
+      read -sp "==> Enter ${__resultvar^^}: " variable_value || die
     else
-      # (hide passwords by using -sp option)'
-      read -p "==> Enter ${__resultvar^^}: " variable_value \
-	|| die
+      read -p "==> Enter ${__resultvar^^}: " variable_value || die
     fi
-    if (( "${#variable_value}" < "${min_legth}" || "${#variable_value}" == "${min_legth}" ))
-    then
+    ## check if "variable_value" fullfill the "minimum length"
+    if (( "${#variable_value}" <= "${min_legth}" )); then
       warning "invalid length (${#variable_value}), required (>${min_legth})"
     else
       eval "${__resultvar}"="${variable_value}" || die
@@ -221,41 +184,39 @@ function variable_declaration {
   done
 }
 
+## DETEC IF MACHINE IS: 'VBox' OR 'Real' ###################
+check_machine ()
+{
+  detect_system ()
+  {
+    [[ "$(dmidecode -s system-manufacturer)" == 'innotek GmbH' ]]
+  }
+  if detect_system; then printf '%s' 'VBox'; else printf '%s' 'Real'; fi
+}
+
+############################################################
 #### MAIN CODE #############################################
 ############################################################
 
-### Requirements:
-
-# Root Privileges
-if [[ "$EUID" -ne 0 ]]; then
-  echo "ERROR: ./$0 require root priviledges"
-  exit
+### REQUIREMENTS:
+# Root Privileges, package dmidecode
+if (( "$EUID" != 0 )); then
+  die " ./$0 require root priviledges"
 elif ! pacman -S --needed --noconfirm dmidecode; then
-  echo "ERROR: can not install required package dmidecode"
-  exit
+  die " can not install required package dmidecode"
 else
   read -p "Running $0. Do you want to INSTALL archlinux?[Y/n]" answer
-  [[ "${answer:-N}" =~ ^([nN])$ ]] && echo "Quit.." | exit 0
-  unset answer
+  [[ "${answer:-Y}" =~ ^([nN])$ ]] && unset answer | msg "Quit.."
 fi
 
 ### DECLARE VARIABLES
-
 ## variables declared by function 
 variable_declaration host_name 2
 variable_declaration root_password 6 hide
 variable_declaration user_name 2
 variable_declaration user_password 6 hide
-
 ## variables automatically recognized
-machine="$(dmidecode -s system-manufacturer)" \
-  || die
-if [[ "${machine}" == 'innotek GmbH' ]]; then
-  MACHINE='VBox' || die
-else
-  MACHINE='Real' || die
-fi
-
+MACHINE="$(check_machine)" || die      # results are: 'VBox' or 'Real'
 ## BIOS and UEFI support
 if ! ls /sys/firmware/efi/efivars >& /dev/null; then
   boot_mode='BIOS' || die
@@ -272,7 +233,8 @@ fi
 ## variables that user must confirm or edit
 # shell
 user_shell_default=/bin/bash	# examples: /bin/zsh; /bin/bash
-read -p "==> Enter user shell [${user_shell_default}]: " user_shell || die
+read -p "==> Enter user shell [${user_shell_default}]: " user_shell \
+  || die
 user_shell=${user_shell:-$user_shell_default} || die
 unset user_shell_default || die
 # keyboard
@@ -300,9 +262,7 @@ unset local_time_default || die
 # select and install arch linux desktop (required for script3.sh)
 install_desktop=" "; dialog_ask_install_desktop install_desktop
 
-
 ### EXPORT VARIABLES (required for script2.sh)
-
 export host_name
 export root_password
 export user_name
@@ -315,12 +275,9 @@ export MACHINE
 export drive_removable
 export install_desktop
 
-
 ### SET TIME AND SYNCHRONIZE SYSTEM CLOCK
-
 timedatectl set-ntp true \
   || die
-
 
 ## clear start
 if mount | grep -q '/mnt'; then
@@ -328,20 +285,15 @@ if mount | grep -q '/mnt'; then
   umount -R /mnt && msg2 "done" || die
 fi
 
-
 ### SSD PARTITIONING (BIOS/MBR)
 
-
 ## SSD partitioning: root "/" in ssd in free space (/dev/sdc3)
-
 # parted -s -a optimal /dev/sdc \
 #        mkpart primary ext4 125GB 100% \
 #        set 1 boot on \
 #   || die
 
-
 ## HDD formating (-F: overwrite if necessary)
-
 # root "/" will be the preexistent SDD /dev/sdc3 (125GB) 
 mkfs.ext4 -F /dev/sdc3 || die
 # "/home"  will be the preexistent HDD /dev/sda3 (33.3GB)
@@ -366,9 +318,7 @@ else
 fi
 unset answer
 
-
 ## HDD mounting
-
 # root /
 mount /dev/sdc3 /mnt || die
 # /home
@@ -380,8 +330,7 @@ mount /dev/sdb1 /mnt/home || die
 (lsblk && sleep 3)
 
 # if previous /home dot-files exists, ask to delete them
-# if find /mnt/home/"${user_name}" -maxdepth 1 -type f -name ".*"; then
-while find /mnt/home/"${user_name}" -maxdepth 1 -type f -name ".*"; do
+if find /mnt/home/"${user_name}" -maxdepth 1 -type f -name ".*"; then
   printf "\n"
   read -p "==> Dir /home detected. Delete previous configuration files?[Y/n]" answer
   if [[ "${answer:-Y}" =~ ^([yY])$ ]]; then
@@ -406,8 +355,8 @@ while find /mnt/home/"${user_name}" -maxdepth 1 -type f -name ".*"; do
        /mnt/{bin,boot,dev,etc,lib,lib64,opt,run,sbin,srv,tmp,usr,var} \
       || die
   fi
-done
-exit
+fi
+
 ### REQUIREMENTS BEFORE SYSTEM PACKAGES INSTALLATION
 
 ## record packages installation time
@@ -415,7 +364,6 @@ SECONDS=0
 
 ## update keyring
 pacman -Syy --noconfirm archlinux-keyring || die
-
 
 ### SYSTEM PACKAGES INSTALLATION
 
@@ -447,8 +395,6 @@ Packages+=('networkmanager')
 Packages+=('grub' 'os-prober')
 # UEFI boot support
 if [[ "${boot_mode}" == 'UEFI' ]]; then Packages+=('efibootmgr'); fi
-# system info
-Packages+=('dmidecode')
 # multi-OS support
 Packages+=('usbutils' 'dosfstools' 'ntfs-3g' 'amd-ucode' 'intel-ucode')
 # backup
@@ -514,9 +460,7 @@ if [[ "${MACHINE}" == 'Real' ]]; then
   Packages+=('texlive-core' 'texlive-latexextra')
 fi
 # if VirtualBox: install guest utils package
-if [[ "${MACHINE}" == 'VBox' ]]; then
-  Packages+=('virtualbox-guest-utils')
-fi
+[[ "${MACHINE}" == 'VBox' ]] && Packages+=('virtualbox-guest-utils')
 
 ## Desktop Packages installation
 if [[ "${install_desktop}" =~ ^([yY])$ ]]; then
@@ -526,12 +470,11 @@ if [[ "${install_desktop}" =~ ^([yY])$ ]]; then
   Packages+=("${DesktopPkg[@]}")
   printf "%s\n" "${Packages[@]}" | grep terminal
   read -p "==> Packages to install. Continue?[Y/n]" answer
-  if [[ "${answer:-Y}" =~ ^([nN])$ ]]; then die; fi
+  [[ "${answer:-Y}" =~ ^([nN])$ ]] && die
 fi
 
 ## System Packages Installation
 pacstrap /mnt --needed --noconfirm "${Packages[@]}" || die
-
 
 ### GENERATE FILE SYSTEM TABLE
 
@@ -559,7 +502,6 @@ genfstab -L /mnt >> /mnt/etc/fstab || die
 #     fi
 # fi
 
-
 ### SCRIPTING INSIDE CHROOT
 
 # copy and run script2.sh to configure the new Arch Linux system
@@ -571,7 +513,6 @@ rm /mnt/home/script2.sh || die
 # arch-chroot -u "${user_name}" /mnt bash -c "HOME=/home/${user_name};\
 # mkdir -p $HOME/.virtualenvs && cd $HOME/.virtualenvs;\
 # pip install virtualenv virtualenvwrapper" || die
-
 
 ### DOTFILES
 
@@ -601,9 +542,7 @@ script1_time_seconds=${duration}
 chmod +x "${my_path}"/installation_report || die
 unset my_path || die
 
-
 ### BIN SCRIPTS
-
 if [[ "${install_desktop}" =~ ^([yY])$ ]]; then
   my_path=/mnt/home/"${user_name}"/bin
   mkdir -p "${my_path}" || die
@@ -616,12 +555,10 @@ chown -R ${user_name}:${user_name} /home/${user_name}/.[a-z]*;\
 chown -R ${user_name}:${user_name} /home/${user_name}/[a-zA-Z]*;\
 chown -R ${user_name}:${user_name} /home/${user_name}/Down*/*;" || die
 
-
 ### UNMOUNT EVERYTHING AND REBOOT
 read -p "$0 install succeded (${duration} seconds)! umount '/mnt' and reboot?[Y/n]" response
 [[ "${response:-Y}" =~ ^([yY])$ ]] \
   && umount -R /mnt | reboot now
-
 
 # emacs:
 # Local Variables:

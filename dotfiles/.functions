@@ -4,97 +4,81 @@
 #
 # Requirements: None
 
-
 ### FUNTIONS DECLARATION
 
-########################################
-# Purpose:
-#  ERROR HANDLING
-# Usage:  
-#  die
-########################################
-
+## ERROR HANDLING FUNCTIONS | Usage: $ die
 out() { printf "$1 $2\n" "${@:3}"; }
 error() { out "==> ERROR:" "$@"; } >&2
+die() { error "$@"; exit 1; }
+# MESSAGE FUNCTIONS
 warning() { out "==> WARNING:" "$@"; } >&2
 msg() { out "==>" "$@"; }
 msg2() { out "  ->" "$@";}
-die() { error "$@"; exit 1; }
 
-########################################
-# Purpose:
-#  function to test bash commands and
-#  generate a file log when command files
+## GENERATE A FILE LOG IF COMMAND FAILS
 # Dependencies: positional arguments = $@
-# Usage:  
-#  try <<command>>
-########################################
-
-# function try 
-# {
-#   set -o errtrace    # inherit any trap on ERROR
-#   "$@"
-#   set +o errtrace    # turn off the flag
-# }
-
-function try
+# Usage: $ try <<command>>
+try ()
 {
-    # set -o pipefail -e
-    # set -o errexit
     set -o xtrace
     "$@"
     status=$?
-    if [ $status -eq 1 ]; then
-	# echo "ERROR in command: $@"
+    if [[ "${status}" -eq 1 ]]; then
       (echo "ERROR in command: $@") 2>&1 | tee -a "$0".log
       die "please verify errors reported in ls $(${0}.log)"
-    elif [ $status -eq 0 ]; then
+    elif [[ "${status}" -eq 0 ]]; then
 	echo "..$@ ..command succeded"
     fi
     set +o xtrace
-    # set +o errexit
-    # set +o pipefail +e
 }
 
-########################################
-# Purpose:
-#  A function to redirect the stdout (1) stderror (2)
-#  of a command to /dev/null
-# Usage:  
-#  nullify program arg1 arg2
-########################################
-function amiroot
+## redirect the stdout (1) stderror (2) of a command to /dev/null
+# Usage: $ nullify program arg1 arg2
+amiroot ()
 {
   ROOT_UID=0   # Root has $UID 0.
-
-  if [[ "$UID" -eq "$ROOT_UID" ]]; then
+  if (( "$UID" = "$ROOT_UID" )); then
     echo "You are root."
   else
     echo "Root priviledges required. Cancelling"
     exit 0
   fi
 }
-########################################
-# Purpose:
-#  A function to redirect the stdout (1) stderror (2)
-#  of a command to /dev/null
-# Usage:  
-#  nullify program arg1 arg2
-########################################
-function nullify 
+
+## REDIRECT: the stdout (1) stderror (2) of a command to /dev/null
+# Usage: nullify program arg1 arg2
+nullify ()
 {
   "$@" >/dev/null 2>&1
   # you can also use:
   # "$@" >& /dev/null
 }
 
+## connect to wifi using iwctl
+iwctl_connect_wifi ()
+{
+  ## Function to connect wifi using iwctl
+  until wget -q --spider http://google.com; do
+    echo "Internet not available"
+    unset answer
+    read -p "Configure a new wifi connection?[y/N]" answer 
+    if [[ "${answer:-N}" =~ ^([yY])$ ]]; then
+      unset answer
+      while [[ "${repeat:-N}" =~ ^([yY])$ ]]; do
+        read -e -i "iwctl --passphrase <passphrase> station device connect <SSID>" new_wlan
+	(eval "${new_wlan}" && sleep 10) \
+	  && repeat='N' \
+	    || read -p "Command failed!... Try again?[y/N]" repeat
+      done
+    else
+      sleep 5
+    fi
+  done
+  echo "Internet connection detected."
+}
 
-########################################
-# Purpose: check internet connection and exit if offline
-# Dependencies: None
-########################################
-
-function check_internet 
+## check internet connection and exit if offline
+check_internet ()
 { 
   # if internet offline, please exit
   if ! wget -q --spider http://google.com; then
@@ -104,35 +88,23 @@ function check_internet
   fi
 } 
 
-
-########################################
-# Purpose: function to download AUR packages in /tmp and install them
-# Usage:
-# aur <package name or url>
-########################################
-
-function aur 
+# DOWNLOAD AUR PACKAGES: in /tmp and install them
+# Usage: aur <package name or url>
+aur ()
 {
   ## run only if internet connection is available
   check_internet		
-
   ## check positional argument
   if (( "$#" -eq 0 )); then
     echo "$0 requires an argument, can be an aur package NAME or URL"
     sleep 3
     exit 0
   fi
-  
-  ##  FLASH FLAGS FOR SECURITY AND DEBUGGING
-  # set -o errexit		# EXIT if script command fails
-  # set -o xtrace			# trace & expand what gets executed
-
   ## complete the AUR URL if user provided only the package name
   if [[ ! "$1" == *"https://"* ]];then
     # set the value of $1
     try set -- "$(printf "https://aur.archlinux.org/%s.git" "$1")"
   fi
-
   ## check if user provided a valid git repo
   verify_if_git_repo_exists="$(git ls-remote $1 HEAD)"
   if (( "${#check_if_git_repo_exists}" -eq 0 )); then
@@ -140,7 +112,6 @@ function aur
     sleep 3
     exit 0
   fi
-
   ## check if AUR package is already on system
   package_name="$(basename $1 .git)"
   search_package_in_system="$(pacman -Qm ${package_name})"
@@ -149,10 +120,8 @@ function aur
     sleep 3
     exit 0
   fi
-
   ## remove directory if previously present in /tmp
   [[ -d /tmp/"${package_name}" ]] && rm -rf /tmp/"${package_name}"
-
   ## install aur package after check it was not previously installed
   msg "installing AUR package %s\n" "${package_name}"
   try git clone "$1" /tmp/"${package_name}"
@@ -161,10 +130,9 @@ function aur
   try cd "${OLDPWD}"
 }
 
-
-## dirsize - finds directory sizes & lists them for the current directory
-
-function dirsize {
+## FINDS DIRECTORY SIZES & LISTS THEM FOR THE CURRENT DIRECTORY
+dirsize ()
+{
   du -shx * .[a-zA-Z0-9_]* 2> /dev/null \
     | egrep '^ *[0-9.]*[MG]' | sort -n > /tmp/list
   egrep '^ *[0-9.]*M' /tmp/list
@@ -172,10 +140,8 @@ function dirsize {
   rm -rf /tmp/list
 }
 
-
-## extract compressed files
-
-function extract
+## EXTRACT COMPRESSED FILES
+extract ()
 {
   if [[ -f "$1" ]]; then
     case "$1" in
@@ -197,15 +163,12 @@ function extract
   fi
 }
 
-
 ## No more cd ../../../.. but up 4
-
-function up
+up ()
 {
   local d=""
   limit="$1"
-  for ((i=1 ; i <= limit ; i++))
-  do
+  for ((i=1 ; i <= limit ; i++)); do
     d="${d}"/..
   done
   d=$(echo "${d}" | sed 's/^\\///')
@@ -214,21 +177,18 @@ function up
 }
 
 
-## install plugins without open vim
-
-function my_vim_install
+## INSTALL PLUGINS "WITHOUT OPEN" VIM
+my_vim_install ()
 {
   if [[ ! -d "~/.vim/plugged/jummidark.vim" ]]; then
-    ## install plugins without open vim
     sleep 3
     vim -E -s -u $HOME/.vimrc +PlugInstall +visual +qall
   fi
 }
 
 
-## git config
-
-function my_git_config
+## GIT CONFIG
+my_git_config ()
 {
   if [[ ! -f "$HOME/.gitconfig" ]]; then
     cd "$HOME"
@@ -260,10 +220,8 @@ function my_git_config
   fi
 }
 
-
-## do sudo, or sudo the last command if no argument given
-
-function repeat
+## REPEAT LAST COMMAND WITH SUDO
+repeat ()
 {
   if (( $# == 0 )); then
     sudo $(history -p '!!')
@@ -272,19 +230,15 @@ function repeat
   fi
 }
 
-
-## create a backup file
-
-function mybackup
+## BACKUP FILE
+make_backup ()
 {
   cp "$1" \
      ~/.backup/"$(basename \"${1}\")"-"$(date +%Y%m%d%H%M)".backup
 }
 
-
-## reduce typing for my own git repo
-
-function mygit
+## GIT REPO ALIAS
+mygit ()
 {
   if [[ -z $1 ]]; then
     echo "mygit require the name of the repository"
@@ -293,10 +247,8 @@ function mygit
   fi
 }
 
-
-## automatize archlinux update
-
-function update_archlinux
+## AUTOMATIZE ARCHLINUX UPDATE
+update_archlinux ()
 {
   printf "\n==> Updating archlinux keyring\n"
   try sudo pacman -Syy --noconfirm archlinux-keyring 
@@ -310,7 +262,6 @@ function update_archlinux
     try xmonad --recompile
   fi
 }
-
 
 # emacs:
 # Local Variables:

@@ -141,21 +141,24 @@ unset my_font my_folder
 
 ## resize and relocate terminal windows
 initialize_variables # required
+# --name 'Terminal - angel@Dark: ~/Projects/archlinux$' \
 xdotool search --sync --onlyvisible \
-	--name 'Terminal - angel@Dark: ~/Projects/archlinux$' \
+	--name 'archlinux$' \
 	windowactivate \
 	windowsize $third $one_third \
 	windowmove $left $bottom
 
+# 'Terminal - angel@Dark: ~/Projects/archlinux/desktop/openbox' \
 xdotool search --sync --onlyvisible \
 	--name \
-	'Terminal - angel@Dark: ~/Projects/archlinux/desktop/openbox' \
+	'openbox$' \
 	windowactivate \
 	windowsize $third $one_third \
 	windowmove $middle $bottom
 
+# --name 'Terminal - angel@Dark: ~/Projects/dot-emacs' \
 xdotool search --sync --onlyvisible \
-	--name 'Terminal - angel@Dark: ~/Projects/dot-emacs' \
+	--name 'dot-emacs$' \
 	windowactivate \
 	windowsize $third $one_third \
 	windowmove $right $bottom
