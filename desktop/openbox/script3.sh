@@ -21,7 +21,7 @@ set -o xtrace      # trace & expand what gets executed (useful for debug)
 ### DECLARE FUNCTIONS
 ############################################################
 
-## ERROR HANDLING | Usage: die <command>
+## ERROR HANDLING ## Usage: <command> || die "<description>"
 out () { printf "$1 $2\n" "${@:3}"; }
 error () { out "==> ERROR:" "$@"; } >&2
 die () { error "$@"; exit 1; }
@@ -34,17 +34,36 @@ msg2 () { out "  ->" "$@"; }
 ### MAIN CODE ##############################################
 ############################################################
 
+## welcome message
+echo "Wellcome to OPENBOX customization:"
+read -p "==> Start $0 to customize the new desktop?[Y/n]" answer
+[[ "${answer:-Y}" =~ ^([nN])$ ]] && exit 0
+echo "--> Starting $0 to cutomize OPENBOX window manager"
+unset answer
+
 ## Basic Verifications
-if [[ "$EUID" -eq 0 ]]; then	 # user privileges
-  echo "Do not run ./$0 as root!"
-  exit
-else
-  echo "Wellcome to OPENBOX customization:"
-  read -p "==> Start $0 to customize the new desktop?[Y/n]" answer
-  [[ "${answer:-Y}" =~ ^([nN])$ ]] && exit
-  unset answer
-  echo "--> Starting $0 to cutomize OPENBOX window manager"
+# user privileges
+if (( "$EUID" == 0 )); then
+  die "Do not run ./$0 as root!"
 fi    
+
+# if no internet connection, add a new one
+if ! wget -q --spider https://google.com; then
+  printf "%s\n" "Internet Connection NOT Detected but REQUIRED"
+  # if lsblk -f | awk '/mmc.*p1/{print $7}'; then
+  # read -p "Please insert the device /dev/mmcblk0p1 and press any key."
+  sudo mkdir -p /tmp/raom && sudo mount /dev/mmcblk0p1 $_
+  wifi_connections || die "Can not run $_"
+fi
+
+## source dependencies
+my_file=~/.bashrc
+if [[ -r "${my_file}" ]] && [[ -f "${my_file}" ]]; then
+  source "${my_file}"
+else
+  die "${my_file} could not be sourced"
+fi
+unset my_file
 
 ## measure time
 SECONDS=0
@@ -233,9 +252,12 @@ echo "script3_time_seconds=${duration}
 total_time_minutes=\"$(((script1_time_seconds + $duration) / 60))\"
 " >> $HOME/Projects/archlinux_install_report/installation_report || die
 
+## install emacs
+emacs --eval '(save-buffers-kill-terminal)' && sudo reboot now
+
 # mount shared in fstab require reboot
-read -p "$0 succeeded. Reboot required to update fstab. Rebooting now?[Y/n]" response
-[[ ! "${response}" =~ ^([nN])$ ]] && sudo reboot now
+# read -p "$0 succeeded. Reboot required to update fstab. Rebooting now?[Y/n]" response
+# [[ ! "${response}" =~ ^([nN])$ ]] && sudo reboot now
 
 # emacs:
 # Local Variables:

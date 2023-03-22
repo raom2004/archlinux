@@ -50,30 +50,29 @@ function extract {
       *.zip)       unzip "$1"       ;;
       *.Z)         uncompress "$1"  ;;
       *.7z)        7z x "$1"        ;;
-      *)           echo "don't know how to extract '$1'..." ;;
+      *)           echo "don't know how to extract \"$1\"..." ;;
     esac
   else
-    echo "'$1' is not a valid file!"
+    echo "$1 is not a valid file!"
   fi
 }
 
 ## Purpose: autostart x at login ###########################
+# startx can be invoqued in .bash- and .zprofile or .profile
 # Requirements: None
 autostart_x_at_login () {
-  for file in $HOME/.{bash_profile,zprofile}; do
+  # for file in $HOME/.{bash_profile,zprofile}; do
+  for file in $HOME/.profile; do
     if [[ ! -f "${file}" ]]; then touch "${file}"; fi
     echo '
-if [ -z "${DISPLAY}" ] && [ "${XDG_VTNR}" -eq 1 ]; then
+if [[ -z "${DISPLAY}" ]] && (( "${XDG_VTNR}" == 1 )); then
   exec startx
-fi' >> "${file}" || die
+fi' | sudo --user="${user_name}" tee "${file}" || die
   done
 }
 
 ### Requirements: check priviledges ########################
-if [[ "$EUID" -ne 0 ]]; then
-  echo "error: run ./$0 require root priviledges" || die
-  exit
-fi
+(( "$EUID" != 0 )) && echo "error: run ./$0 require root priviledges" || die
 
 ############################################################
 ### MAIN CODE ##############################################
@@ -351,20 +350,25 @@ HOME=/home/"${user_name}"
 pacman -S --needed --noconfirm xdg-user-dirs || die
 LC_ALL=C xdg-user-dirs-update --force || die
 ## Overriding system locale per $USER session
-mkdir -p $HOME/.config || die
-echo 'LANG=es_ES.UTF-8'           > $HOME/.config/locale.conf || die
-echo 'LANGUAGE=en_GB:en_US:en:C' >> $HOME/.config/locale.conf || die
+sudo --user="${user_name}" mkdir -p $HOME/.config || die
+echo 'LANG=es_ES.UTF-8
+LANGUAGE=en_GB:en_US:en:C' \
+  | sudo --user="${user_name}" \
+	 tee --append $HOME/.config/locale.conf || die
 ## create dotfiles ".xinitrc" and ".serverrc"
 #   * source: https://wiki.archlinux.org/title/Xinit#xinitrc
 # ~/.xinitrc: create from template
-head -n50 /etc/X11/xinit/xinitrc > $HOME/.xinitrc || die
+head -n50 /etc/X11/xinit/xinitrc \
+  | sudo --user="${user_name}" tee $HOME/.xinitrc \
+  || die
 # ~/.serverrc:
 # In order to maintain an authenticated session with logind and to
 # prevent bypassing the screen locker by switching terminals,
 # it is recommended to specify vt$XDG_VTNR in the ~/.xserverrc file: 
 echo '#!/bin/sh
 exec /usr/bin/Xorg -nolisten tcp -nolisten local "$@" vt$XDG_VTNR
-' > $HOME/.xserverrc
+' | sudo --user="${user_name}" tee $HOME/.xserverrc \
+  || die
 
 ## if user asked to install a desktop
 if [[ "${install_desktop}" =~ ^([yY])$ ]]; then
@@ -388,16 +392,22 @@ if [[ "${install_desktop}" =~ ^([yY])$ ]]; then
     #~ Contrary to linux desktops, in OPENBOX the
     #~ the filemanager dependency can be set in
     #~  ~/.config/openbox/autostart instead of ~/.xinitrc
-    mkdir -p $HOME/.config/openbox    
-    echo 'udiskie &' >> $HOME/.config/openbox/autostart || die
-    echo 'tint2 &' >> $HOME/.config/openbox/autostart || die
+    sudo --user="${user_name}" mkdir -p $HOME/.config/openbox    
+    echo 'udiskie &' \
+      | sudo --user="${user_name}" tee $HOME/.config/openbox/autostart \
+      || die
+    echo 'tint2 &' \
+      | sudo --user="${user_name}" tee --append $HOME/.config/openbox/autostart \
+      || die
   else
     # add filemanager dependency to xinitrc
-    echo 'udiskie &' >> $HOME/.xinitrc || die
+    echo 'udiskie &' \
+      | sudo --user="${user_name}" tee --append $HOME/.xinitrc \
+      || die
   fi
 
   ## Autostart X at login
-  # autostart_x_at_login
+  autostart_x_at_login
   ## configure .xinitrc to start desktop session on startup
   # continue only if .xinitrc NOT HAS a preexistent line:
   #   session=\${1:-${system_desktop}}
@@ -411,7 +421,8 @@ case \$session in
     # Not known session, try to run it as command
     *                 ) exec \$1;;
 esac
-" >> $HOME/.xinitrc || die
+" | sudo --user="${user_name}" tee --append $HOME/.xinitrc \
+      || die
   fi
   ## How to customize a new desktop on first boot?
   # With a startup script that just need two steps:
@@ -443,7 +454,7 @@ esac
     # a desktop file: script3.desktop
     # located in the directory: ~/.config/autostart/
     xfce|cinnamon)
-      mkdir -p $HOME/.config/autostart || die
+      sudo --user="${user_name}" mkdir -p $HOME/.config/autostart || die
       echo "[Desktop Entry]
 Type=Application
 Name=setup-desktop-on-first-startup
@@ -451,7 +462,9 @@ Comment[C]=Script to config a new Desktop on first boot
 Terminal=true
 Exec=${cmd} \"bash -c \\\"bash \$HOME/Projects/archlinux/desktop/${system_desktop}/script3.sh; exec bash\\\"\"
 X-GNOME-Autostart-enabled=true
-NoDisplay=false" > $HOME/.config/autostart/script3.desktop || die
+NoDisplay=false
+" | sudo --user="${user_name}" tee $HOME/.config/autostart/script3.desktop \
+	|| die
       break
       ;;
 
@@ -465,13 +478,16 @@ NoDisplay=false" > $HOME/.config/autostart/script3.desktop || die
     openbox)
       echo "# Programs that will run after Openbox has started
 ${cmd} \"bash -c \\\"bash \$HOME/Projects/archlinux/desktop/openbox/script3.sh; exec bash\\\"\" &
-" > $HOME/.config/openbox/autostart || die
+" | sudo --user="${user_name}" tee --append $HOME/.config/openbox/autostart \
+	|| die
   # unset available_layouts || die  
 
       # support for keyboard
       # instead of ~/.xinitrc, we will add keyboard config
       # using the autostart file:
-      echo "setxkbmap -model pc105 -layout ${keymaps} -option grp:win_space_toggle" >> $HOME/.config/openbox/autostart || die
+      echo "setxkbmap -model pc105 -layout ${keymaps} -option grp:win_space_toggle" \
+	| sudo --user="${user_name}" tee --append $HOME/.config/openbox/autostart \
+	|| die
       break
       ;;
   esac
@@ -484,44 +500,46 @@ fi
 
 ### INSTALL DEPENDECIES
 
+## BASH git prompt (dependency for ~/.bash_prompt )
+sudo --user="${user_name}" git clone https://github.com/magicmonty/bash-git-prompt.git \
+    ~/.bash-git-prompt --depth=1
+
 ## Vim Plugin Manager
 url=https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-wget "${url}" -P $HOME/.vim/autoload || die
-## TODO: install vim plugins without open vim (must not be run as root)
-# vim -E -s -u $HOME/.vimrc +PlugInstall +visual +qall
+sudo --user="${user_name}" wget "${url}" -P $HOME/.vim/autoload || die
 unset url || die
+## install vim plugins without open vim (must not be run as root)
+sudo --user="${user_name}" vim -E -s -u $HOME/.vimrc +PlugInstall +visual +qall
 
 ## add dictionaty of english medical terms for hunspell
 # source: https://github.com/Glutanimate/hunspell-en-med-glut
-
 url=https://raw.githubusercontent.com/glutanimate/hunspell-en-med-glut/master/en_med_glut.dic
-wget "${url}" -P /usr/share/hunspell || die
-unset url || die
+wget "${url}" -P /usr/share/hunspell && unset url || die
 
 
 ### INSTALL EMACS DEPENDENCIES
 
 ## support for ditaa graphs - emacs org
 
-url=https://github.com/stathissideris/ditaa/blob/master/service/web/lib/ditaa0_10.jar || die
-wget "${url}" -P $HOME/Downloads || die
+url=https://github.com/stathissideris/ditaa/blob/master/service/web/lib/ditaa0_10.jar
+sudo --user="${user_name}" wget "${url}" -P $HOME/Downloads || die
 
 ## support for language tools
 
 url=https://languagetool.org/download/
-latest_version=$(wget -O - "${url}" \
+latest_version="$(wget -O - "${url}" \
 			       | awk -F'"' '/[0-9]\.zip/{ print $2 }' \
 			       | sort -r \
 			       | head -n1 \
-			       | tr -d '\n')
+			       | tr -d '\n')"
 url=https://languagetool.org/download/"${latest_version}"
-wget "${url}" -P $HOME/Downloads || die
+sudo --user="${user_name}" wget "${url}" -P $HOME/Downloads || die
 unset latest_version
 
 ## decompressing language tools
 
 cd $HOME/Downloads || die
-extract "$(basename "${url}")" &> /dev/null || die
+sudo --user="${user_name}" extract "$(basename "${url}")" &> /dev/null || die
 [[ -d "$(basename "${url}" .zip)" ]] && rm "$(basename "${url}")" || die
 cd $PWD || die
 
@@ -542,15 +560,18 @@ git apply openbox-window-snap.diff || die
 
 ### INSTALL EMACS DOT-FILES FROM GIT REPO
 
-mkdir -p $HOME/Projects && cd $HOME/Projects || die
-git clone https://github.com/raom2004/dot-emacs || die
+sudo --user="${user_name}" mkdir -p $HOME/Projects \
+  && cd $HOME/Projects || die
+sudo --user="${user_name}" git clone https://github.com/raom2004/dot-emacs \
+  || die
 
 
 ### python support for virtualenv
-mkdir -p $HOME/.virtualenvs && cd $HOME/.virtualenvs
+sudo --user="${user_name}" mkdir -p $HOME/.virtualenvs \
+  && cd $HOME/.virtualenvs || die
 # install dependencies as user
-sudo --user="${user_name}" pip install virtualenv virtualenvwrapper \
-  || die
+sudo --user="${user_name}" \
+     pip install virtualenv virtualenvwrapper || die
 
 
 ### show final message and exit

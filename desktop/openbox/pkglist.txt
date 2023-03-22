@@ -23,6 +23,7 @@ ttf-dejavu
 ttf-liberation
 volumeicon
 wmctrl
+xdotool
 xf86-input-synaptics
 xfce4-terminal
 xorg-xwininfo

@@ -97,7 +97,7 @@ xfce4-power-manager &   # battery info
 # (if [[ ! ${board_vendor} =~ Apple ]]; then pasystray; fi) &
 if [[ ! ${board_vendor} =~ Apple ]]; then
   # volume icon
-  pasistray &
+  pasystray &
   # permission to mount drives
   /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
 fi
@@ -130,38 +130,40 @@ my_folders=("$HOME/Projects/dot-emacs"
 	    "$HOME/Projects/archlinux"
 	    "$HOME/Projects/archlinux/desktop/openbox")
 # open terminals with the customized variables
-for folder in ${my_folders[@]}
-do
-  xfce4-terminal --working-directory "$folder" --font "$my_font" \
-		 --hide-menubar &
-done
-# clean variables
-unset my_font my_folder
+if [[ -r ~/.gitconfig ]] && [[ -f ~/.gitconfig ]]; then
+  for folder in ${my_folders[@]}
+  do
+    xfce4-terminal --working-directory "$folder" --font "$my_font" \
+		   --hide-menubar &
+  done
+  # clean variables
+  unset my_font my_folder
 
 
-## resize and relocate terminal windows
-initialize_variables # required
-# --name 'Terminal - angel@Dark: ~/Projects/archlinux$' \
-xdotool search --sync --onlyvisible \
-	--name 'archlinux$' \
-	windowactivate \
-	windowsize $third $one_third \
-	windowmove $left $bottom
+  ## resize and relocate terminal windows
+  ##--name 'archlinux$' \
+    initialize_variables # required
+    xdotool search --sync --onlyvisible \
+	    --name 'Terminal.*archlinux$' \
+	    windowactivate \
+	    windowsize $third $one_third \
+	    windowmove $left $bottom
 
-# 'Terminal - angel@Dark: ~/Projects/archlinux/desktop/openbox' \
-xdotool search --sync --onlyvisible \
-	--name \
-	'openbox$' \
-	windowactivate \
-	windowsize $third $one_third \
-	windowmove $middle $bottom
+    xdotool search --sync --onlyvisible \
+	    --name \
+	    'Terminal.*openbox$' \
+	    windowactivate \
+	    windowsize $third $one_third \
+	    windowmove $middle $bottom
 
-# --name 'Terminal - angel@Dark: ~/Projects/dot-emacs' \
-xdotool search --sync --onlyvisible \
-	--name 'dot-emacs$' \
-	windowactivate \
-	windowsize $third $one_third \
-	windowmove $right $bottom
+    xdotool search --sync --onlyvisible \
+	    --name 'Terminal.*dot-emacs$' \
+	    windowactivate \
+	    windowsize $third $one_third \
+	    windowmove $right $bottom
+else
+  xfce4-terminal --font "$my_font" --hide-menubar
+fi
 
 ## start Terminal and resize it (xterm)
 # (sleep .1 && xterm_custom $HOME/Projects/archlinux left) &

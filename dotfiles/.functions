@@ -82,52 +82,41 @@ check_internet ()
 { 
   # if internet offline, please exit
   if ! wget -q --spider http://google.com; then
-    printf "ERROR in internet conection!, exiting %s\n" "${0}"
+    printf " ABORTING %s: NO \n" "${0}"
     sleep 3
     exit 0
+  else
+    printf "%s\n" "Internet Connection Detected"
   fi
 } 
 
 # DOWNLOAD AUR PACKAGES: in /tmp and install them
 # Usage: aur <package name or url>
+aur_install ()
+{
+  folder="$(basename "$1" .git)"
+  if -n "$(pacman -Qm "${folder}")"; then
+    echo "==> Package previously installed in system"
+    read -p "Reinstall it? [y/N]" answer
+    [[ "${answer:-N}" =~ ^([nN]) ]] && echo "Quit" | exit 0
+  fi
+  echo "Installing AUR package ${folder}"
+  git clone "$1" /tmp/"${folder}"
+  cd /tmp/"${folder}"
+  makepkg -Ccsri --noconfirm --needed
+  cd $OLDPWD
+}
+
 aur ()
 {
-  ## run only if internet connection is available
-  check_internet		
-  ## check positional argument
-  if (( "$#" -eq 0 )); then
-    echo "$0 requires an argument, can be an aur package NAME or URL"
-    sleep 3
-    exit 0
+  printf "==> Processing.. "
+  if [[ "$1" == *"https://"* ]]; then
+    printf "%s" "$1"
+    aur_install "$1"
+  else
+    printf "https://aur.archlinux.org/%s.git" "$1"
+    aur_install "https://aur.archlinux.org/${1}.git"
   fi
-  ## complete the AUR URL if user provided only the package name
-  if [[ ! "$1" == *"https://"* ]];then
-    # set the value of $1
-    try set -- "$(printf "https://aur.archlinux.org/%s.git" "$1")"
-  fi
-  ## check if user provided a valid git repo
-  verify_if_git_repo_exists="$(git ls-remote $1 HEAD)"
-  if (( "${#check_if_git_repo_exists}" -eq 0 )); then
-    warning "Git repository not found or incorrect: \n%s\n" "$1"
-    sleep 3
-    exit 0
-  fi
-  ## check if AUR package is already on system
-  package_name="$(basename $1 .git)"
-  search_package_in_system="$(pacman -Qm ${package_name})"
-  if [[ -n "${search_package_in_system}" ]]; then
-    warning "AUR package %s is already on system\n" "${package_name}"
-    sleep 3
-    exit 0
-  fi
-  ## remove directory if previously present in /tmp
-  [[ -d /tmp/"${package_name}" ]] && rm -rf /tmp/"${package_name}"
-  ## install aur package after check it was not previously installed
-  msg "installing AUR package %s\n" "${package_name}"
-  try git clone "$1" /tmp/"${package_name}"
-  try cd /tmp/"${package_name}"
-  try makepkg -Ccsri --noconfirm --needed
-  try cd "${OLDPWD}"
 }
 
 ## FINDS DIRECTORY SIZES & LISTS THEM FOR THE CURRENT DIRECTORY

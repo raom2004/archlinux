@@ -199,6 +199,7 @@ check_machine ()
 ############################################################
 
 ### REQUIREMENTS:
+
 # Root Privileges, package dmidecode
 if (( "$EUID" != 0 )); then
   die " ./$0 require root priviledges"
@@ -210,11 +211,13 @@ else
 fi
 
 ### DECLARE VARIABLES
-## variables declared by function 
-variable_declaration host_name 2
-variable_declaration root_password 6 hide
-variable_declaration user_name 2
-variable_declaration user_password 6 hide
+
+# variables declared by function 
+if [[ ! -n "${host_name+x}" ]]; then variable_declaration host_name 2; fi
+if [[ ! -n "${root_password+x}" ]]; then variable_declaration root_password 6 hide; fi
+if [[ ! -n "${user_name+x}" ]]; then variable_declaration user_name 2; fi
+if [[ ! -n "${user_password+x}" ]]; then variable_declaration user_password 6 hide; fi
+
 ## variables automatically recognized
 MACHINE="$(check_machine)" || die      # results are: 'VBox' or 'Real'
 ## BIOS and UEFI support
@@ -222,8 +225,7 @@ if ! ls /sys/firmware/efi/efivars >& /dev/null; then
   boot_mode='BIOS' || die
   partition_table_default=MBR
   read -p "==> BIOS detected! select MBR or GPT partition table [${partition_table_default}]:" partition_table || die
-  partition_table=${partition_table:-$partition_table_default} \
-     || die
+  partition_table=${partition_table:-$partition_table_default} || die
   unset partition_table_default || die
 else
   boot_mode='UEFI' || die
@@ -263,6 +265,7 @@ unset local_time_default || die
 install_desktop=" "; dialog_ask_install_desktop install_desktop
 
 ### EXPORT VARIABLES (required for script2.sh)
+
 export host_name
 export root_password
 export user_name
@@ -276,6 +279,7 @@ export drive_removable
 export install_desktop
 
 ### SET TIME AND SYNCHRONIZE SYSTEM CLOCK
+
 timedatectl set-ntp true \
   || die
 
@@ -325,36 +329,36 @@ mount /dev/sdc3 /mnt || die
 mkdir -p /mnt/home || die
 mount /dev/sdb1 /mnt/home || die
 # mount /dev/sda3 /mnt/home || die
-
 # show result
 (lsblk && sleep 3)
 
 # if previous /home dot-files exists, ask to delete them
-if find /mnt/home/"${user_name}" -maxdepth 1 -type f -name ".*"; then
+previous_dot_files () {
+  find /mnt/home/"${user_name}" -maxdepth 1 -type f -name ".*"
+}
+if previous_dot_files; then
   printf "\n"
-  read -p "==> Dir /home detected. Delete previous configuration files?[Y/n]" answer
-  if [[ "${answer:-Y}" =~ ^([yY])$ ]]; then
-    printf " --> Deleting 'dot-files directories' in '/home' \n\n"
-    find /mnt/home/"${user_name}"/ -maxdepth 1 -type d -name ".*" \
-      | xargs rm -rf \
-      || die
-    printf " --> Deleting 'dot-files' in '/home' \n\n"
-    find /mnt/home/"${user_name}" -maxdepth 1 -type f -name ".*" \
-      | xargs rm -rf \
-      || die
-    rm -rf /mnt/home/"${user_name}"/.bash-git-prompt
-    printf " --> Deleting 'directories' in '/home' \n\n"
-    find /mnt/home/"${user_name}"/*/ -maxdepth 0 -type d \
-     -not -path "/mnt/home/${user_name}/Documents/*" \
-     -not -path "/mnt/home/${user_name}/Pictures/*" \
-     -not -path "/mnt/home/${user_name}/Videos/*" \
-      | xargs rm -rf \
-      || die
-    printf " --> Deleting 'folders' in '/' \n\n"
-    rm -rf \
-       /mnt/{bin,boot,dev,etc,lib,lib64,opt,run,sbin,srv,tmp,usr,var} \
-      || die
-  fi
+  printf "==> Dir /home detected. Deleting previous configuration files!\n"
+  printf " --> Deleting 'dot-files directories' in '/home' \n\n"
+  find /mnt/home/"${user_name}"/ -maxdepth 1 -type d -name ".*" \
+    | xargs rm -rf \
+    || die
+  printf " --> Deleting 'dot-files' in '/home' \n\n"
+  find /mnt/home/"${user_name}" -maxdepth 1 -type f -name ".*" \
+    | xargs rm -rf \
+    || die
+  rm -rf /mnt/home/"${user_name}"/.bash-git-prompt
+  printf " --> Deleting 'directories' in '/home' \n\n"
+  find /mnt/home/"${user_name}"/*/ -maxdepth 0 -type d \
+       -not -path "/mnt/home/${user_name}/Documents/*" \
+       -not -path "/mnt/home/${user_name}/Pictures/*" \
+       -not -path "/mnt/home/${user_name}/Videos/*" \
+    | xargs rm -rf \
+    || die
+  printf " --> Deleting 'folders' in '/' \n\n"
+  rm -rf \
+     /mnt/{bin,boot,dev,etc,lib,lib64,opt,run,sbin,srv,tmp,usr,var} \
+    || die
 fi
 
 ### REQUIREMENTS BEFORE SYSTEM PACKAGES INSTALLATION
@@ -468,9 +472,6 @@ if [[ "${install_desktop}" =~ ^([yY])$ ]]; then
   # readarray -t DesktopPkg < "${data_dir}"/pkglist.txt
   readarray -t DesktopPkg < ./desktop/"${system_desktop}"/pkglist.txt
   Packages+=("${DesktopPkg[@]}")
-  printf "%s\n" "${Packages[@]}" | grep terminal
-  read -p "==> Packages to install. Continue?[Y/n]" answer
-  [[ "${answer:-Y}" =~ ^([nN])$ ]] && die
 fi
 
 ## System Packages Installation
@@ -517,48 +518,57 @@ rm /mnt/home/script2.sh || die
 ### DOTFILES
 
 # copy dotfiles to new system
-cp ./dotfiles/.[a-z]* /mnt/home/"${user_name}" || die
+cp -afr ./dotfiles/.[a-z]* /mnt/home/"${user_name}" || die
 # create the folder Project in $HOME
-my_path=/mnt/home/"${user_name}"/Projects/archlinux
-mkdir -p "${my_path}" || die
+my_path=/home/"${user_name}"/Projects/archlinux
+arch-chroot -u "${user_name}" /mnt bash -c "mkdir -p ${my_path}" || die
 # backup archlinux repo inside ~/Projects folder
-cp -r . "${my_path}" || die
-# correct git branch in archlinux repo
-# arch-chroot /mnt bash -c "cd $HOME/Projects/dot-emacs && git checkout ssd" || die
+cp -afr . "${my_path}" || die
 # backup the scripts used during arch linux installation
-my_path=/mnt/home/"${user_name}"/Projects/archlinux_install_report
-mkdir -p "${my_path}" || die
-cp ./script[1-2].sh "${my_path}" || die
+my_path=/home/"${user_name}"/Projects/archlinux_install_report
+arch-chroot -u "${user_name}" /mnt bash -c "mkdir -p ${my_path}" || die
+cp -afr ./script[1-2].sh "${my_path}" || die
 # copy script3 only if user selected to install a desktop
 if [[ "${install_desktop}" =~ ^([yY])$ ]]; then
-  cp ./desktop/"${system_desktop}"/script3.sh "${my_path}" \
-    || die
+  cp -afr ./desktop/"${system_desktop}"/script3.sh "${my_path}" || die
 fi
+
+### final statistic
+
 duration=$SECONDS || die
 echo "user_name=${user_name}
 MACHINE=${MACHINE}
 script1_time_seconds=${duration}
 " > "${my_path}"/installation_report || die
-chmod +x "${my_path}"/installation_report || die
-unset my_path || die
+chmod +x "${my_path}"/installation_report && unset my_path || die
 
 ### BIN SCRIPTS
 if [[ "${install_desktop}" =~ ^([yY])$ ]]; then
-  my_path=/mnt/home/"${user_name}"/bin
+  # my_path=/mnt/home/"${user_name}"/bin
+  my_path=/mnt/usr/local/bin
   mkdir -p "${my_path}" || die
-  cp ./desktop/scripts-shared/* "${my_path}" || die
+  cp -fr ./desktop/scripts-shared/* "${my_path}" || die
 fi
 
 # correct user permissions
-arch-chroot /mnt bash -c "\
-chown -R ${user_name}:${user_name} /home/${user_name}/.[a-z]*;\
-chown -R ${user_name}:${user_name} /home/${user_name}/[a-zA-Z]*;\
-chown -R ${user_name}:${user_name} /home/${user_name}/Down*/*;" || die
+# arch-chroot /mnt bash -c "\
+# chown -R ${user_name}:${user_name} /home/${user_name}/.[a-z]*;\
+# chown -R ${user_name}:${user_name} /home/${user_name}/[a-zA-Z]*;\
+# chown -R ${user_name}:${user_name} /home/${user_name}/Down*/*;" || die
 
-### UNMOUNT EVERYTHING AND REBOOT
-read -p "$0 install succeded (${duration} seconds)! umount '/mnt' and reboot?[Y/n]" response
-[[ "${response:-Y}" =~ ^([yY])$ ]] \
-  && umount -R /mnt | reboot now
+## check if mmc and copy content
+# device_dir="$(lsblk -f | awk '/mmcblk0p1/{print $7}')"
+# device_arch_dir="$(ls -d "${device_dir}"/archlinux)"
+# device_nm_dir="$(ls -d "${device_dir}/system-connections")"
+# if [[ -d "${device_arch_dir:-}" ]] && [[ -d "${device_nm_dir:-}" ]]; then
+#   cp -fr "${device_nm_dir}"/* /mnt/etc/NetworkManager/system-connections
+# fi
+
+## end message
+printf "$0 install succeded (${duration} seconds)! \n"
+printf "System is now ready for a restart\n"
+
+### UNMOUNT EVERYTHING ELSE AND REBOOT
 
 # emacs:
 # Local Variables:

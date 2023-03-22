@@ -1,0 +1,616 @@
+#!/bin/bash
+# [[file:src-org/moveresize_window.org::development_code][development_code]]
+#
+# bash script to move windows in the screen, using xdotool and wmctrl
+#
+# version 
+VERSION=0.9.0.0
+
+### BASH SCRIPT FLAGS FOR SECURITY AND DEBUGGING ###########
+# shopt -o noclobber # file overwriting (>) only if forced (>|)
+set +o history     # disably bash history temporarilly
+set -o errtrace    # inherit any trap on ERROR
+set -o functrace   # inherit any trap on DEBUG and RETURN
+set -o errexit     # EXIT if command fails
+# set -o nounset     # EXIT if try to use undeclared variables
+set -o pipefail    # CATCH failed piped commands
+set -o xtrace      # TRACE & EXPAND what gets executed
+
+## function to display usage
+usage ()
+{
+  printf "%s\n" "
+\"$0\" script to move and resize windows in the screen.
+Version=${VERSION}
+       
+Usage:
+  
+  The main scope of \"$0\" is to locate and fit
+    from 4 to 9 windows in parallel, in the screen.
+
+  For example, the command:
+     \$ $0 -l upper_left
+    move and fit a window into the position 'upper left',
+    specifyed by the argument \"-l\".
+
+  *The final locations available in a grid of 2x2, are:
+    - upper_left
+    - upper_right
+    - bottom_left
+    - bottom_right
+    
+  *The final locations available in a grid of 3x3:
+    - one_third_upper_left
+    - one_third_upper_middle
+    - one_third_upper_right
+    - one_third_center_left
+    - one_third_center_middle
+    - one_third_center_right
+    - one_third_bottom_left
+    - one_third_bottom_middle
+    - one_third_bottom_right
+    - two_third_upper_left
+    - two_third_upper_middle
+    - two_third_upper_right
+
+  
+    \$ $0 -grid2 upper_left
+
+  *using the locations:
+    - upper_left
+    - upper_right
+    - bottom_left
+    - bottom_right
+
+  The snap function can be called  by using the positions:
+  
+    \$ $0 -snap left
+
+  *using the locations:
+    - left
+    - right
+    - up
+    - bottom
+
+
+  This script uses the active window, but you can provide also
+   an specific window your choice, adding the -n argument,
+   like this: \$ $0 <location> -n <window name>
+
+  For example:
+  
+    \$ $0 -grid2 upper_left -n Firefox 
+
+    
+  To show this help message, use '-h' or '--help' as argument:
+
+    \$ $0 -h
+
+"
+}
+
+
+## functions to get window raw info
+get_window_information ()
+{
+
+  get_window_info ()
+  {
+    # get window raw info using xdotool
+    xdotool_get_window_info ()
+    {
+      xdotool "$@" getdisplaygeometry getwindowclassname getwindowgeometry
+    }
+    # if var is set and it is not empty
+    if [[ "${window_name:-}" ]]; then
+      # if window_name is set, then search such window
+      xdotool_get_window_info 'search' '--name' "${window_name}"
+    else
+      # if window_name is not set, use the active window
+      xdotool_get_window_info 'getactivewindow'
+    fi
+  }
+
+  # from window info, extract and set variables
+  sed_extract_variables_from_info ()
+  {
+    sed -e 's/\(^[0-9]*\) \([0-9]*\)$/screen_width=\1;screen_height=\2/' \
+	-e 's/\(^[-a-zA-Z0-9]*$\)/window_class_name=\1/' \
+	-e 's/^Window \([0-9]*$\)/window_id=\1/' \
+	-e "s/^ \+Position: \([-0-9]\+\),\([-0-9]\+\) (screen: \+\([0-9]\+\))/x=\1;y=\2;screen=\3/" \
+	-e "s/^ \+Geometry: \+\([0-9]\+\)x\+\([0-9]\+\)/w=\1;h=\2/"
+  }
+
+  # get info about the window decoration
+  window_deco_info ()
+  {
+    xprop _NET_FRAME_EXTENTS -id "${window_id}" | sed -e 's/.*=[ ]*\(.*\)/deco=(\1)/' -e 's/,//g'
+  }
+
+  common_variables ()
+  {
+    ## get window information: dimentions, initial location and deco
+    # window decoration - set a human comprensible name
+    width_border_left=${deco[0]}     #  1 (or  0 in full screen)
+    width_border_right=${deco[1]}    #  1 (or  0 in full screen)
+    height_tittle_bar=${deco[2]}     # 22 (or 21 in full screen)
+    height_bottom_border=${deco[3]}  #  5
+    ## screen corrections
+    panel_height=$(awk '/panel_size/{print $4}' ~/.config/tint2/tint2rc)
+  }
+
+  variables_grid_2x2 ()
+  {
+    ## correct window geometry: x, y
+    if (("${x}" > 0)); then x="$((${x}-${width_border_left}))"; fi
+    y="$((${y}-${height_tittle_bar}))"
+    ## set window initial location sorted as wmctrl geometry description
+    window_initial_location="0,$x,$y,$w,$h"
+    ## screen corrections
+    panel_height=$(awk '/panel_size/{print $4}' ~/.config/tint2/tint2rc)
+    free_screen_height=$((screen_height - panel_height)) # (1050 -30)=1020
+    ## window decorations corrections
+    if (( "${width_border_left}" == 0 )); then
+      screen_width_corr=$((screen_width - 1 - 1)) # 1678
+      screen_height_corr=$((free_screen_height - height_tittle_bar - 5)) # 1020-21-5=994
+      height_half=$(((free_screen_height / 2) - height_tittle_bar - 5)) # 510-21-5=484
+    else
+      screen_width_corr=$((screen_width - width_border_left - width_border_right)) # 1678
+      screen_height_corr=$((free_screen_height - height_tittle_bar - height_bottom_border + 1)) # 1020-27+1=994
+      height_half=$(((free_screen_height / 2) - height_tittle_bar - height_bottom_border + 1)) # 484
+    fi
+    # x (horizontal) = left;right
+    left=0
+    right=$(((screen_width_corr / 2) + width_border_left))
+    # y (vertical) = upper;bottom
+    upper=0
+    bottom=$(((free_screen_height / 2))) # (1020/2)=510
+    # width = width_half
+    width_half=$(((screen_width_corr / 2) - width_border_left))
+    # height = height_half
+    screen_height_com=$((screen_height - height_tittle_bar - panel_height))
+    ## height correction
+    if  [[ "${window_class_name}" == 'XTerm' ]]; then
+      upper=$((height_tittle_bar + 3)) # TODO: 21+(height_bottom_border+border/2=5+1/2)=24
+      bottom=$(((screen_height_corr / 2) + (height_tittle_bar * 2) - height_bottom_border))
+      printf "upper=%s (XTerm)\n" "${upper}"
+    fi
+    if [[ -n "${verbose:-}" ]]; then print_variables_grid_2x2; fi
+  }
+
+  variables_grid_3x3 ()
+  {
+    ## set window initial location sorted as wmctrl geometry description
+    window_initial_location="0,$x,$y,$w,$h"
+    # screen corrections
+    free_screen_height=$((screen_height - panel_height)) # (1050 -30)=1020
+    ## window location
+    # x (horizontal) = left;middle;right
+    left=0
+    middle=$((screen_width / 3))
+    right=$(((screen_width / 3) * 2))
+    # y (vertical) = upper;center;bottom
+    upper=0
+    center=$((free_screen_height / 3))
+    bottom=$(((free_screen_height / 3) * 2))
+    # corrections required for specific programs
+    if [[ "${window_class_name}" =~ ([Xx][Tt]erm) ]]; then
+      upper=$((upper + 3)) # the sum of all borders
+    fi
+    if [[ "${window_class_name}" =~ ([Xx][Tt]erm|libreoffice) ]]; then
+      upper=$((upper + height_tittle_bar))
+      center=$((center + height_tittle_bar))
+      bottom=$((bottom + height_tittle_bar))
+    fi
+    ## window size
+    # width = third
+    # third=$(((screen_width / 3) - width_border_left - width_border_right + 1 ))
+    third=$(((screen_width / 3) - width_border_left - width_border_right))
+    half_width=$(((screen_width / 2) - width_border_left - width_border_right))
+    half_width_corr=$((screen_width / 2))
+    double_width=$(((screen_width / 3) * 2))
+    # height = one_third;two_third
+    one_third=$(((free_screen_height / 3) - height_tittle_bar - height_bottom_border))
+    two_third=$(((free_screen_height / 3) + one_third))
+  }
+
+  print_variables_grid_2x2 ()
+  {
+    printf "==> %s\n" "print_variables_grid_2x2"
+    printf "window_initial_location=%s\n" "${window_initial_location}"
+    printf "panel_height=%s\n" "${panel_height}"
+    printf "screen_height=%s, " "${screen_height}"
+    printf "screen_height_corr=%s, " "${screen_height_corr}"
+    printf "screen_height_com=%s\n" "${screen_height_com}"
+    printf "screen_width=%s, " "${screen_width}"
+    printf "screen_width_corr=%s\n" "${screen_width_corr}"
+    printf "left=%s, " "${left}"
+    printf "right=%s, " "${right}"
+    printf "upper=%s, " "${upper}"
+    printf "bottom=%s\n" "${bottom}"
+    printf "width_half=%s, " "${width_half}"
+    printf "height_half=%s\n" "${height_half}"
+    printf "width_border_left=%s, " "${width_border_left}"
+    printf "width_border_right=%s\n" "${width_border_right}"
+    printf "height_tittle_bar=%s, " "${height_tittle_bar}"
+    printf "height_bottom_border=%s\n" "${height_bottom_border}"
+    printf "x=%s, " "${x}"
+    printf "y=%s, " "${y}"
+    printf "w=%s, " "${w}"
+    printf "h=%s\n" "${h}"
+  }
+
+  print_variables_for_debug ()
+  {
+    printf "==> %s\n" "get window info"
+    get_window_info
+    printf "==> %s\n" "extracted variables"
+    get_window_info | sed_extract_variables_from_info
+    printf "deco=(%s)\n" "${deco[*]}"
+    printf "==> %s\n" "declared variables"
+    printf "screen_width=%s," "${screen_width}"
+    printf "screen_height=%s\n" "${screen_height}"
+    printf "window_class_name=%s\n" "${window_class_name}"
+    printf "window_id=%s\n" "${window_id}"
+    printf "x=%s, " "${x}"
+    printf "y=%s\n" "${y}"
+    printf "w=%s, " "${w}"
+    printf "h=%s\n" "${h}"
+  }
+
+  ## function: get window information
+  # declare window info: location and size
+  eval "$(get_window_info | sed_extract_variables_from_info)"
+  # declare window info: borders and title size
+  eval "$(window_deco_info)"
+  if [[ -n "${verbose:-}" ]]; then print_variables_for_debug; fi
+  # declare common variables
+  common_variables
+  # declare variables: according to grid size
+  (( "${#final_location}" > 13 )) && variables_grid_3x3 || variables_grid_2x2
+  # printf "==> From : [[%s]] to [[%s]] \n" "${window_initial_location}" "${final_location}"
+}
+
+
+move_window_to_final_location ()
+{
+  move_window_to_location_2x2 ()
+  {
+    locations_2x2_array ()
+    {
+      # geometry description: "gravity,x,y,width,height"
+      declare -gA geometry
+      geometry[upper_left]="0,$left,$upper,$width_half,$height_half"
+      geometry[upper_right]="0,$right,$upper,$width_half,$height_half"
+      geometry[bottom_left]="0,$left,$bottom,$width_half,$height_half"
+      geometry[bottom_right]="0,$right,$bottom,$width_half,$height_half"
+      geometry[left]="0,$left,$upper,$width_half,$screen_height_corr"
+      geometry[right]="0,$right,$upper,$width_half,$screen_height_corr"
+      # geometry[up]="0,$left,$upper,$screen_width_corr,$height_half"
+      geometry[up]="0,$left,$upper,$screen_width_corr,$height_half"
+      geometry[bottom]="0,$left,$bottom,$screen_width_corr,$height_half"
+      geometry[complete]="0,$left,$upper,$screen_width,$screen_height_com"
+    }
+
+    ## function to check if argument $1 is equal to an geometry array snap
+    #~  The argument $1 must containg geometry: "gravity,x,y,width,height" 
+    locations_2x2_check_if_snap ()
+    {
+      local _result_geometry
+      case "${1}" in
+	"${geometry[upper_left]}") _result_geometry=upper_left ;;
+	"${geometry[upper_right]}") _result_geometry=upper_right ;;
+	"${geometry[bottom_left]}") _result_geometry=bottom_left ;;
+	"${geometry[bottom_right]}") _result_geometry=bottom_right ;;
+	"${geometry[left]}") _result_geometry=left ;;
+	"${geometry[right]}") _result_geometry=right ;;
+	"${geometry[up]}") _result_geometry=up ;;
+	"${geometry[bottom]}") _result_geometry=bottom ;;
+	"${geometry[complete]}") _result_geometry=complete ;;
+	*) _result_geometry="$1";;
+      esac
+      # if snap, returns a snap string, if not, return the original number
+      printf "${_result_geometry}"
+    }
+
+    move_window_2x2 ()
+    {
+      geometry_convert_array_into_coordinates ()
+      {
+	# remove comma from $1 and get it as array
+	coordinates=(${1//,/ })
+	# set array values into variables
+	gravity=${coordinates[0]}
+	x=${coordinates[1]}
+	y=${coordinates[2]}
+	w=${coordinates[3]}
+	h=${coordinates[4]}
+      }
+
+      local position="$1"
+      geometry_convert_array_into_coordinates "${position}"
+      if [[ -n "${verbose:-}" ]]; then
+	printf "geometry_convert_array_into_coordinates ${position} \n"
+      fi
+      if [[ -n "${window_name:-}" ]]; then
+	xdotool search --name "${window_name:-}" windowmove "${x}" "${y}" windowsize "${w}" "${h}"
+	# printf " xdotool search --name ${window_name:-} windowmove ${x} ${y} windowsize ${w} ${h}"
+      else
+	xdotool getactivewindow windowmove "${x}" "${y}" windowsize "${w}" "${h}"
+	# printf " xdotool getactivewindow windowmove ${x} ${y} windowsize ${w} ${h}"
+      fi
+    }
+
+    move_window_2x2_by_snapping ()
+    {
+      ## this function handle when a window was moved before
+      # to a snap_location location and the user want to move it again,
+      # to a new location: that can be (1) the same snap_location,
+      # or a (2) new snap_location.
+      #
+      if [[ "${snap_location}" == "${final_location}" ]]; then
+	# CASE 1: move the window from to the same snap_location
+	printf "CASE 1: move the window from to the same snap_location\n"
+	case "${final_location}" in
+	  # up) wmctrl -r :ACTIVE: -b toggle,maximized; break;;
+	  up) wmctrl -r :ACTIVE: -b toggle,maximized_vert,maximized_horz
+	      printf "wmctrl -r :ACTIVE: -b toggle,maximized_vert,maximized_horz \n"
+	      break;;
+	  *) move_window_2x2 "${geometry[$final_location]}"; break;;
+	esac
+      else
+	# CASE 2: move the window from one snap_location to a new one snap_location
+	printf "CASE 2: move the window from one snap_location to a new one snap_location\n"
+	case "${snap_location}" in 
+	  upper_left)
+	    case "${final_location}" in
+	      right|up) move_window_2x2 "${geometry[up]}"; break;;
+	      bottom) move_window_2x2 "${geometry[left]}"; break;;
+	      *) move_window_2x2 "${geometry[$final_location]}"; break;;
+	    esac
+	    break;;
+	  upper_right)
+	    case "${final_location}" in
+	      left|up) move_window_2x2 "${geometry[up]}"; break;;
+	      bottom) move_window_2x2 "${geometry[right]}"; break;;
+	      *) move_window_2x2 "${geometry[$final_location]}"; break;;
+	    esac
+	    break;;
+	  bottom_left)
+	    case "${final_location}" in
+	      right|bottom) move_window_2x2 "${geometry[bottom]}"; break;;
+	      up) move_window_2x2 "${geometry[left]}"; break;;
+	      *) move_window_2x2 "${geometry[$final_location]}"; break;;
+	    esac
+	    break;;
+	  bottom_right)
+	    case "${final_location}" in
+	      left|bottom) move_window_2x2 "${geometry[bottom]}"; break;;
+	      up) move_window_2x2 "${geometry[right]}"; break;;
+	      *) move_window_2x2 "${geometry[$final_location]}"; break;;
+	    esac
+	    break;;
+	  left)
+	    case "${final_location}" in
+	      right) move_window_2x2 "${geometry[right]}"; break;;
+	      up) move_window_2x2 "${geometry[upper_left]}"; break;;
+	      bottom) move_window_2x2 "${geometry[bottom_left]}"; break;;
+	      *) move_window_2x2 "${geometry[$final_location]}"; break;;
+	    esac
+	    break;;
+	  right)
+	    case "${final_location}" in
+	      left) move_window_2x2 "${geometry[left]}"; break;;
+	      up) move_window_2x2 "${geometry[upper_right]}"; break;;
+	      bottom) move_window_2x2 "${geometry[bottom_right]}"; break;;
+	      *) move_window_2x2 "${geometry[$final_location]}"; break;;
+	    esac
+	    break;;
+	  up)
+	    case "${final_location}" in
+	      # up) wmctrl -r :ACTIVE: \
+		# 		     -b toggle,maximized_vert,maximized_horz; break;;
+	      left) move_window_2x2 "${geometry[upper_left]}"; break;;
+	      right) move_window_2x2 "${geometry[upper_right]}"; break;;
+	      bottom) move_window_2x2 "${geometry[bottom]}"; break;;
+	      *) move_window_2x2 "${geometry[$final_location]}"; break;;
+	    esac
+	    break;;
+	  bottom)
+	    case "${final_location}" in
+	      left) move_window_2x2 "${geometry[bottom_left]}"; break;;
+	      right) move_window_2x2 "${geometry[bottom_right]}"; break;;
+	      up) move_window_2x2 "${geometry[up]}"; break;;
+	      *) move_window_2x2 "${geometry[$final_location]}"; break;;
+	    esac
+	    break;;
+	  complete)
+	    case "${final_location}" in
+	      up) wmctrl -r :ACTIVE: -b toggle,maximized_vert,maximized_horz
+		  move_window_2x2 "${geometry[up]}"; break;;
+	      bottom) wmctrl -r :ACTIVE: -b toggle,maximized_vert,maximized_horz
+		      move_window_2x2 "${geometry[bottom]}"; break;;
+	      left) wmctrl -r :ACTIVE: -b toggle,maximized_vert,maximized_horz
+		    move_window_2x2 "${geometry[left]}"; break;;
+	      right) wmctrl -r :ACTIVE: -b toggle,maximized_vert,maximized_horz
+		     move_window_2x2 "${geometry[right]}"; break;;
+	      *) wmctrl -r :ACTIVE: -b toggle,maximized_vert,maximized_horz
+		 move_window_2x2 "${geometry[$final_location]}"; break;;
+	    esac
+	    break;;
+	esac
+      fi
+    }
+
+
+    ## set window location (in a grid of 2x2)
+    locations_2x2_array
+    snap_location="$(locations_2x2_check_if_snap ${window_initial_location})"
+    location_2x2_not_snap ()
+    {
+      [[ "${snap_location}" =~ ^-?[0-9,]+$ ]] \
+	|| [[ "${window_class_name}" =~ ([Xx]*[Tt]erm[inal]*) ]]
+    }
+
+    if location_2x2_not_snap; then
+      # move window in the snap geometry, using the argument "$1":
+      #  upper_{left,right}, bottom_{left,right}, left, right, up, bottom
+      printf "move_window_2x2 ${final_location}=${geometry[${final_location}]} \n"
+      move_window_2x2 "${geometry[${final_location}]}"
+    else
+      # if snap_location is a string, use the function for window snapping
+      printf "==> %s\n" "move_window_2x2_by_snapping"
+      printf " --> From initial snap_location: [[${snap_location}]]=${geometry[${snap_location}]} \n"
+      printf " --> To final snap location: [[${final_location}]]=${geometry[${final_location}]} \n"
+      # printf "move_window_2x2_by_snapping ${final_location}=${geometry[${final_location}]} \n"
+      move_window_2x2_by_snapping
+    fi
+  }
+
+  move_window_to_location_3x3 ()
+  {
+    local g
+    case "${final_location}" in
+      ## simetric cases: third x one_ or two_third
+      one_third_upper_left) g=0,$left,$upper,$third,$one_third;;
+      one_third_upper_middle) g=0,$middle,$upper,$third,$one_third;;
+      one_third_upper_right) g=0,$right,$upper,$third,$one_third;;
+      one_third_center_left) g=0,$left,$center,$third,$one_third;;
+      one_third_center_middle) g=0,$middle,$center,$third,$one_third;;
+      one_third_center_right) g=0,$right,$center,$third,$one_third;;
+      one_third_bottom_left) g=0,$left,$bottom,$third,$one_third;;
+      one_third_bottom_middle) g=0,$middle,$bottom,$third,$one_third;;
+      one_third_bottom_right) g=0,$right,$bottom,$third,$one_third;;
+      two_third_upper_left) g=0,$left,$upper,$third,$two_third;;
+      two_third_upper_middle) g=0,$middle,$upper,$third,$two_third;;
+      two_third_upper_right) g=0,$right,$upper,$third,$two_third;;
+      ## assimetric cases: half_width x one_ or two_third
+      asym_upper_left) g=0,$left,$upper,$half_width,$two_third;;
+      asym_upper_right) g=0,$half_width_corr,$upper,$half_width,$two_third;;
+      asym_bottom_left) g=0,$left,$bottom,$half_width,$one_third;;
+      asym_bottom_right) g=0,$half_width_corr,$bottom,$half_width,$one_third;;
+      asym_double_upper_left) g=0,$left,$upper,$double_width,$two_third;;
+      asym_double_bottom_left) g=0,$left,$bottom,$double_width,$one_third;;
+      *)
+	printf "==> ERROR: final_location=%s not found \n" "${final_location}"
+	exit 0;;
+    esac
+
+    ## move window to location 3x3
+    # if [[ -n "${window_name:-}" ]]; then
+    #   wmctrl -i -r "${window_id}" -e "$g"
+    # else
+    #   wmctrl -r :ACTIVE: -e "$g"
+    # fi
+    if [[ "${window_name:-}" ]]; then
+      wmctrl -i -r "${window_id}" -e "$g"
+    else
+      wmctrl -r :ACTIVE: -e "$g"
+    fi
+  }  
+
+
+  print_move_window_to_final_location ()
+  {
+    if (( "${#final_location}" > 13 )); then
+      ## show info for 3x3 grid
+      printf " --> move window to final location: ${final_location} (in a grid of 3x3) \n"
+      printf "  %s\n" "detailed info:"
+      printf "  one_third_upper_left g=0,$left,$upper,$third,$one_third \n"
+      printf "  one_third_upper_middle g=0,$middle,$upper,$third,$one_third \n"
+      printf "  one_third_upper_right g=0,$right,$upper,$third,$one_third \n"
+      printf "  one_third_center_left g=0,$left,$center,$third,$one_third \n"
+      printf "  one_third_center_middle g=0,$middle,$center,$third,$one_third \n"
+      printf "  one_third_center_right g=0,$right,$center,$third,$one_third \n"
+      printf "  one_third_bottom_left g=0,$left,$bottom,$third,$one_third \n"
+      printf "  one_third_bottom_middle g=0,$middle,$bottom,$third,$one_third \n"
+      printf "  one_third_bottom_right g=0,$right,$bottom,$third,$one_third \n"
+      printf "  two_third_upper_left g=0,$left,$upper,$third,$two_third \n"
+      printf "  two_third_upper_middle g=0,$middle,$upper,$third,$two_third \n"
+      printf "  two_third_upper_right g=0,$right,$upper,$third,$two_third \n"
+      # assimetric cases: half_width x one_ or two_third
+      printf "  asym_upper_left g=0,$left,$upper,$half_width,$two_third \n"
+      printf "  asym_upper_right g=0,$half_width_corr,$upper,$half_width,$two_third \n"
+      printf "  asym_bottom_left g=0,$left,$bottom,$half_width,$one_third \n"
+      printf "  asym_bottom_right g=0,$half_width_corr,$bottom,$half_width,$one_third \n"
+      printf "  asym_double_upper_left g=0,$left,$upper,$double_width,$two_third \n"
+      printf "  asym_double_bottom_left g=0,$left,$bottom,$double_width,$one_third \n"
+      if [[ -n "${window_name:-}" ]]; then 
+	printf "wmctrl -r :ACTIVE: -e ${final_location} \n" 
+      else
+	printf "wmctrl -i -r ${window_id} -e ${final_location} \n"
+      fi
+    else
+      ## show info for 2x2 grid
+      printf " --> move window to final location: ${final_location} (in a grid of 2x2) \n"
+      printf "%s\n" "show info for 2x2 grid:"
+      printf "  %s\n" "detailed info:"
+      for key in "${!geometry[@]}"; do
+	printf "geometry[%s]=%s\n" "${key}" "${geometry[${key}]}"
+      done
+      printf "%s\n" "convert_array_into_coordinates:"
+      if [[ -n "${window_name:-}" ]]; then 
+	printf "xdotool search --name ${window_name} windowmove ${x} ${y} windowsize ${w} ${h} \n"
+      else
+	printf "xdotool getactivewindow windowmove ${x} ${y} windowsize ${w} ${h} \n"
+      fi
+    fi
+  }
+
+  ## move window to final location
+  if (( "${#final_location}" > 13 )); then
+    # move window in a grid of 3x3
+    move_window_to_location_3x3 "${final_location}"
+  else
+    # move window in a grid of 2x2
+    move_window_to_location_2x2
+  fi
+  if [[ -n "${verbose:-}" ]]; then print_move_window_to_final_location; fi
+}
+
+main ()
+{
+  (( "$#" == 0 )) && usage | exit 0
+  get_options ()
+  {
+    # get script arguments as flags
+    while getopts "vhl:n:" option; do
+      case $option in
+	v) # verbose
+	  verbose='true'
+	  printf "%s\n" " --> Verbose mode is ON"
+	  ;;
+	h) # display help
+	  usage
+	  ;;
+	l) # enter a desired final location to move the window
+	  final_location=$OPTARG
+	  ;;
+	n) # enter a window name
+	  window_name=$OPTARG
+	  ;;
+	*) # Invalid option
+	  echo "Error: Invalid Option -${OPTARG}"
+	  exit
+	  ;;
+      esac
+    done
+  }
+
+    print_options ()
+  {
+    printf "==> %s\n" "Script Options: "
+    printf "final_location=%s, " "${final_location}"
+    printf "window_name=%s, " "${window_name:-}"
+    printf "verbose=%s\n" "${verbose:-}"
+  }
+
+  ## DEFINITIVE CODE
+  get_options "$@"
+  if [[ -n "${verbose}" ]]; then print_options; fi
+  get_window_information
+  move_window_to_final_location
+}
+
+main "$@"
+# development_code ends here
