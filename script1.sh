@@ -213,10 +213,17 @@ fi
 ### DECLARE VARIABLES
 
 # variables declared by function 
-if [[ ! -n "${host_name+x}" ]]; then variable_declaration host_name 2; fi
-if [[ ! -n "${root_password+x}" ]]; then variable_declaration root_password 6 hide; fi
-if [[ ! -n "${user_name+x}" ]]; then variable_declaration user_name 2; fi
-if [[ ! -n "${user_password+x}" ]]; then variable_declaration user_password 6 hide; fi
+if (( "$#" == 0 )); then
+  variable_declaration host_name 2
+  variable_declaration root_password 6 hide
+  variable_declaration user_name 2
+  variable_declaration user_password 6 hide
+else
+  host_name="${1}"
+  root_password="${2}"
+  user_name="${3}"
+  user_password="${4}"
+fi
 
 ## variables automatically recognized
 MACHINE="$(check_machine)" || die      # results are: 'VBox' or 'Real'

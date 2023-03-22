@@ -72,7 +72,7 @@ fi' | sudo --user="${user_name}" tee "${file}" || die
 }
 
 ### Requirements: check priviledges ########################
-(( "$EUID" != 0 )) && echo "error: run ./$0 require root priviledges" || die
+(( "$EUID" == 0 )) && echo "error: run ./$0 require root priviledges" || die
 
 ############################################################
 ### MAIN CODE ##############################################

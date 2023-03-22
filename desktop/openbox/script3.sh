@@ -253,15 +253,5 @@ total_time_minutes=\"$(((script1_time_seconds + $duration) / 60))\"
 " >> $HOME/Projects/archlinux_install_report/installation_report || die
 
 ## install emacs
-emacs --eval '(save-buffers-kill-terminal)' && sudo reboot now
+emacs --eval '(save-buffers-kill-terminal)'
 
-# mount shared in fstab require reboot
-# read -p "$0 succeeded. Reboot required to update fstab. Rebooting now?[Y/n]" response
-# [[ ! "${response}" =~ ^([nN])$ ]] && sudo reboot now
-
-# emacs:
-# Local Variables:
-# sh-basic-offset: 2
-# End:
-
-# vim: set ts=2 sw=2 et:
