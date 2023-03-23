@@ -54,7 +54,7 @@ function extract {
     esac
   else
     echo "$1 is not a valid file!"
-  fi
+  fi || die
 }
 
 ## Purpose: autostart x at login ###########################
@@ -66,15 +66,12 @@ autostart_x_at_login () {
     echo '
 if [ -z "${DISPLAY}" ] && [ "${XDG_VTNR}" -eq 1 ]; then
   exec startx
-fi' >> "${file}" || die
-  done
+fi' >> "${file}" 
+  done || die "can not set \"$HOME/profile\"" 
 }
 
 ### Requirements: check priviledges ########################
-if [[ "$EUID" -ne 0 ]]; then
-  echo "error: run ./$0 require root priviledges" || die
-  exit
-fi
+(( "$EUID" != 0 )) && die "error: run ./$0 require root priviledges"
 
 ############################################################
 ### MAIN CODE ##############################################
@@ -88,8 +85,7 @@ hwclock --systohc || die
 ## generate LOCALE with support for: us, gb, dk, es, de
 for lang in en_US en_GB en_DK es_ES de_DE; do
   sed -i "s/#\(${lang}.UTF-8\)/\1/" /etc/locale.gen || die
-done
-locale-gen || die
+done && locale-gen || die
 
 ## Set SYSTEM LOCALE
 # WARNING: some programms name english as "C" instead of "en" or "en_US"
@@ -157,12 +153,10 @@ grub-install --target=i386-pc /dev/sdc \
 # fi
 
 ## detect additional kernels or operative systems available
-sed -i 's/#\(GRUB_DISABLE_OS_PROBER=false\)/\1/' /etc/default/grub \
-  || die
+sed -i 's/#\(GRUB_DISABLE_OS_PROBER=false\)/\1/' /etc/default/grub || die
 
 ## hide boot loader at startup
-echo "GRUB_FORCE_HIDDEN_MENU=true"  >> /etc/default/grub \
-  || die
+echo "GRUB_FORCE_HIDDEN_MENU=true"  >> /etc/default/grub || die
 
 ## press shift to show boot loader menu at start up
 # download file and name it as: /etc/grub.d/31_hold_shift
@@ -182,18 +176,15 @@ echo -e "${root_password}\n${root_password}" | (passwd root) || die
 ## create new user and set ZSH as shell
 useradd -m "${user_name}" -s "${user_shell}" || die
 ## set new user password
-echo -e "${user_password}\n${user_password}" | (passwd $user_name) \
-  || die
+echo -e "${user_password}\n${user_password}" | (passwd $user_name) || die
 ## set user groups
-usermod -aG wheel,audio,optical,storage,power,network "${user_name}" \
-  || die
+usermod -aG wheel,audio,optical,storage,power,network "${user_name}" || die
 
 ### PACMAN PACKAGE MANAGER CUSTOMIZATION
 ## turn color on
 sed -i 's/#\(Color\)/\1/' /etc/pacman.conf || die
 ## improve compiling time adding processors "nproc"
-sed -i 's/#MAKEFLAGS="-j2"/MAKEFLAGS="-j$(nproc)"/' /etc/makepkg.conf \
-  || die
+sed -i 's/#MAKEFLAGS="-j2"/MAKEFLAGS="-j$(nproc)"/' /etc/makepkg.conf || die
 
 ### START SERVICES ON REBOOT
 ## enable ethernet and wifi
@@ -398,7 +389,7 @@ if [[ "${install_desktop}" =~ ^([yY])$ ]]; then
   fi
 
   ## Autostart X at login
-  # autostart_x_at_login
+  autostart_x_at_login
   ## configure .xinitrc to start desktop session on startup
   # continue only if .xinitrc NOT HAS a preexistent line:
   #   session=\${1:-${system_desktop}}
@@ -455,7 +446,6 @@ X-GNOME-Autostart-enabled=true
 NoDisplay=false" > $HOME/.config/autostart/script3.desktop || die
       break
       ;;
-
     # openbox has its own autostart system:
     # Instead of "~/.config/autostart", openbox uses their own folder:
     #  ~/.config/openbox
@@ -468,7 +458,6 @@ NoDisplay=false" > $HOME/.config/autostart/script3.desktop || die
 ${cmd} \"bash -c \\\"bash \$HOME/Projects/archlinux/desktop/openbox/script3.sh; exec bash\\\"\" &
 " > $HOME/.config/openbox/autostart || die
   # unset available_layouts || die  
-
       # support for keyboard
       # instead of ~/.xinitrc, we will add keyboard config
       # using the autostart file:
@@ -476,7 +465,6 @@ ${cmd} \"bash -c \\\"bash \$HOME/Projects/archlinux/desktop/openbox/script3.sh; 
       break
       ;;
   esac
-  
   # unset unnecessary variables 
   [[ ! -z "${cmd}" ]] && unset cmd
   # [[ ! -z "${autostart_path}" ]] && unset autostart_path
@@ -484,7 +472,6 @@ fi
 
 
 ### INSTALL DEPENDECIES
-
 ## Vim Plugin Manager
 url=https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 wget "${url}" -P $HOME/.vim/autoload || die
@@ -494,21 +481,17 @@ unset url || die
 
 ## add dictionaty of english medical terms for hunspell
 # source: https://github.com/Glutanimate/hunspell-en-med-glut
-
 url=https://raw.githubusercontent.com/glutanimate/hunspell-en-med-glut/master/en_med_glut.dic
 wget "${url}" -P /usr/share/hunspell || die
 unset url || die
 
 
 ### INSTALL EMACS DEPENDENCIES
-
 ## support for ditaa graphs - emacs org
-
 url=https://github.com/stathissideris/ditaa/blob/master/service/web/lib/ditaa0_10.jar || die
 wget "${url}" -P $HOME/Downloads || die
 
 ## support for language tools
-
 url=https://languagetool.org/download/
 latest_version=$(wget -O - "${url}" \
 			       | awk -F'"' '/[0-9]\.zip/{ print $2 }' \
@@ -520,7 +503,6 @@ wget "${url}" -P $HOME/Downloads || die
 unset latest_version
 
 ## decompressing language tools
-
 cd $HOME/Downloads || die
 extract "$(basename "${url}")" &> /dev/null || die
 [[ -d "$(basename "${url}" .zip)" ]] && rm "$(basename "${url}")" || die
@@ -528,7 +510,6 @@ cd $PWD || die
 
 
 ### INSTALL OPENBOX FROM GIT REPO AND ADD SNAP FEATURE
-
 # git clone https://github.com/lawl/opensnap || die
 # cd opensnap || die
 # make || die
@@ -540,28 +521,14 @@ cd openbox || die
 git apply openbox-window-snap.diff || die
 ./bootstrap && ./configure && make && make install || die
 
-
 ### INSTALL EMACS DOT-FILES FROM GIT REPO
-
 mkdir -p $HOME/Projects && cd $HOME/Projects || die
 git clone https://github.com/raom2004/dot-emacs || die
-
 
 ### python support for virtualenv
 mkdir -p $HOME/.virtualenvs && cd $HOME/.virtualenvs
 # install dependencies as user
-sudo --user="${user_name}" pip install virtualenv virtualenvwrapper \
-  || die
+sudo --user="${user_name}" pip install virtualenv virtualenvwrapper || die
 
-
-### show final message and exit
-
-echo "$0 successful" && sleep 3 && exit
-
-
-# emacs:
-# Local Variables:
-# sh-basic-offset: 2
-# End:
-
-# vim: set ts=2 sw=2 et:
+### end message
+echo "$0 successful" && sleep 3

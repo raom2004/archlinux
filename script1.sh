@@ -50,7 +50,7 @@ dialog_get_target_device () {
     # The function help the user to choose and return a block device.
     local __resultvar="$1"
     local answer=" "
-    until [[ "${answer}" =~ ^([yY])$ ]]; do
+    while [[ "${answer:-N}" =~ ^([yY])$ ]]; do
       select option in "${array_of_block_devices[@]}"; do
 	case "${option}" in
 	  "")
@@ -103,7 +103,7 @@ dialog_ask_install_desktop ()
 			    | sed 's%./%%g'))
   array_desktops+=('none')
   printf "please select a desktop:\n"
-  until [[ "${__answer:-}" =~ ^([yY])$ ]]; do
+  while [[ "${__answer:-}" =~ ^([nN])$ ]]; do
     select option in "${array_desktops[@]}"; do
       case "${option}" in
 	"")
@@ -120,7 +120,7 @@ dialog_ask_install_desktop ()
 	  ;;
       esac
     done
-    read -p "::Confirm install ${system_desktop} desktop? [y/N]" __answer
+    read -p "::Confirm install ${system_desktop} desktop? [Y/n]" __answer
   done
   msg "${system_desktop} desktop confirmed!"
   if [[ "${system_desktop}" == 'none' ]]; then
@@ -149,10 +149,10 @@ extract ()
       *.zip)       unzip "$1"       ;;
       *.Z)         uncompress "$1"  ;;
       *.7z)        7z x "$1"        ;;
-      *)           echo "don't know how to extract '$1'..." ;;
+      *)           echo "don't know how to extract $1..." ;;
     esac
   else
-    echo "'$1' is not a valid file!"
+    echo "$1 is not a valid file!"
   fi
 }
 
@@ -205,8 +205,7 @@ if (( "$EUID" != 0 )); then
 elif ! pacman -S --needed --noconfirm dmidecode; then
   die " can not install required package dmidecode"
 else
-  read -p "Running $0. Do you want to INSTALL archlinux?[Y/n]" answer
-  [[ "${answer:-Y}" =~ ^([nN])$ ]] && unset answer | msg "Quit.."
+  printf "Running $0. INSTALLING ARCHLINUX...\n"
 fi
 
 ### DECLARE VARIABLES
@@ -223,38 +222,62 @@ else
   user_password="${4}"
 fi
 ## variables automatically recognized
-MACHINE="$(check_machine)" || die      # results are: 'VBox' or 'Real'
+MACHINE="$(check_machine)" || die "can not set MACHINE to 'VBox' or 'Real'"
 ## BIOS and UEFI support
-if ! ls /sys/firmware/efi/efivars >& /dev/null; then
-  boot_mode='BIOS' || die
-  partition_table_default=MBR
-  read -p "==> BIOS detected! select MBR or GPT partition table [${partition_table_default}]:" partition_table || die
-  partition_table=${partition_table:-$partition_table_default} \
-     || die
-  unset partition_table_default || die
+if (( "$#" > 4 )); then
+  if ! ls /sys/firmware/efi/efivars >& /dev/null; then
+    boot_mode='BIOS'
+    partition_table_default=MBR
+    read -p "==> BIOS detected! select MBR or GPT partition table [${partition_table_default}]:" partition_table
+    partition_table=${partition_table:-$partition_table_default}
+    unset partition_table_default
+  else
+    boot_mode='UEFI'
+    partition_table=GPT
+  fi
 else
-  boot_mode='UEFI' || die
-  partition_table=GPT
-fi
+  boot_mode="${5:-BIOS}"
+  partition_table="${6:-MBR}"
+fi || die "can not set a partition table"
 
-## variables that user must confirm or edit
-# shell
-user_shell_default=/bin/bash	# examples: /bin/zsh; /bin/bash
-read -p "==> Enter user shell [${user_shell_default}]: " user_shell \
-  || die
-user_shell=${user_shell:-$user_shell_default} || die
-unset user_shell_default || die
-# keyboard
-keyboard_keymap_default='es' \
-  || die
-read -p "==> Enter system Keyboard keymap [${keyboard_keymap_default}]:" keyboard_keymap || die
-keyboard_keymap=${keyboard_keymap:-$keyboard_keymap_default}
-unset keyboard_keymap_default || die
-# local time
-local_time_default=/Europe/Berlin
-read -p "==> Enter local time [${local_time_default}]: " local_time
-local_time=${local_time:-$local_time_default} || die
-unset local_time_default || die
+### variables that user must confirm or edit
+## predefined values: terminal shell, keyboard language and local time 
+user_shell="${7:-/bin/bash}"		# examples: /bin/zsh; /bin/bash
+keyboard_keymap="${8:-es}"		# examples: es,de,us,ru,dk
+local_time="${9:-/Europe/Berlin}"
+## user customization
+if (( "$#" > 6 )); then
+  read -p "==> Enter user shell [press intro for ${user_shell}]: " answer
+  user_shell="${answer:-$user_shell}"
+  # keyboard
+  read -p "==> Enter system Keyboard keymap [press intro for ${keyboard_keymap}]:" answer
+  keyboard_keymap="${answer:-$keyboard_keymap}"
+  # local time
+  read -p "==> Enter local time [press intro for ${local_time}]: " answer
+  local_time="${answer:-$local_time}"
+fi || die "can not set keyboard map, user shell or local time"
+  
+
+# ## variables that user must confirm or edit
+# # shell
+# user_shell_default=/bin/bash	# examples: /bin/zsh; /bin/bash
+# read -p "==> Enter user shell [${user_shell_default}]: " user_shell \
+#   || die
+# user_shell=${user_shell:-$user_shell_default} || die
+# unset user_shell_default || die
+# # keyboard
+# keyboard_keymap_default='es' \
+#   || die
+# read -p "==> Enter system Keyboard keymap [${keyboard_keymap_default}]:" keyboard_keymap || die
+# keyboard_keymap=${keyboard_keymap:-$keyboard_keymap_default}
+# unset keyboard_keymap_default || die
+# # local time
+# local_time_default=/Europe/Berlin
+# read -p "==> Enter local time [${local_time_default}]: " local_time
+# local_time=${local_time:-$local_time_default} || die
+# unset local_time_default || die
+
+
 # variables that user must provide by dialog
 # target_device=" "; dialog_get_target_device target_device
 # drive_info="$(find /dev/disk/by-id/ -lname *${target_device##*/})" \
@@ -267,8 +290,12 @@ unset local_time_default || die
     # || die
 # fi
 # select and install arch linux desktop (required for script3.sh)
-install_desktop=" "; dialog_ask_install_desktop install_desktop
-
+if (( "$#" > 9 )); then
+  install_desktop="${10}"
+else
+  install_desktop=" "; dialog_ask_install_desktop install_desktop
+fi || die
+  
 ### EXPORT VARIABLES (required for script2.sh)
 export host_name
 export root_password
@@ -283,16 +310,12 @@ export drive_removable
 export install_desktop
 
 ### SET TIME AND SYNCHRONIZE SYSTEM CLOCK
-timedatectl set-ntp true \
-  || die
+timedatectl set-ntp true || die
 
-## clear start
-if mount | grep -q '/mnt'; then
-  warning '/mnt is mounted, umounting /mnt...'
-  umount -R /mnt && msg2 "done" || die
-fi
 
 ### SSD PARTITIONING (BIOS/MBR)
+## CLEAR START: if previously mounted unmount /mnt
+if mount | grep -q '/mnt'; then umount -R /mnt; fi || die
 
 ## SSD partitioning: root "/" in ssd in free space (/dev/sdc3)
 # parted -s -a optimal /dev/sdc \
@@ -306,24 +329,23 @@ mkfs.ext4 -F /dev/sdc3 || die
 # "/home"  will be the preexistent HDD /dev/sda3 (33.3GB)
 # mkfs.ext4 -F /dev/sda3 || die
 # "/home"  will be the preexistent HDD /dev/sdb1 (1,8TB)
-lsblk
+printf "%s\n" "Actual block list:" && lsblk
 read -p "==> Do you want to partition HDD /dev/sdb?[y/N]" answer
 if [[ "${answer:-N}" =~ ^([yY])$ ]]; then
   printf " --> Partitioning /dev/sdb\n\n"
   parted -s -a optimal /dev/sdb \
 	 mklabel msdos \
-	 mkpart primary ext4 0% 100% || die
+	 mkpart primary ext4 0% 100%
   printf " --> Formatting /dev/sdb\n\n"
-  mkfs.ext4 -F /dev/sdb1 || die
+  mkfs.ext4 -F /dev/sdb1
 else
   unset answer
   read -p "==> Do you want to format /dev/sdb1 (aka /home)?[y/N]" answer
   if [[ "${answer:-N}" =~ ^([yY])$ ]]; then
     printf " --> Formatting /dev/sdb\n\n"
-    mkfs.ext4 -F /dev/sdb1 || die
+    mkfs.ext4 -F /dev/sdb1
   fi
-fi
-unset answer
+fi && unset answer || die
 
 ## HDD mounting
 # root /
@@ -333,7 +355,7 @@ mkdir -p /mnt/home || die
 mount /dev/sdb1 /mnt/home || die
 # mount /dev/sda3 /mnt/home || die
 # show result
-(lsblk && sleep 3)
+(lsblk && sleep 3) || die
 
 # if previous /home dot-files exists, delete them
 if find /mnt/home/"${user_name}" -maxdepth 1 -type f -name ".*"; then
@@ -356,9 +378,7 @@ if find /mnt/home/"${user_name}" -maxdepth 1 -type f -name ".*"; then
     | xargs rm -rf \
     || die
   printf " --> Deleting 'folders' in '/' \n\n"
-  rm -rf \
-     /mnt/{bin,boot,dev,etc,lib,lib64,opt,run,sbin,srv,tmp,usr,var} \
-    || die
+  rm -rf /mnt/{bin,boot,dev,etc,lib,lib64,opt,run,sbin,srv,tmp,usr,var} || die
 fi
 
 
