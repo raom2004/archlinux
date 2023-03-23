@@ -21,7 +21,7 @@ set -o xtrace      # trace & expand what gets executed (useful for debug)
 ### DECLARE FUNCTIONS
 ############################################################
 
-## ERROR HANDLING ## Usage: <command> || die "<description>"
+## ERROR HANDLING | Usage: die <command>
 out () { printf "$1 $2\n" "${@:3}"; }
 error () { out "==> ERROR:" "$@"; } >&2
 die () { error "$@"; exit 1; }
@@ -34,19 +34,16 @@ msg2 () { out "  ->" "$@"; }
 ### MAIN CODE ##############################################
 ############################################################
 
+### INITIALIZATION 
 ## welcome message
 echo "Wellcome to OPENBOX customization:"
 read -p "==> Start $0 to customize the new desktop?[Y/n]" answer
 [[ "${answer:-Y}" =~ ^([nN])$ ]] && exit 0
 echo "--> Starting $0 to cutomize OPENBOX window manager"
 unset answer
-
-## Basic Verifications
-# user privileges
-if (( "$EUID" == 0 )); then
-  die "Do not run ./$0 as root!"
-fi    
-
+## Basic Verifications: user privileges
+if (( "$EUID" == 0 )); then die "Do not run ./$0 as root!"; fi    
+## Basic Verifications: internet connection
 # if no internet connection, add a new one
 if ! wget -q --spider https://google.com; then
   printf "%s\n" "Internet Connection NOT Detected but REQUIRED"
@@ -55,8 +52,7 @@ if ! wget -q --spider https://google.com; then
   sudo mkdir -p /tmp/raom && sudo mount /dev/mmcblk0p1 $_
   wifi_connections || die "Can not run $_"
 fi
-
-## source dependencies
+## Basic Verifications: source dependencies
 my_file=~/.bashrc
 if [[ -r "${my_file}" ]] && [[ -f "${my_file}" ]]; then
   source "${my_file}"
@@ -246,12 +242,18 @@ case "${MACHINE}" in
     ;;
 esac
 
+## install emacs
+emacs --eval '(save-buffers-kill-terminal)'
+
 ## report time required to install archlinux
 duration=$SECONDS
 echo "script3_time_seconds=${duration}
 total_time_minutes=\"$(((script1_time_seconds + $duration) / 60))\"
 " >> $HOME/Projects/archlinux_install_report/installation_report || die
 
-## install emacs
-emacs --eval '(save-buffers-kill-terminal)'
+# mount shared in fstab require reboot
+# read -p "$0 succeeded. Reboot required to update fstab. Rebooting now?[Y/n]" response
+# [[ ! "${response}" =~ ^([nN])$ ]] && sudo reboot now
+
+echo "$0 successful"
 

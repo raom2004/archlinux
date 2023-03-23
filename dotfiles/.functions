@@ -82,17 +82,15 @@ check_internet ()
 { 
   # if internet offline, please exit
   if ! wget -q --spider http://google.com; then
-    printf " ABORTING %s: NO \n" "${0}"
+    printf "ERROR in internet conection!, exiting %s\n" "${0}"
     sleep 3
     exit 0
-  else
-    printf "%s\n" "Internet Connection Detected"
   fi
 } 
 
 # DOWNLOAD AUR PACKAGES: in /tmp and install them
 # Usage: aur <package name or url>
-aur_install ()
+ur_install ()
 {
   folder="$(basename "$1" .git)"
   if -n "$(pacman -Qm "${folder}")"; then
