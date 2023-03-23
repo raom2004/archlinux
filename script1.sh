@@ -329,24 +329,25 @@ mkfs.ext4 -F /dev/sdc3 || die
 # "/home"  will be the preexistent HDD /dev/sda3 (33.3GB)
 # mkfs.ext4 -F /dev/sda3 || die
 # "/home"  will be the preexistent HDD /dev/sdb1 (1,8TB)
-printf "%s\n" "Actual block list:" && lsblk
-read -p "==> Do you want to partition HDD /dev/sdb?[y/N]" answer
-if [[ "${answer:-N}" =~ ^([yY])$ ]]; then
-  printf " --> Partitioning /dev/sdb\n\n"
-  parted -s -a optimal /dev/sdb \
-	 mklabel msdos \
-	 mkpart primary ext4 0% 100%
-  printf " --> Formatting /dev/sdb\n\n"
-  mkfs.ext4 -F /dev/sdb1
-else
-  unset answer
-  read -p "==> Do you want to format /dev/sdb1 (aka /home)?[y/N]" answer
+if [[ "$#" == 0 ]] || [[ ! "${2:-}" =~ ^([Dd]ark)$ ]]; then
+  printf "%s\n" "Actual block list:" && lsblk
+  read -p "==> Do you want to partition HDD /dev/sdb?[y/N]" answer
   if [[ "${answer:-N}" =~ ^([yY])$ ]]; then
+    printf " --> Partitioning /dev/sdb\n\n"
+    parted -s -a optimal /dev/sdb \
+	   mklabel msdos \
+	   mkpart primary ext4 0% 100%
     printf " --> Formatting /dev/sdb\n\n"
     mkfs.ext4 -F /dev/sdb1
-  fi
-fi && unset answer || die
-
+  else
+    unset answer
+    read -p "==> Do you want to format /dev/sdb1 (aka /home)?[y/N]" answer
+    if [[ "${answer:-N}" =~ ^([yY])$ ]]; then
+      printf " --> Formatting /dev/sdb\n\n"
+      mkfs.ext4 -F /dev/sdb1
+    fi
+  fi && unset answer
+fi || die
 ## HDD mounting
 # root /
 mount /dev/sdc3 /mnt || die
@@ -496,7 +497,7 @@ if [[ "${install_desktop}" =~ ^([yY])$ ]]; then
 fi
 
 ## System Packages Installation
-pacstrap /mnt --needed --noconfirm "${Packages[@]}" || die
+pacstrap -K /mnt --needed --noconfirm "${Packages[@]}" || die
 
 ### GENERATE FILE SYSTEM TABLE
 

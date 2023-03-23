@@ -35,15 +35,16 @@ msg2 () { out "  ->" "$@"; }
 ############################################################
 
 ### INITIALIZATION 
-## welcome message
+
+### welcome message
 echo "Wellcome to OPENBOX customization:"
 read -p "==> Start $0 to customize the new desktop?[Y/n]" answer
 [[ "${answer:-Y}" =~ ^([nN])$ ]] && exit 0
 echo "--> Starting $0 to cutomize OPENBOX window manager"
 unset answer
-## Basic Verifications: user privileges
+
+### Basic Verifications: user privileges, internet connection
 if (( "$EUID" == 0 )); then die "Do not run ./$0 as root!"; fi    
-## Basic Verifications: internet connection
 # if no internet connection, add a new one
 if ! wget -q --spider https://google.com; then
   printf "%s\n" "Internet Connection NOT Detected but REQUIRED"
@@ -52,14 +53,13 @@ if ! wget -q --spider https://google.com; then
   sudo mkdir -p /tmp/raom && sudo mount /dev/mmcblk0p1 $_
   wifi_connections || die "Can not run $_"
 fi
-## Basic Verifications: source dependencies
+## source dependencies
 my_file=~/.bashrc
 if [[ -r "${my_file}" ]] && [[ -f "${my_file}" ]]; then
   source "${my_file}"
 else
   die "${my_file} could not be sourced"
-fi
-unset my_file
+fi && unset my_file || die
 
 ## measure time
 SECONDS=0
@@ -186,11 +186,10 @@ EndSection' > /etc/X11/xorg.conf.d/10-monitor.conf"
 ### conky setup
 cd $HOME/Downloads || die
 git clone https://aur.archlinux.org/font-symbola.git || die
-cd font-symbola || die
-makepkg -Ccsri --noconfirm --needed || die
-cd $HOME/Projects/archlinux/desktop/openbox \
-  && bash conky-install.sh \
-    || die
+cd font-symbola && makepkg -Ccsri --noconfirm --needed || die
+cd $HOME/Projects/archlinux/desktop/openbox && bash conky-install.sh || die
+cd $HOME/Downloads || die
+
 
 ## source variables of the actual linux installation
 source $HOME/Projects/archlinux_install_report/installation_report \
@@ -242,18 +241,41 @@ case "${MACHINE}" in
     ;;
 esac
 
+### install r-studio
+package=rstudio-desktop-bin
+if pacman -Qi "$package" > /dev/null ; then
+    printf 'the package %s is already installed\n' "$package"
+else
+    # remember $PWD
+    # install dependencies (r statistics)
+    sudo pacman -Sy r --needed --noconfirm
+    # download rstudio repository
+    git clone https://aur.archlinux.org/rstudio-desktop-bin.git /tmp
+    cd /tmp/rstudio-desktop-bin
+    # compile package
+    makepkg -Ccsi --noconfirm --needed
+    ## customize appearence
+    # create config folder
+    mkdir -p $HOME/.config/rstudio
+    # add .json file with preferences
+    echo '{
+    "editor_theme": "Monokai",
+    "pdf_previewer": "none",
+    "posix_terminal_shell": "bash",
+    "global_theme": "modern"
+}' > "$HOME"/.config/rstudio/rstudio-prefs.json
+    cd $HOME && rm -rf /tmp/rstudio-desktop-bin
+fi || die
+
 ## install emacs
 emacs --eval '(save-buffers-kill-terminal)'
 
-## report time required to install archlinux
+
+## report time during archlinux install
 duration=$SECONDS
 echo "script3_time_seconds=${duration}
 total_time_minutes=\"$(((script1_time_seconds + $duration) / 60))\"
 " >> $HOME/Projects/archlinux_install_report/installation_report || die
 
-# mount shared in fstab require reboot
-# read -p "$0 succeeded. Reboot required to update fstab. Rebooting now?[Y/n]" response
-# [[ ! "${response}" =~ ^([nN])$ ]] && sudo reboot now
-
+### end message
 echo "$0 successful"
-
