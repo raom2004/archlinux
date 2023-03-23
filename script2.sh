@@ -191,7 +191,7 @@ sed -i 's/#MAKEFLAGS="-j2"/MAKEFLAGS="-j$(nproc)"/' /etc/makepkg.conf || die
 systemctl enable dhcpcd.service	|| die
 systemctl enable NetworkManager.service || die
 systemctl enable systemd-networkd.service || die
-systemctl enable iwd.service || die
+# systemctl enable iwd.service || die
 ## enable virtualbox if this is a virtual machine
 [[ "${MACHINE}" == 'VBox' ]] && systemctl enable vboxservice
 

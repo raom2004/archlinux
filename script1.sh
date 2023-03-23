@@ -103,7 +103,7 @@ dialog_ask_install_desktop ()
 			    | sed 's%./%%g'))
   array_desktops+=('none')
   printf "please select a desktop:\n"
-  while [[ "${__answer:-}" =~ ^([nN])$ ]]; do
+  until [[ "${__answer:-N}" =~ ^([yY])$ ]]; do
     select option in "${array_desktops[@]}"; do
       case "${option}" in
 	"")
@@ -120,7 +120,7 @@ dialog_ask_install_desktop ()
 	  ;;
       esac
     done
-    read -p "::Confirm install ${system_desktop} desktop? [Y/n]" __answer
+    read -p "::Confirm install ${system_desktop} desktop? [y/N]" __answer
   done
   msg "${system_desktop} desktop confirmed!"
   if [[ "${system_desktop}" == 'none' ]]; then
@@ -224,7 +224,7 @@ fi
 ## variables automatically recognized
 MACHINE="$(check_machine)" || die "can not set MACHINE to 'VBox' or 'Real'"
 ## BIOS and UEFI support
-if (( "$#" > 4 )); then
+if (( "$#" < 5 )); then
   if ! ls /sys/firmware/efi/efivars >& /dev/null; then
     boot_mode='BIOS'
     partition_table_default=MBR
@@ -246,7 +246,7 @@ user_shell="${7:-/bin/bash}"		# examples: /bin/zsh; /bin/bash
 keyboard_keymap="${8:-es}"		# examples: es,de,us,ru,dk
 local_time="${9:-/Europe/Berlin}"
 ## user customization
-if (( "$#" > 6 )); then
+if (( "$#" < 7 )); then
   read -p "==> Enter user shell [press intro for ${user_shell}]: " answer
   user_shell="${answer:-$user_shell}"
   # keyboard
@@ -290,10 +290,12 @@ fi || die "can not set keyboard map, user shell or local time"
     # || die
 # fi
 # select and install arch linux desktop (required for script3.sh)
-if (( "$#" > 9 )); then
-  install_desktop="${10}"
-else
+if (( "$#" < 10 )); then
   install_desktop=" "; dialog_ask_install_desktop install_desktop
+else
+  install_desktop="${10}"
+  export system_desktop="${10}"
+  export startcommand_xinitrc="$(cat ./"${10}"/startcommand-xinitrc.sh)"
 fi || die
   
 ### EXPORT VARIABLES (required for script2.sh)
