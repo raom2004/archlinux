@@ -1,26 +1,17 @@
-* dotfiles
-Dotfiles are user-specific configuration files whose filename starts
-with a dot. This git repository store dotfiles relevant for bash and
-zsh shell customization, as well as vim editor.
+* Description
+This git repository is a backup of dotfiles relevant for configuring shell (bash, zsh) and vim editor.
 
-To maintain dotfiles under control version, here will be described two
-different methods:
+** Dotfiles concept
+Dotfiles are configuration files with a name that starts with a dot. These files are user-specific and are located in the $HOME folder. For this reason dotfiles are dificult to track by a git repo without the need to exclude many other files. To solve this issue, there are two different methods suggested:
 
- - A bare repository (only requires git)
- - A bootstrap script (require git and rsync)
+ - A git bare repository (a repo different from the non-bare standard in git)
+ - A bootstrap script (that requires git but also rsync)
 
-Both methods are easy to use, specially the bootstrap method, but you can decide which method adapts better to your needs.
+Both methods are easy to use, specially the bootstrap method, but the choice depends on your own needs.
 
-** 1. A bare repository
+*** 1. The git bare repository
 
-This Git repo is intended to track dotfiles directly. This method called "bare repository and alias method" is described in more detail here:
-
-https://wiki.archlinux.org/title/Dotfiles.
-
-The only requirement is to create a git bare repository and add an
-alias into your ~/.bashrc or ~/.zshrc file, to be able to use the git
-commands without interfere with other repositories located in the home
-"~/" folder.
+The only requirement is to create a git bare repository (a repo without a working tree) and add an alias into your ~/.bashrc or ~/.zshrc file. This allow you to use the git commands without interfere with other repositories located in the home "~/" folder. (Read more about here https://wiki.archlinux.org/title/Dotfiles).
 
 - Commands required:
 
@@ -33,8 +24,7 @@ alias config='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
 config config status.showUntrackedFiles no
 #+end_src
 
-
-** 2. A bootstrap script
+*** 2. A bootstrap script
 
 This method only require two steps:
 - Download the dotfile git repository to a folder of your choice 
